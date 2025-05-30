@@ -1,0 +1,158 @@
+{
+    "mcpServers": {
+        "development_agent": {
+            "type": "stdio",
+            "command": "python",
+            "args": [
+                "-m",
+                "app.mcp.specialized.development"
+            ],
+            "env": {
+                "SPECIALIZATION": "development",
+                "TOOLS": "filesystem,code_execution,git,testing"
+            }
+        },
+        "research_agent": {
+            "type": "stdio",
+            "command": "python",
+            "args": [
+                "-m",
+                "app.mcp.specialized.research"
+            ],
+            "env": {
+                "SPECIALIZATION": "research",
+                "TOOLS": "web_search,data_analysis,document_processing"
+            }
+        },
+        "analysis_agent": {
+            "type": "stdio",
+            "command": "python",
+            "args": [
+                "-m",
+                "app.mcp.specialized.analysis"
+            ],
+            "env": {
+                "SPECIALIZATION": "analysis",
+                "TOOLS": "data_processing,visualization,statistics"
+            }
+        },
+        "browser_agent": {
+            "type": "stdio",
+            "command": "python",
+            "args": [
+                "-m",
+                "app.mcp.specialized.browser"
+            ],
+            "env": {
+                "SPECIALIZATION": "browser",
+                "TOOLS": "web_automation,scraping,interaction"
+            }
+        },
+        "system_agent": {
+            "type": "stdio",
+            "command": "python",
+            "args": [
+                "-m",
+                "app.mcp.specialized.system"
+            ],
+            "env": {
+                "SPECIALIZATION": "system",
+                "TOOLS": "system_monitoring,process_management,resource_control"
+            }
+        },
+        "coordination_hub": {
+            "type": "sse",
+            "url": "http://localhost:8001/coordination",
+            "env": {
+                "ROLE": "coordination",
+                "CAPABILITIES": "task_routing,memory_sharing,inter_agent_communication"
+            }
+        }
+    },
+    "orchestration": {
+        "default_strategy": "sequential",
+        "timeout": 3600,
+        "max_concurrent_agents": 3,
+        "coordination_enabled": true,
+        "planning_enabled": true
+    },
+    "specializations": {
+        "development": {
+            "primary_tools": [
+                "filesystem",
+                "code_execution",
+                "git"
+            ],
+            "secondary_tools": [
+                "testing",
+                "debugging"
+            ],
+            "expertise": [
+                "python",
+                "javascript",
+                "web_development",
+                "api_development"
+            ]
+        },
+        "research": {
+            "primary_tools": [
+                "web_search",
+                "data_analysis"
+            ],
+            "secondary_tools": [
+                "document_processing",
+                "summarization"
+            ],
+            "expertise": [
+                "information_gathering",
+                "fact_checking",
+                "trend_analysis"
+            ]
+        },
+        "analysis": {
+            "primary_tools": [
+                "data_processing",
+                "visualization"
+            ],
+            "secondary_tools": [
+                "statistics",
+                "machine_learning"
+            ],
+            "expertise": [
+                "data_science",
+                "business_intelligence",
+                "predictive_modeling"
+            ]
+        },
+        "browser": {
+            "primary_tools": [
+                "web_automation",
+                "scraping"
+            ],
+            "secondary_tools": [
+                "interaction",
+                "form_filling"
+            ],
+            "expertise": [
+                "web_testing",
+                "data_extraction",
+                "user_simulation"
+            ]
+        },
+        "system": {
+            "primary_tools": [
+                "system_monitoring",
+                "process_management"
+            ],
+            "secondary_tools": [
+                "resource_control",
+                "security"
+            ],
+            "expertise": [
+                "devops",
+                "infrastructure",
+                "performance_optimization"
+            ]
+        }
+    }
+}

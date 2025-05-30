@@ -1,0 +1,4 @@
+Este é um documento de teste para validar a funcionalidade de upload.
+Contém múltiplas linhas e texto em português.
+Data: Thu May 29 22:11:36 -03 2025
+Sistema: OpenManus

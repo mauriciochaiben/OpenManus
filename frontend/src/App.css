@@ -1,0 +1,343 @@
+/* App-specific styles */
+.app-layout {
+    min-height: 100vh;
+}
+
+.main-layout {
+    margin-left: 250px;
+    /* Account for fixed sidebar */
+}
+
+.main-content {
+    background: #f5f5f5;
+    min-height: calc(100vh - 64px);
+    /* Account for header height */
+    overflow: auto;
+}
+
+.sidebar {
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Task Creation Form */
+.task-creation-card {
+    margin: 24px auto;
+    max-width: 800px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.task-creation-card .ant-card-body {
+    padding: 32px;
+}
+
+/* Document Upload */
+.document-upload-card .ant-upload-drag {
+    border: 2px dashed #d9d9d9;
+    border-radius: 8px;
+    background: #fafafa;
+    transition: all 0.3s ease;
+}
+
+.document-upload-card .ant-upload-drag:hover {
+    border-color: #1890ff;
+    background: #f0f8ff;
+}
+
+.document-upload-card .ant-upload-drag.ant-upload-drag-hover {
+    border-color: #1890ff;
+    background: #f0f8ff;
+}
+
+/* Task Execution Dashboard */
+.execution-timeline .ant-timeline-item-content {
+    margin-left: 24px;
+}
+
+.execution-step-card {
+    background: #fafafa;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 8px;
+}
+
+/* Progress indicators */
+.progress-ring {
+    width: 60px;
+    height: 60px;
+}
+
+.progress-ring__circle {
+    stroke: #1890ff;
+    stroke-linecap: round;
+    transition: stroke-dasharray 0.35s;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+
+/* Status indicators */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-indicator--running {
+    color: #1890ff;
+}
+
+.status-indicator--completed {
+    color: #52c41a;
+}
+
+.status-indicator--failed {
+    color: #ff4d4f;
+}
+
+.status-indicator--paused {
+    color: #faad14;
+}
+
+/* Agent visualization */
+.agent-card {
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+.agent-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.agent-card--active {
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .main-layout {
+        margin-left: 0;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    .main-content {
+        min-height: 100vh;
+    }
+}
+
+/* Loading states */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #d9d9d9 #f5f5f5;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #d9d9d9;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #bfbfbf;
+}
+
+/* Animation classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Task list animations */
+.task-list-item {
+    transition: all 0.3s ease;
+}
+
+.task-list-item:hover {
+    background: #f5f5f5;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Error states */
+.error-state {
+    text-align: center;
+    padding: 40px;
+    color: #ff4d4f;
+}
+
+.error-state .anticon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+/* Success states */
+.success-state {
+    text-align: center;
+    padding: 40px;
+    color: #52c41a;
+}
+
+.success-state .anticon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+/* Code blocks */
+.code-block {
+    background: #f5f5f5;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    padding: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+/* Log viewer */
+.log-viewer {
+    background: #1f1f1f;
+    color: #fff;
+    padding: 16px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.log-viewer .log-timestamp {
+    color: #666;
+}
+
+.log-viewer .log-level-info {
+    color: #1890ff;
+}
+
+.log-viewer .log-level-warn {
+    color: #faad14;
+}
+
+.log-viewer .log-level-error {
+    color: #ff4d4f;
+}
+
+/* File upload dropzone */
+.upload-dropzone {
+    border: 2px dashed #d9d9d9;
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    background: #fafafa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone.dragover {
+    border-color: #1890ff;
+    background: #f0f8ff;
+}
+
+.upload-dropzone .upload-icon {
+    font-size: 48px;
+    color: #1890ff;
+    margin-bottom: 16px;
+}
+
+/* Settings page */
+.settings-section {
+    margin-bottom: 32px;
+}
+
+.settings-section:last-child {
+    margin-bottom: 0;
+}
+
+/* MCP server status */
+.mcp-server-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mcp-server-status .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #d9d9d9;
+}
+
+.mcp-server-status .status-dot--connected {
+    background: #52c41a;
+}
+
+.mcp-server-status .status-dot--connecting {
+    background: #1890ff;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.mcp-server-status .status-dot--error {
+    background: #ff4d4f;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
