@@ -36,7 +36,7 @@ fi
 start_backend() {
     echo -e "${GREEN}Starting FastAPI backend on port 8000...${NC}"
     cd "$(dirname "$0")"
-    python frontend_api.py &
+    python -m uvicorn app.api.main:app --reload --port 8000 &
     BACKEND_PID=$!
     echo $BACKEND_PID > .backend.pid
     echo -e "${GREEN}Backend started with PID: $BACKEND_PID${NC}"

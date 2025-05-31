@@ -97,11 +97,18 @@ export interface AppSettings {
 export interface MCPServer {
     id: string;
     name: string;
-    type: 'sse' | 'stdio';
+    type?: 'sse' | 'stdio';
     url?: string;
     command?: string;
     args?: string[];
     status: 'connected' | 'disconnected' | 'error';
+    host?: string;
+    port?: number;
+    enabled?: boolean;
+    description?: string;
+    created_at?: string;
+    last_seen?: string | null;
+    tools?: any[];
 }
 
 // UI State types
@@ -190,4 +197,84 @@ export interface ExecutionStep {
     agent_name?: string;
     output?: string;
     error_message?: string;
+}
+
+// Chat types
+export interface ChatMessage {
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: string;
+    task_id?: string;
+}
+
+export interface ChatRequest {
+    message: string;
+    context?: Record<string, any>;
+}
+
+export interface ChatResponse {
+    id: string;
+    message: string;
+    timestamp: string;
+    suggestions?: string[];
+}
+
+// API Response types
+export interface ApiResponse<T = any> {
+    data?: T;
+    message?: string;
+    error?: string;
+    success: boolean;
+}
+
+export interface UpdateTaskRequest {
+    title?: string;
+    description?: string;
+    mode?: 'auto' | 'single' | 'multi';
+    documents?: string[];
+    config?: TaskConfig;
+}
+
+// Additional UI and system types
+export interface DashboardStats {
+    totalTasks: number;
+    completedTasks: number;
+    runningTasks: number;
+    pendingTasks: number;
+    errorTasks: number;
+    completionPercentage: number;
+    recentActivity: RecentActivity[];
+}
+
+export interface RecentActivity {
+    taskId: string;
+    taskTitle: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    completedAt?: string;
+}
+
+export interface Notification {
+    id: string;
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+    timestamp: string;
+    read: boolean;
+}
+
+export interface HealthStatus {
+    status: 'healthy' | 'unhealthy';
+    version: string;
+    message?: string;
+    services?: Record<string, 'connected' | 'disconnected' | 'error'>;
+}
+
+export interface SystemInfo {
+    name: string;
+    version: string;
+    description: string;
+    architecture?: string;
 }

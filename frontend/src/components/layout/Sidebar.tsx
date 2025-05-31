@@ -5,7 +5,9 @@ import {
     HomeOutlined,
     SettingOutlined,
     CloudServerOutlined,
-    RocketOutlined
+    RocketOutlined,
+    MessageOutlined,
+    DashboardOutlined
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
@@ -20,6 +22,16 @@ const Sidebar: React.FC = () => {
             key: '/',
             icon: <HomeOutlined />,
             label: 'Home',
+        },
+        {
+            key: '/dashboard',
+            icon: <DashboardOutlined />,
+            label: 'Dashboard',
+        },
+        {
+            key: '/chat',
+            icon: <MessageOutlined />,
+            label: 'AI Chat',
         },
         {
             key: '/mcp-config',

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>OpenManus WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .connecting {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+        }
+
+        #log {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>OpenManus WebSocket Test</h1>
+
+    <div id="status" class="status disconnected">
+        Status: Disconnected
+    </div>
+
+    <div>
+        <button onclick="testConnection()">Test Connection</button>
+        <button onclick="sendMessage()">Send Test Message</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <h3>Log:</h3>
+    <div id="log"></div>
+
+    <script>
+        let ws = null;
+        const log = document.getElementById('log');
+        const statusEl = document.getElementById('status');
+
+        function updateStatus(status, className) {
+            statusEl.textContent = `Status: ${status}`;
+            statusEl.className = `status ${className}`;
+        }
+
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `[${timestamp}] ${message}<br>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function generateClientId() {
+            const timestamp = Date.now();
+            const random = Math.random().toString(36).substr(2, 9);
+            return `browser-test-${timestamp}-${random}`;
+        }
+
+        function testConnection() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                addLog('❌ WebSocket already connected. Close first.');
+                return;
+            }
+
+            const clientId = generateClientId();
+            const wsUrl = `ws://localhost:8000/api/v2/chat/ws/${clientId}`;
+
+            addLog(`🔗 Connecting to: ${wsUrl}`);
+            addLog(`📱 Client ID: ${clientId}`);
+
+            updateStatus('Connecting...', 'connecting');
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function () {
+                addLog('✅ WebSocket connected successfully!');
+                updateStatus('Connected', 'connected');
+            };
+
+            ws.onmessage = function (event) {
+                addLog(`📨 Received: ${event.data}`);
+            };
+
+            ws.onclose = function (event) {
+                addLog(`🔌 Connection closed: Code ${event.code}, Reason: ${event.reason}`);
+                updateStatus('Disconnected', 'disconnected');
+            };
+
+            ws.onerror = function (error) {
+                addLog(`❌ WebSocket error: ${error}`);
+                updateStatus('Error', 'disconnected');
+            };
+        }
+
+        function sendMessage() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                addLog('❌ WebSocket not connected. Connect first.');
+                return;
+            }
+
+            const message = {
+                type: 'test_message',
+                data: {
+                    message: 'Hello from browser test!',
+                    timestamp: Date.now()
+                }
+            };
+
+            ws.send(JSON.stringify(message));
+            addLog(`📤 Sent: ${JSON.stringify(message)}`);
+        }
+
+        function clearLog() {
+            log.innerHTML = '';
+        }
+
+        // Auto-test on load
+        window.onload = function () {
+            addLog('🚀 OpenManus WebSocket Test Ready');
+            addLog('ℹ️ Click "Test Connection" to start');
+        };
+    </script>
+</body>
+
+</html>

@@ -1,8 +1,25 @@
 import React, { useState } from 'react';
-import { Form, Input, Select, Button, Card, Space, Typography, Divider, Alert } from 'antd';
-import { PlusOutlined, RocketOutlined } from '@ant-design/icons';
-import { createTask } from '../../services/api';
-import type { TaskCreateRequest, DocumentUploadResponse } from '../../types';
+import {
+    Form,
+    Input,
+    Select,
+    Button,
+    Card,
+    Space,
+    Typography,
+    Divider,
+    Alert
+} from 'antd';
+import {
+    PlusOutlined,
+    RocketOutlined,
+    BulbOutlined,
+    TeamOutlined,
+    UserOutlined,
+    ApiOutlined
+} from '@ant-design/icons';
+import { taskApi } from '../../services/api';
+import type { UploadedDocument, ComplexityAnalysis, TaskCreateRequest } from '../../types';
 import DocumentUpload from './DocumentUpload';
 
 const { TextArea } = Input;
@@ -16,16 +33,52 @@ interface TaskCreationFormProps {
 const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onTaskCreated }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const [uploadedDocuments, setUploadedDocuments] = useState<DocumentUploadResponse[]>([]);
+    const [uploadedDocuments, setUploadedDocuments] = useState<UploadedDocument[]>([]);
+    const [complexityAnalysis, setComplexityAnalysis] = useState<ComplexityAnalysis | null>(null);
+    const [analyzingComplexity, setAnalyzingComplexity] = useState(false);
 
     const complexityOptions = [
-        { value: 'low', label: 'Low - Simple tasks, quick execution' },
-        { value: 'medium', label: 'Medium - Moderate complexity, may require multiple steps' },
-        { value: 'high', label: 'High - Complex tasks, multi-agent coordination' },
+        { value: 'low', label: 'Low - Simple tasks, quick execution', icon: <UserOutlined /> },
+        { value: 'medium', label: 'Medium - Moderate complexity, may require multiple steps', icon: <BulbOutlined /> },
+        { value: 'high', label: 'High - Complex tasks, multi-agent coordination', icon: <TeamOutlined /> },
     ];
 
-    const handleUploadSuccess = (files: DocumentUploadResponse[]) => {
+    const modeOptions = [
+        { value: 'auto', label: 'Auto - Let AI decide the best approach', icon: <ApiOutlined /> },
+        { value: 'single', label: 'Single Agent - Use one specialized agent', icon: <UserOutlined /> },
+        { value: 'multi', label: 'Multi-Agent - Coordinate multiple agents', icon: <TeamOutlined /> },
+    ];
+
+    const handleUploadSuccess = (files: UploadedDocument[]) => {
         setUploadedDocuments(prev => [...prev, ...files]);
+    };
+
+    const analyzeTaskComplexity = async (description: string) => {
+        if (!description.trim() || description.length < 10) return;
+
+        setAnalyzingComplexity(true);
+        try {
+            const analysis = await taskApi.analyzeComplexity(description);
+            setComplexityAnalysis(analysis);
+
+            // Auto-set recommended values
+            form.setFieldsValue({
+                complexity: analysis.isComplex ? 'high' : 'medium',
+                mode: analysis.recommendation,
+            });
+        } catch (error) {
+            console.error('Error analyzing complexity:', error);
+        } finally {
+            setAnalyzingComplexity(false);
+        }
+    };
+
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const description = e.target.value;
+        // Debounce analysis
+        setTimeout(() => {
+            analyzeTaskComplexity(description);
+        }, 1500);
     };
 
     const handleSubmit = async (values: any) => {
@@ -36,15 +89,15 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onTaskCreated }) =>
                 title: values.title,
                 description: values.description,
                 complexity: values.complexity,
-                document_ids: uploadedDocuments.map(doc => doc.id),
                 priority: values.priority || 'medium',
+                document_ids: uploadedDocuments.map(doc => doc.id),
                 tags: values.tags ? values.tags.split(',').map((tag: string) => tag.trim()) : [],
             };
 
-            const response = await createTask(taskData);
+            const response = await taskApi.createTask(taskData);
 
             if (onTaskCreated) {
-                onTaskCreated(response.id);
+                onTaskCreated(response.task.id);
             }
 
             // Reset form
@@ -102,8 +155,28 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onTaskCreated }) =>
                                 placeholder="Describe what you want to accomplish in detail. Be specific about your requirements and expected outcomes."
                                 rows={4}
                                 size="large"
+                                onChange={handleDescriptionChange}
                             />
                         </Form.Item>
+
+                        {complexityAnalysis && (
+                            <Alert
+                                message={`Complexity Analysis: ${complexityAnalysis.isComplex ? 'High' : 'Medium'} complexity detected`}
+                                description={`Recommended mode: ${complexityAnalysis.recommendation}-agent approach`}
+                                type="info"
+                                showIcon
+                                style={{ marginBottom: '16px' }}
+                            />
+                        )}
+
+                        {analyzingComplexity && (
+                            <Alert
+                                message="Analyzing task complexity..."
+                                type="info"
+                                showIcon
+                                style={{ marginBottom: '16px' }}
+                            />
+                        )}
 
                         <Form.Item
                             label="Complexity Level"
@@ -132,6 +205,22 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onTaskCreated }) =>
                             </Select>
                         </Form.Item>
 
+                        <Form.Item
+                            label="Execution Mode"
+                            name="mode"
+                            initialValue="auto"
+                        >
+                            <Select placeholder="Select execution mode" size="large">
+                                {modeOptions.map(option => (
+                                    <Option key={option.value} value={option.value}>
+                                        <Space>
+                                            {option.icon}
+                                            {option.label}
+                                        </Space>
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
                         <Form.Item
                             label="Tags (optional)"
                             name="tags"
@@ -166,10 +255,10 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onTaskCreated }) =>
                                         }}
                                     >
                                         <div>
-                                            <Text strong>{doc.filename}</Text>
+                                            <Text strong>{doc.name}</Text>
                                             <br />
                                             <Text type="secondary" style={{ fontSize: '12px' }}>
-                                                {doc.file_type} • {(doc.file_size / 1024 / 1024).toFixed(2)} MB
+                                                {doc.type} • {(doc.size / 1024 / 1024).toFixed(2)} MB
                                             </Text>
                                         </div>
                                         <Button

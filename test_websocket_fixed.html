@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenManus - WebSocket Test (Fixed)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .test-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-section.success {
+            border-left: 4px solid #52c41a;
+        }
+
+        .test-section.error {
+            border-left: 4px solid #ff4d4f;
+        }
+
+        .test-section.warning {
+            border-left: 4px solid #faad14;
+        }
+
+        .status {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .connected {
+            background-color: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .disconnected {
+            background-color: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+
+        .connecting {
+            background-color: #fff7e6;
+            color: #faad14;
+            border: 1px solid #ffd591;
+        }
+
+        button {
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #40a9ff;
+        }
+
+        button:disabled {
+            background-color: #d9d9d9;
+            cursor: not-allowed;
+        }
+
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔗 OpenManus - WebSocket Test (Fixed)</h1>
+    <p>Este teste verifica a conectividade WebSocket corrigida com client_id.</p>
+
+    <!-- API Health Check -->
+    <div class="test-section" id="apiSection">
+        <h3>🏥 API Health Check</h3>
+        <div class="status disconnected" id="apiStatus">Checking...</div>
+        <div id="apiResult">Testing API connection...</div>
+        <button onclick="testApiHealth()">Test API</button>
+    </div>
+
+    <!-- WebSocket Test -->
+    <div class="test-section" id="wsSection">
+        <h3>🔗 WebSocket Connection (Fixed)</h3>
+        <div class="status disconnected" id="wsStatus">Disconnected</div>
+        <div id="wsResult">Click "Connect" to test WebSocket connection</div>
+        <button onclick="connectWebSocket()">Connect</button>
+        <button onclick="sendMessage()" id="sendBtn" disabled>Send Test Message</button>
+        <button onclick="disconnectWebSocket()">Disconnect</button>
+        <div class="log" id="wsLog"></div>
+    </div>
+
+    <script>
+        let ws = null;
+        let clientId = null;
+
+        function log(message) {
+            const logDiv = document.getElementById('wsLog');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function testApiHealth() {
+            const status = document.getElementById('apiStatus');
+            const result = document.getElementById('apiResult');
+
+            status.textContent = 'Testing...';
+            status.className = 'status connecting';
+
+            try {
+                const response = await fetch('http://localhost:8000/health');
+                const data = await response.json();
+
+                if (response.ok) {
+                    status.textContent = 'Online';
+                    status.className = 'status connected';
+                    result.innerHTML = `✅ API is healthy<br>Status: ${data.status}`;
+                    result.parentElement.className = 'test-section success';
+                } else {
+                    throw new Error('API returned error status');
+                }
+            } catch (error) {
+                status.textContent = 'Offline';
+                status.className = 'status disconnected';
+                result.innerHTML = `❌ API is not accessible: ${error.message}`;
+                result.parentElement.className = 'test-section error';
+            }
+        }
+
+        function connectWebSocket() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                log('WebSocket already connected');
+                return;
+            }
+
+            const status = document.getElementById('wsStatus');
+            const result = document.getElementById('wsResult');
+
+            // Generate unique client ID
+            clientId = `test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const wsUrl = `ws://localhost:8000/api/v2/chat/ws/${clientId}`;
+
+            status.textContent = 'Connecting...';
+            status.className = 'status connecting';
+            log(`Connecting to: ${wsUrl}`);
+
+            try {
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = function () {
+                    status.textContent = 'Connected';
+                    status.className = 'status connected';
+                    result.innerHTML = `✅ WebSocket connected successfully!<br>Client ID: ${clientId}`;
+                    result.parentElement.className = 'test-section success';
+                    document.getElementById('sendBtn').disabled = false;
+                    log('WebSocket connected successfully');
+                };
+
+                ws.onmessage = function (event) {
+                    result.innerHTML += `<br>📨 Received: ${event.data}`;
+                    log(`Received: ${event.data}`);
+                };
+
+                ws.onerror = function (error) {
+                    status.textContent = 'Error';
+                    status.className = 'status disconnected';
+                    result.innerHTML = `❌ WebSocket error: ${error}`;
+                    result.parentElement.className = 'test-section error';
+                    document.getElementById('sendBtn').disabled = true;
+                    log(`WebSocket error: ${error}`);
+                };
+
+                ws.onclose = function (event) {
+                    status.textContent = 'Disconnected';
+                    status.className = 'status disconnected';
+                    result.innerHTML += `<br>🔌 WebSocket connection closed (Code: ${event.code})`;
+                    document.getElementById('sendBtn').disabled = true;
+                    log(`WebSocket closed with code: ${event.code}, reason: ${event.reason}`);
+                };
+
+            } catch (error) {
+                status.textContent = 'Error';
+                status.className = 'status disconnected';
+                result.innerHTML = `❌ WebSocket connection failed: ${error.message}`;
+                result.parentElement.className = 'test-section error';
+                log(`Connection failed: ${error.message}`);
+            }
+        }
+
+        function sendMessage() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                const message = `Test message from client ${clientId} at ${new Date().toLocaleTimeString()}`;
+                ws.send(message);
+                log(`Sent: ${message}`);
+
+                const result = document.getElementById('wsResult');
+                result.innerHTML += `<br>📤 Sent: ${message}`;
+            } else {
+                log('WebSocket is not connected');
+            }
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+                document.getElementById('sendBtn').disabled = true;
+                log('WebSocket disconnected manually');
+            }
+        }
+
+        // Auto-run health check on page load
+        window.onload = function () {
+            testApiHealth();
+        };
+    </script>
+</body>
+
+</html>

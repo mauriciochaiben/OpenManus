@@ -1,6 +1,6 @@
 import tempfile
 from pathlib import Path
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Generator
 
 import pytest
 import pytest_asyncio
@@ -20,7 +20,7 @@ async def local_client() -> AsyncGenerator[LocalSandboxClient, None]:
 
 
 @pytest.fixture(scope="function")
-def temp_dir() -> Path:
+def temp_dir() -> Generator[Path, None, None]:
     """Creates a temporary directory for testing."""
     with tempfile.TemporaryDirectory() as tmp_dir:
         yield Path(tmp_dir)
@@ -38,7 +38,7 @@ async def test_sandbox_creation(local_client: LocalSandboxClient):
 
     await local_client.create(config)
     result = await local_client.run_command("python3 --version")
-    assert "Python 3.10" in result
+    assert "Python 3.12" in result
 
 
 @pytest.mark.asyncio

@@ -1,0 +1,37 @@
+{
+  "name": "openmanus",
+  "version": "1.0.0",
+  "description": "OpenManus - AI-powered document processing and multi-agent system",
+  "main": "main.py",
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "test:frontend": "cd frontend && npm test",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
+    "test:e2e:headed": "npx playwright test --headed",
+    "install:all": "npm install && cd frontend && npm install",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "dev:backend": "cd app && python -m uvicorn api.main:app --reload --port 8000",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "start": "./start_dev.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mauriciochaiben/OpenManus.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mauriciochaiben/OpenManus/issues"
+  },
+  "homepage": "https://github.com/mauriciochaiben/OpenManus#readme",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {}
+}

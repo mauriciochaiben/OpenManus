@@ -1,62 +1,36 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Layout, ConfigProvider, theme } from 'antd';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-
-import Sidebar from './components/layout/Sidebar';
-import Header from './components/layout/Header';
-import HomePage from './pages/HomePage';
-import TaskDetailPage from './pages/TaskDetailPage';
-import SettingsPage from './pages/SettingsPage';
-import MCPConfigPage from './pages/MCPConfigPage';
-
+import { ConfigProvider, theme } from 'antd';
+import { NotificationProvider } from './contexts/NotificationContext';
+import MainChatInterface from './components/chat/MainChatInterface';
+import StatusBar from './components/layout/StatusBar';
 import './App.css';
-
-const { Content } = Layout;
-
-// Create a client
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            retry: 3,
-            staleTime: 1000 * 60 * 5, // 5 minutes
-        },
-    },
-});
 
 const App: React.FC = () => {
     return (
-        <QueryClientProvider client={queryClient}>
-            <ConfigProvider
-                theme={{
-                    algorithm: theme.defaultAlgorithm,
-                    token: {
-                        colorPrimary: '#1890ff',
-                        borderRadius: 8,
-                        colorBgContainer: '#ffffff',
-                    },
-                }}
-            >
+        <ConfigProvider
+            theme={{
+                algorithm: theme.defaultAlgorithm,
+                token: {
+                    colorPrimary: '#6366f1',
+                    borderRadius: 8,
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                },
+            }}
+        >
+            <NotificationProvider>
                 <Router>
-                    <Layout className="app-layout">
-                        <Sidebar />
-                        <Layout className="main-layout">
-                            <Header />
-                            <Content className="main-content">
-                                <Routes>
-                                    <Route path="/" element={<HomePage />} />
-                                    <Route path="/task/:id" element={<TaskDetailPage />} />
-                                    <Route path="/settings" element={<SettingsPage />} />
-                                    <Route path="/mcp-config" element={<MCPConfigPage />} />
-                                </Routes>
-                            </Content>
-                        </Layout>
-                    </Layout>
+                    <div className="app-container">
+                        <StatusBar />
+                        <Routes>
+                            <Route path="/" element={<MainChatInterface />} />
+                            <Route path="/chat" element={<MainChatInterface />} />
+                            <Route path="*" element={<MainChatInterface />} />
+                        </Routes>
+                    </div>
                 </Router>
-            </ConfigProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
+            </NotificationProvider>
+        </ConfigProvider>
     );
 };
 

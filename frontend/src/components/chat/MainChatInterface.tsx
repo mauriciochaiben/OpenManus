@@ -1,0 +1,400 @@
+import React, { useState, useRef, useEffect } from 'react';
+import {
+    Input,
+    Button,
+    List,
+    Avatar,
+    Space,
+    Typography,
+    Tag,
+    message,
+    Empty,
+    Spin,
+    Badge,
+    Dropdown,
+    type MenuProps
+} from 'antd';
+import {
+    SendOutlined,
+    RobotOutlined,
+    UserOutlined,
+    ClearOutlined,
+    BulbOutlined,
+    SettingOutlined,
+    HistoryOutlined,
+    BranchesOutlined,
+    ThunderboltOutlined,
+    ApiOutlined,
+    MoreOutlined
+} from '@ant-design/icons';
+import { chatApi } from '../../services/api';
+import { webSocketManager } from '../../services/websocket';
+import { eventBus } from '../../utils/eventBus';
+import type { ChatMessage } from '../../types';
+
+const { TextArea } = Input;
+const { Text, Title } = Typography;
+
+interface ProcessingStatus {
+    type: 'single' | 'multi' | 'mcp' | null;
+    stage: string;
+    progress: number;
+    agents?: string[];
+}
+
+const MainChatInterface: React.FC = () => {
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [inputValue, setInputValue] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [processingStatus, setProcessingStatus] = useState<ProcessingStatus>({ type: null, stage: '', progress: 0 });
+    const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    // Auto-scroll to bottom when messages change
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    // Initialize WebSocket connection and load chat history
+    useEffect(() => {
+        loadChatHistory();
+        initializeWebSocket();
+
+        // Listen to WebSocket events
+        const unsubscribeConnected = eventBus.on('websocket:connected', () => {
+            setIsWebSocketConnected(true);
+        });
+
+        const unsubscribeDisconnected = eventBus.on('websocket:disconnected', () => {
+            setIsWebSocketConnected(false);
+        });
+
+        const unsubscribeMessage = eventBus.on('websocket:message', (data: any) => {
+            handleWebSocketMessage(data);
+        });
+
+        return () => {
+            unsubscribeConnected();
+            unsubscribeDisconnected();
+            unsubscribeMessage();
+        };
+    }, []);
+
+    const initializeWebSocket = () => {
+        try {
+            webSocketManager.connect();
+        } catch (error) {
+            console.error('Failed to initialize WebSocket:', error);
+        }
+    };
+
+    const handleWebSocketMessage = (data: any) => {
+        if (data.type === 'chat_message') {
+            // Real-time message received
+            loadChatHistory(); // Refresh messages
+        } else if (data.type === 'task_progress') {
+            // Update processing status
+            setProcessingStatus({
+                type: data.execution_type || null,
+                stage: data.stage || '',
+                progress: data.progress || 0,
+                agents: data.agents || []
+            });
+        } else if (data.type === 'task_completed') {
+            // Clear processing status
+            setProcessingStatus({ type: null, stage: '', progress: 0 });
+            // Reload messages to show final result
+            loadChatHistory();
+        }
+    };
+
+    const loadChatHistory = async () => {
+        try {
+            const history = await chatApi.getHistory();
+            if (history.length === 0) {
+                // Add welcome message if no history
+                setMessages([{
+                    id: '1',
+                    role: 'assistant',
+                    content: '🚀 **Bem-vindo ao OpenManus!**\n\nSou seu assistente de IA inteligente. Posso ajudá-lo com:\n\n• **Análise de documentos** e processamento de dados\n• **Criação automática de tarefas** com múltiplos agentes\n• **Navegação web** e coleta de informações\n• **Desenvolvimento** e automação de código\n• **Integração MCP** para funcionalidades avançadas\n\nComo posso ajudá-lo hoje? 💭',
+                    timestamp: new Date().toISOString(),
+                }]);
+            } else {
+                setMessages(history);
+            }
+        } catch (error) {
+            console.error('Error loading chat history:', error);
+            // Add welcome message if error
+            setMessages([{
+                id: '1',
+                role: 'assistant',
+                content: '🚀 **Bem-vindo ao OpenManus!**\n\nSou seu assistente de IA inteligente. Como posso ajudá-lo hoje? 💭',
+                timestamp: new Date().toISOString(),
+            }]);
+        }
+    };
+
+    const handleSendMessage = async () => {
+        if (!inputValue.trim() || isLoading) return;
+
+        const userMessage = inputValue.trim();
+        setInputValue('');
+        setIsLoading(true);
+
+        // Show initial processing status
+        setProcessingStatus({
+            type: null,
+            stage: 'Analisando solicitação...',
+            progress: 10
+        });
+
+        try {
+            const response = await chatApi.sendMessage({
+                message: userMessage,
+                context: {}
+            });
+
+            // Reload chat history to get the latest messages
+            await loadChatHistory();
+
+            // Set suggestions from response
+            if (response.suggestions) {
+                setSuggestions(response.suggestions);
+            }
+
+            // Clear processing status
+            setProcessingStatus({ type: null, stage: '', progress: 0 });
+
+        } catch (error) {
+            console.error('Error sending message:', error);
+            message.error('Erro ao enviar mensagem. Tente novamente.');
+            setProcessingStatus({ type: null, stage: '', progress: 0 });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleSuggestionClick = (suggestion: string) => {
+        setInputValue(suggestion);
+        setSuggestions([]);
+    };
+
+    const handleClearChat = async () => {
+        try {
+            await chatApi.clearHistory();
+            setMessages([{
+                id: '1',
+                role: 'assistant',
+                content: '🚀 **Bem-vindo ao OpenManus!**\n\nSou seu assistente de IA inteligente. Como posso ajudá-lo hoje? 💭',
+                timestamp: new Date().toISOString(),
+            }]);
+            setSuggestions([]);
+            setProcessingStatus({ type: null, stage: '', progress: 0 });
+            message.success('Histórico de chat limpo!');
+        } catch (error) {
+            console.error('Error clearing chat:', error);
+            message.error('Erro ao limpar chat.');
+        }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+        }
+    };
+
+    const formatTime = (timestamp: string) => {
+        return new Date(timestamp).toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const getExecutionTypeIcon = (type: string) => {
+        switch (type) {
+            case 'single': return <RobotOutlined />;
+            case 'multi': return <BranchesOutlined />;
+            case 'mcp': return <ApiOutlined />;
+            default: return <ThunderboltOutlined />;
+        }
+    };
+
+    const getExecutionTypeLabel = (type: string) => {
+        switch (type) {
+            case 'single': return 'Agente Único';
+            case 'multi': return 'Multi-Agentes';
+            case 'mcp': return 'Protocolo MCP';
+            default: return 'Processando';
+        }
+    };
+
+    const menuItems: MenuProps['items'] = [
+        {
+            key: 'history',
+            label: 'Histórico Completo',
+            icon: <HistoryOutlined />,
+        },
+        {
+            key: 'settings',
+            label: 'Configurações',
+            icon: <SettingOutlined />,
+        },
+        {
+            type: 'divider',
+        },
+        {
+            key: 'clear',
+            label: 'Limpar Conversa',
+            icon: <ClearOutlined />,
+            danger: true,
+            onClick: handleClearChat,
+        },
+    ];
+
+    return (
+        <div className="main-chat-container">
+            {/* Chat Header */}
+            <div className="chat-header">
+                <div className="chat-title">
+                    <Space>
+                        <div className="chat-logo">
+                            <RobotOutlined />
+                        </div>
+                        <div>
+                            <Title level={4} style={{ margin: 0, color: 'white' }}>
+                                OpenManus AI
+                            </Title>
+                            <div className="connection-status">
+                                <Badge
+                                    status={isWebSocketConnected ? 'success' : 'error'}
+                                    text={isWebSocketConnected ? 'Conectado' : 'Desconectado'}
+                                />
+                            </div>
+                        </div>
+                    </Space>
+                </div>
+
+                <div className="chat-actions">
+                    <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+                        <Button
+                            type="text"
+                            icon={<MoreOutlined />}
+                            style={{ color: 'white' }}
+                        />
+                    </Dropdown>
+                </div>
+            </div>
+
+            {/* Processing Status */}
+            {(isLoading || processingStatus.type) && (
+                <div className="processing-status">
+                    <Space>
+                        {processingStatus.type && getExecutionTypeIcon(processingStatus.type)}
+                        <Spin size="small" />
+                        <Text>
+                            {processingStatus.type
+                                ? `${getExecutionTypeLabel(processingStatus.type)} - ${processingStatus.stage}`
+                                : processingStatus.stage || 'Processando...'
+                            }
+                        </Text>
+                        {processingStatus.agents && processingStatus.agents.length > 0 && (
+                            <div className="active-agents">
+                                {processingStatus.agents.map(agent => (
+                                    <Tag key={agent}>{agent}</Tag>
+                                ))}
+                            </div>
+                        )}
+                    </Space>
+                </div>
+            )}
+
+            {/* Messages Area */}
+            <div className="messages-container">
+                {messages.length === 0 ? (
+                    <div className="empty-state">
+                        <Empty
+                            description="Comece uma conversa!"
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        />
+                    </div>
+                ) : (
+                    <List
+                        dataSource={messages}
+                        renderItem={(msg) => {
+                            const isUser = msg.role === 'user';
+                            return (
+                                <List.Item className={`message-item ${isUser ? 'user-message' : 'assistant-message'}`}>
+                                    <div className="message-content">
+                                        <Avatar
+                                            className="message-avatar"
+                                            icon={isUser ? <UserOutlined /> : <RobotOutlined />}
+                                        />
+                                        <div className="message-bubble">
+                                            <div className="message-text">
+                                                <Text style={{ whiteSpace: 'pre-wrap' }}>
+                                                    {msg.content}
+                                                </Text>
+                                            </div>
+                                            <div className="message-timestamp">
+                                                {formatTime(msg.timestamp)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </List.Item>
+                            );
+                        }}
+                    />
+                )}
+                <div ref={messagesEndRef} />
+            </div>
+
+            {/* Suggestions */}
+            {suggestions.length > 0 && (
+                <div className="suggestions-container">
+                    <Space size={[8, 8]} wrap>
+                        <BulbOutlined className="suggestions-icon" />
+                        <Text type="secondary">Sugestões:</Text>
+                        {suggestions.map((suggestion, index) => (
+                            <Tag
+                                key={index}
+                                className="suggestion-tag"
+                                onClick={() => handleSuggestionClick(suggestion)}
+                            >
+                                {suggestion}
+                            </Tag>
+                        ))}
+                    </Space>
+                </div>
+            )}
+
+            {/* Input Area */}
+            <div className="input-container">
+                <div className="input-wrapper">
+                    <TextArea
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"
+                        autoSize={{ minRows: 1, maxRows: 4 }}
+                        className="message-input"
+                        disabled={isLoading}
+                    />
+                    <Button
+                        type="primary"
+                        icon={isLoading ? <Spin size="small" /> : <SendOutlined />}
+                        onClick={handleSendMessage}
+                        disabled={!inputValue.trim() || isLoading}
+                        className="send-button"
+                        size="large"
+                    >
+                        {isLoading ? 'Enviando...' : 'Enviar'}
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default MainChatInterface;

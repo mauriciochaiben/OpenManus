@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Task, LogEntry, TaskStep } from '../types';
 import { taskApi } from '../services/api';
-import wsService from '../services/websocket';
+import { eventBus } from '../utils/eventBus';
 
 export const useTask = (taskId?: string) => {
     const [task, setTask] = useState<Task | null>(null);
@@ -34,10 +34,7 @@ export const useTask = (taskId?: string) => {
         if (taskId) {
             fetchTask(taskId);
 
-            // Subscribe to real-time updates
-            wsService.subscribeToTask(taskId);
-
-            // Set up event listeners
+            // Subscribe to real-time updates using EventBus
             const handleTaskUpdate = (data: { taskId: string; task: Task }) => {
                 if (data.taskId === taskId) {
                     setTask(data.task);
@@ -74,15 +71,15 @@ export const useTask = (taskId?: string) => {
                 }
             };
 
-            wsService.on('task_update', handleTaskUpdate);
-            wsService.on('step_update', handleStepUpdate);
-            wsService.on('log_entry', handleLogEntry);
+            // Subscribe to events
+            const unsubTaskUpdate = eventBus.on('task:updated', handleTaskUpdate);
+            const unsubStepUpdate = eventBus.on('task:stepUpdated', handleStepUpdate);
+            const unsubLogEntry = eventBus.on('task:logEntry', handleLogEntry);
 
             return () => {
-                wsService.unsubscribeFromTask(taskId);
-                wsService.off('task_update');
-                wsService.off('step_update');
-                wsService.off('log_entry');
+                unsubTaskUpdate();
+                unsubStepUpdate();
+                unsubLogEntry();
             };
         }
     }, [taskId, fetchTask]);
@@ -145,9 +142,7 @@ export const useTasks = () => {
     useEffect(() => {
         fetchTasks();
 
-        // Subscribe to system-wide task updates
-        wsService.subscribeToSystem();
-
+        // Subscribe to system-wide task updates using EventBus
         const handleTaskUpdate = (data: { taskId: string; task: Task }) => {
             setTasks(prevTasks => {
                 const taskIndex = prevTasks.findIndex(t => t.id === data.taskId);
@@ -161,10 +156,10 @@ export const useTasks = () => {
             });
         };
 
-        wsService.on('task_update', handleTaskUpdate);
+        const unsubTaskUpdate = eventBus.on('task:updated', handleTaskUpdate);
 
         return () => {
-            wsService.off('task_update');
+            unsubTaskUpdate();
         };
     }, [fetchTasks]);
 

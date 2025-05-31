@@ -6,14 +6,17 @@ import type {
     ComplexityAnalysis,
     UploadedDocument,
     MCPServer,
-    MCPServerConfig
+    MCPServerConfig,
+    ChatMessage,
+    ChatRequest,
+    ChatResponse
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 // Create axios instance with default config
 const api = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: `${API_BASE_URL}/api/v2`,
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
@@ -198,10 +201,36 @@ export const systemApi = {
         return response.data;
     },
 
+    // Get dashboard statistics
+    getDashboardStats: async (): Promise<any> => {
+        const response = await api.get('/dashboard/stats');
+        return response.data;
+    },
+
     // Get available agents
     getAgents: async (): Promise<any[]> => {
         const response = await api.get('/agents');
         return response.data;
+    },
+};
+
+// Chat API
+export const chatApi = {
+    // Send chat message
+    sendMessage: async (request: ChatRequest): Promise<ChatResponse> => {
+        const response = await api.post('/chat', request);
+        return response.data;
+    },
+
+    // Get chat history
+    getHistory: async (sessionId: string = 'default'): Promise<ChatMessage[]> => {
+        const response = await api.get(`/chat/history?session_id=${sessionId}`);
+        return response.data;
+    },
+
+    // Clear chat history
+    clearHistory: async (sessionId: string = 'default'): Promise<void> => {
+        await api.delete(`/chat/history?session_id=${sessionId}`);
     },
 };
 

@@ -3,7 +3,7 @@ import { describe, expect, test, jest, beforeEach } from '@jest/globals';
 
 // Mock axios
 jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+const mockedAxios = jest.mocked(axios);
 
 describe('API Client Tests', () => {
     beforeEach(() => {

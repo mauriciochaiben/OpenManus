@@ -3,13 +3,13 @@ import { Upload, message, Card, Typography, Progress, Space, Button } from 'antd
 import { InboxOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { UploadProps, UploadFile } from 'antd/es/upload/interface';
 import { uploadDocument } from '../../services/api';
-import type { DocumentUploadResponse } from '../../types';
+import type { UploadedDocument } from '../../types';
 
 const { Dragger } = Upload;
 const { Text, Title } = Typography;
 
 interface DocumentUploadProps {
-    onUploadSuccess?: (files: DocumentUploadResponse[]) => void;
+    onUploadSuccess?: (files: UploadedDocument[]) => void;
     maxFiles?: number;
     acceptedTypes?: string[];
 }
@@ -60,7 +60,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         }
 
         setUploading(true);
-        const uploadedFiles: DocumentUploadResponse[] = [];
+        const uploadedFiles: UploadedDocument[] = [];
 
         try {
             for (const file of fileList) {
@@ -68,8 +68,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     setUploadProgress(prev => ({ ...prev, [file.uid]: 0 }));
 
                     try {
-                        const response = await uploadDocument(file.originFileObj, (progressEvent) => {
-                            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total!);
+                        const response = await uploadDocument(file.originFileObj, (progress) => {
                             setUploadProgress(prev => ({ ...prev, [file.uid]: progress }));
                         });
 

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
     Card,
     Form,
-    Input,
     Switch,
     Button,
     Space,
@@ -115,8 +114,6 @@ const SettingsPage: React.FC = () => {
                                         max={60000}
                                         step={1000}
                                         style={{ width: '200px' }}
-                                        formatter={value => `${value} ms`}
-                                        parser={value => value!.replace(' ms', '')}
                                     />
                                 </Form.Item>
 
@@ -130,8 +127,6 @@ const SettingsPage: React.FC = () => {
                                         max={120000}
                                         step={5000}
                                         style={{ width: '200px' }}
-                                        formatter={value => `${value} ms`}
-                                        parser={value => value!.replace(' ms', '')}
                                     />
                                 </Form.Item>
                             </Space>
@@ -179,7 +174,7 @@ const SettingsPage: React.FC = () => {
                                     max={500}
                                     style={{ width: '200px' }}
                                     formatter={value => `${value} MB`}
-                                    parser={value => value!.replace(' MB', '')}
+                                    parser={value => parseInt(value!.replace(' MB', ''), 10) as 1 | 500}
                                 />
                             </Form.Item>
                         </Card>

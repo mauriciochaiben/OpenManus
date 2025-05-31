@@ -307,3 +307,55 @@ class AgentDecisionSystem:
         )
 
         return base_steps[complexity] + additional_steps
+
+
+# Convenience function for external use
+def analyze_task_complexity(task: str) -> dict:
+    """
+    Standalone function for analyzing task complexity
+    Returns a simplified dictionary format for compatibility with existing tests
+    """
+    try:
+        decision_system = AgentDecisionSystem()
+        analysis = decision_system.analyze_task_complexity(task)
+
+        return {
+            "is_complex": analysis.complexity
+            in [TaskComplexity.COMPLEX, TaskComplexity.VERY_COMPLEX],
+            "complexity": analysis.complexity.value,
+            "domains": list(analysis.domains),
+            "estimated_steps": analysis.estimated_steps,
+            "requires_specialization": analysis.requires_specialization,
+            "parallel_potential": analysis.parallel_potential,
+            "collaboration_needed": analysis.collaboration_needed,
+            "tools_needed": analysis.tools_needed,
+            "recommended_approach": _get_recommended_approach(analysis).value,
+        }
+    except Exception as e:
+        logger.error(f"Error analyzing task complexity: {e}")
+        return {
+            "is_complex": False,
+            "complexity": "simple",
+            "domains": [],
+            "estimated_steps": 1,
+            "requires_specialization": False,
+            "parallel_potential": False,
+            "collaboration_needed": False,
+            "tools_needed": [],
+            "recommended_approach": "single_agent",
+        }
+
+
+def _get_recommended_approach(analysis: TaskAnalysis) -> AgentApproach:
+    """Determine the recommended approach based on task analysis"""
+    if analysis.complexity == TaskComplexity.SIMPLE:
+        return AgentApproach.SINGLE_AGENT
+
+    if analysis.collaboration_needed:
+        return AgentApproach.MULTI_AGENT_COLLABORATIVE
+    elif analysis.parallel_potential:
+        return AgentApproach.MULTI_AGENT_PARALLEL
+    elif analysis.requires_specialization or len(analysis.domains) > 1:
+        return AgentApproach.MULTI_AGENT_SEQUENTIAL
+    else:
+        return AgentApproach.SINGLE_AGENT
