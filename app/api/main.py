@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers
-from app.api.routers import chat, system, tasks
+from app.api.routers import chat, system, tasks, workflows
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -44,6 +44,7 @@ def create_app() -> FastAPI:
     app.include_router(chat.router, prefix="/api/v2")
     app.include_router(tasks.router, prefix="/api/v2")
     app.include_router(system.router, prefix="/api/v2")
+    app.include_router(workflows.router, prefix="/api/v2")
 
     # Root endpoint
     @app.get("/")

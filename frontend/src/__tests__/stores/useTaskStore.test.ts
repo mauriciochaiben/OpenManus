@@ -1,7 +1,7 @@
-// Tests for the Zustand task store
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { TaskFactory, ApiResponseFactory } from '../factories';
+import { useTaskStore } from '../../features/tasks/hooks/useTaskStore';
+import { taskService } from '../../features/tasks/services/taskService';
 
 // Mock the task service
 vi.mock('../../features/tasks/services/taskService', () => ({
@@ -12,26 +12,47 @@ vi.mock('../../features/tasks/services/taskService', () => ({
         updateTask: vi.fn(),
         executeTask: vi.fn(),
         cancelTask: vi.fn(),
-        deleteTask: vi.fn()
-    }
+        deleteTask: vi.fn(),
+    },
 }));
 
-describe('useTaskStore', () => {
-    let testEnv: any;
+// Factory for creating test tasks
+const createTestTask = (overrides = {}) => ({
+    id: 'task-1',
+    title: 'Test Task',
+    description: 'Test description',
+    complexity: 'simple' as const,
+    mode: 'auto' as const,
+    status: 'pending' as const,
+    progress: 0,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    priority: 'medium' as const,
+    tags: [],
+    documentIds: [],
+    ...overrides,
+});
 
+// Factory for creating API responses
+const createApiResponse = (data: any, success = true) => ({
+    success,
+    data: success ? data : undefined,
+    error: success ? undefined : data,
+});
+
+describe('useTaskStore', () => {
     beforeEach(() => {
-        testEnv = setupTestEnvironment();
         // Reset the store before each test
         useTaskStore.setState({
             tasks: [],
             currentTask: null,
             loading: false,
-            error: null
+            error: null,
         });
+        vi.clearAllMocks();
     });
 
     afterEach(() => {
-        testEnv.cleanup();
         vi.clearAllMocks();
     });
 
@@ -48,8 +69,11 @@ describe('useTaskStore', () => {
 
     describe('fetchTasks', () => {
         it('should fetch tasks successfully', async () => {
-            const mockTasks = TaskFactory.createMany(3);
-            const mockResponse = ApiResponseFactory.createTaskListResponse(mockTasks);
+            const mockTasks = [
+                createTestTask({ id: 'task-1' }),
+                createTestTask({ id: 'task-2', title: 'Task 2' }),
+            ];
+            const mockResponse = createApiResponse(mockTasks);
 
             (taskService.getTasks as any).mockResolvedValue(mockResponse);
 
@@ -66,7 +90,7 @@ describe('useTaskStore', () => {
         });
 
         it('should handle fetch tasks error', async () => {
-            const mockError = ApiResponseFactory.createError('Failed to fetch tasks');
+            const mockError = createApiResponse('Failed to fetch tasks', false);
 
             (taskService.getTasks as any).mockResolvedValue(mockError);
 
@@ -97,7 +121,7 @@ describe('useTaskStore', () => {
 
         it('should set loading state during fetch', async () => {
             let resolvePromise: (value: any) => void;
-            const promise = new Promise(resolve => {
+            const promise = new Promise((resolve) => {
                 resolvePromise = resolve;
             });
 
@@ -113,7 +137,7 @@ describe('useTaskStore', () => {
             expect(result.current.error).toBeNull();
 
             await act(async () => {
-                resolvePromise!(ApiResponseFactory.createTaskListResponse([]));
+                resolvePromise!(createApiResponse([]));
                 await promise;
             });
 
@@ -124,8 +148,8 @@ describe('useTaskStore', () => {
     describe('createTask', () => {
         it('should create task successfully', async () => {
             const taskData = { title: 'New Task', description: 'Test task' };
-            const newTask = TaskFactory.create(taskData);
-            const mockResponse = ApiResponseFactory.createTaskResponse(newTask);
+            const newTask = createTestTask(taskData);
+            const mockResponse = createApiResponse(newTask);
 
             (taskService.createTask as any).mockResolvedValue(mockResponse);
 
@@ -145,7 +169,7 @@ describe('useTaskStore', () => {
 
         it('should handle create task error', async () => {
             const taskData = { title: 'New Task', description: 'Test task' };
-            const mockError = ApiResponseFactory.createError('Failed to create task');
+            const mockError = createApiResponse('Failed to create task', false);
 
             (taskService.createTask as any).mockResolvedValue(mockError);
 
@@ -167,8 +191,8 @@ describe('useTaskStore', () => {
 
     describe('getTask', () => {
         it('should get task successfully', async () => {
-            const task = TaskFactory.create();
-            const mockResponse = ApiResponseFactory.createTaskResponse(task);
+            const task = createTestTask();
+            const mockResponse = createApiResponse(task);
 
             (taskService.getTask as any).mockResolvedValue(mockResponse);
 
@@ -188,7 +212,7 @@ describe('useTaskStore', () => {
 
         it('should handle get task error', async () => {
             const taskId = 'test-task-id';
-            const mockError = ApiResponseFactory.createError('Task not found');
+            const mockError = createApiResponse('Task not found', false);
 
             (taskService.getTask as any).mockResolvedValue(mockError);
 
@@ -208,17 +232,17 @@ describe('useTaskStore', () => {
 
     describe('updateTask', () => {
         it('should update task successfully', async () => {
-            const existingTask = TaskFactory.create();
+            const existingTask = createTestTask();
             const updates = { title: 'Updated Task' };
             const updatedTask = { ...existingTask, ...updates };
-            const mockResponse = ApiResponseFactory.createTaskResponse(updatedTask);
+            const mockResponse = createApiResponse(updatedTask);
 
             // Set initial state with existing task
             useTaskStore.setState({
                 tasks: [existingTask],
                 currentTask: existingTask,
                 loading: false,
-                error: null
+                error: null,
             });
 
             (taskService.updateTask as any).mockResolvedValue(mockResponse);
@@ -239,15 +263,15 @@ describe('useTaskStore', () => {
 
     describe('executeTask', () => {
         it('should execute task successfully', async () => {
-            const task = TaskFactory.create();
+            const task = createTestTask();
             const runningTask = { ...task, status: 'running' as const };
-            const mockResponse = ApiResponseFactory.createTaskResponse(runningTask);
+            const mockResponse = createApiResponse(runningTask);
 
             useTaskStore.setState({
                 tasks: [task],
                 currentTask: null,
                 loading: false,
-                error: null
+                error: null,
             });
 
             (taskService.executeTask as any).mockResolvedValue(mockResponse);
@@ -267,15 +291,15 @@ describe('useTaskStore', () => {
 
     describe('cancelTask', () => {
         it('should cancel task successfully', async () => {
-            const runningTask = TaskFactory.createRunning();
+            const runningTask = createTestTask({ status: 'running' });
             const cancelledTask = { ...runningTask, status: 'cancelled' as const };
-            const mockResponse = ApiResponseFactory.createTaskResponse(cancelledTask);
+            const mockResponse = createApiResponse(cancelledTask);
 
             useTaskStore.setState({
                 tasks: [runningTask],
                 currentTask: runningTask,
                 loading: false,
-                error: null
+                error: null,
             });
 
             (taskService.cancelTask as any).mockResolvedValue(mockResponse);
@@ -295,14 +319,14 @@ describe('useTaskStore', () => {
 
     describe('deleteTask', () => {
         it('should delete task successfully', async () => {
-            const task = TaskFactory.create();
-            const mockResponse = ApiResponseFactory.createSuccess(null);
+            const task = createTestTask();
+            const mockResponse = createApiResponse(null);
 
             useTaskStore.setState({
                 tasks: [task],
                 currentTask: task,
                 loading: false,
-                error: null
+                error: null,
             });
 
             (taskService.deleteTask as any).mockResolvedValue(mockResponse);
@@ -323,7 +347,7 @@ describe('useTaskStore', () => {
 
     describe('setCurrentTask', () => {
         it('should set current task', () => {
-            const task = TaskFactory.create();
+            const task = createTestTask();
             const { result } = renderHook(() => useTaskStore());
 
             act(() => {
@@ -334,7 +358,7 @@ describe('useTaskStore', () => {
         });
 
         it('should clear current task', () => {
-            const task = TaskFactory.create();
+            const task = createTestTask();
             useTaskStore.setState({ currentTask: task });
 
             const { result } = renderHook(() => useTaskStore());

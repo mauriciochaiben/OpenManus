@@ -8,8 +8,9 @@
         "build": "tsc && vite build",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "preview": "vite preview",
-        "test": "cd .. && npx jest --config jest.config.frontend.js",
-        "test:watch": "cd .. && npx jest --config jest.config.frontend.js --watch"
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:ui": "vitest --ui"
     },
     "dependencies": {
         "@ant-design/icons": "^5.2.6",
@@ -39,12 +40,14 @@
         "@testing-library/user-event": "^14.6.1",
         "@types/file-saver": "^2.0.7",
         "@types/jest": "^29.5.14",
+        "@types/node": "^22.15.29",
         "@types/react": "^18.2.43",
         "@types/react-dom": "^18.2.17",
         "@types/uuid": "^9.0.7",
         "@typescript-eslint/eslint-plugin": "^6.14.0",
         "@typescript-eslint/parser": "^6.14.0",
         "@vitejs/plugin-react": "^4.2.1",
+        "@vitest/ui": "^3.1.4",
         "babel-jest": "^29.7.0",
         "eslint": "^8.55.0",
         "eslint-plugin-react-hooks": "^4.6.0",
@@ -53,8 +56,10 @@
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^30.0.0-beta.3",
         "jest-extended": "^5.0.3",
+        "jsdom": "^26.1.0",
         "ts-jest": "^29.3.4",
         "typescript": "^5.2.2",
-        "vite": "^5.0.8"
+        "vite": "^5.0.8",
+        "vitest": "^3.1.4"
     }
 }
