@@ -8,7 +8,7 @@ from uuid import uuid4
 import chromadb
 from chromadb.api.models.Collection import Collection
 from chromadb.config import Settings
-from chromadb.errors import ChromaError, InvalidCollectionException
+from chromadb.errors import ChromaError, NotFoundError
 
 from app.core.config import settings
 from app.core.vector_config import rag_config, vector_db_config
@@ -155,7 +155,7 @@ class VectorStoreClient:
                 self._collections_cache[name] = collection
                 return collection
 
-            except InvalidCollectionException:
+            except NotFoundError:
                 # Collection doesn't exist, create it
                 collection_metadata = (
                     metadata or vector_db_config.get_collection_metadata("documents")

@@ -61,7 +61,7 @@ describe('useTaskStore', () => {
     describe('fetchTasks', () => {
         it('should fetch tasks successfully', async () => {
             const mockTasks = TaskFactory.createMultiple(3);
-            const mockResponse = ApiResponseFactory.createTasksResponse(mockTasks);
+            const mockResponse = { success: true, data: mockTasks };
 
             (taskService.getTasks as any).mockResolvedValue(mockResponse);
 
@@ -137,7 +137,7 @@ describe('useTaskStore', () => {
         it('should create task successfully', async () => {
             const taskData = { title: 'New Task', description: 'Test task' };
             const newTask = TaskFactory.create(taskData);
-            const mockResponse = ApiResponseFactory.createTaskResponse(newTask);
+            const mockResponse = { success: true, data: newTask };
 
             (taskService.createTask as any).mockResolvedValue(mockResponse);
 
@@ -180,7 +180,7 @@ describe('useTaskStore', () => {
     describe('getTask', () => {
         it('should get task successfully', async () => {
             const task = TaskFactory.create();
-            const mockResponse = ApiResponseFactory.createTaskResponse(task);
+            const mockResponse = { success: true, data: task };
 
             (taskService.getTask as any).mockResolvedValue(mockResponse);
 
@@ -223,7 +223,7 @@ describe('useTaskStore', () => {
             const existingTask = TaskFactory.create();
             const updates = { title: 'Updated Task' };
             const updatedTask = { ...existingTask, ...updates };
-            const mockResponse = ApiResponseFactory.createTaskResponse(updatedTask);
+            const mockResponse = { success: true, data: updatedTask };
 
             // Set initial state with existing task
             useTaskStore.setState({
@@ -253,7 +253,7 @@ describe('useTaskStore', () => {
         it('should execute task successfully', async () => {
             const task = TaskFactory.create();
             const runningTask = { ...task, status: 'running' as const };
-            const mockResponse = ApiResponseFactory.createTaskResponse(runningTask);
+            const mockResponse = { success: true, data: runningTask };
 
             useTaskStore.setState({
                 tasks: [task],
@@ -281,7 +281,7 @@ describe('useTaskStore', () => {
         it('should cancel task successfully', async () => {
             const runningTask = TaskFactory.createInProgress();
             const cancelledTask = { ...runningTask, status: 'error' as const };
-            const mockResponse = ApiResponseFactory.createTaskResponse(cancelledTask);
+            const mockResponse = { success: true, data: cancelledTask };
 
             useTaskStore.setState({
                 tasks: [runningTask],

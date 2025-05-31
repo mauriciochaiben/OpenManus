@@ -1,4 +1,6 @@
-# ...existing code...
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings
+from typing import Optional, List
 
 
 class Settings(BaseSettings):
@@ -26,4 +28,34 @@ class Settings(BaseSettings):
     tool_sandbox_network_disabled: bool = True
     tool_force_sandbox_unsafe: bool = True
 
-    # ...existing code...
+    # Vector Database Configuration
+    vector_db_host: str = "localhost"
+    vector_db_port: int = 8000
+    vector_db_url: str = "http://localhost:8000"
+    vector_collection_name: str = "documents"
+    vector_workflow_collection: str = "workflows"
+    chroma_auth_token: Optional[str] = None
+    chroma_auth_header: str = "Authorization"
+    
+    # Embedding Configuration
+    vector_embedding_model: str = "all-MiniLM-L6-v2"
+    vector_embedding_dimension: int = 384
+    
+    # Document Processing Configuration
+    vector_chunk_size: int = 500
+    vector_chunk_overlap: int = 50
+    document_max_size_bytes: int = 50 * 1024 * 1024  # 50MB
+    document_allowed_types_list: List[str] = [".pdf", ".txt", ".md", ".doc", ".docx"]
+    document_storage_path: str = "uploads/"
+    document_processing_timeout: int = 300
+    
+    # RAG Configuration
+    vector_search_k: int = 5
+    vector_search_threshold: float = 0.7
+    rag_max_context_length: int = 4000
+    rag_overlap_ratio: float = 0.1
+    rag_min_score: float = 0.5
+    rag_max_documents: int = 10
+    
+    
+settings = Settings()
