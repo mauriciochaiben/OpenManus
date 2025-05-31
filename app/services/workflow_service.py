@@ -9,11 +9,15 @@ decompose tasks, execute steps, and publish progress events.
 import asyncio
 import logging
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from app.infrastructure.messaging.event_bus import Event, EventBus
+from app.knowledge.services.rag_service import RagService
 from app.roles.planner_agent import PlannerAgent
 from app.roles.tool_user_agent import ToolUserAgent
+from app.services.role_manager import RoleManager
+from app.workflows.podcast_generator import PodcastGenerator, PodcastWorkflow
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +63,57 @@ class WorkflowCompletedEvent(Event):
     completed_steps: int
     final_result: Optional[Dict] = None
     error: Optional[str] = None
+
+
+class WorkflowRequest:
+    def __init__(
+        self,
+        title: str,
+        description: str,
+        steps: list,
+        source_ids: Optional[List[str]] = None,
+    ):
+        self.title = title
+        self.description = description
+        self.steps = steps
+        self.source_ids = source_ids or []
+
+
+class WorkflowContext:
+    """Manages shared state between workflow steps."""
+
+    def __init__(self, workflow_id: str):
+        self.workflow_id = workflow_id
+        self.shared_data: Dict[str, Any] = {}
+        self.step_outputs: Dict[str, Any] = {}
+        self.metadata: Dict[str, Any] = {}
+        self.source_ids: Optional[List[str]] = None
+
+    def set_shared_data(self, key: str, value: Any):
+        """Set shared data that persists across steps."""
+        self.shared_data[key] = value
+
+    def get_shared_data(self, key: str, default: Any = None) -> Any:
+        """Get shared data by key."""
+        return self.shared_data.get(key, default)
+
+    def set_step_output(self, step_id: str, output: Any):
+        """Store output from a specific step."""
+        self.step_outputs[step_id] = output
+
+    def get_step_output(self, step_id: str, default: Any = None) -> Any:
+        """Get output from a specific step."""
+        return self.step_outputs.get(step_id, default)
+
+    def get_previous_step_output(self) -> Any:
+        """Get output from the most recent step."""
+        if self.step_outputs:
+            return list(self.step_outputs.values())[-1]
+        return None
+
+    def update_metadata(self, metadata: Dict[str, Any]):
+        """Update workflow metadata."""
+        self.metadata.update(metadata)
 
 
 class WorkflowService:
@@ -136,42 +191,469 @@ class WorkflowService:
 
         self._current_workflow_id = None
 
+        self.rag_service = None  # Will be injected via dependency injection
+        self.role_manager: Optional[RoleManager] = None
+        self.podcast_generator: Optional[PodcastGenerator] = None
+
         logger.info("WorkflowService initialized")
 
-    async def start_simple_workflow(self, initial_task: str) -> Dict:
-        """Start a simple workflow execution.
+    def set_rag_service(self, rag_service: RagService):
+        """Set the RAG service for context-enhanced processing."""
+        self.rag_service = rag_service
+
+    def set_role_manager(self, role_manager: RoleManager):
+        """Set the role manager for agent instantiation."""
+        self.role_manager = role_manager
+
+    def set_podcast_generator(self, podcast_generator: PodcastGenerator):
+        """Set the podcast generator for content-to-audio workflows."""
+        self.podcast_generator = podcast_generator
+
+    async def enhance_prompt_with_context(
+        self,
+        original_prompt: str,
+        source_ids: Optional[List[str]] = None,
+        max_context_chunks: int = 5,
+    ) -> str:
+        """
+        Enhance a prompt with relevant context from knowledge sources.
 
         Args:
-            initial_task: The initial task description to decompose and execute
+            original_prompt: The original user prompt/query
+            source_ids: Optional list of source IDs to retrieve context from
+            max_context_chunks: Maximum number of context chunks to retrieve
 
         Returns:
-            Dict: Workflow execution results containing:
-                 - workflow_id: Unique identifier for the workflow
-                 - status: "success" or "error"
-                 - steps_executed: Number of steps successfully executed
-                 - total_steps: Total number of planned steps
-                 - results: List of step execution results
-                 - final_result: Aggregated final workflow result
-                 - error: Error message if workflow failed
+            Enhanced prompt with context or original prompt if no context available
         """
+        if not source_ids or not self.rag_service:
+            return original_prompt
+
+        try:
+            # Retrieve relevant context from knowledge base
+            logger.info(
+                f"Retrieving context from {len(source_ids)} sources for query: {original_prompt[:100]}..."
+            )
+
+            context_chunks = await self.rag_service.retrieve_relevant_context(
+                query=original_prompt,
+                source_ids=source_ids,
+                k=max_context_chunks,
+            )
+
+            if not context_chunks:
+                logger.warning(
+                    "No relevant context found for the given query and sources"
+                )
+                return original_prompt
+
+            # Format context for LLM prompt
+            context_text = "\n\n".join(
+                [f"Context {i+1}:\n{chunk}" for i, chunk in enumerate(context_chunks)]
+            )
+
+            enhanced_prompt = f"""Use the following context from the knowledge base to help answer the question or complete the task. The context provides relevant information that should inform your response.
+
+CONTEXT:
+{context_text}
+
+QUESTION/TASK:
+{original_prompt}
+
+Please provide a comprehensive response that incorporates relevant information from the context above. If the context doesn't contain information relevant to the question, you may still provide a general response but mention that the provided context doesn't contain specific relevant information."""
+
+            logger.info(f"Enhanced prompt with {len(context_chunks)} context chunks")
+            return enhanced_prompt
+
+        except Exception as e:
+            logger.error(f"Error retrieving context for prompt enhancement: {str(e)}")
+            # Return original prompt if context retrieval fails
+            return original_prompt
+
+    async def start_complex_workflow(self, request: WorkflowRequest) -> Workflow:
+        """
+        Start a complex workflow with dynamic agent selection and state management.
+
+        This method provides enhanced workflow execution with:
+        - Dynamic agent role determination
+        - Shared state management between steps
+        - Context enhancement from knowledge sources
+        - Error recovery and step dependencies
+        """
+        workflow = Workflow(id=self._generate_workflow_id())
+        workflow.title = request.title
+        workflow.description = request.description
+        workflow.status = WorkflowStatus.RUNNING
+        workflow.created_at = datetime.utcnow()
+        workflow.updated_at = datetime.utcnow()
+
+        # Initialize workflow context
+        context = WorkflowContext(workflow.id)
+        context.source_ids = request.source_ids
+
+        # Publish workflow started event
+        await self.event_bus.publish(
+            WorkflowStartedEvent(
+                workflow_id=workflow.id,
+                title=workflow.title,
+                step_count=len(request.steps),
+            )
+        )
+
+        try:
+            # Process each step with enhanced execution
+            for step_index, step_config in enumerate(request.steps):
+                step = await self._execute_complex_step(
+                    workflow=workflow,
+                    step_config=step_config,
+                    step_index=step_index,
+                    context=context,
+                )
+                workflow.steps.append(step)
+
+                # Stop execution if step failed and no error recovery
+                if step.status == "failed" and not step_config.get(
+                    "continue_on_error", False
+                ):
+                    workflow.status = WorkflowStatus.FAILED
+                    await self.event_bus.publish(
+                        WorkflowFailedEvent(
+                            workflow_id=workflow.id,
+                            error=f"Step '{step.name}' failed: {step.error}",
+                        )
+                    )
+                    return workflow
+
+            # All steps completed successfully
+            workflow.status = WorkflowStatus.COMPLETED
+            workflow.updated_at = datetime.utcnow()
+
+            await self.event_bus.publish(
+                WorkflowCompletedEvent(
+                    workflow_id=workflow.id,
+                    duration_seconds=(
+                        datetime.utcnow() - workflow.created_at
+                    ).total_seconds(),
+                )
+            )
+
+            return workflow
+
+        except Exception as e:
+            logger.error(f"Complex workflow execution failed: {str(e)}")
+            workflow.status = WorkflowStatus.FAILED
+
+            await self.event_bus.publish(
+                WorkflowFailedEvent(
+                    workflow_id=workflow.id,
+                    error=str(e),
+                )
+            )
+
+            return workflow
+
+    async def _execute_complex_step(
+        self,
+        workflow: Workflow,
+        step_config: Dict[str, Any],
+        step_index: int,
+        context: WorkflowContext,
+    ) -> WorkflowStep:
+        """
+        Execute a single workflow step with enhanced agent selection.
+
+        Args:
+            workflow: The workflow being executed
+            step_config: Configuration for the current step
+            step_index: Index of the current step
+            context: Shared workflow context
+
+        Returns:
+            Executed workflow step
+        """
+        step = WorkflowStep(
+            id=f"{workflow.id}-step-{step_index}",
+            name=step_config.get("name", f"step_{step_index}"),
+            status="pending",
+        )
+
+        try:
+            # Publish step started event
+            await self.event_bus.publish(
+                WorkflowStepStartedEvent(
+                    workflow_id=workflow.id,
+                    step_id=step.id,
+                    step_name=step.name,
+                )
+            )
+
+            # Determine required agent role
+            required_role = await self._determine_agent_role(step_config, context)
+            logger.info(
+                f"Determined required role for step '{step.name}': {required_role}"
+            )
+
+            # Get agent instance from role manager
+            agent = await self._get_agent_for_step(required_role, step_config, context)
+            if not agent:
+                raise Exception(
+                    f"Could not instantiate agent for role: {required_role}"
+                )
+
+            # Prepare step input with context enhancement
+            step_input = await self._prepare_step_input(step_config, context)
+
+            # Execute the step
+            step.status = "running"
+            logger.info(
+                f"Executing step '{step.name}' with agent role '{required_role}'"
+            )
+
+            result = await agent.execute(step_input)
+
+            # Process step result
+            if result.get("status") == "success":
+                step.status = "completed"
+                step.result = result.get("result", "Step completed successfully")
+                step.output_data = result.get("data", {})
+
+                # Store step output in context
+                context.set_step_output(step.id, step.output_data)
+
+                # Update shared context if step provides shared data
+                if "shared_data" in result:
+                    for key, value in result["shared_data"].items():
+                        context.set_shared_data(key, value)
+
+            else:
+                step.status = "failed"
+                step.error = result.get("error", "Step execution failed")
+                step.result = result.get("result", "Step failed")
+
+            # Publish step completed event
+            await self.event_bus.publish(
+                WorkflowStepCompletedEvent(
+                    workflow_id=workflow.id,
+                    step_id=step.id,
+                    step_name=step.name,
+                    status=step.status,
+                    result=step.result,
+                )
+            )
+
+            return step
+
+        except Exception as e:
+            step.status = "failed"
+            step.error = str(e)
+            step.result = f"Step execution failed: {str(e)}"
+
+            logger.error(f"Step execution failed: {str(e)}")
+
+            await self.event_bus.publish(
+                WorkflowStepCompletedEvent(
+                    workflow_id=workflow.id,
+                    step_id=step.id,
+                    step_name=step.name,
+                    status="failed",
+                    result=step.result,
+                )
+            )
+
+            return step
+
+    async def _determine_agent_role(
+        self, step_config: Dict[str, Any], context: WorkflowContext
+    ) -> str:
+        """
+        Determine the required agent role for a workflow step.
+
+        Args:
+            step_config: Step configuration
+            context: Workflow context
+
+        Returns:
+            Name of the required agent role
+        """
+        # Check if role is explicitly specified
+        if "agent_role" in step_config:
+            return step_config["agent_role"]
+
+        # Check legacy agent_type field
+        if "agent_type" in step_config:
+            return step_config["agent_type"]
+
+        # Determine role based on step type
+        step_type = step_config.get("type", "").lower()
+        step_name = step_config.get("name", "").lower()
+
+        # Role determination rules
+        role_mappings = {
+            # Planning and strategy
+            "planning": "planner",
+            "strategy": "planner",
+            "analysis": "analyst",
+            "research": "researcher",
+            # Content creation
+            "writing": "writer",
+            "content_generation": "writer",
+            "documentation": "writer",
+            # Development tasks
+            "coding": "developer",
+            "development": "developer",
+            "programming": "developer",
+            "testing": "developer",
+            # Tool usage and execution
+            "execution": "tool_user",
+            "tool_usage": "tool_user",
+            "file_operations": "tool_user",
+            # Default fallbacks
+            "task": "tool_user",
+            "action": "tool_user",
+        }
+
+        # Check step type mapping
+        for keyword, role in role_mappings.items():
+            if keyword in step_type or keyword in step_name:
+                return role
+
+        # Check for specific keywords in step configuration
+        config = step_config.get("config", {})
+        config_text = str(config).lower()
+
+        if any(word in config_text for word in ["plan", "strategy", "analyze"]):
+            return "planner"
+        elif any(word in config_text for word in ["write", "generate", "create"]):
+            return "writer"
+        elif any(word in config_text for word in ["code", "program", "develop"]):
+            return "developer"
+        elif any(word in config_text for word in ["research", "find", "search"]):
+            return "researcher"
+
+        # Check for podcast generation
+        if any(
+            keyword in step_type or keyword in step_name
+            for keyword in ["podcast", "audio", "tts"]
+        ):
+            return "podcast_generator"
+
+        # Default to tool_user for general tasks
+        return "tool_user"
+
+    async def _get_agent_for_step(
+        self,
+        role_name: str,
+        step_config: Dict[str, Any],
+        context: WorkflowContext,
+    ) -> Optional[Any]:
+        """
+        Get an agent instance for the specified role.
+
+        Args:
+            role_name: Name of the required role
+            step_config: Step configuration
+            context: Workflow context
+
+        Returns:
+            Agent instance or None if not available
+        """
+        if not self.role_manager:
+            logger.error("Role manager not configured")
+            return None
+
+        try:
+            # Pass additional context to agent
+            agent_kwargs = {
+                "workflow_context": context,
+                "step_config": step_config,
+            }
+
+            agent = await self.role_manager.get_agent(role_name, **agent_kwargs)
+
+            # Handle podcast generation
+            if role_name == "podcast_generator" and self.podcast_generator:
+                return PodcastWorkflow(self.podcast_generator)
+
+            return agent
+
+        except Exception as e:
+            logger.error(f"Error getting agent for role '{role_name}': {str(e)}")
+            return None
+
+    async def _prepare_step_input(
+        self,
+        step_config: Dict[str, Any],
+        context: WorkflowContext,
+    ) -> Dict[str, Any]:
+        """
+        Prepare input for step execution with context enhancement.
+
+        Args:
+            step_config: Step configuration
+            context: Workflow context
+
+        Returns:
+            Enhanced step input
+        """
+        step_input = step_config.get("config", {}).copy()
+
+        # Add context data
+        step_input["_workflow_context"] = {
+            "workflow_id": context.workflow_id,
+            "shared_data": context.shared_data.copy(),
+            "previous_outputs": list(context.step_outputs.values()),
+            "previous_step_data": context.get_previous_step_output(),
+        }
+
+        # Enhance with knowledge context if applicable
+        if context.source_ids and self._should_enhance_with_context(
+            step_config, context.source_ids
+        ):
+            enhanced_input = await self._enhance_step_with_context(
+                step_input, step_config, context.source_ids
+            )
+            step_input.update(enhanced_input)
+
+        return step_input
+
+    async def start_simple_workflow(self, request: WorkflowRequest) -> Workflow:
+        """
+        Start a simple workflow (legacy method, now uses complex workflow internally).
+
+        This method maintains backward compatibility while leveraging the enhanced
+        complex workflow execution system.
+        """
+        # Convert simple workflow request to complex workflow format if needed
+        if not hasattr(request, "source_ids"):
+            request.source_ids = None
+
+        # Use the complex workflow system for better agent management
+        if self.role_manager:
+            return await self.start_complex_workflow(request)
+
+        # Fallback to original implementation if role manager not available
+        return await self._start_simple_workflow_legacy(request)
+
+    async def _start_simple_workflow_legacy(self, request: WorkflowRequest) -> Workflow:
+        """Legacy simple workflow implementation for backward compatibility."""
         import uuid
 
         workflow_id = str(uuid.uuid4())
         self._current_workflow_id = workflow_id
 
-        logger.info(f"Starting workflow {workflow_id} with task: {initial_task}")
+        logger.info(f"Starting workflow {workflow_id} with task: {request.title}")
 
         try:
             # Publish workflow started event
             if self.event_bus:
                 await self.event_bus.publish(
                     WorkflowStartedEvent(
-                        workflow_id=workflow_id, initial_task=initial_task
+                        workflow_id=workflow_id, initial_task=request.title
                     )
                 )
 
             # Step 1: Use PlannerAgent to decompose the task
-            decomposition_result = await self._decompose_task(initial_task)
+            decomposition_result = await self._decompose_task(request.title)
             if decomposition_result["status"] != "success":
                 return self._create_error_result(
                     workflow_id,
@@ -288,7 +770,7 @@ class WorkflowService:
                 "results": step_results,
                 "final_result": final_result,
                 "metadata": {
-                    "initial_task": initial_task,
+                    "initial_task": request.title,
                     "execution_summary": f"{completed_steps}/{total_steps} steps completed successfully",
                 },
             }
@@ -527,3 +1009,157 @@ class WorkflowService:
             "error": error_message,
             "metadata": {"error_occurred": True, "error_message": error_message},
         }
+
+    def _should_enhance_with_context(
+        self, step_config: dict, source_ids: Optional[List[str]]
+    ) -> bool:
+        """
+        Determine if a workflow step should be enhanced with knowledge context.
+
+        Args:
+            step_config: Configuration for the workflow step
+            source_ids: Available source IDs for context
+
+        Returns:
+            True if the step should be enhanced with context
+        """
+        if not source_ids or not self.rag_service:
+            return False
+
+        # Define step types that benefit from context enhancement
+        context_enhanced_steps = {
+            "question_answering",
+            "content_generation",
+            "analysis",
+            "planning",
+            "research",
+        }
+
+        step_name = step_config.get("name", "")
+        step_type = step_config.get("type", "")
+        agent_type = step_config.get("agent_type", "")
+
+        # Check if step explicitly requests context enhancement
+        if step_config.get("use_knowledge_context", False):
+            return True
+
+        # Check if step type typically benefits from context
+        if any(keyword in step_name.lower() for keyword in context_enhanced_steps):
+            return True
+
+        if any(keyword in step_type.lower() for keyword in context_enhanced_steps):
+            return True
+
+        # Planner agents often benefit from context
+        if agent_type == "planner":
+            return True
+
+        return False
+
+    async def _enhance_step_with_context(
+        self, step_input: dict, step_config: dict, source_ids: List[str]
+    ) -> dict:
+        """
+        Enhance a workflow step's input with relevant knowledge context.
+
+        Args:
+            step_input: Original step input configuration
+            step_config: Step configuration
+            source_ids: Source IDs for context retrieval
+
+        Returns:
+            Enhanced input configuration with context
+        """
+        try:
+            # Extract the main query/prompt from step input
+            query = self._extract_query_from_step_input(step_input, step_config)
+
+            if not query:
+                logger.warning(
+                    "Could not extract query from step input for context enhancement"
+                )
+                return {}
+
+            # Enhance the query with context
+            enhanced_query = await self.enhance_prompt_with_context(
+                original_prompt=query,
+                source_ids=source_ids,
+                max_context_chunks=5,
+            )
+
+            # Update the appropriate field in step input
+            enhanced_input = {}
+
+            # Common field names that might contain the main prompt/query
+            query_fields = [
+                "objective",
+                "prompt",
+                "query",
+                "instruction",
+                "task",
+                "description",
+            ]
+
+            for field in query_fields:
+                if field in step_input and step_input[field] == query:
+                    enhanced_input[field] = enhanced_query
+                    break
+            else:
+                # If no specific field found, add as context
+                enhanced_input["knowledge_context"] = enhanced_query
+
+            # Add metadata about context enhancement
+            enhanced_input["_context_enhanced"] = True
+            enhanced_input["_source_ids_used"] = source_ids
+
+            logger.info(
+                f"Enhanced step '{step_config.get('name', 'unknown')}' with knowledge context"
+            )
+            return enhanced_input
+
+        except Exception as e:
+            logger.error(f"Error enhancing step with context: {str(e)}")
+            return {}
+
+    def _extract_query_from_step_input(
+        self, step_input: dict, step_config: dict
+    ) -> Optional[str]:
+        """
+        Extract the main query/prompt from step input for context enhancement.
+
+        Args:
+            step_input: Step input configuration
+            step_config: Step configuration
+
+        Returns:
+            Extracted query string or None if not found
+        """
+        # Try common field names for queries/prompts
+        query_fields = [
+            "objective",
+            "prompt",
+            "query",
+            "instruction",
+            "task",
+            "description",
+        ]
+
+        for field in query_fields:
+            if field in step_input and isinstance(step_input[field], str):
+                return step_input[field]
+
+        # Fallback: use step name as query if it looks like a question or task
+        step_name = step_config.get("name", "")
+        if step_name and any(char in step_name for char in "?"):
+            return step_name
+
+        # Last resort: concatenate all string values
+        text_values = [
+            str(v)
+            for v in step_input.values()
+            if isinstance(v, str) and len(str(v)) > 10
+        ]
+        if text_values:
+            return " ".join(text_values)
+
+        return None

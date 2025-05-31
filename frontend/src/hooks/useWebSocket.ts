@@ -1,5 +1,5 @@
 // Hook for WebSocket integration with React and Zustand
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { webSocketManager, ConnectionState } from '../services/websocket';
 import { eventBus } from '../utils/eventBus';
 import { useTaskStore } from '../features/tasks/hooks/useTaskStore';
@@ -18,43 +18,91 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     const [isConnected, setIsConnected] = useState(false);
     const taskStore = useTaskStore();
 
+    const ws = useRef<WebSocket | null>(null);
+    const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const reconnectAttempts = useRef(0);
+    const maxReconnectAttempts = 5;
+
     // Connection management
     const connect = useCallback(() => {
-        webSocketManager.connect();
-    }, []);
+        try {
+            if (ws.current?.readyState === WebSocket.OPEN) {
+                return;
+            }
+
+            ws.current = new WebSocket('ws://localhost:8080'); // Replace with your WebSocket URL
+
+            ws.current.onopen = () => {
+                setIsConnected(true);
+                setConnectionState('connected');
+                reconnectAttempts.current = 0;
+                onConnect?.();
+                console.log('WebSocket connected');
+            };
+
+            ws.current.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                console.log('Message received:', message);
+                onMessage?.(message);
+            };
+
+            ws.current.onclose = (event) => {
+                setIsConnected(false);
+                setConnectionState('disconnected');
+                onDisconnect?.(event.reason);
+                console.log('WebSocket disconnected:', event.code, event.reason);
+
+                // Attempt to reconnect if not a normal closure
+                if (event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
+                    const delay = Math.pow(2, reconnectAttempts.current) * 1000; // Exponential backoff
+                    reconnectTimeoutRef.current = setTimeout(() => {
+                        reconnectAttempts.current++;
+                        connect();
+                    }, delay);
+                }
+            };
+
+            ws.current.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                setConnectionState('disconnected');
+                setIsConnected(false);
+                onError?.(error);
+            };
+
+        } catch (error) {
+            console.error('Failed to create WebSocket connection:', error);
+            setConnectionState('disconnected');
+            setIsConnected(false);
+            onError?.(error);
+        }
+    }, [connect, onConnect, onDisconnect, onError, onMessage]);
 
     const disconnect = useCallback(() => {
-        webSocketManager.disconnect();
+        if (reconnectTimeoutRef.current) {
+            clearTimeout(reconnectTimeoutRef.current);
+            reconnectTimeoutRef.current = null;
+        }
+
+        if (ws.current) {
+            ws.current.close(1000, 'Normal closure');
+            ws.current = null;
+        }
+
+        setIsConnected(false);
+        setConnectionState('disconnected');
     }, []);
 
     const sendMessage = useCallback((type: string, data: any) => {
-        webSocketManager.send(type, data);
+        if (ws.current?.readyState === WebSocket.OPEN) {
+            const message = JSON.stringify({ type, data });
+            ws.current.send(message);
+        } else {
+            console.warn('WebSocket is not connected. Message not sent:', { type, data });
+        }
     }, []);
 
     // Setup event listeners
     useEffect(() => {
-        // WebSocket connection events
-        const handleConnected = () => {
-            setIsConnected(true);
-            setConnectionState('connected');
-            onConnect?.();
-        };
-
-        const handleDisconnected = (data: { code: number; reason: string }) => {
-            setIsConnected(false);
-            setConnectionState('disconnected');
-            onDisconnect?.(data.reason);
-        };
-
-        const handleError = (data: { error: any }) => {
-            onError?.(data.error);
-        };
-
-        const handleStateChange = (data: { state: ConnectionState }) => {
-            setConnectionState(data.state);
-            setIsConnected(data.state === 'connected');
-        };
-
         // Task-related events
         const handleTaskCreated = (task: any) => {
             console.log('Task created via WebSocket:', task);
@@ -112,26 +160,13 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
             }
         };
 
-        const handleGenericMessage = (message: any) => {
-            console.log('Generic WebSocket message:', message);
-            onMessage?.(message);
-        };
-
         // Register event listeners
         const unsubscribeFunctions = [
-            eventBus.on('websocket:connected', handleConnected),
-            eventBus.on('websocket:disconnected', handleDisconnected),
-            eventBus.on('websocket:error', handleError),
-            eventBus.on('websocket:connectionStateChanged', handleStateChange),
-
             eventBus.on('task:created', handleTaskCreated),
             eventBus.on('task:updated', handleTaskUpdated),
             eventBus.on('task:completed', handleTaskCompleted),
             eventBus.on('task:failed', handleTaskFailed),
             eventBus.on('task:progressUpdated', handleTaskProgress),
-
-            // Generic message handler
-            eventBus.on('websocket:message', handleGenericMessage)
         ];
 
         // Auto-connect if enabled
@@ -142,8 +177,9 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         // Cleanup function
         return () => {
             unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+            disconnect();
         };
-    }, [autoConnect, connect, onConnect, onDisconnect, onError, onMessage, taskStore]);
+    }, [autoConnect, connect, disconnect, taskStore]);
 
     return {
         connectionState,

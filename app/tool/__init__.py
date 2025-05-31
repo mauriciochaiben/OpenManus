@@ -12,6 +12,9 @@ from app.tool.terminate import Terminate
 from app.tool.tool_collection import ToolCollection
 from app.tool.web_search import WebSearch
 
+# Import tools to trigger registration
+from . import code_execution, file_manager, web_scraper
+
 __all__ = [
     "BaseTool",
     "Bash",

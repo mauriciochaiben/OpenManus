@@ -1,0 +1,97 @@
+# Role configurations for the OpenManus system
+
+planner:
+  agent_type: "planner"
+  description: "AI agent specialized in planning and task decomposition"
+  capabilities:
+    - "planning"
+    - "task_breakdown"
+    - "strategy_development"
+    - "goal_setting"
+  agent_config:
+    max_planning_depth: 5
+    use_context_enhancement: true
+    planning_style: "detailed"
+    output_format: "structured"
+
+tool_user:
+  agent_type: "tool_user"
+  description: "AI agent specialized in using tools and executing tasks"
+  capabilities:
+    - "tool_usage"
+    - "task_execution"
+    - "file_operations"
+    - "code_execution"
+  agent_config:
+    max_tool_calls: 10
+    timeout_seconds: 300
+    parallel_execution: false
+    error_recovery: true
+
+researcher:
+  agent_type: "planner"
+  description: "AI agent specialized in research and information gathering"
+  capabilities:
+    - "research"
+    - "information_gathering"
+    - "data_analysis"
+    - "source_evaluation"
+  agent_config:
+    research_depth: "comprehensive"
+    use_context_enhancement: true
+    max_sources: 15
+    fact_checking: true
+    citation_required: true
+
+analyst:
+  agent_type: "tool_user"
+  description: "AI agent specialized in data analysis and insights"
+  capabilities:
+    - "data_analysis"
+    - "statistical_analysis"
+    - "visualization"
+    - "reporting"
+  agent_config:
+    analysis_tools:
+      - "pandas"
+      - "matplotlib"
+      - "statistics"
+    output_formats:
+      - "charts"
+      - "reports"
+      - "summaries"
+    confidence_threshold: 0.8
+
+writer:
+  agent_type: "planner"
+  description: "AI agent specialized in content creation and writing"
+  capabilities:
+    - "content_creation"
+    - "technical_writing"
+    - "documentation"
+    - "editing"
+  agent_config:
+    writing_style: "professional"
+    use_context_enhancement: true
+    max_document_length: 10000
+    include_references: true
+    tone: "informative"
+
+developer:
+  agent_type: "tool_user"
+  description: "AI agent specialized in software development tasks"
+  capabilities:
+    - "code_generation"
+    - "code_review"
+    - "testing"
+    - "debugging"
+    - "refactoring"
+  agent_config:
+    programming_languages:
+      - "python"
+      - "typescript"
+      - "javascript"
+    code_style: "clean_code"
+    include_tests: true
+    documentation_level: "comprehensive"
+    max_file_size: 5000

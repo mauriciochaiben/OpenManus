@@ -7,7 +7,7 @@ por outros agentes especializados.
 """
 
 import asyncio
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from app.agent.base_agent import BaseAgent
 
@@ -100,6 +100,55 @@ class PlannerAgent(BaseAgent):
                 "message": f"Erro na decomposição da tarefa: {str(e)}",
                 "steps": [],
             }
+
+    async def execute(self, task_config: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute planning task with optional knowledge context enhancement."""
+        try:
+            objective = task_config.get("objective", "")
+            context_enhanced = task_config.get("_context_enhanced", False)
+
+            # Log context usage for monitoring
+            if context_enhanced:
+                source_ids = task_config.get("_source_ids_used", [])
+                logger.info(
+                    f"Planning with knowledge context from {len(source_ids)} sources"
+                )
+
+            # Use the potentially enhanced objective for planning
+            plan_result = await self._generate_plan(objective, task_config)
+
+            return {
+                "status": "success",
+                "result": "Plan created successfully",
+                "data": {
+                    "plan": plan_result,
+                    "context_enhanced": context_enhanced,
+                    "planning_approach": (
+                        "context-aware" if context_enhanced else "standard"
+                    ),
+                },
+            }
+
+        except Exception as e:
+            logger.error(f"Planning failed: {str(e)}")
+            return {
+                "status": "error",
+                "result": "Planning failed",
+                "error": str(e),
+            }
+
+    async def _generate_plan(self, objective: str, config: Dict[str, Any]) -> str:
+        """Generate a plan based on the objective and configuration."""
+        # ...existing planning logic...
+        # The objective might now include enhanced context
+
+        # If knowledge context was provided, the objective will include:
+        # - Relevant context from knowledge base
+        # - Original user question/task
+        # This allows the LLM to create more informed plans
+
+        # ...existing code...
+        pass
 
     def get_capabilities(self) -> List[str]:
         """Retorna as capacidades do agente planejador.

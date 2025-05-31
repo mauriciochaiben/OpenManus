@@ -10,290 +10,295 @@ body,
     overflow: hidden;
 }
 
-/* App Container */
+/* App Layout */
 .app-container {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    background: #f5f5f5;
 }
 
-/* Chat Interface Styles */
-.chat-interface {
-    flex: 1;
+.app-layout {
+    min-height: 100vh;
+}
+
+/* Header Styles */
+.app-header {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 0 24px;
+}
+
+.header-content {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+}
+
+.header-title {
+    color: white !important;
+    margin: 0 !important;
+    font-weight: 600;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+}
+
+.connection-text {
+    color: white !important;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Content Layout */
+.app-content {
+    padding: 32px 24px;
+    background: #f5f5f5;
+    min-height: calc(100vh - 64px);
+}
+
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.main-space {
     width: 100%;
-    padding: 20px;
+}
+
+/* Task Input Card */
+.task-input-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    border: 1px solid #e6f4ff;
+}
+
+.task-input-card .ant-card-head {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-bottom: 1px solid #e6f4ff;
+}
+
+.task-input-card .ant-card-head-title {
+    font-weight: 600;
+    color: #1e40af;
+}
+
+.task-input-content {
+    display: flex;
+    flex-direction: column;
     gap: 20px;
 }
 
-.chat-header {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
+.task-textarea {
+    font-size: 15px;
+    line-height: 1.6;
+    border-radius: 8px;
+    resize: vertical;
+}
+
+.task-textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.task-actions {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.start-button {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    font-weight: 600;
+    height: 44px;
+    min-width: 160px;
+}
+
+.start-button:hover {
+    background: linear-gradient(135deg, #5855eb 0%, #7c3aed 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.clear-button {
+    height: 44px;
+    min-width: 100px;
+    font-weight: 500;
+}
+
+.connection-alert {
+    margin-top: 8px;
+}
+
+/* Workflow Status Card */
+.workflow-status-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    border: 1px solid #f0f0f0;
+}
+
+.workflow-status-card .ant-card-head {
+    background: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.workflow-status-card .ant-card-head-title {
+    font-weight: 600;
+    color: #262626;
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-label {
+    font-size: 14px;
+}
+
+.status-value {
+    font-size: 14px;
+    padding: 4px 12px;
     border-radius: 16px;
-    padding: 24px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
 }
 
-.chat-header h1 {
-    margin: 0;
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.status-running {
+    background: #e6f7ff;
+    color: #1890ff;
 }
 
-.chat-header p {
-    margin: 8px 0 0 0;
-    color: #6b7280;
-    font-size: 1.1rem;
+.status-completed {
+    background: #f6ffed;
+    color: #52c41a;
 }
 
-.chat-container {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+.status-failed {
+    background: #fff2f0;
+    color: #ff4d4f;
+}
+
+.workflow-content {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    gap: 20px;
 }
 
-.messages-area {
-    flex: 1;
-    padding: 24px;
-    overflow-y: auto;
+/* Current Step Alert */
+.step-alert {
+    border-radius: 8px;
+}
+
+.current-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.step-text {
+    font-weight: 500;
+}
+
+/* Error Alert */
+.error-alert {
+    border-radius: 8px;
+}
+
+/* Results Section */
+.results-section {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-.message-bubble {
-    max-width: 80%;
-    padding: 16px 20px;
-    border-radius: 20px;
-    word-wrap: break-word;
-    animation: fadeInUp 0.3s ease-out;
-}
-
-.message-bubble.user {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    align-self: flex-end;
-    border-bottom-right-radius: 8px;
-}
-
-.message-bubble.assistant {
-    background: #f8fafc;
-    color: #1e293b;
-    align-self: flex-start;
-    border: 1px solid #e2e8f0;
-    border-bottom-left-radius: 8px;
-}
-
-.message-content {
-    margin: 0;
-    line-height: 1.6;
-    white-space: pre-wrap;
-}
-
-.message-time {
-    font-size: 0.8rem;
-    opacity: 0.7;
-    margin-top: 8px;
-    text-align: right;
-}
-
-.input-area {
-    padding: 24px;
-    border-top: 1px solid #e2e8f0;
-    background: rgba(255, 255, 255, 0.8);
-}
-
-.input-container {
-    display: flex;
-    gap: 12px;
-    align-items: flex-end;
-}
-
-.message-input {
-    flex: 1;
-    border-radius: 12px;
-    border: 2px solid #e2e8f0;
-    transition: all 0.2s ease;
-}
-
-.message-input:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.send-button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    border-radius: 12px;
-    height: 48px;
-    padding: 0 20px;
-    color: white;
+.results-title {
+    margin: 0 !important;
+    color: #262626;
     font-weight: 600;
+}
+
+.results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.result-card {
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
     transition: all 0.2s ease;
 }
 
-.send-button:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+.result-card:hover {
+    border-color: #d9d9d9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.send-button:disabled {
-    opacity: 0.6;
-    transform: none;
-    box-shadow: none;
-}
-
-/* Status Bar */
-.status-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 24px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.status-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
-    color: #6b7280;
-}
-
-.status-connected {
-    color: #059669;
-}
-
-.status-disconnected {
-    color: #dc2626;
-}
-
-.status-processing {
-    color: #d97706;
-}
-
-/* Processing Indicator */
-.processing-indicator {
+.result-header {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px 20px;
-    background: #fef3c7;
-    border: 1px solid #f59e0b;
+}
+
+.step-name {
+    color: #262626;
+    font-size: 14px;
+}
+
+.step-status {
+    font-size: 12px;
+    padding: 2px 8px;
     border-radius: 12px;
-    margin: 16px 0;
-    align-self: center;
+    font-weight: 600;
 }
 
-.processing-indicator .spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #f59e0b;
-    border-top: 2px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+.step-status-completed {
+    background: #f6ffed;
+    color: #52c41a;
 }
 
-/* Task Status Indicator */
-.task-status-indicator {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 20px;
-    border-radius: 12px;
-    margin: 16px 0;
-    align-self: stretch;
+.step-status-failed {
+    background: #fff2f0;
+    color: #ff4d4f;
 }
 
-.task-status-indicator.analyzing {
-    background: #dbeafe;
-    border: 1px solid #3b82f6;
-    color: #1e40af;
+.step-status-running {
+    background: #e6f7ff;
+    color: #1890ff;
 }
 
-.task-status-indicator.processing {
-    background: #fef3c7;
-    border: 1px solid #f59e0b;
-    color: #92400e;
+.timestamp {
+    font-size: 12px !important;
+    color: #8c8c8c !important;
 }
 
-.task-status-indicator.completed {
-    background: #d1fae5;
-    border: 1px solid #10b981;
-    color: #047857;
+.result-content {
+    margin-top: 8px;
 }
 
-.task-status-indicator.error {
-    background: #fee2e2;
-    border: 1px solid #ef4444;
-    color: #dc2626;
+.result-text {
+    background: #f8f9fa !important;
+    border: 1px solid #e9ecef !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    display: block !important;
+    margin: 0 !important;
+    font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    overflow-x: auto;
+    white-space: pre-wrap !important;
+    word-break: break-word;
 }
 
-/* Suggestions */
-.suggestions-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 16px;
-    padding: 0 24px;
-}
-
-.suggestion-chip {
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    color: #475569;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.suggestion-chip:hover {
-    background: #e2e8f0;
-    border-color: #94a3b8;
-}
-
-/* Execution Type Badge */
-.execution-type-badge {
-    font-size: 0.8rem;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-weight: 500;
-}
-
-.execution-type-badge.single {
-    background: #e0f2fe;
-    color: #0277bd;
-}
-
-.execution-type-badge.multi {
-    background: #f3e8ff;
-    color: #7c3aed;
-}
-
-.execution-type-badge.mcp {
-    background: #ecfdf5;
-    color: #059669;
+/* Success Alert */
+.success-alert {
+    border-radius: 8px;
 }
 
 /* Animations */
@@ -636,7 +641,406 @@ body,
     box-shadow: none !important;
 }
 
-/* Responsive Design */
+/* Status Bar */
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.status-connected {
+    color: #059669;
+}
+
+.status-disconnected {
+    color: #dc2626;
+}
+
+.status-processing {
+    color: #d97706;
+}
+
+/* Processing Indicator */
+.processing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 12px;
+    margin: 16px 0;
+    align-self: center;
+}
+
+.processing-indicator .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f59e0b;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Task Status Indicator */
+.task-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin: 16px 0;
+    align-self: stretch;
+}
+
+.task-status-indicator.analyzing {
+    background: #dbeafe;
+    border: 1px solid #3b82f6;
+    color: #1e40af;
+}
+
+.task-status-indicator.processing {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    color: #92400e;
+}
+
+.task-status-indicator.completed {
+    background: #d1fae5;
+    border: 1px solid #10b981;
+    color: #047857;
+}
+
+.task-status-indicator.error {
+    background: #fee2e2;
+    border: 1px solid #ef4444;
+    color: #dc2626;
+}
+
+/* Suggestions */
+.suggestions-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 0 24px;
+}
+
+.suggestion-chip {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.suggestion-chip:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+}
+
+/* Execution Type Badge */
+.execution-type-badge {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.execution-type-badge.single {
+    background: #e0f2fe;
+    color: #0277bd;
+}
+
+.execution-type-badge.multi {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+.execution-type-badge.mcp {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Task list animations */
+.task-list-item {
+    transition: all 0.3s ease;
+}
+
+.task-list-item:hover {
+    background: #f5f5f5;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Error states */
+.error-state {
+    text-align: center;
+    padding: 40px;
+    color: #ff4d4f;
+}
+
+.error-state .anticon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+/* Success states */
+.success-state {
+    text-align: center;
+    padding: 40px;
+    color: #52c41a;
+}
+
+.success-state .anticon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+/* Code blocks */
+.code-block {
+    background: #f5f5f5;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    padding: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+/* Log viewer */
+.log-viewer {
+    background: #1f1f1f;
+    color: #fff;
+    padding: 16px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.log-viewer .log-timestamp {
+    color: #666;
+}
+
+.log-viewer .log-level-info {
+    color: #1890ff;
+}
+
+.log-viewer .log-level-warn {
+    color: #faad14;
+}
+
+.log-viewer .log-level-error {
+    color: #ff4d4f;
+}
+
+/* File upload dropzone */
+.upload-dropzone {
+    border: 2px dashed #d9d9d9;
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    background: #fafafa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone.dragover {
+    border-color: #1890ff;
+    background: #f0f8ff;
+}
+
+.upload-dropzone .upload-icon {
+    font-size: 48px;
+    color: #1890ff;
+    margin-bottom: 16px;
+}
+
+/* Settings page */
+.settings-section {
+    margin-bottom: 32px;
+}
+
+.settings-section:last-child {
+    margin-bottom: 0;
+}
+
+/* MCP server status */
+.mcp-server-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mcp-server-status .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #d9d9d9;
+}
+
+.mcp-server-status .status-dot--connected {
+    background: #52c41a;
+}
+
+.mcp-server-status .status-dot--connecting {
+    background: #1890ff;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.mcp-server-status .status-dot--error {
+    background: #ff4d4f;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Workflow Interface Styles */
+.app-layout {
+    min-height: 100vh;
+}
+
+.app-header {
+    background: #1890ff;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+}
+
+.app-content {
+    background: #f0f2f5;
+}
+
+/* Workflow status indicators */
+.ant-alert {
+    margin-bottom: 16px;
+}
+
+/* Results cards styling */
+.ant-card-small .ant-card-head {
+    min-height: 42px;
+}
+
+.ant-card-small .ant-card-body {
+    padding: 12px;
+}
+
+/* Text area styling */
+.ant-input {
+    resize: vertical;
+}
+
+/* Button group spacing */
+.ant-space-item {
+    display: flex;
+    align-items: center;
+}
+
+/* Status text colors */
+.text-processing {
+    color: #1890ff;
+}
+
+.text-success {
+    color: #52c41a;
+}
+
+.text-error {
+    color: #ff4d4f;
+}
+
+/* Loading spinner alignment */
+.ant-spin {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .app-content {
+        padding: 16px !important;
+    }
+
+    .ant-card {
+        margin-bottom: 16px;
+    }
+
+    .ant-space-vertical {
+        width: 100%;
+    }
+}
+
+/* Code block styling for results */
+.ant-typography code {
+    background: #f6f8fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 8px 12px;
+    display: block;
+    margin: 8px 0;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-x: auto;
+}
+
 @media (max-width: 768px) {
     .main-chat-container {
         padding: 0;
@@ -1145,4 +1549,93 @@ body,
     100% {
         opacity: 1;
     }
+}
+
+/* Workflow Interface Styles */
+.app-layout {
+    min-height: 100vh;
+}
+
+.app-header {
+    background: #1890ff;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+}
+
+.app-content {
+    background: #f0f2f5;
+}
+
+/* Workflow status indicators */
+.ant-alert {
+    margin-bottom: 16px;
+}
+
+/* Results cards styling */
+.ant-card-small .ant-card-head {
+    min-height: 42px;
+}
+
+.ant-card-small .ant-card-body {
+    padding: 12px;
+}
+
+/* Text area styling */
+.ant-input {
+    resize: vertical;
+}
+
+/* Button group spacing */
+.ant-space-item {
+    display: flex;
+    align-items: center;
+}
+
+/* Status text colors */
+.text-processing {
+    color: #1890ff;
+}
+
+.text-success {
+    color: #52c41a;
+}
+
+.text-error {
+    color: #ff4d4f;
+}
+
+/* Loading spinner alignment */
+.ant-spin {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .app-content {
+        padding: 16px !important;
+    }
+
+    .ant-card {
+        margin-bottom: 16px;
+    }
+
+    .ant-space-vertical {
+        width: 100%;
+    }
+}
+
+/* Code block styling for results */
+.ant-typography code {
+    background: #f6f8fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 8px 12px;
+    display: block;
+    margin: 8px 0;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-x: auto;
 }
