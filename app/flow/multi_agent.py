@@ -4,6 +4,7 @@ Flow Multi-Agente especializado que aproveita o sistema MCP existente
 
 import json
 import time
+import uuid
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
@@ -13,6 +14,7 @@ from app.agent.base import BaseAgent
 from app.agent.decision import AgentApproach, AgentDecisionSystem
 from app.agent.orchestrator import MCPAgentOrchestrator, Task
 from app.flow.base import BaseFlow
+from app.infrastructure.messaging.progress_broadcaster import progress_broadcaster
 from app.llm import LLM
 from app.logger import logger
 from app.schema import Message, ToolChoice
@@ -55,6 +57,7 @@ class MultiAgentFlow(BaseFlow):
     active_plan_id: Optional[str] = None
     current_task: Optional[Task] = None
     execution_history: List[Dict] = Field(default_factory=list)
+    current_task_id: Optional[str] = None  # For progress tracking
 
     def __init__(
         self, agents: Union[BaseAgent, List[BaseAgent], Dict[str, BaseAgent]], **data
@@ -85,12 +88,43 @@ class MultiAgentFlow(BaseFlow):
         """Execute o flow com a entrada fornecida"""
         start_time = time.time()
 
+        # Generate task ID for progress tracking
+        self.current_task_id = f"task_{uuid.uuid4().hex[:8]}"
+
         try:
             logger.info(f"Starting MultiAgentFlow execution: {input_text[:100]}...")
+
+            # Broadcast initial progress
+            await progress_broadcaster.broadcast_progress(
+                task_id=self.current_task_id,
+                stage="Inicializando",
+                progress=5,
+                execution_type="multi",
+                task_name=(
+                    input_text[:50] + "..." if len(input_text) > 50 else input_text
+                ),
+                step_number=1,
+                total_steps=6,
+                description="Inicializando sistema multi-agente",
+            )
 
             # Inicializar se necessário
             if not self.orchestrator.specialized_agents:
                 await self.initialize()
+
+            # Broadcast initialization complete
+            await progress_broadcaster.broadcast_progress(
+                task_id=self.current_task_id,
+                stage="Analisando tarefa",
+                progress=15,
+                execution_type="multi",
+                task_name=(
+                    input_text[:50] + "..." if len(input_text) > 50 else input_text
+                ),
+                step_number=2,
+                total_steps=6,
+                description="Analisando complexidade e requisitos da tarefa",
+            )
 
             # Criar tarefa
             task = Task(description=input_text, priority=1)
@@ -109,11 +143,39 @@ class MultiAgentFlow(BaseFlow):
             approach = await self._determine_execution_approach(input_text)
             logger.info(f"Selected execution approach: {approach.value}")
 
+            # Broadcast approach selected
+            await progress_broadcaster.broadcast_progress(
+                task_id=self.current_task_id,
+                stage="Selecionando abordagem",
+                progress=25,
+                execution_type="multi",
+                task_name=(
+                    input_text[:50] + "..." if len(input_text) > 50 else input_text
+                ),
+                step_number=3,
+                total_steps=6,
+                description=f"Abordagem selecionada: {approach.value}",
+            )
+
             # Executar baseado na abordagem
             if approach == AgentApproach.SINGLE_AGENT:
                 result = await self._execute_single_agent(input_text)
             else:
                 result = await self._execute_multi_agent(input_text, approach)
+
+            # Broadcast completion
+            await progress_broadcaster.broadcast_progress(
+                task_id=self.current_task_id,
+                stage="Finalizando",
+                progress=95,
+                execution_type="multi",
+                task_name=(
+                    input_text[:50] + "..." if len(input_text) > 50 else input_text
+                ),
+                step_number=6,
+                total_steps=6,
+                description="Consolidando resultados finais",
+            )
 
             # Registrar na história
             execution_record = {
@@ -129,6 +191,11 @@ class MultiAgentFlow(BaseFlow):
             if len(self.execution_history) > 10:
                 self.execution_history = self.execution_history[-10:]
 
+            # Broadcast final completion
+            await progress_broadcaster.broadcast_completion(
+                task_id=self.current_task_id, result=result
+            )
+
             logger.info(
                 f"MultiAgentFlow execution completed in {time.time() - start_time:.2f}s"
             )
@@ -136,6 +203,12 @@ class MultiAgentFlow(BaseFlow):
 
         except Exception as e:
             logger.error(f"Error in MultiAgentFlow execution: {e}")
+
+            # Broadcast failure
+            await progress_broadcaster.broadcast_failure(
+                task_id=self.current_task_id, error=str(e)
+            )
+
             return f"Execution failed: {str(e)}"
 
     async def _determine_execution_approach(self, input_text: str) -> AgentApproach:
@@ -160,12 +233,40 @@ class MultiAgentFlow(BaseFlow):
         """Executa com single agent usando o agente primário"""
         logger.info("Executing with single agent")
 
+        # Broadcast single agent start
+        await progress_broadcaster.broadcast_progress(
+            task_id=self.current_task_id,
+            stage="Executando com agente único",
+            progress=40,
+            execution_type="single",
+            agents=["manus"] if self.primary_agent else [],
+            task_name=input_text[:50] + "..." if len(input_text) > 50 else input_text,
+            step_number=4,
+            total_steps=6,
+            description="Executando tarefa com agente especializado único",
+        )
+
         if not self.primary_agent:
             return "Error: No primary agent available"
 
         try:
             # Usar agente primário diretamente
             result = await self.primary_agent.run(input_text)
+
+            # Broadcast single agent completion
+            await progress_broadcaster.broadcast_progress(
+                task_id=self.current_task_id,
+                stage="Agente único concluído",
+                progress=85,
+                execution_type="single",
+                agents=["manus"],
+                task_name=(
+                    input_text[:50] + "..." if len(input_text) > 50 else input_text
+                ),
+                step_number=5,
+                total_steps=6,
+                description="Execução do agente único finalizada com sucesso",
+            )
 
             # Coordenação opcional
             if self.enable_coordination:
@@ -186,16 +287,73 @@ class MultiAgentFlow(BaseFlow):
         """Executa com múltiplos agentes usando o orquestrador"""
         logger.info(f"Executing with multi-agent approach: {approach.value}")
 
+        # Broadcast multi-agent start
+        available_agents = (
+            list(self.orchestrator.specialized_agents.keys())
+            if self.orchestrator.specialized_agents
+            else ["manus"]
+        )
+        await progress_broadcaster.broadcast_progress(
+            task_id=self.current_task_id,
+            stage="Coordenando múltiplos agentes",
+            progress=40,
+            execution_type="multi",
+            agents=available_agents,
+            task_name=input_text[:50] + "..." if len(input_text) > 50 else input_text,
+            step_number=4,
+            total_steps=6,
+            description=f"Execução {approach.value} com {len(available_agents)} agente(s)",
+        )
+
         try:
             # Criar tarefa para o orquestrador
             task = Task(description=input_text, priority=1)
 
             # Se planejamento está habilitado, criar plano primeiro
             if self.enable_planning:
+                await progress_broadcaster.broadcast_progress(
+                    task_id=self.current_task_id,
+                    stage="Criando plano de execução",
+                    progress=50,
+                    execution_type="multi",
+                    agents=available_agents,
+                    task_name=(
+                        input_text[:50] + "..." if len(input_text) > 50 else input_text
+                    ),
+                    description="Elaborando estratégia detalhada de execução",
+                )
                 await self._create_execution_plan(input_text)
+
+            # Broadcast execution phase
+            await progress_broadcaster.broadcast_progress(
+                task_id=self.current_task_id,
+                stage="Executando via orquestrador",
+                progress=65,
+                execution_type="multi",
+                agents=available_agents,
+                task_name=(
+                    input_text[:50] + "..." if len(input_text) > 50 else input_text
+                ),
+                description="Orquestrando execução entre agentes especializados",
+            )
 
             # Executar via orquestrador
             result = await self.orchestrator.route_task_to_agent(task)
+
+            # Broadcast multi-agent completion
+            await progress_broadcaster.broadcast_progress(
+                task_id=self.current_task_id,
+                stage="Multi-agente concluído",
+                progress=85,
+                execution_type="multi",
+                agents=available_agents,
+                task_name=(
+                    input_text[:50] + "..." if len(input_text) > 50 else input_text
+                ),
+                step_number=5,
+                total_steps=6,
+                description="Execução multi-agente finalizada com sucesso",
+            )
 
             # Coordenação final
             if self.enable_coordination:

@@ -12,6 +12,7 @@ import {
     Spin,
     Badge,
     Dropdown,
+    Progress,
     type MenuProps
 } from 'antd';
 import {
@@ -94,18 +95,44 @@ const MainChatInterface: React.FC = () => {
             // Real-time message received
             loadChatHistory(); // Refresh messages
         } else if (data.type === 'task_progress') {
-            // Update processing status
+            // Update processing status with detailed information
+            const stage = data.stage || data.description || 'Processando...';
+            const progress = data.progress || 0;
+            const agents = data.agents || [];
+            const execution_type = data.execution_type || null;
+
+            // Create more descriptive stage message
+            let detailedStage = stage;
+            if (data.step_number && data.total_steps) {
+                detailedStage = `Passo ${data.step_number}/${data.total_steps}: ${stage}`;
+            } else if (data.task_name) {
+                detailedStage = `${data.task_name} - ${stage}`;
+            }
+
             setProcessingStatus({
-                type: data.execution_type || null,
-                stage: data.stage || '',
-                progress: data.progress || 0,
-                agents: data.agents || []
+                type: execution_type,
+                stage: detailedStage,
+                progress: Math.min(100, Math.max(0, progress)),
+                agents: agents
             });
         } else if (data.type === 'task_completed') {
             // Clear processing status
             setProcessingStatus({ type: null, stage: '', progress: 0 });
             // Reload messages to show final result
             loadChatHistory();
+        } else if (data.type === 'task_failed') {
+            // Show error status
+            setProcessingStatus({
+                type: null,
+                stage: 'Erro no processamento',
+                progress: 0,
+                agents: []
+            });
+            // Reload messages to show error
+            setTimeout(() => {
+                loadChatHistory();
+                setProcessingStatus({ type: null, stage: '', progress: 0 });
+            }, 2000);
         }
     };
 
@@ -117,7 +144,7 @@ const MainChatInterface: React.FC = () => {
                 setMessages([{
                     id: '1',
                     role: 'assistant',
-                    content: '🚀 **Bem-vindo ao OpenManus!**\n\nSou seu assistente de IA inteligente. Posso ajudá-lo com:\n\n• **Análise de documentos** e processamento de dados\n• **Criação automática de tarefas** com múltiplos agentes\n• **Navegação web** e coleta de informações\n• **Desenvolvimento** e automação de código\n• **Integração MCP** para funcionalidades avançadas\n\nComo posso ajudá-lo hoje? 💭',
+                    content: 'Como posso ajudá-lo hoje? 💭',
                     timestamp: new Date().toISOString(),
                 }]);
             } else {
@@ -129,7 +156,7 @@ const MainChatInterface: React.FC = () => {
             setMessages([{
                 id: '1',
                 role: 'assistant',
-                content: '🚀 **Bem-vindo ao OpenManus!**\n\nSou seu assistente de IA inteligente. Como posso ajudá-lo hoje? 💭',
+                content: 'Como posso ajudá-lo hoje? 💭',
                 timestamp: new Date().toISOString(),
             }]);
         }
@@ -142,11 +169,11 @@ const MainChatInterface: React.FC = () => {
         setInputValue('');
         setIsLoading(true);
 
-        // Show initial processing status
+        // Initialize processing status - will be updated by WebSocket
         setProcessingStatus({
             type: null,
-            stage: 'Analisando solicitação...',
-            progress: 10
+            stage: 'Iniciando processamento...',
+            progress: 5
         });
 
         try {
@@ -186,7 +213,7 @@ const MainChatInterface: React.FC = () => {
             setMessages([{
                 id: '1',
                 role: 'assistant',
-                content: '🚀 **Bem-vindo ao OpenManus!**\n\nSou seu assistente de IA inteligente. Como posso ajudá-lo hoje? 💭',
+                content: 'Como posso ajudá-lo hoje? 💭',
                 timestamp: new Date().toISOString(),
             }]);
             setSuggestions([]);
@@ -290,19 +317,39 @@ const MainChatInterface: React.FC = () => {
             {/* Processing Status */}
             {(isLoading || processingStatus.type) && (
                 <div className="processing-status">
-                    <Space>
-                        {processingStatus.type && getExecutionTypeIcon(processingStatus.type)}
-                        <Spin size="small" />
-                        <Text>
-                            {processingStatus.type
-                                ? `${getExecutionTypeLabel(processingStatus.type)} - ${processingStatus.stage}`
-                                : processingStatus.stage || 'Processando...'
-                            }
-                        </Text>
+                    <Space direction="vertical" style={{ width: '100%' }}>
+                        <Space>
+                            {processingStatus.type && getExecutionTypeIcon(processingStatus.type)}
+                            <Spin size="small" />
+                            <Text strong>
+                                {processingStatus.type
+                                    ? `${getExecutionTypeLabel(processingStatus.type)} - ${processingStatus.stage}`
+                                    : processingStatus.stage || 'Processando...'
+                                }
+                            </Text>
+                        </Space>
+
+                        {/* Progress Bar */}
+                        {processingStatus.progress > 0 && (
+                            <Progress
+                                percent={processingStatus.progress}
+                                size="small"
+                                status="active"
+                                showInfo={true}
+                                format={(percent) => `${percent}%`}
+                            />
+                        )}
+
+                        {/* Active Agents */}
                         {processingStatus.agents && processingStatus.agents.length > 0 && (
                             <div className="active-agents">
+                                <Text type="secondary" style={{ marginRight: 8 }}>
+                                    Agentes ativos:
+                                </Text>
                                 {processingStatus.agents.map(agent => (
-                                    <Tag key={agent}>{agent}</Tag>
+                                    <Tag key={agent} color="blue" icon={<RobotOutlined />}>
+                                        {agent}
+                                    </Tag>
                                 ))}
                             </div>
                         )}

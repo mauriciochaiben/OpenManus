@@ -14,6 +14,7 @@ from openai.types.chat import ChatCompletion, ChatCompletionMessage
 from tenacity import (
     retry,
     retry_if_exception_type,
+    retry_if_not_exception_type,
     stop_after_attempt,
     wait_random_exponential,
 )
@@ -29,6 +30,30 @@ from app.schema import (
     Message,
     ToolChoice,
 )
+
+
+def should_retry_exception(exception):
+    """Custom retry condition that excludes rate limit and quota errors"""
+    # Don't retry rate limit errors - let the fallback system handle them
+    if isinstance(exception, RateLimitError):
+        return False
+
+    # Don't retry quota errors - let the fallback system handle them
+    if isinstance(exception, (APIError, OpenAIError)):
+        error_msg = str(exception).lower()
+        if "insufficient_quota" in error_msg or "quota" in error_msg:
+            return False
+
+    # Don't retry token limit errors
+    if isinstance(exception, TokenLimitExceeded):
+        return False
+
+    # Don't retry authentication errors
+    if isinstance(exception, AuthenticationError):
+        return False
+
+    # Retry other OpenAI errors and general exceptions
+    return isinstance(exception, (OpenAIError, Exception))
 
 
 REASONING_MODELS = ["o1", "o3-mini"]
@@ -189,6 +214,7 @@ class LLM:
         if not hasattr(self, "client"):  # Only initialize if not already initialized
             llm_config = llm_config or config.llm
             llm_config = llm_config.get(config_name, llm_config["default"])
+            self.config_name = config_name
             self.model = llm_config.model
             self.max_tokens = llm_config.max_tokens
             self.temperature = llm_config.temperature
@@ -196,6 +222,16 @@ class LLM:
             self.api_key = llm_config.api_key
             self.api_version = llm_config.api_version
             self.base_url = llm_config.base_url
+
+            # Add rate limit tracking
+            self.rate_limit_backoff = 0
+            self.last_rate_limit = 0
+            self.rate_limit_count = 0
+            self.request_count = 0
+            self.last_request_time = 0
+
+            # Add fallback configurations
+            self.fallback_configs = self._get_fallback_configs()
 
             # Add token counting related attributes
             self.total_input_tokens = 0
@@ -225,6 +261,139 @@ class LLM:
                 self.client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
 
             self.token_counter = TokenCounter(self.tokenizer)
+
+    def _get_fallback_configs(self):
+        """Get available fallback configurations"""
+        fallback_configs = []
+        llm_config = config.llm
+
+        # Add all available fallback configs
+        for config_key in llm_config.keys():
+            if config_key != "default" and config_key != self.config_name:
+                try:
+                    fallback_config = llm_config[config_key]
+                    fallback_configs.append((config_key, fallback_config))
+                except:
+                    continue
+
+        return fallback_configs
+
+    async def _try_with_fallback(self, method_name: str, *args, **kwargs):
+        """Try main method, then fallback configs if rate limited or quota exhausted"""
+        import time
+
+        # Try main configuration first
+        try:
+            if method_name == "ask_internal":
+                return await self._ask_internal(*args, **kwargs)
+            elif method_name == "ask_tool_internal":
+                return await self._ask_tool_internal(*args, **kwargs)
+            else:
+                raise ValueError(f"Unknown method: {method_name}")
+        except (RateLimitError, Exception) as e:
+            # Check if it's a rate limit or quota error
+            error_msg = str(e).lower()
+            is_quota_error = "insufficient_quota" in error_msg or "quota" in error_msg
+            is_rate_limit_error = (
+                isinstance(e, RateLimitError)
+                or "rate limit" in error_msg
+                or "too many requests" in error_msg
+            )
+
+            if is_quota_error or is_rate_limit_error:
+                if is_quota_error:
+                    logger.warning(
+                        f"Quota exhausted on primary config ({self.model}): {e}"
+                    )
+                else:
+                    logger.warning(
+                        f"Rate limit hit on primary config ({self.model}): {e}"
+                    )
+                    self.rate_limit_backoff = time.time() + 60  # 1 minute backoff
+
+                # Try fallback configurations
+                for fallback_name, fallback_config in self.fallback_configs:
+                    try:
+                        logger.info(
+                            f"Trying fallback configuration: {fallback_name} ({fallback_config.model})"
+                        )
+
+                        # Create temporary fallback instance
+                        fallback_llm = LLM(fallback_name)
+
+                        if method_name == "ask_internal":
+                            result = await fallback_llm._ask_internal(*args, **kwargs)
+                        elif method_name == "ask_tool_internal":
+                            result = await fallback_llm._ask_tool_internal(
+                                *args, **kwargs
+                            )
+                        else:
+                            raise ValueError(f"Unknown method: {method_name}")
+
+                        logger.info(
+                            f"Successfully used fallback: {fallback_name} ({fallback_config.model})"
+                        )
+                        return result
+
+                    except (RateLimitError, Exception) as fe:
+                        fallback_error_msg = str(fe).lower()
+                        if (
+                            "insufficient_quota" in fallback_error_msg
+                            or "quota" in fallback_error_msg
+                        ):
+                            logger.warning(
+                                f"Fallback {fallback_name} also has quota exhausted: {fe}"
+                            )
+                        elif (
+                            isinstance(fe, RateLimitError)
+                            or "rate limit" in fallback_error_msg
+                        ):
+                            logger.warning(
+                                f"Fallback {fallback_name} also rate limited: {fe}"
+                            )
+                        else:
+                            logger.warning(f"Fallback {fallback_name} failed: {fe}")
+                        continue
+
+                # If all fallbacks failed, raise an appropriate error in Portuguese
+                if is_quota_error:
+                    raise Exception(
+                        "❌ Erro: Saldo insuficiente nas APIs de IA. As chaves da OpenAI e Google Gemini não possuem créditos suficientes. Por favor, adicione créditos às contas ou configure uma chave válida."
+                    )
+                else:
+                    raise Exception(
+                        "❌ Erro: Limite de taxa excedido em todas as APIs de IA configuradas. Tente novamente em alguns minutos."
+                    )
+            else:
+                # For non-rate-limit errors, just raise the original error
+                raise e
+                raise e
+
+    async def _throttle_requests(self):
+        """Throttle requests to prevent rate limits"""
+        import asyncio
+        import time
+
+        current_time = time.time()
+        self.request_count += 1
+
+        # If we've been rate limited recently, add extra delay
+        if current_time < self.rate_limit_backoff:
+            delay = self.rate_limit_backoff - current_time
+            logger.info(f"Rate limit backoff active, waiting {delay:.1f}s")
+            await asyncio.sleep(delay)
+
+        # Add progressive delay based on request frequency
+        if self.last_request_time > 0:
+            time_since_last = current_time - self.last_request_time
+
+            # If requests are too frequent, add delay
+            if time_since_last < 1.0:  # Less than 1 second between requests
+                delay = max(0.5, 1.0 - time_since_last)
+                logger.debug(f"Throttling request, adding {delay:.1f}s delay")
+                await asyncio.sleep(delay)
+
+        self.last_request_time = time.time()
 
     def count_tokens(self, text: str) -> int:
         """Calculate the number of tokens in a text"""
@@ -351,14 +520,24 @@ class LLM:
 
         return formatted_messages
 
+    async def ask(
+        self,
+        messages: List[Union[dict, Message]],
+        system_msgs: Optional[List[Union[dict, Message]]] = None,
+        stream: bool = True,
+        temperature: Optional[float] = None,
+    ) -> str:
+        """Public ask method with fallback support"""
+        return await self._try_with_fallback(
+            "ask_internal", messages, system_msgs, stream, temperature
+        )
+
     @retry(
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6),
-        retry=retry_if_exception_type(
-            (OpenAIError, Exception, ValueError)
-        ),  # Don't retry TokenLimitExceeded
+        retry=should_retry_exception,
     )
-    async def ask(
+    async def _ask_internal(
         self,
         messages: List[Union[dict, Message]],
         system_msgs: Optional[List[Union[dict, Message]]] = None,
@@ -384,6 +563,9 @@ class LLM:
             Exception: For unexpected errors
         """
         try:
+            # Throttle requests to prevent rate limits
+            await self._throttle_requests()
+
             # Check if the model supports images
             supports_images = self.model in MULTIMODAL_MODELS
 
@@ -415,6 +597,8 @@ class LLM:
                 params["temperature"] = (
                     temperature if temperature is not None else self.temperature
                 )
+
+            await self._throttle_requests()  # Throttle requests to prevent rate limits
 
             if not stream:
                 # Non-streaming request
@@ -481,9 +665,7 @@ class LLM:
     @retry(
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6),
-        retry=retry_if_exception_type(
-            (OpenAIError, Exception, ValueError)
-        ),  # Don't retry TokenLimitExceeded
+        retry=should_retry_exception,
     )
     async def ask_with_images(
         self,
@@ -537,9 +719,7 @@ class LLM:
             multimodal_content = (
                 [{"type": "text", "text": content}]
                 if isinstance(content, str)
-                else content
-                if isinstance(content, list)
-                else []
+                else content if isinstance(content, list) else []
             )
 
             # Add images to content
@@ -588,6 +768,8 @@ class LLM:
                     temperature if temperature is not None else self.temperature
                 )
 
+            await self._throttle_requests()  # Throttle requests to prevent rate limits
+
             # Handle non-streaming request
             if not stream:
                 response = await self.client.chat.completions.create(**params)
@@ -634,14 +816,34 @@ class LLM:
             logger.error(f"Unexpected error in ask_with_images: {e}")
             raise
 
+    async def ask_tool(
+        self,
+        messages: List[Union[dict, Message]],
+        system_msgs: Optional[List[Union[dict, Message]]] = None,
+        timeout: int = 300,
+        tools: Optional[List[dict]] = None,
+        tool_choice: TOOL_CHOICE_TYPE = ToolChoice.AUTO,  # type: ignore
+        temperature: Optional[float] = None,
+        **kwargs,
+    ) -> ChatCompletionMessage:
+        """Public ask_tool method with fallback support"""
+        return await self._try_with_fallback(
+            "ask_tool_internal",
+            messages,
+            system_msgs,
+            timeout,
+            tools,
+            tool_choice,
+            temperature,
+            **kwargs,
+        )
+
     @retry(
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6),
-        retry=retry_if_exception_type(
-            (OpenAIError, Exception, ValueError)
-        ),  # Don't retry TokenLimitExceeded
+        retry=should_retry_exception,
     )
-    async def ask_tool(
+    async def _ask_tool_internal(
         self,
         messages: List[Union[dict, Message]],
         system_msgs: Optional[List[Union[dict, Message]]] = None,
@@ -673,6 +875,9 @@ class LLM:
             Exception: For unexpected errors
         """
         try:
+            # Throttle requests to prevent rate limits
+            await self._throttle_requests()
+
             # Validate tool_choice
             if tool_choice not in TOOL_CHOICE_VALUES:
                 raise ValueError(f"Invalid tool_choice: {tool_choice}")
@@ -729,6 +934,9 @@ class LLM:
                 )
 
             params["stream"] = False  # Always use non-streaming for tool requests
+
+            await self._throttle_requests()  # Throttle requests to prevent rate limits
+
             response: ChatCompletion = await self.client.chat.completions.create(
                 **params
             )
@@ -764,3 +972,7 @@ class LLM:
         except Exception as e:
             logger.error(f"Unexpected error in ask_tool: {e}")
             raise
+
+    async def cleanup(self):
+        """Clean up resources if needed"""
+        pass

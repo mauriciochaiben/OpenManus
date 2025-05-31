@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 
+from app.infrastructure.messaging.progress_broadcaster import progress_broadcaster
 from app.logger import logger
 
 
@@ -67,6 +68,9 @@ class ChatResponse(BaseModel):
 # Global instances
 router = APIRouter(prefix="/chat", tags=["chat"])
 manager = ConnectionManager()
+
+# Set up progress broadcaster with connection manager
+progress_broadcaster.set_connection_manager(manager)
 
 # In-memory chat history storage (replace with database in production)
 chat_history: Dict[str, List[ChatMessage]] = {}
@@ -189,6 +193,9 @@ Sou seu assistente de IA inteligente. Posso executar tarefas reais usando múlti
             # Criar agente Manus
             manus_agent = await Manus.create()
 
+            # Generate task ID for progress tracking
+            task_id = f"chat_{uuid.uuid4().hex[:8]}"
+
             try:
                 if task_analysis["is_complex"]:
                     logger.info("Tarefa complexa detectada. Usando fluxo multi-agente.")
@@ -219,7 +226,26 @@ Sou seu assistente de IA inteligente. Posso executar tarefas reais usando múlti
 
                 else:
                     logger.info("Tarefa simples detectada. Usando agente único.")
+
+                    # Broadcast single agent progress
+                    await progress_broadcaster.broadcast_progress(
+                        task_id=task_id,
+                        stage="Executando com agente único",
+                        progress=20,
+                        execution_type="single",
+                        agents=["manus"],
+                        task_name=(
+                            request.message[:50] + "..."
+                            if len(request.message) > 50
+                            else request.message
+                        ),
+                        description="Processando tarefa com agente Manus",
+                    )
+
                     result = await manus_agent.run(request.message)
+
+                    # Broadcast completion
+                    await progress_broadcaster.broadcast_completion(task_id, result)
 
                     response_content = f"""✅ **Tarefa executada com sucesso**
 
@@ -241,17 +267,66 @@ Sou seu assistente de IA inteligente. Posso executar tarefas reais usando múlti
                     await flow.cleanup()
 
     except Exception as e:
-        logger.error(f"Erro ao processar mensagem: {str(e)}")
-        response_content = f"""❌ **Erro ao processar tarefa**
+        error_msg = str(e).lower()
+
+        # Check if this is a rate limit or quota error - let the LLM handle fallbacks
+        if (
+            "rate limit" in error_msg
+            or "quota" in error_msg
+            or "insufficient_quota" in error_msg
+            or "retryerror" in error_msg
+        ):
+            logger.warning(
+                f"Rate limit/quota error detected, attempting with system fallback: {str(e)}"
+            )
+
+            # Try using mock LLM for system queries
+            if is_system_query:
+                response_content = """🚀 **Sistema OpenManus (Modo Fallback)**
+
+Sou seu assistente de IA inteligente. Atualmente operando em modo de fallback devido à limitação de recursos externos.
+
+• **Funcionalidades Disponíveis**: Consultas sobre o sistema, informações gerais
+• **Limitações Temporárias**: Execução de tarefas complexas pode estar restrita
+• **Agentes**: Sistema multi-agente disponível quando recursos permitirem
+
+**Como usar**: Faça perguntas sobre o sistema ou tente novamente em alguns minutos para tarefas complexas."""
+                suggestions = [
+                    "O que são agentes?",
+                    "Como funciona o OpenManus?",
+                    "Tentar novamente em alguns minutos",
+                ]
+            else:
+                # For complex tasks, suggest retry or simplification
+                response_content = f"""⚠️ **Recursos Temporariamente Limitados**
+
+O sistema está enfrentando limitações temporárias de recursos externos.
+
+**Possíveis soluções:**
+• Tente novamente em alguns minutos
+• Simplifique sua solicitação
+• Use consultas sobre o sistema enquanto isso
+
+**Detalhes técnicos:** {str(e)}"""
+                suggestions = [
+                    "Tentar novamente em 5 minutos",
+                    "Simplificar a tarefa",
+                    "Fazer pergunta sobre o sistema",
+                    "Ver ajuda do sistema",
+                ]
+        else:
+            # For other types of errors, use generic error handling
+            logger.error(f"Erro ao processar mensagem: {str(e)}")
+            response_content = f"""❌ **Erro ao processar tarefa**
 
 Ocorreu um erro durante a execução: {str(e)}
 
 Tente reformular sua solicitação ou verificar se os recursos necessários estão disponíveis."""
-        suggestions = [
-            "Tentar novamente",
-            "Simplificar a tarefa",
-            "Ver ajuda do sistema",
-        ]
+            suggestions = [
+                "Tentar novamente",
+                "Simplificar a tarefa",
+                "Ver ajuda do sistema",
+            ]
 
     # Create assistant response
     assistant_message = ChatMessage(

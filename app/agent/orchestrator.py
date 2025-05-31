@@ -10,6 +10,7 @@ from app.agent.base import BaseAgent
 from app.agent.decision import AgentApproach, AgentDecisionSystem, TaskAnalysis
 from app.agent.manus import Manus
 from app.agent.mcp import MCPAgent
+from app.infrastructure.messaging.progress_broadcaster import progress_broadcaster
 from app.logger import logger
 from app.tool.mcp import MCPClients
 
@@ -191,6 +192,15 @@ class MCPAgentOrchestrator:
         """Executa tarefa com um único agente"""
         logger.info("Executing with single agent approach")
 
+        # Broadcast orchestrator single agent start
+        await progress_broadcaster.broadcast_progress(
+            task_id=f"orch_{hash(task.description) % 10000}",
+            stage="Roteando para agente especializado",
+            progress=70,
+            execution_type="single",
+            description="Selecionando e preparando agente especializado",
+        )
+
         # Escolher o melhor agente baseado nos domínios
         agent_id = self._select_best_agent(analysis.domains)
         agent = self.specialized_agents.get(
@@ -216,11 +226,32 @@ class MCPAgentOrchestrator:
         """Executa tarefa sequencialmente com múltiplos agentes"""
         logger.info("Executing with multi-agent sequential approach")
 
+        # Broadcast sequential start
+        await progress_broadcaster.broadcast_progress(
+            task_id=f"orch_{hash(task.description) % 10000}",
+            stage="Execução sequencial multi-agente",
+            progress=70,
+            execution_type="multi",
+            description="Dividindo tarefa em etapas sequenciais",
+        )
+
         # Dividir tarefa em subtarefas baseado nos domínios
         subtasks = self._decompose_task(task, analysis)
         results = []
 
         for i, subtask in enumerate(subtasks):
+            # Broadcast current step
+            progress = 70 + (i / len(subtasks)) * 15  # 70-85% range
+            await progress_broadcaster.broadcast_progress(
+                task_id=f"orch_{hash(task.description) % 10000}",
+                stage=f"Executando etapa {i+1}/{len(subtasks)}",
+                progress=progress,
+                execution_type="multi",
+                step_number=i + 1,
+                total_steps=len(subtasks),
+                description=f"Processando: {subtask.description[:50]}...",
+            )
+
             agent_id = subtask.assigned_agent or self._select_best_agent(
                 {subtask.description}
             )
@@ -257,8 +288,27 @@ class MCPAgentOrchestrator:
         """Executa tarefa em paralelo com múltiplos agentes"""
         logger.info("Executing with multi-agent parallel approach")
 
+        # Broadcast parallel start
+        await progress_broadcaster.broadcast_progress(
+            task_id=f"orch_{hash(task.description) % 10000}",
+            stage="Execução paralela multi-agente",
+            progress=70,
+            execution_type="multi",
+            description="Distribuindo tarefa entre agentes paralelos",
+        )
+
         # Dividir tarefa em subtarefas independentes
         subtasks = self._decompose_task(task, analysis, parallel=True)
+
+        # Broadcast parallel execution
+        await progress_broadcaster.broadcast_progress(
+            task_id=f"orch_{hash(task.description) % 10000}",
+            stage=f"Executando {len(subtasks)} tarefas em paralelo",
+            progress=75,
+            execution_type="multi",
+            agents=[st.assigned_agent for st in subtasks if st.assigned_agent],
+            description="Processamento simultâneo por múltiplos agentes",
+        )
 
         # Executar subtarefas em paralelo
         async def execute_subtask(subtask: Task) -> str:
