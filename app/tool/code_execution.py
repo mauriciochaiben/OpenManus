@@ -16,7 +16,7 @@ import time
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
 try:
     from RestrictedPython import compile_restricted
@@ -28,7 +28,8 @@ except ImportError:
     RESTRICTED_PYTHON_AVAILABLE = False
     logging.warning("RestrictedPython not available. Python execution will be limited.")
 
-from app.tool.base_tool import BaseTool, ToolCategory, ToolResult
+from app.tool.base import BaseTool
+from app.tool.base_tool import ToolCategory, ToolResult
 
 logger = logging.getLogger(__name__)
 
@@ -44,23 +45,27 @@ class CodeExecutionTool(BaseTool):
     Tool for executing code in various programming languages with security measures.
     """
 
-    name = "code_execution"
-    description = (
+    name: str = "code_execution"
+    description: str = (
         "Execute code in various programming languages (Python, JavaScript, etc.)"
     )
-    category = ToolCategory.DEVELOPMENT
+    category: ToolCategory = ToolCategory.DEVELOPMENT
 
     # Safety classification
-    is_safe = False
-    requires_sandbox = True
+    is_safe: bool = False
+    requires_sandbox: bool = True
+
+    class Config:
+        arbitrary_types_allowed = True
+        extra = "allow"
 
     # Execution limits
-    DEFAULT_TIMEOUT = 30  # seconds
-    MAX_OUTPUT_SIZE = 10000  # characters
-    MAX_MEMORY_MB = 100  # MB (for subprocess)
+    DEFAULT_TIMEOUT: int = 30  # seconds
+    MAX_OUTPUT_SIZE: int = 10000  # characters
+    MAX_MEMORY_MB: int = 100  # MB (for subprocess)
 
     # Supported languages and their configurations
-    SUPPORTED_LANGUAGES = {
+    SUPPORTED_LANGUAGES: ClassVar[Dict[str, Dict[str, Any]]] = {
         "python": {
             "extension": ".py",
             "command": [sys.executable],
@@ -94,7 +99,7 @@ class CodeExecutionTool(BaseTool):
     }
 
     # Dangerous Python imports/functions to block
-    BLOCKED_IMPORTS = {
+    BLOCKED_IMPORTS: ClassVar[set] = {
         "os",
         "sys",
         "subprocess",
@@ -554,10 +559,10 @@ class CodeExecutionTool(BaseTool):
 # Register the tool
 def register_code_execution_tool():
     """Register the code execution tool."""
-    from app.tool.tool_registry import ToolRegistry
+    from app.tool.registry import tool_registry
 
     tool = CodeExecutionTool()
-    ToolRegistry.register_tool(tool)
+    tool_registry.register_tool("code_execution", tool)
     logger.info("Code execution tool registered successfully")
 
     return tool

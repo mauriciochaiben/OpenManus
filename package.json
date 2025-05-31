@@ -17,7 +17,8 @@
     "build:frontend": "cd frontend && npm run build",
     "dev:backend": "cd app && python -m uvicorn api.main:app --reload --port 8000",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "start": "./start_dev.sh"
+    "start": "./start_dev.sh",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -37,4 +38,6 @@
     "reactflow": "^11.10.1",
     "zustand": "^4.4.7"
   }
+}
+}
 }

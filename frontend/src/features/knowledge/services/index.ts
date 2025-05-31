@@ -6,8 +6,11 @@ export * from './knowledgeApi';
 // Export utility functions for external use
 export { useKnowledgeSources } from '../hooks/useKnowledgeSources';
 
-// Add helper function for retry processing
+// Export the reprocessSource directly and also provide the compatibility function
+export { reprocessSource } from './knowledgeApi';
+
+// Add back the helper function for compatibility with existing tests
 export const retrySourceProcessing = async (sourceId: string) => {
-    // Implementation would go in knowledgeApi.ts
-    return await retryProcessing(sourceId);
+    const { reprocessSource } = require('./knowledgeApi');
+    return await reprocessSource(sourceId);
 };

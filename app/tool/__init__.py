@@ -13,7 +13,7 @@ from app.tool.tool_collection import ToolCollection
 from app.tool.web_search import WebSearch
 
 # Import tools to trigger registration
-from . import code_execution, file_manager, web_scraper
+from . import code_execution
 
 __all__ = [
     "BaseTool",
