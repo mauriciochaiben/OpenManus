@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from app.config import config
+from app.core.settings import settings
 from app.logger import logger
 from app.tool.base import BaseTool, ToolResult
 from app.tool.search import (
@@ -219,32 +219,16 @@ class WebSearch(BaseTool):
         Returns:
             A structured response containing search results and metadata
         """
-        # Get settings from config
-        retry_delay = (
-            getattr(config.search_config, "retry_delay", 60)
-            if config.search_config
-            else 60
-        )
-        max_retries = (
-            getattr(config.search_config, "max_retries", 3)
-            if config.search_config
-            else 3
-        )
+        # Get settings from centralized configuration
+        retry_delay = settings.search_config.retry_delay
+        max_retries = settings.search_config.max_retries
 
         # Use config values for lang and country if not specified
         if lang is None:
-            lang = (
-                getattr(config.search_config, "lang", "en")
-                if config.search_config
-                else "en"
-            )
+            lang = settings.search_config.lang
 
         if country is None:
-            country = (
-                getattr(config.search_config, "country", "us")
-                if config.search_config
-                else "us"
-            )
+            country = settings.search_config.country
 
         search_params = {"lang": lang, "country": country}
 
@@ -359,17 +343,8 @@ class WebSearch(BaseTool):
 
     def _get_engine_order(self) -> List[str]:
         """Determines the order in which to try search engines."""
-        preferred = (
-            getattr(config.search_config, "engine", "google").lower()
-            if config.search_config
-            else "google"
-        )
-        fallbacks = (
-            [engine.lower() for engine in config.search_config.fallback_engines]
-            if config.search_config
-            and hasattr(config.search_config, "fallback_engines")
-            else []
-        )
+        preferred = settings.search_config.engine.lower()
+        fallbacks = [engine.lower() for engine in settings.search_config.fallback_engines]
 
         # Start with preferred engine, then fallbacks, then remaining engines
         engine_order = [preferred] if preferred in self._search_engine else []

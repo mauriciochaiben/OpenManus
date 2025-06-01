@@ -1,4 +1,4 @@
-from app.config import config
+from app.core.settings import settings
 from app.tool.python_execute import PythonExecute
 
 
@@ -25,7 +25,7 @@ class NormalPythonExecute(PythonExecute):
 3. Save any report / processed files / each analysis result in worksapce directory: {directory}
 4. Data reports need to be content-rich, including your overall analysis process and corresponding data visualization.
 5. You can invode this tool step-by-step to do data analysis from summary to in-depth with data report saved also""".format(
-                    directory=config.workspace_root
+                    directory=settings.workspace_root
                 ),
             },
         },

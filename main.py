@@ -1,7 +1,7 @@
 import asyncio
 
 from app.agent.manus import Manus
-from app.config import Config
+from app.core.settings import settings
 from app.flow.flow_factory import FlowFactory, FlowType
 from app.flow.multi_agent import ExecutionMode
 from app.logger import logger
@@ -49,7 +49,7 @@ def analyze_task_complexity(prompt: str) -> dict:
 
 
 async def main():
-    config = Config()
+    # Configuration is now automatically loaded from settings
 
     try:
         prompt = input("Enter your prompt: ")

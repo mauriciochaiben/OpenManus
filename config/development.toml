@@ -1,0 +1,42 @@
+# Development Environment Configuration
+# This file overrides settings from config.toml for development
+
+[general]
+environment = "development"
+debug = true
+log_level = "DEBUG"
+
+[llm]
+# Development settings - use smaller models for faster testing
+model = "gpt-4o-mini"
+max_tokens = 2048
+temperature = 0.7
+
+[browser]
+headless = false  # Show browser in development for debugging
+disable_security = true
+
+[sandbox]
+use_sandbox = false  # Disable sandbox in development for easier debugging
+network_enabled = true
+
+[vector_db]
+host = "localhost"
+port = 8000
+url = "http://localhost:8000"
+
+[search]
+engine = "Google"
+lang = "en"
+country = "us"
+
+[document_processing]
+chunk_size = 500  # Smaller chunks for development testing
+max_upload_size = "10MB"  # Smaller limit for development
+processing_timeout = 60  # Shorter timeout for development
+
+[code_execution]
+enabled = true
+timeout = 15  # Shorter timeout for development
+memory_limit = 50  # Lower memory limit for development
+restricted_python = false  # Allow more freedom in development

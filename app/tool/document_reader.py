@@ -13,7 +13,7 @@ from docling.datamodel.document import ConversionResult
 from docling.document_converter import DocumentConverter
 from docling_core.types.doc import DoclingDocument
 
-from app.config import config
+from app.core.settings import settings
 from app.exceptions import ToolError
 from app.logger import logger
 from app.tool.base import BaseTool, ToolResult

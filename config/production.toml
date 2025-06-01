@@ -1,0 +1,55 @@
+# Production Environment Configuration
+# This file overrides settings from config.toml for production
+
+[general]
+environment = "production"
+debug = false
+log_level = "INFO"
+
+[llm]
+# Production settings - use more powerful models
+model = "gpt-4o"
+max_tokens = 4096
+temperature = 0.5
+
+[browser]
+headless = true  # Always headless in production
+disable_security = true
+
+[sandbox]
+use_sandbox = true  # Always use sandbox in production for security
+network_enabled = false
+memory_limit = "512m"
+cpu_limit = 1.0
+timeout = 300
+
+[vector_db]
+host = "localhost"
+port = 8000
+url = "http://localhost:8000"
+# In production, you might use a remote ChromaDB instance
+# host = "your-chroma-host"
+# url = "https://your-chroma-host:8000"
+
+[search]
+engine = "Google"
+lang = "en"
+country = "us"
+max_retries = 5
+retry_delay = 120
+
+[document_processing]
+chunk_size = 1000
+max_upload_size = "50MB"
+processing_timeout = 300
+
+[code_execution]
+enabled = true
+timeout = 30
+memory_limit = 100
+restricted_python = true  # Use restricted Python in production
+
+[tool_execution]
+timeout = 30
+sandbox_enabled = true
+force_sandbox_unsafe = true  # Always force sandbox for unsafe tools in production

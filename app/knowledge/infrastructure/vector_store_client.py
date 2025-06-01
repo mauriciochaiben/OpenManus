@@ -10,7 +10,7 @@ from chromadb.api.models.Collection import Collection
 from chromadb.config import Settings
 from chromadb.errors import ChromaError, InvalidCollectionException, NotFoundError
 
-from app.core.config import settings
+from app.core.settings import settings
 from app.core.vector_config import rag_config, vector_db_config
 
 logger = logging.getLogger(__name__)

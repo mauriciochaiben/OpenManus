@@ -4,7 +4,7 @@ from pydantic import Field, model_validator
 
 from app.agent.browser import BrowserContextHelper
 from app.agent.toolcall import ToolCallAgent
-from app.config import config
+from app.core.settings import settings
 from app.logger import logger
 from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.tool import Terminate, ToolCollection
@@ -25,7 +25,7 @@ class Manus(ToolCallAgent):
         "A versatile agent that can solve various tasks using multiple tools including MCP-based tools"
     )
 
-    system_prompt: str = SYSTEM_PROMPT.format(directory=config.workspace_root)
+    system_prompt: str = SYSTEM_PROMPT.format(directory=settings.workspace_root)
     next_step_prompt: str = NEXT_STEP_PROMPT
 
     max_observe: int = 10000
@@ -72,7 +72,7 @@ class Manus(ToolCallAgent):
 
     async def initialize_mcp_servers(self) -> None:
         """Initialize connections to configured MCP servers."""
-        for server_id, server_config in config.mcp_config.servers.items():
+        for server_id, server_config in settings.mcp_config.servers.items():
             try:
                 if server_config.type == "sse":
                     if server_config.url:

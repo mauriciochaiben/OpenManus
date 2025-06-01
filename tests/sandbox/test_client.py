@@ -5,7 +5,7 @@ from typing import AsyncGenerator, Generator
 import pytest
 import pytest_asyncio
 
-from app.config import SandboxSettings
+from app.core.settings import settings, SandboxSettings
 from app.sandbox.client import LocalSandboxClient, create_sandbox_client
 
 

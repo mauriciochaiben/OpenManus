@@ -15,9 +15,8 @@ import openai
 from fastapi import HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from app.core.config import settings
+from app.core.settings import settings
 from app.core.text_processing import TextProcessor
-from app.core.vector_config import document_processing_config, vector_db_config
 from app.knowledge.infrastructure.vector_store_client import (
     CollectionError,
     VectorStoreClient,
@@ -106,8 +105,8 @@ class SourceService:
             self.openai_client = openai
 
         # Text splitter configuration from settings
-        self.chunk_size = document_processing_config.chunk_size
-        self.chunk_overlap = document_processing_config.chunk_overlap
+        self.chunk_size = settings.knowledge_config.document_processing.chunk_size
+        self.chunk_overlap = settings.knowledge_config.document_processing.chunk_overlap
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
         )
@@ -466,11 +465,11 @@ class SourceService:
 
             # Add to vector database
             collection = await self.vector_store.get_or_create_collection(
-                vector_db_config.documents_collection
+                settings.knowledge_config.vector_db.documents_collection
             )
 
             await self.vector_store.add_texts(
-                collection_name=vector_db_config.documents_collection,
+                collection_name=settings.knowledge_config.vector_db.documents_collection,
                 texts=texts,
                 embeddings=embeddings,
                 metadatas=metadatas,
@@ -829,11 +828,11 @@ class SourceService:
 
             # Search vector database
             collection = await self.vector_store.get_collection(
-                vector_db_config.documents_collection
+                settings.knowledge_config.vector_db.documents_collection
             )
 
             results = await self.vector_store.search(
-                collection_name=vector_db_config.documents_collection,
+                collection_name=settings.knowledge_config.vector_db.documents_collection,
                 query_embedding=query_embedding,
                 k=k,
                 filter=filter_expr,
@@ -883,10 +882,10 @@ class SourceService:
             # Delete from vector database
             try:
                 collection = await self.vector_store.get_collection(
-                    vector_db_config.documents_collection
+                    settings.knowledge_config.vector_db.documents_collection
                 )
                 await self.vector_store.delete(
-                    collection_name=vector_db_config.documents_collection,
+                    collection_name=settings.knowledge_config.vector_db.documents_collection,
                     filter={"source_id": source_id},
                 )
             except Exception as e:

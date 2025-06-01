@@ -4,7 +4,7 @@ import asyncio
 from pathlib import Path
 from typing import Optional, Protocol, Tuple, Union, runtime_checkable
 
-from app.config import SandboxSettings
+from app.core.settings import settings
 from app.exceptions import ToolError
 from app.sandbox.client import SANDBOX_CLIENT
 
@@ -102,7 +102,7 @@ class SandboxFileOperator(FileOperator):
     async def _ensure_sandbox_initialized(self):
         """Ensure sandbox is initialized."""
         if not self.sandbox_client.sandbox:
-            await self.sandbox_client.create(config=SandboxSettings())
+            await self.sandbox_client.create(config=settings.sandbox_config)
 
     async def read_file(self, path: PathLike) -> str:
         """Read content from a file in sandbox."""

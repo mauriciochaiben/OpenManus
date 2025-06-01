@@ -4,7 +4,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, DefaultDict, List, Literal, Optional, get_args
 
-from app.config import config
+from app.core.settings import settings
 from app.exceptions import ToolError
 from app.tool import BaseTool
 from app.tool.base import CLIResult, ToolResult
@@ -107,7 +107,7 @@ class StrReplaceEditor(BaseTool):
         """Get the appropriate file operator based on execution mode."""
         return (
             self._sandbox_operator
-            if config.sandbox.use_sandbox
+            if settings.sandbox_config.use_sandbox
             else self._local_operator
         )
 

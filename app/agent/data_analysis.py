@@ -1,7 +1,7 @@
 from pydantic import Field
 
 from app.agent.toolcall import ToolCallAgent
-from app.config import config
+from app.core.settings import settings
 from app.prompt.visualization import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.tool import Terminate, ToolCollection
 from app.tool.chart_visualization.chart_prepare import VisualizationPrepare
@@ -24,7 +24,7 @@ class DataAnalysis(ToolCallAgent):
         "An analytical agent that utilizes multiple tools to solve diverse data analysis tasks"
     )
 
-    system_prompt: str = SYSTEM_PROMPT.format(directory=config.workspace_root)
+    system_prompt: str = SYSTEM_PROMPT.format(directory=settings.workspace_root)
     next_step_prompt: str = NEXT_STEP_PROMPT
 
     max_observe: int = 15000

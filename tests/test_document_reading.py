@@ -14,7 +14,7 @@ import pytest
 # Adicionar o diretório raiz ao path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.config import config
+from app.core.settings import settings
 from app.logger import logger
 from app.tool.document_analyzer import DocumentAnalyzer
 from app.tool.document_reader import AdvancedDocumentReader, DocumentReader

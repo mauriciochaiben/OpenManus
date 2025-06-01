@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, Protocol
 
-from app.config import SandboxSettings
+from app.core.settings import settings, SandboxSettings
 from app.sandbox.core.sandbox import DockerSandbox
 
 

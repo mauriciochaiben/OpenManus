@@ -6,7 +6,7 @@ from typing import Any, Hashable
 import pandas as pd
 from pydantic import Field, model_validator
 
-from app.config import config
+from app.core.settings import settings
 from app.llm import LLM
 from app.logger import logger
 from app.tool.base import BaseTool
@@ -68,11 +68,11 @@ Outputs:
             if os.path.exists(item[path_str]):
                 res.append(item[path_str])
             elif os.path.exists(
-                os.path.join(f"{directory or config.workspace_root}", item[path_str])
+                os.path.join(f"{directory or settings.workspace_root}", item[path_str])
             ):
                 res.append(
                     os.path.join(
-                        f"{directory or config.workspace_root}", item[path_str]
+                        f"{directory or settings.workspace_root}", item[path_str]
                     )
                 )
             else:
@@ -150,7 +150,7 @@ Outputs:
     ) -> str:
         data_list = []
         chart_file_path = self.get_file_path(
-            json_info, "chartPath", os.path.join(config.workspace_root, "visualization")
+            json_info, "chartPath", os.path.join(settings.workspace_root, "visualization")
         )
         for index, item in enumerate(json_info):
             if "insights_id" in item:
@@ -237,7 +237,7 @@ Outputs:
             "output_type": output_type,
             "insights_id": insights_id,
             "task_type": task_type,
-            "directory": str(config.workspace_root),
+            "directory": str(settings.workspace_root),
             "language": language,
         }
         # build async sub process

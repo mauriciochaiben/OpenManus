@@ -10,7 +10,7 @@ from browser_use.dom.service import DomService
 from pydantic import Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
-from app.config import config
+from app.core.settings import settings
 from app.llm import LLM
 from app.tool.base import BaseTool, ToolResult
 from app.tool.web_search import WebSearch
@@ -143,15 +143,15 @@ class BrowserUseTool(BaseTool, Generic[Context]):
         if self.browser is None:
             browser_config_kwargs = {"headless": False, "disable_security": True}
 
-            if config.browser_config:
+            if settings.browser_config:
                 from browser_use.browser.browser import ProxySettings
 
                 # handle proxy settings.
-                if config.browser_config.proxy and config.browser_config.proxy.server:
+                if settings.browser_config.proxy and settings.browser_config.proxy.server:
                     browser_config_kwargs["proxy"] = ProxySettings(
-                        server=config.browser_config.proxy.server,
-                        username=config.browser_config.proxy.username,
-                        password=config.browser_config.proxy.password,
+                        server=settings.browser_config.proxy.server,
+                        username=settings.browser_config.proxy.username,
+                        password=settings.browser_config.proxy.password,
                     )
 
                 browser_attrs = [
@@ -164,7 +164,7 @@ class BrowserUseTool(BaseTool, Generic[Context]):
                 ]
 
                 for attr in browser_attrs:
-                    value = getattr(config.browser_config, attr, None)
+                    value = getattr(settings.browser_config, attr, None)
                     if value is not None:
                         if not isinstance(value, list) or value:
                             browser_config_kwargs[attr] = value
@@ -176,11 +176,11 @@ class BrowserUseTool(BaseTool, Generic[Context]):
 
             # if there is context config in the config, use it.
             if (
-                config.browser_config
-                and hasattr(config.browser_config, "new_context_config")
-                and config.browser_config.new_context_config
+                settings.browser_config
+                and hasattr(settings.browser_config, "new_context_config")
+                and settings.browser_config.new_context_config
             ):
-                context_config = config.browser_config.new_context_config
+                context_config = settings.browser_config.new_context_config
 
             self.context = await self.browser.new_context(context_config)
             self.dom_service = DomService(await self.context.get_current_page())
@@ -225,9 +225,7 @@ class BrowserUseTool(BaseTool, Generic[Context]):
                 context = await self._ensure_browser_initialized()
 
                 # Get max content length from config
-                max_content_length = getattr(
-                    config.browser_config, "max_content_length", 2000
-                )
+                max_content_length = settings.browser_config.max_content_length
 
                 # Navigation actions
                 if action == "go_to_url":

@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 
-from app.core.config import settings
+from app.core.settings import settings
 from app.core.vector_config import embedding_config
 
 logger = logging.getLogger(__name__)

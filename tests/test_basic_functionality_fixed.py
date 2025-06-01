@@ -14,7 +14,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.agent.manus import Manus
-from app.config import Config
+from app.core.settings import settings
 from app.logger import logger
 
 # Import analyze_task_complexity from main.py
@@ -39,9 +39,9 @@ class TestBasicFunctionality:
     def test_config_loading_method(self):
         """Testa se a configuração é carregada corretamente (método da classe)"""
         try:
-            config = Config()
-            assert config is not None
-            assert hasattr(config, "llm")
+            # Configuration is now automatically loaded through settings
+            assert settings is not None
+            assert hasattr(settings, "llm_configs")
             logger.info("✅ Configuração carregada com sucesso")
         except Exception as e:
             pytest.fail(f"Falha ao carregar configuração: {e}")
@@ -79,9 +79,9 @@ class TestBasicFunctionality:
 def test_config_loading():
     """Testa se a configuração é carregada corretamente"""
     try:
-        config = Config()
-        assert config is not None
-        assert hasattr(config, "llm")
+        # Configuration is now automatically loaded through settings
+        assert settings is not None
+        assert hasattr(settings, "llm_configs")
         logger.info("✅ Configuração carregada com sucesso")
     except Exception as e:
         pytest.fail(f"Falha ao carregar configuração: {e}")
@@ -91,7 +91,7 @@ def test_imports():
     """Testa se todas as importações essenciais funcionam"""
     try:
         from app.agent.manus import Manus
-        from app.config import Config
+        from app.core.settings import settings
         from app.flow.flow_factory import FlowFactory
         from app.llm import LLM
         from app.logger import logger

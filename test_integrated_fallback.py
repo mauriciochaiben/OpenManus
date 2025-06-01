@@ -13,7 +13,7 @@ import sys
 
 sys.path.append("/Users/mauriciochaiben/OpenManus")
 
-from app.config import config
+from app.core.settings import settings
 from app.llm import LLM
 from app.logger import logger
 
@@ -134,9 +134,9 @@ async def test_configuration_loading():
         # Test config loading
         print("📋 LLM configurations available:")
 
-        for config_name in config.llm.keys():
+        for config_name in settings.llm_configs.keys():
             try:
-                llm_config = config.llm[config_name]
+                llm_config = settings.llm_configs[config_name]
                 print(f"   - {config_name}: {llm_config.model} ({llm_config.api_type})")
             except Exception as e:
                 print(f"   - {config_name}: Error loading - {e}")
