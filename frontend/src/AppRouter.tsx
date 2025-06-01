@@ -2,9 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout } from 'antd';
 import { NotificationProvider } from './contexts/NotificationContext';
-import Sidebar from './components/layout/Sidebar';
-import Header from './components/layout/Header';
-import StatusBar from './components/layout/StatusBar';
+import { Sidebar, Header, StatusBar } from './components/common';
 
 // Import all pages
 import HomePage from './pages/HomePage';

@@ -17,7 +17,7 @@ import {
     UpOutlined,
     DownOutlined
 } from '@ant-design/icons';
-import { SourceSelector } from '../features/knowledge/components';
+import { SourceSelector } from '../../features/knowledge/components';
 
 const { TextArea } = Input;
 const { Text } = Typography;

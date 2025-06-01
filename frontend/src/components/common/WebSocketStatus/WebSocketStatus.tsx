@@ -1,6 +1,6 @@
 // WebSocket status indicator component
 import React from 'react';
-import { useWebSocket } from '../../hooks/useWebSocket';
+import { useWebSocket } from '../../../hooks/useWebSocket';
 import './WebSocketStatus.css';
 
 const WebSocketStatus: React.FC = () => {

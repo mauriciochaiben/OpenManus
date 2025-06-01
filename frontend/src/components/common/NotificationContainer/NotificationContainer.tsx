@@ -1,6 +1,6 @@
 // Notification component for displaying system notifications
 import React from 'react';
-import { useNotifications } from '../../hooks/useWebSocket';
+import { useNotifications } from '../../../hooks/useWebSocket';
 import './NotificationContainer.css';
 
 interface NotificationProps {

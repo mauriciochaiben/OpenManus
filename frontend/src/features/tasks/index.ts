@@ -1,5 +1,5 @@
 /**
- * Notes feature exports
+ * Tasks feature exports
  */
 
 export * from './components';

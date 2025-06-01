@@ -7,8 +7,8 @@ import {
     SettingOutlined,
     HistoryOutlined
 } from '@ant-design/icons';
-import { webSocketManager } from '../../services/websocket';
-import { eventBus } from '../../utils/eventBus';
+import { webSocketManager } from '../../../services/websocket';
+import { eventBus } from '../../../utils/eventBus';
 
 const { Text } = Typography;
 

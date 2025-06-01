@@ -1,5 +1,5 @@
 /**
- * Notes feature exports
+ * Chat feature exports
  */
 
 export * from './components';

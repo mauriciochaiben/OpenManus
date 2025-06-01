@@ -28,10 +28,10 @@ import {
     ApiOutlined,
     MoreOutlined
 } from '@ant-design/icons';
-import { chatApi } from '../../services/api';
-import { webSocketManager } from '../../services/websocket';
-import { eventBus } from '../../utils/eventBus';
-import type { ChatMessage } from '../../types';
+import { chatApi } from '../../../services/api';
+import { webSocketManager } from '../../../services/websocket';
+import { eventBus } from '../../../utils/eventBus';
+import type { ChatMessage } from '../../../types';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
