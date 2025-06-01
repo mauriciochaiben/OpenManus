@@ -26,3 +26,7 @@ class ToolError(OpenManusError):
 
 class TokenLimitExceeded(OpenManusError):
     """Exception raised when the token limit is exceeded"""
+
+
+class NotFoundError(OpenManusError):
+    """Exception raised when a resource is not found"""

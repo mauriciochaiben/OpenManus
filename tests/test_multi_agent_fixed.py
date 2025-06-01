@@ -105,7 +105,7 @@ class TestMultiAgent:
             }
 
             flow = FlowFactory.create_flow(
-                flow_type=FlowType.MULTI_AGENT, agents=agents, mode=ExecutionMode.AUTO
+                flow_type=FlowType.MULTI_AGENT, agents=agents
             )
 
             assert flow is not None

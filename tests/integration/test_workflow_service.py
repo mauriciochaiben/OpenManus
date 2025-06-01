@@ -387,8 +387,8 @@ class TestWorkflowServiceIntegration:
         assert "total_steps" in result
         # Don't assert the exact number since it depends on the implementation's behavior with errors
 
-        # Verify tool agent was still called
-        assert mock_tool_user_agent.run.call_count == 1
+        # Verify tool agent was called for both tool steps
+        assert mock_tool_user_agent.run.call_count == 2
 
     @pytest.mark.asyncio
     async def test_workflow_with_empty_task_decomposition(

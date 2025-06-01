@@ -13,7 +13,7 @@ def docker_client():
     return docker.from_env()
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="function")
 async def docker_container(docker_client):
     """Fixture providing a test Docker container."""
     container = docker_client.containers.run(

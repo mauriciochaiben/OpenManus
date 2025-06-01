@@ -16,7 +16,7 @@ def sandbox_config():
     )
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="function")
 async def sandbox(sandbox_config):
     """Creates and manages a test sandbox instance."""
     sandbox = DockerSandbox(sandbox_config)

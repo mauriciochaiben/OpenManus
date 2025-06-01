@@ -71,7 +71,7 @@ class NoteService:
                 tags=note_data.tags or [],
                 author_id=author_id,
                 is_public=note_data.is_public,
-                metadata=note_data.metadata or {},
+                note_metadata=note_data.metadata or {},  # Map metadata to note_metadata
                 created_at=datetime.utcnow(),
                 updated_at=datetime.utcnow(),
             )
@@ -524,7 +524,7 @@ class NoteService:
             tags=note_model.tags,
             author_id=note_model.author_id,
             is_public=note_model.is_public,
-            metadata=note_model.metadata,
+            metadata=note_model.note_metadata,  # Map note_metadata back to metadata
             created_at=note_model.created_at,
             updated_at=note_model.updated_at,
         )

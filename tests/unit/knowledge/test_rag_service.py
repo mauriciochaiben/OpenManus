@@ -89,14 +89,20 @@ class TestRagService:
         """Test successful context retrieval without filtering."""
         # Setup mocks
         mock_embedding_service.generate_embedding.return_value = sample_embedding
-        mock_vector_store_client.search.return_value = sample_search_results
+
+        # Mock should respect the k parameter and return only k results
+        def mock_search(*args, **kwargs):
+            k = kwargs.get("k", 5)
+            return sample_search_results[:k]
+
+        mock_vector_store_client.search.side_effect = mock_search
 
         # Execute
         query = "What is machine learning?"
         result = await rag_service.retrieve_relevant_context(query, k=3)
 
-        # Verify
-        assert len(result) == 4  # 3 with 'text' field + 1 with 'content' field
+        # Verify - first 3 results, where index 3 has 'content' instead of 'text'
+        assert len(result) == 3
         assert (
             result[0] == "This is the first relevant document about machine learning."
         )
@@ -104,7 +110,6 @@ class TestRagService:
             result[1] == "Second document discusses artificial intelligence concepts."
         )
         assert result[2] == "Third document covers deep learning fundamentals."
-        assert result[3] == "Fourth document with content field instead of text."
 
         # Verify service calls
         mock_embedding_service.generate_embedding.assert_called_once_with(query)
@@ -124,7 +129,13 @@ class TestRagService:
         """Test context retrieval with source ID filtering."""
         # Setup mocks
         mock_embedding_service.generate_embedding.return_value = sample_embedding
-        mock_vector_store_client.search.return_value = sample_search_results
+
+        # Mock should respect the k parameter and return only k results
+        def mock_search(*args, **kwargs):
+            k = kwargs.get("k", 5)
+            return sample_search_results[:k]
+
+        mock_vector_store_client.search.side_effect = mock_search
 
         # Execute with source filtering
         query = "What is AI?"
@@ -133,8 +144,8 @@ class TestRagService:
             query, source_ids=source_ids, k=5
         )
 
-        # Verify
-        assert len(result) == 4
+        # Verify - all 5 results (4 with 'text' field + 1 with 'content' field)
+        assert len(result) == 5
 
         # Verify search was called with filter
         mock_vector_store_client.search.assert_called_once_with(
@@ -230,12 +241,21 @@ class TestRagService:
         """Test that empty source_ids list doesn't add filter."""
         # Setup mocks
         mock_embedding_service.generate_embedding.return_value = sample_embedding
-        mock_vector_store_client.search.return_value = sample_search_results
+
+        # Mock should respect the k parameter and return only k results
+        def mock_search(*args, **kwargs):
+            k = kwargs.get("k", 5)
+            return sample_search_results[:k]
+
+        mock_vector_store_client.search.side_effect = mock_search
 
         # Execute with empty source_ids
         result = await rag_service.retrieve_relevant_context(
             "test query", source_ids=[], k=3
         )
+
+        # Verify - first 3 results
+        assert len(result) == 3
 
         # Verify no filter was applied
         mock_vector_store_client.search.assert_called_once_with(
@@ -254,15 +274,21 @@ class TestRagService:
         """Test successful context retrieval with scores."""
         # Setup mocks
         mock_embedding_service.generate_embedding.return_value = sample_embedding
-        mock_vector_store_client.search.return_value = sample_search_results
+
+        # Mock should respect the k parameter and return only k results
+        def mock_search(*args, **kwargs):
+            k = kwargs.get("k", 5)
+            return sample_search_results[:k]
+
+        mock_vector_store_client.search.side_effect = mock_search
 
         # Execute
         result = await rag_service.retrieve_relevant_context_with_scores(
             "test query", k=3
         )
 
-        # Verify
-        assert len(result) == 4  # All results above default min_score of 0.0
+        # Verify - first 3 results
+        assert len(result) == 3
         assert all(
             "text" in item and "score" in item and "metadata" in item for item in result
         )
@@ -271,10 +297,8 @@ class TestRagService:
             == "This is the first relevant document about machine learning."
         )
         assert result[0]["score"] == 0.95
-        assert (
-            result[3]["text"] == "Fourth document with content field instead of text."
-        )
-        assert result[3]["score"] == 0.78
+        assert result[2]["text"] == "Third document covers deep learning fundamentals."
+        assert result[2]["score"] == 0.82
 
         # Verify search was called with include_scores
         mock_vector_store_client.search.assert_called_once_with(

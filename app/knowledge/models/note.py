@@ -12,6 +12,83 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, validator
 
 
+# Processing and Source Models
+class ProcessingStatus(BaseModel):
+    """Model for tracking processing status of knowledge sources."""
+
+    status: str = Field(
+        ..., description="Processing status: pending, processing, completed, failed"
+    )
+    progress: Optional[int] = Field(
+        default=None, ge=0, le=100, description="Processing progress percentage"
+    )
+    processed_chunks: Optional[int] = Field(
+        default=None, ge=0, description="Number of chunks processed"
+    )
+    total_chunks: Optional[int] = Field(
+        default=None, ge=0, description="Total number of chunks to process"
+    )
+    error_message: Optional[str] = Field(
+        default=None, description="Error message if processing failed"
+    )
+    last_updated: datetime = Field(
+        default_factory=datetime.utcnow, description="Last update timestamp"
+    )
+
+
+class ProcessingResult(BaseModel):
+    """Model for processing results."""
+
+    success: bool = Field(..., description="Whether processing was successful")
+    chunks_processed: Optional[int] = Field(
+        default=None, ge=0, description="Number of chunks successfully processed"
+    )
+    total_chunks: Optional[int] = Field(
+        default=None, ge=0, description="Total number of chunks"
+    )
+    processing_time: Optional[float] = Field(
+        default=None, ge=0, description="Processing time in seconds"
+    )
+    error_message: Optional[str] = Field(
+        default=None, description="Error message if processing failed"
+    )
+    metadata: Optional[Dict[str, Any]] = Field(
+        default=None, description="Additional processing metadata"
+    )
+
+
+class KnowledgeSource(BaseModel):
+    """Model for knowledge source documents."""
+
+    id: str = Field(
+        default_factory=lambda: str(uuid.uuid4()),
+        description="Unique identifier",
+    )
+    filename: str = Field(
+        ..., min_length=1, max_length=255, description="Original filename"
+    )
+    file_type: str = Field(..., description="MIME type of the file")
+    file_size: Optional[int] = Field(
+        default=None, ge=0, description="File size in bytes"
+    )
+    upload_date: datetime = Field(
+        default_factory=datetime.utcnow, description="Upload timestamp"
+    )
+    status: str = Field(default="pending", description="Processing status")
+    content_hash: Optional[str] = Field(
+        default=None, description="Content hash for deduplication"
+    )
+    chunk_count: Optional[int] = Field(
+        default=None, ge=0, description="Number of chunks created"
+    )
+    metadata: Optional[Dict[str, Any]] = Field(
+        default=None, description="Additional metadata"
+    )
+    processing_status: Optional[ProcessingStatus] = Field(
+        default=None, description="Detailed processing status"
+    )
+
+
 class Note(BaseModel):
     """
     Note model for storing user notes with markdown content.
@@ -314,7 +391,7 @@ class NoteSearchQuery(BaseModel):
     sort_by: str = Field(default="updated_at", description="Field to sort by")
 
     sort_order: str = Field(
-        default="desc", regex="^(asc|desc)$", description="Sort order: asc or desc"
+        default="desc", pattern="^(asc|desc)$", description="Sort order: asc or desc"
     )
 
 

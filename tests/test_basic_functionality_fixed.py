@@ -67,7 +67,7 @@ class TestBasicFunctionality:
                 pytest.skip("Manus agent not available")
 
             # Teste simples de matemática
-            response = await manus_agent.step("What is 2 + 2?")
+            response = await manus_agent.run("What is 2 + 2?")
             assert response is not None
             logger.info(f"✅ Resposta recebida: {response}")
         except Exception as e:

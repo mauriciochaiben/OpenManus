@@ -1,41 +1,51 @@
+import logging
 import mimetypes
-from pathlib import Path
-import openai
-from typing import Optional
-import tempfile
 import os
+import tempfile
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import openai
+
+from app.core.text_processing import TextProcessor
+from app.knowledge.infrastructure.vector_store_client import VectorStoreClient
+from app.knowledge.models.note import (
+    KnowledgeSource,
+    ProcessingResult,
+    ProcessingStatus,
+)
+from app.knowledge.services.embedding_service import EmbeddingService
 
 # Knowledge feature services exports
 # This file will export all knowledge-related service classes and functions
 
-export * from './knowledgeApi';
+logger = logging.getLogger(__name__)
 
-// Export utility functions for external use
-export { useKnowledgeSources } from '../hooks/useKnowledgeSources';
 
 class SourceService:
     # ...existing code...
 
     # Add supported audio formats
     SUPPORTED_AUDIO_FORMATS = {
-        'audio/mpeg',  # mp3
-        'audio/wav',   # wav
-        'audio/x-wav', # wav alternative
-        'audio/mp4',   # m4a
-        'audio/aac',   # aac
-        'audio/ogg',   # ogg
-        'audio/flac',  # flac
-        'audio/webm',  # webm
+        "audio/mpeg",  # mp3
+        "audio/wav",  # wav
+        "audio/x-wav",  # wav alternative
+        "audio/mp4",  # m4a
+        "audio/aac",  # aac
+        "audio/ogg",  # ogg
+        "audio/flac",  # flac
+        "audio/webm",  # webm
     }
 
-    AUDIO_EXTENSIONS = {'.mp3', '.wav', '.m4a', '.aac', '.ogg', '.flac', '.webm'}
+    AUDIO_EXTENSIONS = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac", ".webm"}
 
     def __init__(
         self,
         text_processor: TextProcessor,
         embedding_service: EmbeddingService,
         vector_store_client: VectorStoreClient,
-        openai_api_key: Optional[str] = None
+        openai_api_key: Optional[str] = None,
     ):
         # ...existing code...
         self.openai_client = None
@@ -76,7 +86,9 @@ class SourceService:
             Exception: If transcription fails
         """
         if not self.openai_client:
-            raise Exception("OpenAI client not configured. Please provide openai_api_key.")
+            raise Exception(
+                "OpenAI client not configured. Please provide openai_api_key."
+            )
 
         try:
             logger.info(f"Starting transcription for audio file: {file_path}")
@@ -86,18 +98,20 @@ class SourceService:
             max_size = 25 * 1024 * 1024  # 25MB
 
             if file_size > max_size:
-                logger.warning(f"Audio file too large ({file_size} bytes), attempting to split")
+                logger.warning(
+                    f"Audio file too large ({file_size} bytes), attempting to split"
+                )
                 return await self._transcribe_large_audio_file(file_path)
 
             # Transcribe using OpenAI Whisper
-            with open(file_path, 'rb') as audio_file:
+            with open(file_path, "rb") as audio_file:
                 transcript = await self.openai_client.Audio.atranscribe(
-                    model="whisper-1",
-                    file=audio_file,
-                    response_format="text"
+                    model="whisper-1", file=audio_file, response_format="text"
                 )
 
-            logger.info(f"Successfully transcribed audio file. Text length: {len(transcript)} characters")
+            logger.info(
+                f"Successfully transcribed audio file. Text length: {len(transcript)} characters"
+            )
             return transcript
 
         except Exception as e:
@@ -120,11 +134,9 @@ class SourceService:
             logger.warning("Large audio file transcription not fully implemented")
 
             # For now, attempt direct transcription and let OpenAI handle it
-            with open(file_path, 'rb') as audio_file:
+            with open(file_path, "rb") as audio_file:
                 transcript = await self.openai_client.Audio.atranscribe(
-                    model="whisper-1",
-                    file=audio_file,
-                    response_format="text"
+                    model="whisper-1", file=audio_file, response_format="text"
                 )
 
             return transcript
@@ -133,7 +145,9 @@ class SourceService:
             logger.error(f"Error transcribing large audio file: {str(e)}")
             raise Exception(f"Large audio file transcription failed: {str(e)}")
 
-    async def _process_audio_source(self, source: KnowledgeSource, file_path: str) -> ProcessingResult:
+    async def _process_audio_source(
+        self, source: KnowledgeSource, file_path: str
+    ) -> ProcessingResult:
         """
         Process an audio source by transcribing it to text.
 
@@ -151,10 +165,8 @@ class SourceService:
             await self._update_source_status(
                 source.id,
                 ProcessingStatus(
-                    status="processing",
-                    progress=10,
-                    last_updated=datetime.utcnow()
-                )
+                    status="processing", progress=10, last_updated=datetime.utcnow()
+                ),
             )
 
             # Transcribe audio to text
@@ -168,14 +180,14 @@ class SourceService:
             await self._update_source_status(
                 source.id,
                 ProcessingStatus(
-                    status="processing",
-                    progress=50,
-                    last_updated=datetime.utcnow()
-                )
+                    status="processing", progress=50, last_updated=datetime.utcnow()
+                ),
             )
 
             # Create a temporary text file for processing
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as temp_file:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".txt", delete=False
+            ) as temp_file:
                 temp_file.write(transcribed_text)
                 temp_text_path = temp_file.name
 
@@ -193,8 +205,8 @@ class SourceService:
                         "filename": source.filename,
                         "file_type": "audio_transcription",
                         "original_audio_type": source.file_type,
-                        "transcription_method": "openai_whisper"
-                    }
+                        "transcription_method": "openai_whisper",
+                    },
                 )
 
                 # Update progress
@@ -205,8 +217,8 @@ class SourceService:
                         progress=70,
                         processed_chunks=len(chunks),
                         total_chunks=len(chunks),
-                        last_updated=datetime.utcnow()
-                    )
+                        last_updated=datetime.utcnow(),
+                    ),
                 )
 
                 # Generate embeddings and store
@@ -216,7 +228,9 @@ class SourceService:
                 for i, chunk in enumerate(chunks):
                     try:
                         # Generate embedding
-                        embedding = await self.embedding_service.generate_embedding(chunk.content)
+                        embedding = await self.embedding_service.generate_embedding(
+                            chunk.content
+                        )
 
                         # Store in vector database
                         chunk_id = await self.vector_store_client.store_chunk(
@@ -226,8 +240,8 @@ class SourceService:
                             metadata={
                                 **chunk.metadata,
                                 "chunk_index": i,
-                                "transcribed_from_audio": True
-                            }
+                                "transcribed_from_audio": True,
+                            },
                         )
 
                         stored_chunks.append(chunk_id)
@@ -241,8 +255,8 @@ class SourceService:
                                 progress=int(progress),
                                 processed_chunks=i + 1,
                                 total_chunks=len(chunks),
-                                last_updated=datetime.utcnow()
-                            )
+                                last_updated=datetime.utcnow(),
+                            ),
                         )
 
                     except Exception as e:
@@ -257,21 +271,23 @@ class SourceService:
                         progress=100,
                         processed_chunks=len(stored_chunks),
                         total_chunks=len(chunks),
-                        last_updated=datetime.utcnow()
-                    )
+                        last_updated=datetime.utcnow(),
+                    ),
                 )
 
                 return ProcessingResult(
                     success=True,
                     chunks_processed=len(stored_chunks),
                     total_chunks=len(chunks),
-                    processing_time=(datetime.utcnow() - source.upload_date).total_seconds(),
+                    processing_time=(
+                        datetime.utcnow() - source.upload_date
+                    ).total_seconds(),
                     metadata={
                         "transcription_length": len(transcribed_text),
                         "transcription_method": "openai_whisper",
                         "original_audio_duration": "unknown",  # Could be extracted with audio analysis
-                        "chunks_stored": len(stored_chunks)
-                    }
+                        "chunks_stored": len(stored_chunks),
+                    },
                 )
 
             finally:
@@ -279,7 +295,9 @@ class SourceService:
                 try:
                     os.unlink(temp_text_path)
                 except Exception as e:
-                    logger.warning(f"Could not delete temporary file {temp_text_path}: {str(e)}")
+                    logger.warning(
+                        f"Could not delete temporary file {temp_text_path}: {str(e)}"
+                    )
 
         except Exception as e:
             logger.error(f"Error processing audio source {source.id}: {str(e)}")
@@ -290,17 +308,21 @@ class SourceService:
                 ProcessingStatus(
                     status="failed",
                     error_message=str(e),
-                    last_updated=datetime.utcnow()
-                )
+                    last_updated=datetime.utcnow(),
+                ),
             )
 
             return ProcessingResult(
                 success=False,
                 error_message=str(e),
-                processing_time=(datetime.utcnow() - source.upload_date).total_seconds()
+                processing_time=(
+                    datetime.utcnow() - source.upload_date
+                ).total_seconds(),
             )
 
-    async def _process_source(self, source: KnowledgeSource, file_path: str) -> ProcessingResult:
+    async def _process_source(
+        self, source: KnowledgeSource, file_path: str
+    ) -> ProcessingResult:
         """
         Process a knowledge source file based on its type.
 
@@ -312,14 +334,18 @@ class SourceService:
             Processing result with success status and metadata
         """
         try:
-            logger.info(f"Starting processing for source: {source.filename} (type: {source.file_type})")
+            logger.info(
+                f"Starting processing for source: {source.filename} (type: {source.file_type})"
+            )
 
             # Determine file type and route to appropriate processor
             if self._is_audio_file(file_path, source.file_type):
                 return await self._process_audio_source(source, file_path)
-            elif source.file_type == 'application/pdf' or file_path.lower().endswith('.pdf'):
+            elif source.file_type == "application/pdf" or file_path.lower().endswith(
+                ".pdf"
+            ):
                 return await self._process_pdf_source(source, file_path)
-            elif source.file_type == 'text/plain' or file_path.lower().endswith('.txt'):
+            elif source.file_type == "text/plain" or file_path.lower().endswith(".txt"):
                 return await self._process_text_source(source, file_path)
             else:
                 # Try to detect file type by extension

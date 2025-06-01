@@ -423,6 +423,9 @@ class TestWorkflowEvents:
             total_steps=5,
             completed_steps=5,
             final_result={"summary": "All done"},
+            successful_steps=["step1", "step2", "step3", "step4", "step5"],
+            failed_steps=[],
+            final_status="completed",
         )
 
         assert event.workflow_id == "test-id"

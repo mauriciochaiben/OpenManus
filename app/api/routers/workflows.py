@@ -7,7 +7,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from app.api.dependencies.core import get_workflow_service
-from app.services.workflow_service import WorkflowService
+from app.services.workflow_service import WorkflowRequest, WorkflowService
 
 router = APIRouter(prefix="/workflows", tags=["workflows"])
 
@@ -220,9 +220,17 @@ async def _execute_workflow_async(
         metadata: Additional metadata for the workflow
     """
     try:
+        # Create a WorkflowRequest object for the workflow service
+        workflow_request = WorkflowRequest(
+            title=initial_task,
+            description=f"Simple workflow: {initial_task}",
+            steps=[{"name": "main_task", "description": initial_task}],
+            source_ids=None,
+        )
+
         # Execute the workflow
         # Events will be automatically published via the EventBus
-        result = await workflow_service.start_simple_workflow(initial_task)
+        result = await workflow_service.start_simple_workflow(workflow_request)
 
         # Log the completion for debugging
         import logging
