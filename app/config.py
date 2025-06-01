@@ -11,13 +11,14 @@ but will issue deprecation warnings.
 """
 
 import warnings
+
 from app.core.config_migration import migration_config
 
 # Issue deprecation warning when this module is imported
 warnings.warn(
     "app.config is deprecated. Use 'from app.core.settings import settings' instead.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 # Maintain backward compatibility

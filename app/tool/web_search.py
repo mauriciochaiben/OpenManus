@@ -344,7 +344,9 @@ class WebSearch(BaseTool):
     def _get_engine_order(self) -> List[str]:
         """Determines the order in which to try search engines."""
         preferred = settings.search_config.engine.lower()
-        fallbacks = [engine.lower() for engine in settings.search_config.fallback_engines]
+        fallbacks = [
+            engine.lower() for engine in settings.search_config.fallback_engines
+        ]
 
         # Start with preferred engine, then fallbacks, then remaining engines
         engine_order = [preferred] if preferred in self._search_engine else []

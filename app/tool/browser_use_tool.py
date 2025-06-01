@@ -15,7 +15,6 @@ from app.llm import LLM
 from app.tool.base import BaseTool, ToolResult
 from app.tool.web_search import WebSearch
 
-
 _BROWSER_DESCRIPTION = """\
 A powerful browser automation tool that allows interaction with web pages through various actions.
 * This tool provides commands for controlling a browser session, navigating web pages, and extracting information
@@ -147,7 +146,10 @@ class BrowserUseTool(BaseTool, Generic[Context]):
                 from browser_use.browser.browser import ProxySettings
 
                 # handle proxy settings.
-                if settings.browser_config.proxy and settings.browser_config.proxy.server:
+                if (
+                    settings.browser_config.proxy
+                    and settings.browser_config.proxy.server
+                ):
                     browser_config_kwargs["proxy"] = ProxySettings(
                         server=settings.browser_config.proxy.server,
                         username=settings.browser_config.proxy.username,

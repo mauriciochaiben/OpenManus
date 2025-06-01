@@ -20,7 +20,7 @@ from tenacity import (
 )
 
 from app.bedrock import BedrockClient
-from app.core.settings import settings, LLMSettings
+from app.core.settings import LLMSettings, settings
 from app.exceptions import TokenLimitExceeded
 from app.logger import logger  # Assuming a logger is set up in your app
 from app.schema import (
@@ -212,7 +212,9 @@ class LLM:
         self, config_name: str = "default", llm_config: Optional[LLMSettings] = None
     ):
         if not hasattr(self, "client"):  # Only initialize if not already initialized
-            llm_config = llm_config or settings.llm_configs.get(config_name, settings.llm_configs["default"])
+            llm_config = llm_config or settings.llm_configs.get(
+                config_name, settings.llm_configs["default"]
+            )
             self.config_name = config_name
             self.model = llm_config.model
             self.max_tokens = llm_config.max_tokens

@@ -27,8 +27,8 @@ except ImportError:
         "Docker SDK not available. Unsafe tools will use restricted execution."
     )
 
-from app.core.settings import settings
 from app.core.exceptions import SecurityError, ValidationError
+from app.core.settings import settings
 from app.tool.base_tool import BaseTool, ToolCategory, ToolResult
 from app.tool.tool_registry import ToolRegistry
 

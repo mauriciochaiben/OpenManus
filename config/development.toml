@@ -13,11 +13,11 @@ max_tokens = 2048
 temperature = 0.7
 
 [browser]
-headless = false  # Show browser in development for debugging
+headless = false        # Show browser in development for debugging
 disable_security = true
 
 [sandbox]
-use_sandbox = false  # Disable sandbox in development for easier debugging
+use_sandbox = false    # Disable sandbox in development for easier debugging
 network_enabled = true
 
 [vector_db]
@@ -31,12 +31,12 @@ lang = "en"
 country = "us"
 
 [document_processing]
-chunk_size = 500  # Smaller chunks for development testing
-max_upload_size = "10MB"  # Smaller limit for development
+chunk_size = 500         # Smaller chunks for development testing
+max_upload_size = "10MB" # Smaller limit for development
 processing_timeout = 60  # Shorter timeout for development
 
 [code_execution]
 enabled = true
-timeout = 15  # Shorter timeout for development
-memory_limit = 50  # Lower memory limit for development
-restricted_python = false  # Allow more freedom in development
+timeout = 15              # Shorter timeout for development
+memory_limit = 50         # Lower memory limit for development
+restricted_python = false # Allow more freedom in development

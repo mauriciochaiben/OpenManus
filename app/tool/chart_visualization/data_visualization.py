@@ -150,7 +150,9 @@ Outputs:
     ) -> str:
         data_list = []
         chart_file_path = self.get_file_path(
-            json_info, "chartPath", os.path.join(settings.workspace_root, "visualization")
+            json_info,
+            "chartPath",
+            os.path.join(settings.workspace_root, "visualization"),
         )
         for index, item in enumerate(json_info):
             if "insights_id" in item:

@@ -5,7 +5,6 @@ from loguru import logger as _logger
 
 from app.core.settings import settings
 
-
 _print_level = "INFO"
 
 

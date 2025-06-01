@@ -10,7 +10,7 @@ import docker
 from docker.errors import NotFound
 from docker.models.containers import Container
 
-from app.core.settings import settings, SandboxSettings
+from app.core.settings import SandboxSettings, settings
 from app.sandbox.core.exceptions import SandboxTimeoutError
 from app.sandbox.core.terminal import AsyncDockerizedTerminal
 
@@ -91,7 +91,7 @@ class DockerSandbox:
             self.terminal = AsyncDockerizedTerminal(
                 container["Id"],
                 self.config.work_dir,
-                env_vars={"PYTHONUNBUFFERED": "1"}
+                env_vars={"PYTHONUNBUFFERED": "1"},
                 # Ensure Python output is not buffered
             )
             await self.terminal.init()
