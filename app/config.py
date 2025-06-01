@@ -146,6 +146,139 @@ class MCPSettings(BaseModel):
             raise ValueError(f"Failed to load MCP server config: {e}")
 
 
+class VectorDBSettings(BaseModel):
+    """Vector Database Configuration for ChromaDB."""
+
+    # Connection settings
+    host: str = Field(default="localhost", description="ChromaDB host")
+    port: int = Field(default=8000, description="ChromaDB port")
+    url: str = Field(default="http://localhost:8000", description="ChromaDB URL")
+
+    # Authentication
+    auth_token: Optional[str] = Field(default=None, description="ChromaDB auth token")
+    auth_provider: Optional[str] = Field(
+        default=None, description="ChromaDB auth provider"
+    )
+    auth_credentials: Optional[str] = Field(
+        default=None, description="ChromaDB auth credentials"
+    )
+    auth_header: str = Field(
+        default="X-Chroma-Token", description="ChromaDB auth header"
+    )
+
+    # Collections
+    documents_collection: str = Field(
+        default="openmanus_documents", description="Documents collection name"
+    )
+    workflows_collection: str = Field(
+        default="openmanus_workflows", description="Workflows collection name"
+    )
+
+    # Performance settings
+    timeout: int = Field(default=30, description="Request timeout in seconds")
+    max_retries: int = Field(default=3, description="Maximum retry attempts")
+    retry_delay: float = Field(
+        default=1.0, description="Delay between retries in seconds"
+    )
+
+
+class EmbeddingSettings(BaseModel):
+    """Embedding Configuration."""
+
+    # Model settings
+    model_name: str = Field(
+        default="sentence-transformers/all-MiniLM-L6-v2",
+        description="Embedding model name",
+    )
+    dimension: int = Field(default=384, description="Embedding dimension")
+    normalize: bool = Field(default=True, description="Normalize embeddings")
+    batch_size: int = Field(
+        default=32, description="Batch size for embedding generation"
+    )
+
+    # Text processing
+    max_length: int = Field(
+        default=512, description="Maximum text length for embeddings"
+    )
+    truncate: bool = Field(default=True, description="Truncate text if too long")
+
+    # Provider settings
+    openai_api_key: Optional[str] = Field(
+        default=None, description="OpenAI API key for embeddings"
+    )
+    ollama_base_url: str = Field(
+        default="http://localhost:11434", description="Ollama base URL"
+    )
+
+
+class DocumentProcessingSettings(BaseModel):
+    """Document Processing Configuration."""
+
+    # Chunking settings
+    chunk_size: int = Field(default=1000, description="Text chunk size")
+    chunk_overlap: int = Field(default=200, description="Overlap between chunks")
+
+    # Search settings
+    search_k: int = Field(default=5, description="Number of documents to retrieve")
+    search_threshold: float = Field(
+        default=0.7, description="Similarity threshold for search"
+    )
+
+    # Upload settings
+    max_upload_size: str = Field(default="50MB", description="Maximum upload file size")
+    allowed_types: str = Field(
+        default="pdf,txt,md,docx", description="Allowed file types"
+    )
+    storage_path: str = Field(
+        default="./data/documents", description="Document storage path"
+    )
+    processing_timeout: int = Field(
+        default=300, description="Processing timeout in seconds"
+    )
+
+    @property
+    def allowed_types_list(self) -> List[str]:
+        """Get allowed document types as a list."""
+        return [t.strip().lower() for t in self.allowed_types.split(",")]
+
+    @property
+    def max_size_bytes(self) -> int:
+        """Convert max size to bytes."""
+        size_str = self.max_upload_size.upper()
+        if size_str.endswith("MB"):
+            return int(size_str[:-2]) * 1024 * 1024
+        elif size_str.endswith("KB"):
+            return int(size_str[:-2]) * 1024
+        elif size_str.endswith("GB"):
+            return int(size_str[:-2]) * 1024 * 1024 * 1024
+        else:
+            return int(size_str)
+
+
+class RAGSettings(BaseModel):
+    """Retrieval-Augmented Generation Configuration."""
+
+    max_context_length: int = Field(
+        default=4000, description="Maximum context length for RAG"
+    )
+    overlap_ratio: float = Field(
+        default=0.1, description="Overlap ratio for context chunks"
+    )
+    min_score: float = Field(default=0.3, description="Minimum similarity score")
+    max_documents: int = Field(default=10, description="Maximum documents to retrieve")
+
+
+class KnowledgeSettings(BaseModel):
+    """Knowledge Management Configuration."""
+
+    vector_db: VectorDBSettings = Field(default_factory=VectorDBSettings)
+    embedding: EmbeddingSettings = Field(default_factory=EmbeddingSettings)
+    document_processing: DocumentProcessingSettings = Field(
+        default_factory=DocumentProcessingSettings
+    )
+    rag: RAGSettings = Field(default_factory=RAGSettings)
+
+
 class AppConfig(BaseModel):
     llm: Dict[str, LLMSettings]
     sandbox: Optional[SandboxSettings] = Field(
@@ -158,6 +291,9 @@ class AppConfig(BaseModel):
         None, description="Search configuration"
     )
     mcp_config: Optional[MCPSettings] = Field(None, description="MCP configuration")
+    knowledge_config: Optional[KnowledgeSettings] = Field(
+        None, description="Knowledge management configuration"
+    )
 
     class Config:
         arbitrary_types_allowed = True
@@ -305,6 +441,11 @@ class Config:
     def mcp_config(self) -> MCPSettings:
         """Get the MCP configuration"""
         return self._config.mcp_config
+
+    @property
+    def knowledge_config(self) -> KnowledgeSettings:
+        """Get the knowledge management configuration"""
+        return self._config.knowledge_config or KnowledgeSettings()
 
     @property
     def workspace_root(self) -> Path:

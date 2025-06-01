@@ -1,5 +1,5 @@
 """
-OpenManus API v2 - Clean Architecture Implementation
+OpenManus API - Clean Architecture Implementation
 """
 
 import logging
@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers
 from app.api.routers import chat, system, tasks, workflows
+from app.api.v1 import api_router as api_v1_router
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -46,6 +47,9 @@ def create_app() -> FastAPI:
     app.include_router(system.router, prefix="/api/v2")
     app.include_router(workflows.router, prefix="/api/v2")
 
+    # Include v1 API routers
+    app.include_router(api_v1_router, prefix="/api/v1")
+
     # Root endpoint
     @app.get("/")
     async def root():
@@ -70,7 +74,9 @@ def create_app() -> FastAPI:
         task_service = get_task_service()
         return await task_service.get_dashboard_stats()
 
-    logger.info("OpenManus API v2 initialized with Clean Architecture")
+    logger.info("OpenManus API initialized with Clean Architecture")
+    logger.info("API v1 routes registered under /api/v1")
+    logger.info("API v2 routes registered under /api/v2")
     return app
 
 

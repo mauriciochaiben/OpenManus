@@ -44,6 +44,12 @@ docling-core~=2.31.2
 docling-ibm-models~=3.4.3
 docling-parse~=4.0.1
 
+# Knowledge management and embeddings
+sentence-transformers>=2.2.0
+chromadb>=0.4.0
+langchain>=0.1.0
+langchain-text-splitters>=0.0.1
+
 pytest-asyncio~=0.25.3
 
 mcp~=1.5.0
