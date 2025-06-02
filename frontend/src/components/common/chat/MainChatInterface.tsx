@@ -2,13 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
     Input,
     Button,
-    List,
-    Avatar,
     Space,
     Typography,
     Tag,
     message,
-    Empty,
     Spin,
     Badge,
     Dropdown,
@@ -18,7 +15,6 @@ import {
 import {
     SendOutlined,
     RobotOutlined,
-    UserOutlined,
     ClearOutlined,
     BulbOutlined,
     SettingOutlined,
@@ -32,6 +28,7 @@ import { chatApi } from '../../../services/api';
 import { webSocketManager } from '../../../services/websocket';
 import { eventBus } from '../../../utils/eventBus';
 import type { ChatMessage } from '../../../types';
+import { MessageList } from '../../../features/chat/components';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -232,13 +229,6 @@ const MainChatInterface: React.FC = () => {
         }
     };
 
-    const formatTime = (timestamp: string) => {
-        return new Date(timestamp).toLocaleTimeString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
     const getExecutionTypeIcon = (type: string) => {
         switch (type) {
             case 'single': return <RobotOutlined />;
@@ -359,41 +349,16 @@ const MainChatInterface: React.FC = () => {
 
             {/* Messages Area */}
             <div className="messages-container">
-                {messages.length === 0 ? (
-                    <div className="empty-state">
-                        <Empty
-                            description="Comece uma conversa!"
-                            image={Empty.PRESENTED_IMAGE_SIMPLE}
-                        />
-                    </div>
-                ) : (
-                    <List
-                        dataSource={messages}
-                        renderItem={(msg) => {
-                            const isUser = msg.role === 'user';
-                            return (
-                                <List.Item className={`message-item ${isUser ? 'user-message' : 'assistant-message'}`}>
-                                    <div className="message-content">
-                                        <Avatar
-                                            className="message-avatar"
-                                            icon={isUser ? <UserOutlined /> : <RobotOutlined />}
-                                        />
-                                        <div className="message-bubble">
-                                            <div className="message-text">
-                                                <Text style={{ whiteSpace: 'pre-wrap' }}>
-                                                    {msg.content}
-                                                </Text>
-                                            </div>
-                                            <div className="message-timestamp">
-                                                {formatTime(msg.timestamp)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </List.Item>
-                            );
-                        }}
-                    />
-                )}
+                <MessageList
+                    messages={messages}
+                    isLoading={isLoading}
+                    formatTime={(timestamp: string) => {
+                        return new Date(timestamp).toLocaleTimeString('pt-BR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    }}
+                />
                 <div ref={messagesEndRef} />
             </div>
 

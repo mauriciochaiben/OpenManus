@@ -1,3 +1,3 @@
 // Chat components exports
-// TODO: Add chat components when implemented
-export {};
+export { default as MessageList } from './MessageList';
+export { default as MessageItem } from './MessageItem';

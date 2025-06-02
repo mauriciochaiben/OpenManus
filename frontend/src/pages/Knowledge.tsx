@@ -24,7 +24,6 @@ const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
 
 const Knowledge: React.FC = () => {
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [uploadStats, setUploadStats] = useState({
         totalUploads: 0,
         processingCount: 0,
@@ -35,8 +34,6 @@ const Knowledge: React.FC = () => {
     // Handle successful upload to refresh the source list
     const handleUploadSuccess = (response: UploadSourceResponse) => {
         console.log('Upload successful:', response);
-        // Trigger refresh of the source list
-        setRefreshTrigger(prev => prev + 1);
         // Update upload stats
         setUploadStats(prev => ({
             ...prev,
@@ -48,7 +45,6 @@ const Knowledge: React.FC = () => {
     // Handle source deletion to refresh stats if needed
     const handleSourceDeleted = (sourceId: string) => {
         console.log('Source deleted:', sourceId);
-        setRefreshTrigger(prev => prev + 1);
     };
 
     // Handle upload error
@@ -189,10 +185,12 @@ const Knowledge: React.FC = () => {
 
                     {/* Sources List Section */}
                     <SourceList
-                        refreshTrigger={refreshTrigger}
-                        onSourceDeleted={handleSourceDeleted}
-                        enablePolling={true}
-                        pollingInterval={5000}
+                        onDelete={async (sourceId: string) => {
+                            handleSourceDeleted(sourceId);
+                        }}
+                        onViewDetails={(source) => {
+                            console.log('View details for:', source);
+                        }}
                     />
                 </div>
             </Content>
