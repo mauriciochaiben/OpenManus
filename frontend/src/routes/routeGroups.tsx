@@ -11,7 +11,10 @@ export const CoreRoutes = () => (
         <Route
             path="/"
             element={
-                <LazyRouteWrapper loadingMessage="Carregando página inicial...">
+                <LazyRouteWrapper
+                    loadingMessage="Carregando página inicial..."
+                    componentName="HomePage"
+                >
                     <LazyComponents.HomePage />
                 </LazyRouteWrapper>
             }
@@ -19,7 +22,10 @@ export const CoreRoutes = () => (
         <Route
             path="/dashboard"
             element={
-                <LazyRouteWrapper loadingMessage="Carregando painel...">
+                <LazyRouteWrapper
+                    loadingMessage="Carregando painel..."
+                    componentName="DashboardPage"
+                >
                     <LazyComponents.DashboardPage />
                 </LazyRouteWrapper>
             }
@@ -35,7 +41,10 @@ export const FeatureRoutes = () => (
         <Route
             path="/chat"
             element={
-                <LazyRouteWrapper loadingMessage="Carregando chat...">
+                <LazyRouteWrapper
+                    loadingMessage="Carregando chat..."
+                    componentName="ChatPage"
+                >
                     <LazyComponents.ChatPage />
                 </LazyRouteWrapper>
             }
@@ -43,7 +52,10 @@ export const FeatureRoutes = () => (
         <Route
             path="/knowledge"
             element={
-                <LazyRouteWrapper loadingMessage="Carregando base de conhecimento...">
+                <LazyRouteWrapper
+                    loadingMessage="Carregando base de conhecimento..."
+                    componentName="KnowledgePage"
+                >
                     <LazyComponents.KnowledgePage />
                 </LazyRouteWrapper>
             }

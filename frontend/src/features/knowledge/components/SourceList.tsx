@@ -38,7 +38,7 @@ import {
     FilterOutlined
 } from '@ant-design/icons';
 import { KnowledgeSource } from '../types';
-import { listSources, deleteSource, retryProcessing } from '../services/knowledgeApi';
+import { listSources, deleteSource, reprocessSource } from '../services/knowledgeApi';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -121,7 +121,7 @@ const SourceList: React.FC<SourceListProps> = ({
     // Handle retry processing
     const handleRetryProcessing = async (sourceId: string) => {
         try {
-            await retryProcessing(sourceId);
+            await reprocessSource(sourceId);
             message.success('Processing retry initiated');
             fetchSources();
         } catch (error) {

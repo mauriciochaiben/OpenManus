@@ -9,7 +9,9 @@ import {
     MessageOutlined,
     DashboardOutlined,
     ApiOutlined,
-    BookOutlined
+    BookOutlined,
+    ExperimentOutlined,
+    BranchesOutlined
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
@@ -20,41 +22,76 @@ const Sidebar: React.FC = () => {
     const location = useLocation();
 
     const menuItems = [
+        // Core Navigation
         {
-            key: '/',
-            icon: <HomeOutlined />,
-            label: 'Home',
+            key: 'core',
+            type: 'group' as const,
+            label: 'Principal',
+            children: [
+                {
+                    key: '/',
+                    icon: <HomeOutlined />,
+                    label: 'Home',
+                },
+                {
+                    key: '/dashboard',
+                    icon: <DashboardOutlined />,
+                    label: 'Dashboard',
+                }
+            ]
         },
+        // Features
         {
-            key: '/dashboard',
-            icon: <DashboardOutlined />,
-            label: 'Dashboard',
+            key: 'features',
+            type: 'group' as const,
+            label: 'Funcionalidades',
+            children: [
+                {
+                    key: '/chat',
+                    icon: <MessageOutlined />,
+                    label: 'AI Chat',
+                },
+                {
+                    key: '/knowledge',
+                    icon: <BookOutlined />,
+                    label: 'Base de Conhecimento',
+                },
+                {
+                    key: '/workflow',
+                    icon: <BranchesOutlined />,
+                    label: 'Workflows',
+                },
+                {
+                    key: '/canvas',
+                    icon: <ExperimentOutlined />,
+                    label: 'Canvas (Beta)',
+                    disabled: true
+                }
+            ]
         },
+        // Configuration
         {
-            key: '/chat',
-            icon: <MessageOutlined />,
-            label: 'AI Chat',
-        },
-        {
-            key: '/knowledge',
-            icon: <BookOutlined />,
-            label: 'Knowledge',
-        },
-        {
-            key: '/llm-config',
-            icon: <ApiOutlined />,
-            label: 'LLM Config',
-        },
-        {
-            key: '/mcp-config',
-            icon: <CloudServerOutlined />,
-            label: 'MCP Config',
-        },
-        {
-            key: '/settings',
-            icon: <SettingOutlined />,
-            label: 'Settings',
-        },
+            key: 'config',
+            type: 'group' as const,
+            label: 'Configurações',
+            children: [
+                {
+                    key: '/llm-config',
+                    icon: <ApiOutlined />,
+                    label: 'Configurar LLM',
+                },
+                {
+                    key: '/mcp-config',
+                    icon: <CloudServerOutlined />,
+                    label: 'Configurar MCP',
+                },
+                {
+                    key: '/settings',
+                    icon: <SettingOutlined />,
+                    label: 'Configurações',
+                }
+            ]
+        }
     ];
 
     const handleMenuClick = ({ key }: { key: string }) => {
@@ -66,8 +103,8 @@ const Sidebar: React.FC = () => {
             width={250}
             className="sidebar"
             style={{
-                background: '#fff',
-                borderRight: '1px solid #f0f0f0',
+                background: '#001529',
+                borderRight: '1px solid #303030',
                 height: '100vh',
                 position: 'fixed',
                 left: 0,
@@ -75,14 +112,41 @@ const Sidebar: React.FC = () => {
                 bottom: 0,
                 overflow: 'auto',
                 zIndex: 1000,
+                boxShadow: '2px 0 8px rgba(0,0,0,0.15)'
             }}
         >
             <div style={{ padding: '24px 16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-                    <RocketOutlined style={{ fontSize: '24px', color: '#1890ff', marginRight: '12px' }} />
-                    <Title level={4} style={{ margin: 0, color: '#1890ff' }}>
-                        OpenManus
-                    </Title>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '32px',
+                    padding: '12px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '8px'
+                }}>
+                    <RocketOutlined style={{
+                        fontSize: '28px',
+                        color: '#1890ff',
+                        marginRight: '12px',
+                        textShadow: '0 0 10px rgba(24,144,255,0.5)'
+                    }} />
+                    <div>
+                        <Title level={4} style={{
+                            margin: 0,
+                            color: '#fff',
+                            fontSize: '18px',
+                            fontWeight: 600
+                        }}>
+                            OpenManus
+                        </Title>
+                        <div style={{
+                            color: '#8c8c8c',
+                            fontSize: '12px',
+                            marginTop: '2px'
+                        }}>
+                            AI Assistant Platform
+                        </div>
+                    </div>
                 </div>
 
                 <Menu
@@ -90,9 +154,11 @@ const Sidebar: React.FC = () => {
                     selectedKeys={[location.pathname]}
                     items={menuItems}
                     onClick={handleMenuClick}
+                    theme="dark"
                     style={{
                         border: 'none',
                         background: 'transparent',
+                        fontSize: '14px'
                     }}
                 />
             </div>
