@@ -6,6 +6,7 @@
  */
 
 import axios, { AxiosResponse, AxiosError } from 'axios';
+import { message } from 'antd';
 import {
     KnowledgeSource,
     UploadSourceRequest,
@@ -76,9 +77,18 @@ export const uploadSource = async (
             }
         );
 
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Fonte de conhecimento enviada com sucesso!');
+
         return response.data;
     } catch (error) {
         console.error('Error uploading source:', error);
+
+        // Feedback de erro
+        const { message } = await import('antd');
+        message.error('Erro ao enviar fonte de conhecimento. Tente novamente.');
+
         throw error;
     }
 };
@@ -161,9 +171,18 @@ export const deleteSource = async (
             `/sources/${sourceId}`
         );
 
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Fonte de conhecimento excluída com sucesso!');
+
         return response.data;
     } catch (error) {
         console.error(`Error deleting source ${sourceId}:`, error);
+
+        // Feedback de erro
+        const { message } = await import('antd');
+        message.error('Erro ao excluir fonte de conhecimento. Tente novamente.');
+
         throw error;
     }
 };
@@ -198,9 +217,18 @@ export const reprocessSource = async (
             `/sources/${sourceId}/reprocess`
         );
 
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Reprocessamento da fonte iniciado com sucesso!');
+
         return response.data;
     } catch (error) {
         console.error(`Error reprocessing source ${sourceId}:`, error);
+
+        // Feedback de erro
+        const { message } = await import('antd');
+        message.error('Erro ao reprocessar fonte de conhecimento. Tente novamente.');
+
         throw error;
     }
 };

@@ -1,3 +1,6 @@
+/* Importar estilos customizados do tema OpenManus */
+@import './theme/theme.css';
+
 /* Reset and base styles */
 * {
     margin: 0;

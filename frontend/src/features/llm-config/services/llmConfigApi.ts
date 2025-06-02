@@ -63,8 +63,18 @@ class LLMConfigService {
 
         if (!response.ok) {
             const error = await response.json();
+
+            // Feedback de erro
+            const { message } = await import('antd');
+            message.error('Erro ao criar configuração LLM. Tente novamente.');
+
             throw new Error(error.detail || 'Failed to create LLM configuration');
         }
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Configuração LLM criada com sucesso!');
+
         return response.json();
     }
 
@@ -80,8 +90,18 @@ class LLMConfigService {
 
         if (!response.ok) {
             const error = await response.json();
+
+            // Feedback de erro
+            const { message } = await import('antd');
+            message.error('Erro ao atualizar configuração LLM. Tente novamente.');
+
             throw new Error(error.detail || 'Failed to update LLM configuration');
         }
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Configuração LLM atualizada com sucesso!');
+
         return response.json();
     }
 
@@ -93,8 +113,17 @@ class LLMConfigService {
 
         if (!response.ok) {
             const error = await response.json();
+
+            // Feedback de erro
+            const { message } = await import('antd');
+            message.error('Erro ao excluir configuração LLM. Tente novamente.');
+
             throw new Error(error.detail || 'Failed to delete LLM configuration');
         }
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Configuração LLM excluída com sucesso!');
     }
 
     // Set default configuration
@@ -105,8 +134,18 @@ class LLMConfigService {
 
         if (!response.ok) {
             const error = await response.json();
+
+            // Feedback de erro
+            const { message } = await import('antd');
+            message.error('Erro ao definir configuração padrão. Tente novamente.');
+
             throw new Error(error.detail || 'Failed to set default configuration');
         }
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Configuração padrão definida com sucesso!');
+
         return response.json();
     }
 

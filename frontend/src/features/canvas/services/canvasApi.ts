@@ -47,9 +47,19 @@ export const createNode = async (node: CanvasNode): Promise<CanvasNode> => {
             position: node.position,
             data: node.data
         });
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Nó criado com sucesso!');
+
         return response.data;
     } catch (error) {
         console.error('Error creating node:', error);
+
+        // Feedback de erro
+        const { message } = await import('antd');
+        message.error('Erro ao criar nó. Tente novamente.');
+
         throw error;
     }
 };
@@ -60,9 +70,19 @@ export const createNode = async (node: CanvasNode): Promise<CanvasNode> => {
 export const updateNode = async (nodeId: string, updates: Partial<CanvasNode>): Promise<CanvasNode> => {
     try {
         const response = await apiClient.put<CanvasNode>(`${CANVAS_API_BASE}/nodes/${nodeId}`, updates);
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Nó atualizado com sucesso!');
+
         return response.data;
     } catch (error) {
         console.error('Error updating node:', error);
+
+        // Feedback de erro
+        const { message } = await import('antd');
+        message.error('Erro ao atualizar nó. Tente novamente.');
+
         throw error;
     }
 };
@@ -73,8 +93,17 @@ export const updateNode = async (nodeId: string, updates: Partial<CanvasNode>): 
 export const deleteNode = async (nodeId: string): Promise<void> => {
     try {
         await apiClient.delete(`${CANVAS_API_BASE}/nodes/${nodeId}`);
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Nó excluído com sucesso!');
     } catch (error) {
         console.error('Error deleting node:', error);
+
+        // Feedback de erro
+        const { message } = await import('antd');
+        message.error('Erro ao excluir nó. Tente novamente.');
+
         throw error;
     }
 };
@@ -95,9 +124,19 @@ export const executePromptNode = async (
                 source_ids: sourceIds
             }
         );
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Execução do nó iniciada com sucesso!');
+
         return response.data;
     } catch (error) {
         console.error('Error executing prompt node:', error);
+
+        // Feedback de erro
+        const { message } = await import('antd');
+        message.error('Erro ao executar nó. Tente novamente.');
+
         throw error;
     }
 };
@@ -123,14 +162,23 @@ export const executeCanvasWorkflow = async (
                 edges: edges.map(edge => ({
                     source: edge.source,
                     target: edge.target,
-                    sourceHandle: edge.sourceHandle,
-                    targetHandle: edge.targetHandle
+                    type: edge.type
                 }))
             }
         );
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Execução do workflow iniciada com sucesso!');
+
         return response.data;
     } catch (error) {
         console.error('Error executing canvas workflow:', error);
+
+        // Feedback de erro
+        const { message } = await import('antd');
+        message.error('Erro ao executar workflow. Tente novamente.');
+
         throw error;
     }
 };

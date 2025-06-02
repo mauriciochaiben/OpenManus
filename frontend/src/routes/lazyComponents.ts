@@ -15,6 +15,7 @@ export const LLMConfigurationPage = lazy(() =>
 );
 export const MCPConfigPage = lazy(() => import('../pages/MCPConfigPage'));
 export const SettingsPage = lazy(() => import('../pages/SettingsPage'));
+export const ThemeDemoPage = lazy(() => import('../pages/ThemeDemoPage'));
 
 // Specialized apps - carregamento sob demanda
 export const WorkflowApp = lazy(() => import('../WorkflowApp'));

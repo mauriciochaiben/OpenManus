@@ -17,25 +17,28 @@ import {
     Tooltip,
     Badge,
     Progress,
-    Statistic
+    Statistic,
+    Empty,
+    Result,
+    Spin
 } from 'antd';
 import type { ColumnsType, TableProps } from 'antd/es/table';
 import {
     PlusOutlined,
     EditOutlined,
     DeleteOutlined,
-    TestConnectionOutlined,
+    DisconnectOutlined,
     MoreOutlined,
     StarOutlined,
     StarFilled,
     PlayCircleOutlined,
     PauseCircleOutlined,
-    BarChartOutlined,
-    ApiOutlined
+    ApiOutlined,
+    ReloadOutlined
 } from '@ant-design/icons';
 
 import { LLMConfiguration } from '../types';
-import { useLLMConfigurations, useLLMTesting, useLLMProvider } from '../hooks/useLLMConfig';
+import { useLLMConfigurations, useLLMTesting } from '../hooks/useLLMConfig';
 import LLMConfigForm from './LLMConfigForm';
 
 const { Title, Text } = Typography;
@@ -45,7 +48,7 @@ interface LLMConfigListProps {
 }
 
 const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
-    const { configurations, loading, actions } = useLLMConfigurations();
+    const { configurations, loading, error, actions } = useLLMConfigurations();
     const { testConfiguration, testResults } = useLLMTesting();
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -112,9 +115,14 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
         }
     };
 
-    const handleSave = (config: LLMConfiguration) => {
+    const handleSave = () => {
         setModalVisible(false);
         setEditingConfig(null);
+        actions.refetch();
+    };
+
+    const handleRetry = () => {
+        actions.clearError();
         actions.refetch();
     };
 
@@ -201,7 +209,7 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
                     <Tooltip title="Test Configuration">
                         <Button
                             type="text"
-                            icon={<TestConnectionOutlined />}
+                            icon={<DisconnectOutlined />}
                             onClick={() => handleTest(record)}
                             loading={testingConfig === record.id}
                             size="small"
@@ -325,7 +333,28 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
 
             {/* Configurations Table */}
             <Card>
-                <Table {...tableProps} />
+                {loading ? (
+                    <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                        <Spin size="large" />
+                    </div>
+                ) : configurations.length > 0 ? (
+                    <Table {...tableProps} />
+                ) : (
+                    <Empty
+                        description={
+                            <Result
+                                status="404"
+                                title="No Configurations Found"
+                                subTitle="It looks like you don't have any LLM configurations yet."
+                                extra={
+                                    <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+                                        Create Configuration
+                                    </Button>
+                                }
+                            />
+                        }
+                    />
+                )}
             </Card>
 
             {/* Configuration Form Modal */}

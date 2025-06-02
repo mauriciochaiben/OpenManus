@@ -53,9 +53,19 @@ apiClient.interceptors.response.use(
 export const createNote = async (noteData: NoteCreate): Promise<Note> => {
     try {
         const response = await apiClient.post<Note>('/', noteData);
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Nota criada com sucesso!');
+
         return response.data;
     } catch (error) {
         console.error('Error creating note:', error);
+
+        // Feedback de erro
+        const { message } = await import('antd');
+        message.error('Erro ao criar nota. Tente novamente.');
+
         throw error;
     }
 };
@@ -79,9 +89,19 @@ export const getNote = async (noteId: string): Promise<Note> => {
 export const updateNote = async (noteId: string, noteData: NoteUpdate): Promise<Note> => {
     try {
         const response = await apiClient.put<Note>(`/${noteId}`, noteData);
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Nota atualizada com sucesso!');
+
         return response.data;
     } catch (error) {
         console.error(`Error updating note ${noteId}:`, error);
+
+        // Feedback de erro
+        const { message } = await import('antd');
+        message.error('Erro ao atualizar nota. Tente novamente.');
+
         throw error;
     }
 };
@@ -92,8 +112,17 @@ export const updateNote = async (noteId: string, noteData: NoteUpdate): Promise<
 export const deleteNote = async (noteId: string): Promise<void> => {
     try {
         await apiClient.delete(`/${noteId}`);
+
+        // Feedback de sucesso
+        const { message } = await import('antd');
+        message.success('Nota excluída com sucesso!');
     } catch (error) {
         console.error(`Error deleting note ${noteId}:`, error);
+
+        // Feedback de erro
+        const { message } = await import('antd');
+        message.error('Erro ao excluir nota. Tente novamente.');
+
         throw error;
     }
 };

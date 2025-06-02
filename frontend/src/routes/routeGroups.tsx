@@ -108,5 +108,13 @@ export const ConfigRoutes = () => (
                 </LazyRouteWrapper>
             }
         />
+        <Route
+            path="/theme-demo"
+            element={
+                <LazyRouteWrapper loadingMessage="Carregando demonstração do tema...">
+                    <LazyComponents.ThemeDemoPage />
+                </LazyRouteWrapper>
+            }
+        />
     </>
 );

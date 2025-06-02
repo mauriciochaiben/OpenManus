@@ -57,8 +57,16 @@ export const taskApi = {
 
     // Create new task
     createTask: async (taskData: CreateTaskRequest): Promise<TaskResponse> => {
-        const response = await api.post('/tasks', taskData);
-        return response.data;
+        try {
+            const response = await api.post('/tasks', taskData);
+            const { message } = await import('antd');
+            message.success('Tarefa criada com sucesso!');
+            return response.data;
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao criar tarefa');
+            throw error;
+        }
     },
 
     // Get all tasks
@@ -75,12 +83,28 @@ export const taskApi = {
 
     // Cancel task
     cancelTask: async (taskId: string): Promise<void> => {
-        await api.post(`/tasks/${taskId}/cancel`);
+        try {
+            await api.post(`/tasks/${taskId}/cancel`);
+            const { message } = await import('antd');
+            message.success('Tarefa cancelada com sucesso!');
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao cancelar tarefa');
+            throw error;
+        }
     },
 
     // Delete task
     deleteTask: async (taskId: string): Promise<void> => {
-        await api.delete(`/tasks/${taskId}`);
+        try {
+            await api.delete(`/tasks/${taskId}`);
+            const { message } = await import('antd');
+            message.success('Tarefa excluída com sucesso!');
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao excluir tarefa');
+            throw error;
+        }
     },
 
     // Get task logs
@@ -91,8 +115,16 @@ export const taskApi = {
 
     // Retry failed task
     retryTask: async (taskId: string): Promise<TaskResponse> => {
-        const response = await api.post(`/tasks/${taskId}/retry`);
-        return response.data;
+        try {
+            const response = await api.post(`/tasks/${taskId}/retry`);
+            const { message } = await import('antd');
+            message.success('Tarefa reagendada com sucesso!');
+            return response.data;
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao reagendar tarefa');
+            throw error;
+        }
     },
 };
 
@@ -100,22 +132,30 @@ export const taskApi = {
 export const documentApi = {
     // Upload document
     uploadDocument: async (file: File, onProgress?: (progress: number) => void): Promise<UploadedDocument> => {
-        const formData = new FormData();
-        formData.append('file', file);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
 
-        const response = await api.post('/documents/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-            onUploadProgress: (progressEvent) => {
-                if (onProgress && progressEvent.total) {
-                    const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    onProgress(progress);
-                }
-            },
-        });
+            const response = await api.post('/documents/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                onUploadProgress: (progressEvent) => {
+                    if (onProgress && progressEvent.total) {
+                        const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        onProgress(progress);
+                    }
+                },
+            });
 
-        return response.data;
+            const { message } = await import('antd');
+            message.success('Documento enviado com sucesso!');
+            return response.data;
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao enviar documento');
+            throw error;
+        }
     },
 
     // Get document info
@@ -126,13 +166,29 @@ export const documentApi = {
 
     // Delete document
     deleteDocument: async (documentId: string): Promise<void> => {
-        await api.delete(`/documents/${documentId}`);
+        try {
+            await api.delete(`/documents/${documentId}`);
+            const { message } = await import('antd');
+            message.success('Documento excluído com sucesso!');
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao excluir documento');
+            throw error;
+        }
     },
 
     // Process document (extract text, analyze)
     processDocument: async (documentId: string): Promise<UploadedDocument> => {
-        const response = await api.post(`/documents/${documentId}/process`);
-        return response.data;
+        try {
+            const response = await api.post(`/documents/${documentId}/process`);
+            const { message } = await import('antd');
+            message.success('Documento processado com sucesso!');
+            return response.data;
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao processar documento');
+            throw error;
+        }
     },
 
     // Download document
@@ -154,30 +210,70 @@ export const mcpApi = {
 
     // Create new MCP server
     createServer: async (serverConfig: MCPServerConfig): Promise<MCPServer> => {
-        const response = await api.post('/mcp/servers', serverConfig);
-        return response.data;
+        try {
+            const response = await api.post('/mcp/servers', serverConfig);
+            const { message } = await import('antd');
+            message.success('Servidor MCP criado com sucesso!');
+            return response.data;
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao criar servidor MCP');
+            throw error;
+        }
     },
 
     // Update MCP server
     updateServer: async (serverId: string, serverConfig: Partial<MCPServerConfig>): Promise<MCPServer> => {
-        const response = await api.put(`/mcp/servers/${serverId}`, serverConfig);
-        return response.data;
+        try {
+            const response = await api.put(`/mcp/servers/${serverId}`, serverConfig);
+            const { message } = await import('antd');
+            message.success('Servidor MCP atualizado com sucesso!');
+            return response.data;
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao atualizar servidor MCP');
+            throw error;
+        }
     },
 
     // Delete MCP server
     deleteServer: async (serverId: string): Promise<void> => {
-        await api.delete(`/mcp/servers/${serverId}`);
+        try {
+            await api.delete(`/mcp/servers/${serverId}`);
+            const { message } = await import('antd');
+            message.success('Servidor MCP excluído com sucesso!');
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao excluir servidor MCP');
+            throw error;
+        }
     },
 
     // Connect to MCP server
     connectServer: async (serverId: string): Promise<MCPServer> => {
-        const response = await api.post(`/mcp/servers/${serverId}/connect`);
-        return response.data;
+        try {
+            const response = await api.post(`/mcp/servers/${serverId}/connect`);
+            const { message } = await import('antd');
+            message.success('Servidor MCP conectado com sucesso!');
+            return response.data;
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao conectar servidor MCP');
+            throw error;
+        }
     },
 
     // Disconnect from MCP server
     disconnectServer: async (serverId: string): Promise<void> => {
-        await api.post(`/mcp/servers/${serverId}/disconnect`);
+        try {
+            await api.post(`/mcp/servers/${serverId}/disconnect`);
+            const { message } = await import('antd');
+            message.success('Servidor MCP desconectado com sucesso!');
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao desconectar servidor MCP');
+            throw error;
+        }
     },
 
     // Get server tools
@@ -230,7 +326,15 @@ export const chatApi = {
 
     // Clear chat history
     clearHistory: async (sessionId: string = 'default'): Promise<void> => {
-        await api.delete(`/chat/history?session_id=${sessionId}`);
+        try {
+            await api.delete(`/chat/history?session_id=${sessionId}`);
+            const { message } = await import('antd');
+            message.success('Histórico de chat limpo com sucesso!');
+        } catch (error) {
+            const { message } = await import('antd');
+            message.error('Erro ao limpar histórico de chat');
+            throw error;
+        }
     },
 };
 
