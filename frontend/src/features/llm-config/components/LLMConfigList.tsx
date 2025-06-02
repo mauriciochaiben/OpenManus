@@ -16,7 +16,6 @@ import {
     message,
     Tooltip,
     Badge,
-    Progress,
     Statistic,
     Empty,
     Result,
@@ -33,8 +32,7 @@ import {
     StarFilled,
     PlayCircleOutlined,
     PauseCircleOutlined,
-    ApiOutlined,
-    ReloadOutlined
+    ApiOutlined
 } from '@ant-design/icons';
 
 import { LLMConfiguration } from '../types';
@@ -48,7 +46,7 @@ interface LLMConfigListProps {
 }
 
 const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
-    const { configurations, loading, error, actions } = useLLMConfigurations();
+    const { configurations, loading, actions } = useLLMConfigurations();
     const { testConfiguration, testResults } = useLLMTesting();
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -118,11 +116,6 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
     const handleSave = () => {
         setModalVisible(false);
         setEditingConfig(null);
-        actions.refetch();
-    };
-
-    const handleRetry = () => {
-        actions.clearError();
         actions.refetch();
     };
 

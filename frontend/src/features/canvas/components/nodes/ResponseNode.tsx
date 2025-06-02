@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, Typography, Space, Spin, Button, Tooltip } from 'antd';
 import { Handle, Position, NodeProps } from 'reactflow';
 import {
@@ -9,7 +9,6 @@ import {
     CopyOutlined,
     ExpandOutlined
 } from '@ant-design/icons';
-import { useCanvasStore } from '../../store/canvasStore';
 
 const { Text, Paragraph } = Typography;
 
@@ -27,9 +26,8 @@ interface ResponseNodeProps extends NodeProps {
     data: ResponseNodeData;
 }
 
-const ResponseNode: React.FC<ResponseNodeProps> = ({ id, data, selected }) => {
+const ResponseNode: React.FC<ResponseNodeProps> = ({ data, selected }) => {
     const [expanded, setExpanded] = useState(false);
-    const updateNode = useCanvasStore(state => state.updateNode);
 
     // Get status icon and color
     const getStatusDisplay = () => {

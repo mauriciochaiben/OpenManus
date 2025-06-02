@@ -3,25 +3,20 @@ import {
     Input,
     Button,
     Space,
-    Card,
     Typography,
-    Collapse,
     Badge,
     Tooltip,
     Affix
 } from 'antd';
 import {
     SendOutlined,
-    SettingOutlined,
     BookOutlined,
-    UpOutlined,
-    DownOutlined
+    UpOutlined
 } from '@ant-design/icons';
 import { SourceSelector } from '../../features/knowledge/components';
 
 const { TextArea } = Input;
 const { Text } = Typography;
-const { Panel } = Collapse;
 
 interface ChatInputProps {
     onSendMessage: (message: string, sourceIds?: string[]) => void;

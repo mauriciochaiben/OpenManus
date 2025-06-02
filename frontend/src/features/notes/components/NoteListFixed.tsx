@@ -387,25 +387,24 @@ const NoteList: React.FC<NoteListProps> = ({
                                         : 'Nenhuma nota criada ainda'
                             }
                             image={Empty.PRESENTED_IMAGE_SIMPLE}
-                            extra={
-                                searchQuery ? (
-                                    <Button
-                                        type="primary"
-                                        onClick={() => setSearchQuery('')}
-                                    >
-                                        Limpar Busca
-                                    </Button>
-                                ) : onCreateNote ? (
-                                    <Button
-                                        type="primary"
-                                        icon={<PlusOutlined />}
-                                        onClick={onCreateNote}
-                                    >
-                                        Criar Primeira Nota
-                                    </Button>
-                                ) : undefined
-                            }
-                        />
+                        >
+                            {searchQuery ? (
+                                <Button
+                                    type="primary"
+                                    onClick={() => setSearchQuery('')}
+                                >
+                                    Limpar Busca
+                                </Button>
+                            ) : onCreateNote ? (
+                                <Button
+                                    type="primary"
+                                    icon={<PlusOutlined />}
+                                    onClick={onCreateNote}
+                                >
+                                    Criar Primeira Nota
+                                </Button>
+                            ) : null}
+                        </Empty>
                     ) : (
                         <List
                             itemLayout="vertical"

@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import DocumentUpload from '../../components/features/DocumentUpload';
-import { uploadDocument } from '../../services/api';
 
 // Mock the API
 vi.mock('../../services/api', () => ({
@@ -21,7 +20,6 @@ vi.mock('antd', async () => {
     };
 });
 
-const mockUploadDocument = uploadDocument as any;
 const mockOnUploadSuccess = vi.fn();
 
 describe('DocumentUpload Component', () => {
@@ -43,20 +41,20 @@ describe('DocumentUpload Component', () => {
 
     it('renders with default props', () => {
         render(<DocumentUpload onUploadSuccess={mockOnUploadSuccess} />);
-        
+
         expect(screen.getByText(/You can upload up to 10 files at once/)).toBeInTheDocument();
         expect(screen.getByText(/\.pdf, \.doc, \.docx, \.txt, \.md/)).toBeInTheDocument();
     });
 
     it('renders with custom props', () => {
         render(
-            <DocumentUpload 
-                onUploadSuccess={mockOnUploadSuccess} 
+            <DocumentUpload
+                onUploadSuccess={mockOnUploadSuccess}
                 maxFiles={5}
                 acceptedTypes={['.json', '.xml']}
             />
         );
-        
+
         expect(screen.getByText(/You can upload up to 5 files at once/)).toBeInTheDocument();
         expect(screen.getByText(/\.json, \.xml/)).toBeInTheDocument();
     });
@@ -64,14 +62,14 @@ describe('DocumentUpload Component', () => {
     it('handles onUploadSuccess prop', () => {
         const onUploadSuccess = vi.fn();
         render(<DocumentUpload onUploadSuccess={onUploadSuccess} />);
-        
+
         // Component should render without errors
         expect(screen.getByText('Document Upload')).toBeInTheDocument();
     });
 
     it('renders without onUploadSuccess prop', () => {
         render(<DocumentUpload />);
-        
+
         // Component should render without errors
         expect(screen.getByText('Document Upload')).toBeInTheDocument();
     });

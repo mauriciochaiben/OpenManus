@@ -53,8 +53,6 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
     const {
         nodes,
         edges,
-        selectedNodes,
-        selectedEdges,
         execution,
         onNodesChange,
         onEdgesChange,
@@ -133,16 +131,6 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
         const handleKeyDown = (event: KeyboardEvent) => {
             if (readOnly) return;
 
-            // Delete selected elements
-            if (event.key === 'Delete' || event.key === 'Backspace') {
-                selectedNodes.forEach(nodeId => {
-                    useCanvasStore.getState().deleteNode(nodeId);
-                });
-                selectedEdges.forEach(edgeId => {
-                    useCanvasStore.getState().deleteEdge(edgeId);
-                });
-            }
-
             // Clear selection
             if (event.key === 'Escape') {
                 clearSelection();
@@ -163,7 +151,7 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
 
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [selectedNodes, selectedEdges, readOnly, clearSelection, handleSave, handleExecute]);
+    }, [readOnly, clearSelection, handleSave, handleExecute]);
 
     const isExecuting = execution?.status === 'running';
 
@@ -201,7 +189,6 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
             >
                 {/* Background */}
                 <Background
-                    variant="dots"
                     gap={20}
                     size={1}
                     color="#f0f0f0"
@@ -316,12 +303,6 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
                             <Text type="secondary" style={{ fontSize: '12px' }}>
                                 Nodes: {nodes.length} | Edges: {edges.length}
                             </Text>
-
-                            {selectedNodes.length > 0 && (
-                                <Text type="secondary" style={{ fontSize: '12px' }}>
-                                    Selected: {selectedNodes.length} node{selectedNodes.length !== 1 ? 's' : ''}
-                                </Text>
-                            )}
 
                             {execution && (
                                 <Text

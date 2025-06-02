@@ -10,7 +10,6 @@ import {
     ExclamationCircleOutlined
 } from '@ant-design/icons';
 import { useCanvasStore } from '../../store/canvasStore';
-import { CanvasNode } from '../../types';
 
 const { TextArea } = Input;
 const { Text } = Typography;

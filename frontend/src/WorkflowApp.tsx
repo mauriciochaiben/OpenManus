@@ -264,15 +264,6 @@ const WorkflowApp: React.FC = () => {
         },
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'running': return 'processing';
-            case 'completed': return 'success';
-            case 'failed': return 'error';
-            default: return 'default';
-        }
-    };
-
     return (
         <ConfigProvider
             theme={{

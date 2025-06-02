@@ -14,24 +14,26 @@
     },
     "dependencies": {
         "@ant-design/icons": "^5.2.6",
-        "@tanstack/react-query": "^5.79.0",
-        "@tanstack/react-query-devtools": "^5.79.0",
-        "antd": "^5.12.8",
+        "@tanstack/react-query": "^5.79.2",
+        "@tanstack/react-query-devtools": "^5.79.2",
+        "@uiw/react-md-editor": "^4.0.7",
+        "antd": "^5.25.4",
         "axios": "^1.6.2",
         "dayjs": "^1.11.10",
         "file-saver": "^2.0.5",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "react-error-boundary": "^6.0.0",
-        "react-hook-form": "^7.48.2",
+        "react-hook-form": "^7.57.0",
         "react-pdf": "^7.6.0",
         "react-router-dom": "^6.30.1",
+        "reactflow": "^11.11.4",
         "socket.io-client": "^4.7.4",
         "uuid": "^9.0.1",
         "zustand": "^5.0.5"
     },
     "devDependencies": {
-        "@babel/core": "^7.27.3",
+        "@babel/core": "^7.27.4",
         "@babel/preset-env": "^7.27.2",
         "@babel/preset-react": "^7.27.1",
         "@babel/preset-typescript": "^7.27.1",
@@ -48,7 +50,7 @@
         "@typescript-eslint/eslint-plugin": "^6.14.0",
         "@typescript-eslint/parser": "^6.14.0",
         "@vitejs/plugin-react": "^4.2.1",
-        "@vitest/ui": "^3.1.4",
+        "@vitest/ui": "^3.2.0",
         "babel-jest": "^29.7.0",
         "eslint": "^8.55.0",
         "eslint-plugin-react-hooks": "^4.6.0",
@@ -61,6 +63,6 @@
         "ts-jest": "^29.3.4",
         "typescript": "^5.2.2",
         "vite": "^5.0.8",
-        "vitest": "^3.1.4"
+        "vitest": "^3.2.0"
     }
 }

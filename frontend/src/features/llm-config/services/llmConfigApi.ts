@@ -2,7 +2,6 @@
  * LLM Configuration API Services
  */
 
-import { ApiResponse } from '../../../types/api';
 import {
     LLMConfiguration,
     LLMProvider,

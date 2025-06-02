@@ -12,7 +12,6 @@ import {
     Row,
     Col,
     Alert,
-    Divider,
     Tabs,
     Statistic,
     Badge
@@ -21,7 +20,6 @@ import {
     ApiOutlined,
     PlusOutlined,
     SettingOutlined,
-    BarChartOutlined,
     ThunderboltOutlined,
     CloudServerOutlined
 } from '@ant-design/icons';
@@ -32,11 +30,10 @@ import LLMProviderCard from './LLMProviderCard';
 import LLMConfigForm from './LLMConfigForm';
 
 const { Title, Text } = Typography;
-const { TabPane } = Tabs;
 
 const LLMConfigurationPage: React.FC = () => {
-    const { configurations, currentConfig, loading, actions } = useLLMConfigurations();
-    const { providers, loading: providersLoading } = useLLMProviders();
+    const { configurations, currentConfig, actions } = useLLMConfigurations();
+    const { providers } = useLLMProviders();
 
     const [activeTab, setActiveTab] = useState('configurations');
     const [showCreateForm, setShowCreateForm] = useState(false);

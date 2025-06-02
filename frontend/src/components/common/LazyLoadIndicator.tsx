@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { notification } from 'antd';
 import {
-    RocketOutlined,
-    CheckCircleOutlined,
-    LoadingOutlined
+    CheckCircleOutlined
 } from '@ant-design/icons';
 
 interface LazyLoadEvent {
@@ -13,14 +11,10 @@ interface LazyLoadEvent {
 }
 
 const LazyLoadIndicator: React.FC = () => {
-    const [loadedComponents, setLoadedComponents] = useState<LazyLoadEvent[]>([]);
-
     useEffect(() => {
         // Monitorar eventos de carregamento lazy
         const handleChunkLoad = (event: CustomEvent<LazyLoadEvent>) => {
             const { componentName, loadTime } = event.detail;
-
-            setLoadedComponents(prev => [...prev, event.detail]);
 
             // Mostrar notificação apenas em desenvolvimento
             if (process.env.NODE_ENV === 'development') {

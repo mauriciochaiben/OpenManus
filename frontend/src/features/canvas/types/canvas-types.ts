@@ -31,6 +31,9 @@ export interface CanvasNode extends BaseNode {
         status?: 'idle' | 'running' | 'completed' | 'failed';
         result?: any;
         error?: string;
+        prompt?: string;
+        response?: string;
+        source_ids?: string[];
     };
 }
 
@@ -45,9 +48,10 @@ export interface CanvasEdge extends BaseEdge {
 export interface CanvasState {
     nodes: CanvasNode[];
     edges: CanvasEdge[];
-    selectedNodeId: string | null;
-    isExecuting: boolean;
-    executionResults: Record<string, any>;
+    selectedNodes: string[];
+    selectedEdges: string[];
+    isConnecting: boolean;
+    viewport: { x: number; y: number; zoom: number };
 }
 
 export interface CanvasActions {

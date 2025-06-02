@@ -70,7 +70,7 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
                 {getFileIcon(source)}
                 <span>{displayName}</span>
                 {source.chunk_count && !compact && (
-                    <Tag size="small" color="blue" style={{ fontSize: '10px' }}>
+                    <Tag color="blue" style={{ fontSize: '10px' }}>
                         {source.chunk_count}
                     </Tag>
                 )}
@@ -123,11 +123,11 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
         );
     };
 
-    const customTagRender = (props: any) => {
-        const { label, value, closable, onClose } = props;
+    const customTagRender = (props: any): React.ReactElement => {
+        const { value, closable, onClose } = props;
         const source = completedSources.find(s => s.id === value);
 
-        if (!source) return null;
+        if (!source) return <Tag>Unknown</Tag>;
 
         return (
             <Tooltip title={`${source.filename} (${source.chunk_count || 0} chunks)`}>
@@ -201,7 +201,6 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
                     message="Error loading sources"
                     description={error}
                     type="error"
-                    size="small"
                     showIcon
                     style={{ marginBottom: '8px' }}
                 />

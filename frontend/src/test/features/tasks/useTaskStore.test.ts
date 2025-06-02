@@ -1,5 +1,5 @@
 // Tests for the Zustand task store
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { TaskFactory, ApiResponseFactory } from '../../factories';
 import { useTaskStore } from '../../../features/tasks/hooks/useTaskStore';

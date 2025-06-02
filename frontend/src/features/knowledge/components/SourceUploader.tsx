@@ -165,7 +165,10 @@ const SourceUploader: React.FC<SourceUploaderProps> = ({
                 fileName: uploadFile.name,
             });
 
-            onError?.(apiError);
+            onError?.({
+                name: 'UploadError',
+                message: apiError.message,
+            } as any);
             onUploadError?.(apiError);
 
             message.error({

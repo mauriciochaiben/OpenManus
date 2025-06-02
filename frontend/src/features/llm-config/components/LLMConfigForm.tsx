@@ -23,7 +23,7 @@ import {
 } from 'antd';
 import {
     SaveOutlined,
-    TestConnectionOutlined,
+    DisconnectOutlined,
     EyeInvisibleOutlined,
     EyeOutlined,
     InfoCircleOutlined,
@@ -31,7 +31,7 @@ import {
     ApiOutlined
 } from '@ant-design/icons';
 
-import { LLMConfiguration, LLMProvider, CreateLLMConfigRequest, UpdateLLMConfigRequest } from '../types';
+import { LLMConfiguration, LLMProvider, CreateLLMConfigRequest } from '../types';
 import { useLLMProviders } from '../hooks/useLLMConfig';
 import { llmConfigService } from '../services/llmConfigApi';
 
@@ -487,7 +487,7 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
                             Cancel
                         </Button>
                         <Button
-                            icon={<TestConnectionOutlined />}
+                            icon={<DisconnectOutlined />}
                             onClick={handleTest}
                             loading={testing}
                             disabled={!selectedProvider || !form.getFieldValue('modelId')}

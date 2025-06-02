@@ -4,7 +4,7 @@
  * Provides functions to interact with canvas and workflow endpoints
  */
 
-import axios, { AxiosResponse, AxiosError } from 'axios';
+import axios from 'axios';
 import { CanvasNode, CanvasEdge } from '../types';
 
 // API base configuration

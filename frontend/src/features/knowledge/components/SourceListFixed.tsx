@@ -38,7 +38,7 @@ import {
     ReloadOutlined
 } from '@ant-design/icons';
 import { KnowledgeSource } from '../types/api';
-import { listSources, deleteSource, reprocessSource } from '../services/knowledgeApi';
+import { listSources, reprocessSource } from '../services/knowledgeApi';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -511,21 +511,20 @@ const SourceList: React.FC<SourceListProps> = ({
                             backgroundColor: '#fafafa',
                             borderRadius: '8px'
                         }}
-                        extra={
-                            searchQuery || statusFilter !== 'all' || typeFilter !== 'all' ? (
-                                <Button
-                                    type="primary"
-                                    onClick={() => {
-                                        setSearchQuery('');
-                                        setStatusFilter('all');
-                                        setTypeFilter('all');
-                                    }}
-                                >
-                                    Limpar Filtros
-                                </Button>
-                            ) : undefined
-                        }
-                    />
+                    >
+                        {(searchQuery || statusFilter !== 'all' || typeFilter !== 'all') && (
+                            <Button
+                                type="primary"
+                                onClick={() => {
+                                    setSearchQuery('');
+                                    setStatusFilter('all');
+                                    setTypeFilter('all');
+                                }}
+                            >
+                                Limpar Filtros
+                            </Button>
+                        )}
+                    </Empty>
                 ) : (
                     <>
                         <List

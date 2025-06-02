@@ -6,7 +6,6 @@
  */
 
 import axios, { AxiosResponse, AxiosError } from 'axios';
-import { message } from 'antd';
 import {
     KnowledgeSource,
     UploadSourceRequest,

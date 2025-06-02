@@ -1,4 +1,3 @@
-import React from 'react';
 import { Route } from 'react-router-dom';
 import LazyRouteWrapper from './components/LazyRouteWrapper';
 import * as LazyComponents from './lazyComponents';

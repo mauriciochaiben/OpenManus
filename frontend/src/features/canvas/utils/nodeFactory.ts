@@ -20,8 +20,6 @@ export const createPromptNode = (
             prompt: '',
             description: 'AI prompt node for text generation',
             status: 'idle',
-            editable: true,
-            placeholder: 'Enter your prompt here...',
             ...overrides
         }
     };

@@ -6,7 +6,6 @@ import {
     Space,
     Typography,
     Switch,
-    Select,
     Tag,
     message,
     Spin,
@@ -16,9 +15,7 @@ import {
 } from 'antd';
 import {
     SaveOutlined,
-    EyeOutlined,
     EditOutlined,
-    BookOutlined,
     TagOutlined,
     GlobalOutlined,
     LockOutlined
@@ -27,8 +24,6 @@ import MDEditor from '@uiw/react-md-editor';
 import { Note, NoteCreate, NoteUpdate } from '../types';
 import { createNote, updateNote, getNote } from '../services/notesApi';
 import { SourceSelector } from '../../knowledge/components';
-
-const { Title } = Typography;
 
 interface NoteEditorProps {
     noteId?: string;

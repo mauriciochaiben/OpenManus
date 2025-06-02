@@ -5,8 +5,6 @@
 import { create } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import {
-    Node,
-    Edge,
     addEdge,
     applyNodeChanges,
     applyEdgeChanges,
@@ -78,12 +76,14 @@ export const useCanvasStore = create<CanvasStore>()(
             // Node operations
             addNode: (node: CanvasNode) => {
                 set((state) => ({
+                    ...state,
                     nodes: [...state.nodes, node]
                 }), false, 'addNode');
             },
 
             updateNode: (nodeId: string, updates: Partial<CanvasNode['data']>) => {
                 set((state) => ({
+                    ...state,
                     nodes: state.nodes.map(node =>
                         node.id === nodeId
                             ? { ...node, data: { ...node.data, ...updates } }
@@ -94,6 +94,7 @@ export const useCanvasStore = create<CanvasStore>()(
 
             deleteNode: (nodeId: string) => {
                 set((state) => ({
+                    ...state,
                     nodes: state.nodes.filter(node => node.id !== nodeId),
                     edges: state.edges.filter(edge =>
                         edge.source !== nodeId && edge.target !== nodeId
@@ -124,12 +125,14 @@ export const useCanvasStore = create<CanvasStore>()(
             // Edge operations
             addEdge: (edge: CanvasEdge | Connection) => {
                 set((state) => ({
-                    edges: addEdge(edge, state.edges)
+                    ...state,
+                    edges: addEdge(edge, state.edges as any) as CanvasEdge[]
                 }), false, 'addEdge');
             },
 
             deleteEdge: (edgeId: string) => {
                 set((state) => ({
+                    ...state,
                     edges: state.edges.filter(edge => edge.id !== edgeId),
                     selectedEdges: state.selectedEdges.filter(id => id !== edgeId)
                 }), false, 'deleteEdge');
@@ -137,30 +140,33 @@ export const useCanvasStore = create<CanvasStore>()(
 
             // Selection operations
             setSelectedNodes: (nodeIds: string[]) => {
-                set({ selectedNodes: nodeIds }, false, 'setSelectedNodes');
+                set((state) => ({ ...state, selectedNodes: nodeIds }), false, 'setSelectedNodes');
             },
 
             setSelectedEdges: (edgeIds: string[]) => {
-                set({ selectedEdges: edgeIds }, false, 'setSelectedEdges');
+                set((state) => ({ ...state, selectedEdges: edgeIds }), false, 'setSelectedEdges');
             },
 
             clearSelection: () => {
-                set({
+                set((state) => ({
+                    ...state,
                     selectedNodes: [],
                     selectedEdges: []
-                }, false, 'clearSelection');
+                }), false, 'clearSelection');
             },
 
             // Canvas operations
             onNodesChange: (changes: NodeChange[]) => {
                 set((state) => ({
-                    nodes: applyNodeChanges(changes, state.nodes)
+                    ...state,
+                    nodes: applyNodeChanges(changes, state.nodes as any) as CanvasNode[]
                 }), false, 'onNodesChange');
             },
 
             onEdgesChange: (changes: EdgeChange[]) => {
                 set((state) => ({
-                    edges: applyEdgeChanges(changes, state.edges)
+                    ...state,
+                    edges: applyEdgeChanges(changes, state.edges as any) as CanvasEdge[]
                 }), false, 'onEdgesChange');
             },
 
@@ -169,7 +175,7 @@ export const useCanvasStore = create<CanvasStore>()(
             },
 
             setViewport: (viewport: Viewport) => {
-                set({ viewport }, false, 'setViewport');
+                set((state) => ({ ...state, viewport }), false, 'setViewport');
             },
 
             // Workflow operations
@@ -178,12 +184,13 @@ export const useCanvasStore = create<CanvasStore>()(
             },
 
             loadWorkflow: (nodes: CanvasNode[], edges: CanvasEdge[]) => {
-                set({
+                set((state) => ({
+                    ...state,
                     nodes,
                     edges,
                     selectedNodes: [],
                     selectedEdges: []
-                }, false, 'loadWorkflow');
+                }), false, 'loadWorkflow');
             },
 
             exportWorkflow: () => {
@@ -193,11 +200,12 @@ export const useCanvasStore = create<CanvasStore>()(
 
             // Execution state
             setExecution: (execution: WorkflowExecution | null) => {
-                set({ execution }, false, 'setExecution');
+                set((state) => ({ ...state, execution }), false, 'setExecution');
             },
 
             updateNodeStatus: (nodeId: string, status: CanvasNode['data']['status'], result?: any, error?: string) => {
                 set((state) => ({
+                    ...state,
                     nodes: state.nodes.map(node =>
                         node.id === nodeId
                             ? {
@@ -220,67 +228,32 @@ export const useCanvasStore = create<CanvasStore>()(
                     await canvasApi.createNode(node);
                 } catch (error) {
                     console.error('Failed to create node in backend:', error);
-                    // Remove node from frontend if backend creation fails
-                    set((state) => ({
-                        nodes: state.nodes.filter(n => n.id !== node.id)
-                    }));
                     throw error;
                 }
             },
 
             executeConnectedNodes: async (sourceNodeId: string, targetNodeId: string) => {
                 try {
-                    const state = get();
-                    const sourceNode = state.nodes.find(n => n.id === sourceNodeId);
-                    const targetNode = state.nodes.find(n => n.id === targetNodeId);
+                    const sourceNode = get().nodes.find(n => n.id === sourceNodeId);
+                    if (!sourceNode) return;
 
-                    if (!sourceNode || !targetNode) {
-                        throw new Error('Source or target node not found');
-                    }
+                    // Update target node status to running
+                    get().updateNodeStatus(targetNodeId, 'running');
 
-                    // Check if source is a prompt node and target is a response node
-                    if (sourceNode.type === 'promptNode' && targetNode.type === 'responseNode') {
-                        // Update target node to running state
-                        get().updateNodeStatus(targetNodeId, 'running');
+                    // Execute the connection
+                    const result = await canvasApi.executePromptNode(
+                        sourceNodeId,
+                        sourceNode.data.prompt || '',
+                        sourceNode.data.source_ids || []
+                    );
 
-                        // Execute the prompt
-                        const result = await canvasApi.executePromptNode(
-                            sourceNodeId,
-                            sourceNode.data.prompt || '',
-                            sourceNode.data.source_ids
-                        );
-
-                        // Update target node with result
-                        get().updateNodeStatus(
-                            targetNodeId,
-                            result.status === 'completed' ? 'completed' : 'failed',
-                            result.result,
-                            result.error
-                        );
-                    }
+                    // Update target node with result
+                    get().updateNodeStatus(targetNodeId, 'completed', result);
                 } catch (error) {
                     console.error('Failed to execute connected nodes:', error);
                     // Update target node with error
                     get().updateNodeStatus(targetNodeId, 'failed', undefined, String(error));
                 }
-            },
-
-            // Enhanced addEdge to trigger execution
-            addEdge: (edge: CanvasEdge | Connection) => {
-                set((state) => {
-                    const newEdges = addEdge(edge, state.edges);
-
-                    // Trigger execution when nodes are connected
-                    setTimeout(async () => {
-                        try {
-                            await get().executeConnectedNodes(edge.source!, edge.target!);
-                        } catch (error) {
-                            console.error('Auto-execution failed:', error);
-                        }
-                    }, 100);
-
-                    return { edges: newEdges };
-                }, false, 'addEdge');
             },
 
             // Helper methods for creating specific node types
@@ -314,7 +287,7 @@ export const useCanvasStore = create<CanvasStore>()(
         })),
         {
             name: 'canvas-store',
-            partialize: (state) => ({
+            partialize: (state: CanvasStore) => ({
                 nodes: state.nodes,
                 edges: state.edges,
                 viewport: state.viewport

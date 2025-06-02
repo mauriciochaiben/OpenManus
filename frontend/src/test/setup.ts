@@ -28,7 +28,15 @@ global.WebSocket = vi.fn().mockImplementation(() => ({
     OPEN: 1,
     CLOSING: 2,
     CLOSED: 3,
-}))
+})) as any;
+
+// Add static properties to the constructor
+Object.assign(global.WebSocket, {
+    CONNECTING: 0,
+    OPEN: 1,
+    CLOSING: 2,
+    CLOSED: 3,
+});
 
 // Mock fetch
 global.fetch = vi.fn()

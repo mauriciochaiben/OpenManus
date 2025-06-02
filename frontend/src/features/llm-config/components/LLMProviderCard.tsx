@@ -17,13 +17,10 @@ import {
 } from 'antd';
 import {
     ApiOutlined,
-    CheckCircleOutlined,
     GlobalOutlined,
     LockOutlined,
     ToolOutlined,
-    ThunderboltOutlined,
-    EyeOutlined,
-    DollarOutlined
+    EyeOutlined
 } from '@ant-design/icons';
 
 import { LLMProvider } from '../types';
@@ -84,7 +81,6 @@ const LLMProviderCard: React.FC<LLMProviderCardProps> = ({
                 {displayFeatures.map(feature => (
                     <Tag
                         key={feature}
-                        size="small"
                         color="blue"
                         style={{ margin: '2px', fontSize: '11px' }}
                     >
@@ -92,7 +88,7 @@ const LLMProviderCard: React.FC<LLMProviderCardProps> = ({
                     </Tag>
                 ))}
                 {remaining > 0 && (
-                    <Tag size="small" style={{ margin: '2px', fontSize: '11px' }}>
+                    <Tag style={{ margin: '2px', fontSize: '11px' }}>
                         +{remaining} more
                     </Tag>
                 )}
@@ -122,7 +118,7 @@ const LLMProviderCard: React.FC<LLMProviderCardProps> = ({
                             {provider.displayName}
                         </Text>
                         <div>
-                            <Tag size="small" color={getTypeColor(provider.type)}>
+                            <Tag color={getTypeColor(provider.type)}>
                                 {provider.type.toUpperCase()}
                             </Tag>
                             <Text type="secondary" style={{ fontSize: '12px' }}>
@@ -252,7 +248,6 @@ const LLMProviderCard: React.FC<LLMProviderCardProps> = ({
                             {provider.models.slice(0, 3).map(model => (
                                 <Tag
                                     key={model.id}
-                                    size="small"
                                     style={{
                                         margin: '2px',
                                         fontSize: '11px',

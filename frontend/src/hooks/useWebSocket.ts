@@ -24,7 +24,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     const maxReconnectAttempts = 5;
 
     // Connection management
-    const connect = useCallback(() => {
+    const connect = useCallback((): void => {
         try {
             if (ws.current?.readyState === WebSocket.OPEN) {
                 return;
@@ -75,7 +75,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
             setIsConnected(false);
             onError?.(error);
         }
-    }, [connect, onConnect, onDisconnect, onError, onMessage]);
+    }, [onConnect, onDisconnect, onError, onMessage]);
 
     const disconnect = useCallback(() => {
         if (reconnectTimeoutRef.current) {

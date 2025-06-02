@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     Card,
     Steps,
@@ -25,7 +25,7 @@ import { useWebSocket } from '../../../hooks/useWebSocket';
 
 const { Step } = Steps;
 const { Item: TimelineItem } = Timeline;
-const { Title, Text, Paragraph } = Typography;
+const { Text, Paragraph } = Typography;
 
 interface WorkflowStep {
     id: string;
@@ -75,26 +75,23 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
     // WebSocket connection for real-time updates
     const {
         isConnected,
-        lastMessage,
-        connectionError,
-        reconnect
-    } = useWebSocket('ws://localhost:8000/ws/workflows');
-
-    // Handle WebSocket messages
-    useEffect(() => {
-        if (!lastMessage) return;
-
-        try {
-            const event = JSON.parse(lastMessage);
-
-            // Filter events for this specific workflow
-            if (event.workflow_id === workflowId) {
-                handleWorkflowEvent(event);
+        connectionState,
+        connect: reconnect
+    } = useWebSocket({
+        autoConnect: true,
+        onMessage: (message) => {
+            try {
+                // Filter events for this specific workflow
+                if (message.workflow_id === workflowId) {
+                    handleWorkflowEvent(message);
+                }
+            } catch (err) {
+                console.error('Error handling WebSocket message:', err);
             }
-        } catch (err) {
-            console.error('Error parsing WebSocket message:', err);
         }
-    }, [lastMessage, workflowId]);
+    });
+
+    const connectionError = connectionState === 'disconnected';
 
     const handleWorkflowEvent = useCallback((event: any) => {
         const { type, ...eventData } = event;
@@ -280,14 +277,14 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
                 direction={compact ? 'horizontal' : 'vertical'}
                 size={compact ? 'small' : 'default'}
             >
-                {workflowState.steps.map((step, index) => (
+                {workflowState.steps.map((step) => (
                     <Step
                         key={step.id}
                         title={
                             <Space>
                                 <span>{step.name}</span>
                                 {step.agentRole && (
-                                    <Tag size="small" color="blue">
+                                    <Tag color="blue">
                                         {step.agentRole}
                                     </Tag>
                                 )}
@@ -354,7 +351,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
                             <Space>
                                 <Text strong>{step.name}</Text>
                                 {step.agentRole && (
-                                    <Tag size="small" color="blue">
+                                    <Tag color="blue">
                                         {step.agentRole}
                                     </Tag>
                                 )}
