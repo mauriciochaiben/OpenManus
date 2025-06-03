@@ -25,7 +25,6 @@ cd OpenManus
 pip install -r requirements.txt
 ```
 
-### 方式二：使用 uv（推荐）
 
 1. 安装 uv（一个快速的 Python 包管理器）：
 
