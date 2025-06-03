@@ -11,7 +11,7 @@ tiktoken~=0.9.0
 html2text~=2025.4.15
 gymnasium~=1.1.1
 pillow~=11.2.1
-uvicorn~=0.34.0
+uvicorn~=0.34.3
 unidiff~=0.7.5
 googlesearch-python~=1.3.0
 baidusearch~=1.0.3
@@ -36,9 +36,9 @@ openpyxl~=3.1.5
 pandas
 
 # Advanced document processing with Docling
-docling~=2.35.0
+docling~=2.36.0
 docling-core~=2.33.0
-docling-ibm-models~=3.4.3
+docling-ibm-models~=3.4.4
 docling-parse~=4.0.1
 
 # Knowledge management and embeddings
@@ -47,20 +47,20 @@ chromadb>=1.0.12
 langchain>=0.1.0
 langchain-text-splitters>=0.0.1
 
-pytest-asyncio~=0.25.3
+pytest-asyncio~=0.26.0
 
-mcp~=1.6.0
+mcp~=1.9.2
 httpx>=0.27.0
 tomli>=2.0.0
 
-boto3~=1.37.18
+boto3~=1.38.28
 
 requests~=2.32.3
 
-beautifulsoup4~=4.13.3
+beautifulsoup4~=4.13.4
 
-huggingface-hub~=0.29.2
-setuptools~=75.8.0
+huggingface-hub~=0.32.4
+setuptools~=80.9.0
 
 # Additional dependencies for agents and sandbox
 RestrictedPython>=6.0
