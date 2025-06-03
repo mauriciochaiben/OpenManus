@@ -3,8 +3,6 @@ import {
   Card,
   Input,
   Button,
-  List,
-  Avatar,
   Space,
   Typography,
   Tag,
@@ -12,13 +10,15 @@ import {
   Empty,
   Spin,
   Tooltip,
+  List,
+  Avatar,
 } from 'antd';
 import {
   SendOutlined,
-  RobotOutlined,
-  UserOutlined,
   ClearOutlined,
   BulbOutlined,
+  UserOutlined,
+  RobotOutlined,
 } from '@ant-design/icons';
 import { chatApi } from '../services/api';
 import type { ChatMessage } from '../types';
@@ -26,6 +26,10 @@ import type { ChatMessage } from '../types';
 const { TextArea } = Input;
 const { Text, Title } = Typography;
 
+/**
+ * Chat page component - uses chat feature components
+ * Lazily loaded for better performance
+ */
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');

@@ -4,10 +4,23 @@ import { lazy } from 'react';
 export const HomePage = lazy(() => import('../pages/HomePage'));
 export const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 
-// Feature pages - carregamento sob demanda
+// Feature pages - carregamento sob demanda por domínio
+// Communication & Interaction
 export const ChatPage = lazy(() => import('../pages/ChatPage'));
+
+// Knowledge Management
 export const KnowledgePage = lazy(() => import('../pages/Knowledge'));
+
+// Productivity & Organization
+export const NotesPage = lazy(() => import('../pages/NotesPage'));
+export const TasksPage = lazy(() => import('../pages/TasksPage'));
 export const TaskDetailPage = lazy(() => import('../pages/TaskDetailPage'));
+
+// Agents & Automation
+export const AgentsPage = lazy(() => import('../pages/AgentsPage'));
+
+// Visual & Creative
+export const CanvasPage = lazy(() => import('../pages/CanvasPage'));
 
 // Configuration pages - carregamento diferido
 export const LLMConfigurationPage = lazy(

@@ -354,6 +354,14 @@ class Settings(BaseSettings):
     document_processing_timeout: int = Field(default=300, description="Document processing timeout")
     document_allowed_types: str = Field(default="pdf,txt,md,docx", description="Allowed document types")
 
+    @computed_field
+    @property
+    def upload_dir(self) -> str:
+        """Get upload directory from TOML config."""
+        toml_config = self._load_toml_config()
+        upload_config = toml_config.get("upload", {})
+        return upload_config.get("directory", "./uploads")
+
     # ===============================
     # RAG Configuration
     # ===============================
@@ -612,6 +620,22 @@ class Settings(BaseSettings):
                 max_documents=self.rag_max_documents,
             ),
         )
+
+    @computed_field
+    @property
+    def upload_config(self) -> dict[str, Any]:
+        """Get upload configuration from TOML."""
+        toml_config = self._load_toml_config()
+        upload_config = toml_config.get("upload", {})
+
+        return {
+            "directory": upload_config.get("directory", self.upload_dir),
+            "max_file_size": upload_config.get("max_file_size", "50MB"),
+            "allowed_extensions": upload_config.get(
+                "allowed_extensions",
+                ["pdf", "txt", "md", "docx", "json", "csv", "xlsx"],
+            ),
+        }
 
     @field_validator("environment")
     @classmethod

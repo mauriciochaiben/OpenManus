@@ -6,55 +6,94 @@ import type { ThemeConfig } from 'antd';
  */
 const openManusTheme: ThemeConfig = {
   token: {
-    // === Cores Primárias ===
-    colorPrimary: '#1890ff', // Azul principal
-    colorSuccess: '#52c41a', // Verde para sucesso
-    colorWarning: '#faad14', // Laranja para avisos
-    colorError: '#ff4d4f', // Vermelho para erros
-    colorInfo: '#1890ff', // Azul para informações
+    // === Cores Primárias - Paleta OpenManus ===
+    colorPrimary: '#2c5aa0', // Azul OpenManus principal
+    colorSuccess: '#28a745', // Verde mais moderno
+    colorWarning: '#ffc107', // Amarelo/laranja mais vibrante
+    colorError: '#dc3545', // Vermelho mais moderno
+    colorInfo: '#17a2b8', // Azul-turquesa para informações
+
+    // === Cores Secundárias ===
+    colorPrimaryBg: '#e8f2ff',
+    colorPrimaryBgHover: '#d1e9ff',
+    colorPrimaryBorder: '#91caff',
+    colorPrimaryBorderHover: '#69b1ff',
+    colorPrimaryHover: '#4096ff',
+    colorPrimaryActive: '#0958d9',
+    colorPrimaryTextHover: '#4096ff',
+    colorPrimaryText: '#2c5aa0',
+    colorPrimaryTextActive: '#0958d9',
 
     // === Cores de Fundo ===
     colorBgContainer: '#ffffff',
     colorBgElevated: '#ffffff',
-    colorBgLayout: '#f5f5f5',
+    colorBgLayout: '#f8f9fa',
     colorBgSpotlight: '#ffffff',
+    colorBgMask: 'rgba(0, 0, 0, 0.45)',
 
-    // === Tipografia ===
+    // === Tipografia Melhorada ===
     fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif',
     fontSize: 14,
     fontSizeLG: 16,
     fontSizeSM: 12,
     fontSizeXL: 20,
+    fontSizeHeading1: 38,
+    fontSizeHeading2: 30,
+    fontSizeHeading3: 24,
+    fontSizeHeading4: 20,
+    fontSizeHeading5: 16,
+    fontWeightStrong: 600,
 
-    // === Espaçamento ===
+    // === Espaçamento Melhorado ===
     borderRadius: 8,
     borderRadiusLG: 12,
     borderRadiusSM: 6,
+    borderRadiusXS: 4,
 
     // === Layout ===
     lineHeight: 1.5714,
     lineHeightLG: 1.5,
     lineHeightSM: 1.66,
+    lineHeightHeading1: 1.2105,
+    lineHeightHeading2: 1.2667,
+    lineHeightHeading3: 1.3333,
+    lineHeightHeading4: 1.4,
+    lineHeightHeading5: 1.5,
 
-    // === Sombras ===
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-    boxShadowSecondary: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    // === Sombras Melhoradas ===
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+    boxShadowSecondary: '0 6px 16px rgba(0, 0, 0, 0.08)',
+    boxShadowTertiary: '0 1px 2px rgba(0, 0, 0, 0.04)',
 
     // === Bordas ===
-    colorBorder: '#d9d9d9',
-    colorBorderSecondary: '#f0f0f0',
+    colorBorder: '#e5e7eb',
+    colorBorderSecondary: '#f3f4f6',
+    lineWidth: 1,
+    lineType: 'solid',
 
     // === Estados de hover/focus ===
     controlHeightLG: 40,
     controlHeight: 32,
     controlHeightSM: 24,
+    controlHeightXS: 20,
 
-    // === Cores de texto ===
-    colorText: '#262626',
-    colorTextSecondary: '#8c8c8c',
-    colorTextTertiary: '#bfbfbf',
-    colorTextQuaternary: '#d9d9d9',
+    // === Cores de texto melhoradas ===
+    colorText: '#1f2937',
+    colorTextSecondary: '#6b7280',
+    colorTextTertiary: '#9ca3af',
+    colorTextQuaternary: '#d1d5db',
+    colorTextDisabled: '#d1d5db',
+
+    // === Configurações de movimento ===
+    motionDurationFast: '0.1s',
+    motionDurationMid: '0.2s',
+    motionDurationSlow: '0.3s',
+    motionEaseInOut: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
+    motionEaseOut: 'cubic-bezier(0.215, 0.61, 0.355, 1)',
+
+    // === Opacidade ===
+    opacityLoading: 0.65,
   },
 
   // === Customizações de Componentes ===
@@ -71,10 +110,10 @@ const openManusTheme: ThemeConfig = {
     // Menu
     Menu: {
       itemBg: 'transparent',
-      itemSelectedBg: '#1890ff',
+      itemSelectedBg: '#2c5aa0',
       itemSelectedColor: '#ffffff',
-      itemHoverBg: 'rgba(24, 144, 255, 0.1)',
-      itemHoverColor: '#1890ff',
+      itemHoverBg: 'rgba(44, 90, 160, 0.1)',
+      itemHoverColor: '#2c5aa0',
       groupTitleColor: '#8c8c8c',
       iconSize: 16,
       itemHeight: 40,
@@ -82,7 +121,7 @@ const openManusTheme: ThemeConfig = {
 
       // Dark theme overrides para sidebar
       darkItemBg: 'transparent',
-      darkItemSelectedBg: '#1890ff',
+      darkItemSelectedBg: '#2c5aa0',
       darkItemSelectedColor: '#ffffff',
       darkItemHoverBg: 'rgba(255, 255, 255, 0.1)',
       darkItemHoverColor: '#ffffff',
@@ -96,7 +135,7 @@ const openManusTheme: ThemeConfig = {
       controlHeightLG: 44,
       controlHeightSM: 28,
       fontWeight: 500,
-      primaryShadow: '0 2px 4px rgba(24, 144, 255, 0.2)',
+      primaryShadow: '0 2px 4px rgba(44, 90, 160, 0.2)',
     },
 
     // Card
@@ -151,10 +190,10 @@ const openManusTheme: ThemeConfig = {
     // Tabs
     Tabs: {
       cardBg: '#fafafa',
-      itemActiveColor: '#1890ff',
-      itemHoverColor: '#40a9ff',
-      itemSelectedColor: '#1890ff',
-      inkBarColor: '#1890ff',
+      itemActiveColor: '#2c5aa0',
+      itemHoverColor: '#4096ff',
+      itemSelectedColor: '#2c5aa0',
+      inkBarColor: '#2c5aa0',
       titleFontSize: 14,
     },
 
@@ -178,8 +217,8 @@ const openManusTheme: ThemeConfig = {
       iconFontSize: 14,
       itemColor: '#8c8c8c',
       lastItemColor: '#262626',
-      linkColor: '#1890ff',
-      linkHoverColor: '#40a9ff',
+      linkColor: '#2c5aa0',
+      linkHoverColor: '#4096ff',
       separatorColor: '#bfbfbf',
     },
 
@@ -274,12 +313,12 @@ export const darkTheme: ThemeConfig = {
  * Variáveis CSS customizadas para uso global
  */
 export const cssVariables = {
-  // Cores principais
-  '--color-primary': '#1890ff',
-  '--color-success': '#52c41a',
-  '--color-warning': '#faad14',
-  '--color-error': '#ff4d4f',
-  '--color-info': '#1890ff',
+  // Cores principais - Paleta OpenManus
+  '--color-primary': '#2c5aa0',
+  '--color-success': '#28a745',
+  '--color-warning': '#ffc107',
+  '--color-error': '#dc3545',
+  '--color-info': '#17a2b8',
 
   // Espaçamentos
   '--spacing-xs': '4px',
@@ -303,7 +342,7 @@ export const cssVariables = {
 
   // Tipografia
   '--font-family':
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif',
   '--font-size-xs': '11px',
   '--font-size-sm': '12px',
   '--font-size-md': '14px',

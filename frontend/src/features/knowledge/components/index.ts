@@ -3,4 +3,4 @@
 
 export { default as SourceUploader } from './SourceUploader';
 export { default as SourceList } from './SourceList';
-export { default as SourceSelector } from './SourceSelector';
+export { default as SourceSelector } from '../../../shared/components/SourceSelector';

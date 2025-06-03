@@ -23,7 +23,7 @@ import {
 import MDEditor from '@uiw/react-md-editor';
 import { Note, NoteCreate, NoteUpdate } from '../types';
 import { createNote, updateNote, getNote } from '../services/notesApi';
-import { SourceSelector } from '../../knowledge/components';
+import { SourceSelector } from '../../../shared/components';
 
 interface NoteEditorProps {
   noteId?: string;

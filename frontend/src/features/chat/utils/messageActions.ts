@@ -1,39 +1,10 @@
 import type { ChatMessage } from '../../../types';
 import { createNote } from '../../notes/services/notesApi';
 import type { NoteCreate } from '../../notes/types';
+import { copyToClipboard } from '../../../shared/utils/clipboard';
 
-/**
- * Copy text to clipboard
- */
-export const copyToClipboard = async (text: string): Promise<void> => {
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      // Use modern clipboard API if available
-      await navigator.clipboard.writeText(text);
-    } else {
-      // Fallback for older browsers or non-secure contexts
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-
-      try {
-        document.execCommand('copy');
-      } catch (err) {
-        throw new Error('Failed to copy text');
-      } finally {
-        document.body.removeChild(textArea);
-      }
-    }
-  } catch (error) {
-    console.error('Error copying to clipboard:', error);
-    throw error;
-  }
-};
+// Re-export copyToClipboard from shared utils for backward compatibility
+export { copyToClipboard };
 
 /**
  * Save a chat message as a note

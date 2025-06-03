@@ -12,9 +12,15 @@ import mcp.types as types
 from mcp.server import NotificationOptions, Server
 from mcp.types import InitializeResult, Resource, Tool
 
-# Configuração baseada em variáveis de ambiente
-ROLE = os.getenv("ROLE", "coordination")
-CAPABILITIES = os.getenv("CAPABILITIES", "task_routing,memory_sharing,inter_agent_communication").split(",")
+# Configuração centralizada via settings
+from app.core.settings import settings
+
+ROLE = os.getenv("ROLE", "coordination")  # Mantido por ser específico do MCP
+# Tentar obter capabilities das configurações MCP, senão usar valor padrão
+default_capabilities = "task_routing,memory_sharing,inter_agent_communication"
+mcp_server_config = settings.mcp_config.servers.get("coordination", {})
+capabilities_str = os.getenv("CAPABILITIES", mcp_server_config.get("capabilities", default_capabilities))
+CAPABILITIES = capabilities_str.split(",")
 
 # Criar servidor MCP
 server = Server("openmanus-coordination-hub")

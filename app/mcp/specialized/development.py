@@ -12,9 +12,15 @@ import mcp.types as types
 from mcp.server import NotificationOptions, Server
 from mcp.types import InitializeResult, Resource, Tool
 
-# Configuração baseada em variáveis de ambiente
-SPECIALIZATION = os.getenv("SPECIALIZATION", "development")
-TOOLS = os.getenv("TOOLS", "filesystem,code_execution,git,testing").split(",")
+# Configuração centralizada via settings
+from app.core.settings import settings
+
+SPECIALIZATION = os.getenv("SPECIALIZATION", "development")  # Mantido por ser específico do MCP
+# Tentar obter tools das configurações MCP, senão usar valor padrão
+default_tools = "filesystem,code_execution,git,testing"
+mcp_server_config = settings.mcp_config.servers.get("development", {})
+tools_str = os.getenv("TOOLS", mcp_server_config.get("tools", default_tools))
+TOOLS = tools_str.split(",")
 
 # Criar servidor MCP
 server = Server("openmanus-development-agent")

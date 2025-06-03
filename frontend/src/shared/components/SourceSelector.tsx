@@ -20,8 +20,8 @@ import {
   BookOutlined,
   InfoCircleOutlined,
 } from '@ant-design/icons';
-import { useKnowledgeSources } from '../hooks/useKnowledgeSources';
-import type { KnowledgeSource } from '../types/api';
+import { useKnowledgeSources } from '../../features/knowledge/hooks/useKnowledgeSources';
+import type { KnowledgeSource } from '../../features/knowledge/types/api';
 
 const { Option } = Select;
 const { Text } = Typography;

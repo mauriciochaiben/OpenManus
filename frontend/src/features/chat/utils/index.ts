@@ -1,2 +1,2 @@
 // Chat utils exports
-// TODO: Add chat utils when implemented
+export * from './messageActions';

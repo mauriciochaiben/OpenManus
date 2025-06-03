@@ -11,9 +11,15 @@ import mcp.types as types
 from mcp.server import NotificationOptions, Server
 from mcp.types import InitializeResult, Resource, Tool
 
-# Configuração baseada em variáveis de ambiente
-SPECIALIZATION = os.getenv("SPECIALIZATION", "research")
-TOOLS = os.getenv("TOOLS", "web_search,data_analysis,document_processing").split(",")
+# Configuração centralizada via settings
+from app.core.settings import settings
+
+SPECIALIZATION = os.getenv("SPECIALIZATION", "research")  # Mantido por ser específico do MCP
+# Tentar obter tools das configurações MCP, senão usar valor padrão
+default_tools = "web_search,data_analysis,document_processing"
+mcp_server_config = settings.mcp_config.servers.get("research", {})
+tools_str = os.getenv("TOOLS", mcp_server_config.get("tools", default_tools))
+TOOLS = tools_str.split(",")
 
 # Criar servidor MCP
 server = Server("openmanus-research-agent")

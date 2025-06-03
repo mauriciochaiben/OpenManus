@@ -2,12 +2,12 @@
 
 /* === Variáveis CSS Globais === */
 :root {
-  /* Cores principais */
-  --color-primary: #1890ff;
-  --color-success: #52c41a;
-  --color-warning: #faad14;
-  --color-error: #ff4d4f;
-  --color-info: #1890ff;
+  /* Cores principais - Paleta OpenManus */
+  --color-primary: #2c5aa0;
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-error: #dc3545;
+  --color-info: #17a2b8;
 
   /* Espaçamentos */
   --spacing-xs: 4px;
@@ -30,7 +30,8 @@
   --box-shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
 
   /* Tipografia */
-  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
     'Helvetica Neue', Arial, sans-serif;
   --font-size-xs: 11px;
   --font-size-sm: 12px;
