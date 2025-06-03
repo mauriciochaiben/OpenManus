@@ -98,7 +98,12 @@ def check_git_status() -> dict[str, any]:
 
 def analyze_python_code() -> dict[str, any]:
     """Analyze Python code structure."""
-    python_info = {"total_py_files": 0, "lines_of_code": 0, "main_modules": [], "test_files": 0}
+    python_info = {
+        "total_py_files": 0,
+        "lines_of_code": 0,
+        "main_modules": [],
+        "test_files": 0,
+    }
 
     base_path = Path()
 
