@@ -5,6 +5,7 @@ Script de validação da refatoração de configuração
 Este script valida se a centralização de configuração está funcionando corretamente,
 testando carregamento de arquivos TOML, overrides por ambiente e acesso via settings.
 """
+# ruff: noqa: E402
 
 import sys
 from pathlib import Path
@@ -13,7 +14,6 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Import após modificação do sys.path  # noqa: E402
 from app.core.settings import settings
 
 
@@ -22,9 +22,7 @@ def test_basic_settings():
     print("🔧 Testando configurações básicas...")
 
     # Testa acesso básico
-    assert hasattr(
-        settings, "environment"
-    ), "settings.environment deve estar disponível"
+    assert hasattr(settings, "environment"), "settings.environment deve estar disponível"
     assert hasattr(settings, "debug"), "settings.debug deve estar disponível"
     assert hasattr(settings, "log_level"), "settings.log_level deve estar disponível"
 
@@ -191,9 +189,7 @@ def main():
         test_paths_and_directories()
         print()
 
-        print(
-            "✅ Todas as validações passaram! A refatoração está funcionando corretamente."
-        )
+        print("✅ Todas as validações passaram! A refatoração está funcionando corretamente.")
 
     except Exception as e:
         print(f"❌ Erro durante validação: {e}")

@@ -63,9 +63,7 @@ class ExampleBrowserService:
             args.append("--headless")
 
         if self.browser_config.disable_security:
-            args.extend(
-                ["--disable-web-security", "--disable-features=VizDisplayCompositor"]
-            )
+            args.extend(["--disable-web-security", "--disable-features=VizDisplayCompositor"])
 
         args.extend(self.browser_config.extra_chromium_args)
 
@@ -253,9 +251,7 @@ def demonstrate_configuration_usage():
     print(f"   🔍 Search: engine={search_config.engine}")
 
     knowledge_config = settings.knowledge_config
-    print(
-        f"   🧠 Vector DB: {knowledge_config.vector_db.host}:{knowledge_config.vector_db.port}"
-    )
+    print(f"   🧠 Vector DB: {knowledge_config.vector_db.host}:{knowledge_config.vector_db.port}")
 
     mcp_config = settings.mcp_config
     print(f"   🤖 MCP servers: {len(mcp_config.servers)} configurados")
