@@ -1,49 +1,62 @@
 /* MessageList Component Styles */
 
+.message-list-wrapper {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
 .message-list {
   height: 100%;
   overflow-y: auto;
   padding: 0;
+  background: transparent;
 }
 
 .message-list .ant-list-item {
   border: none !important;
   padding: 12px 0 !important;
   margin: 0;
-}
-
-/* Message Wrapper */
-.message-wrapper {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  max-width: 85%;
   width: 100%;
 }
 
-.user-wrapper {
-  flex-direction: row-reverse;
-  margin-left: auto;
+/* Message Container */
+.message-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  max-width: 85%;
 }
 
-.assistant-wrapper {
+.user-container {
+  flex-direction: row-reverse;
+  margin-left: auto;
+  justify-content: flex-start;
+}
+
+.assistant-container {
   flex-direction: row;
   margin-right: auto;
+  justify-content: flex-start;
 }
 
 /* Message Item Alignment */
 .message-item.user-message {
   justify-content: flex-end !important;
+  width: 100%;
 }
 
 .message-item.assistant-message {
   justify-content: flex-start !important;
+  width: 100%;
 }
 
 /* Avatar Styling */
 .message-avatar {
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid white;
 }
 
 .user-avatar {
@@ -58,19 +71,21 @@
 .message-card {
   flex: 1;
   max-width: 100%;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border-radius: 16px;
   transition: all 0.2s ease;
   position: relative;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .message-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
 }
 
 .user-card {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-top-right-radius: 6px;
+  border: none;
 }
 
 .user-card .ant-card-body {
@@ -81,6 +96,10 @@
   background: #ffffff;
   border: 1px solid #f0f0f0;
   border-top-left-radius: 6px;
+}
+
+.assistant-card:hover {
+  border-color: #d9d9d9;
 }
 
 /* Message Content */
@@ -110,6 +129,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 8px;
+  min-height: 20px;
 }
 
 .message-timestamp {
@@ -129,13 +149,16 @@
 .message-actions {
   opacity: 0;
   transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .message-card:hover .message-actions {
   opacity: 1;
 }
 
-.action-button {
+.message-actions .ant-btn {
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
@@ -143,11 +166,91 @@
   padding: 4px 6px !important;
   height: auto !important;
   min-width: auto !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
 }
 
-.action-button:hover {
+.message-actions .ant-btn:hover {
   background: rgba(0, 0, 0, 0.05) !important;
   color: #1890ff !important;
+  transform: scale(1.05);
+}
+
+.message-actions .ant-btn:focus {
+  background: rgba(24, 144, 255, 0.1) !important;
+  color: #1890ff !important;
+}
+
+/* Scrollbar styling for webkit browsers */
+.message-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.message-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.message-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.message-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .message-container {
+    max-width: 95%;
+  }
+
+  .message-card {
+    max-width: 85%;
+  }
+
+  .message-actions {
+    opacity: 1; /* Always show on mobile */
+  }
+
+  .message-list {
+    padding: 0 8px;
+  }
+}
+
+/* Animation for new messages */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-item {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* Loading state for message list */
+.message-list-loading {
+  text-align: center;
+  padding: 20px;
+}
+
+.message-list-loading .ant-spin {
+  margin-bottom: 12px;
+}
+
+/* Empty state styling */
+.message-list .ant-empty {
+  margin: 0;
+}
+
+.message-list .ant-empty-description {
+  color: #999;
 }
 
 .action-button:focus {
