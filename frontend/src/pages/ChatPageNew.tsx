@@ -60,13 +60,16 @@ const ChatPage: React.FC = () => {
     try {
       const response = await chatApi.sendMessage({
         message: userMessage.content,
-        knowledge_source_ids: selectedSourceIds,
+        context:
+          selectedSourceIds.length > 0
+            ? { knowledge_source_ids: selectedSourceIds }
+            : {},
       });
 
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.content,
+        content: response.message,
         timestamp: new Date().toISOString(),
       };
 
