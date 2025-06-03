@@ -1,39 +1,156 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
 repos:
-  - repo: https://github.com/psf/black
-    rev: 23.1.0
-    hooks:
-      - id: black
-
+  # Basic file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
       - id: check-yaml
+        name: Check YAML
+        description: This hook checks yaml files for parseable syntax.
+      - id: check-toml
+        name: Check TOML
+        description: This hook checks toml files for parseable syntax.
+      - id: check-json
+        name: Check JSON
+        description: This hook checks json files for parseable syntax.
+      - id: end-of-file-fixer
+        name: Fix End of Files
+        description: Ensures that a file is either empty or ends with one newline.
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        description: This hook trims trailing whitespace.
+        args: [--markdown-linebreak-ext=md]
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+        description: Check for files that contain merge conflict strings.
       - id: check-added-large-files
+        name: Check for added large files
+        description: Prevent giant files from being committed
+        args: ['--maxkb=500']
+      - id: check-case-conflict
+        name: Check for case conflicts
+        description: Check for files that would conflict in case-insensitive filesystems
+      - id: check-executables-have-shebangs
+        name: Check that executables have shebangs
+        description: Ensures that (non-binary) executables have a shebang.
+      - id: check-shebang-scripts-are-executable
+        name: Check that scripts with shebangs are executable
+        description: Ensures that (non-binary) files with a shebang are executable.
 
-  - repo: https://github.com/PyCQA/autoflake
-    rev: v2.0.1
+  # Python code quality - Ruff (replaces black, flake8, isort, and more)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.8
     hooks:
-      - id: autoflake
-        args: [
-          --remove-all-unused-imports,
-          --ignore-init-module-imports,
-          --expand-star-imports,
-          --remove-duplicate-keys,
-          --remove-unused-variables,
-          --recursive,
-          --in-place,
-          --exclude=__init__.py,
-        ]
-        files: \.py$
+      - id: ruff
+        name: Ruff Linter
+        description: Run Ruff linter
+        args: [--fix, --exit-non-zero-on-fix]
+        files: ^(app/|tests/|scripts/|.*\.py)$
+      - id: ruff-format
+        name: Ruff Formatter
+        description: Run Ruff formatter (replaces black)
+        files: ^(app/|tests/|scripts/|.*\.py)$
 
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+  # Python type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
     hooks:
-      - id: isort
-        args: [
-          "--profile", "black",
-          "--filter-files",
-          "--lines-after-imports=2",
-        ]
+      - id: mypy
+        name: MyPy Type Checker
+        description: Run mypy static type checker
+        files: ^app/.*\.py$
+        args: [--ignore-missing-imports, --disallow-untyped-defs]
+        additional_dependencies:
+          - types-requests
+          - types-PyYAML
+          - types-redis
+          - types-toml
+
+  # Frontend - Prettier for formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        name: Prettier
+        description: Format frontend code with Prettier
+        files: ^frontend/.*\.(js|ts|jsx|tsx|css|scss|json|html|vue|yaml|yml|md)$
+        exclude: ^frontend/(node_modules|dist|build)/
+
+  # Frontend - ESLint for JavaScript/TypeScript
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.56.0
+    hooks:
+      - id: eslint
+        name: ESLint
+        description: Lint JavaScript/TypeScript with ESLint
+        files: ^frontend/.*\.(js|ts|jsx|tsx|vue)$
+        exclude: ^frontend/(node_modules|dist|build)/
+        args: [--fix]
+        additional_dependencies:
+          - eslint@8.56.0
+          - eslint-config-prettier@9.1.0
+          - eslint-plugin-vue@9.19.2
+          - '@typescript-eslint/eslint-plugin@6.15.0'
+          - '@typescript-eslint/parser@6.15.0'
+
+  # Docker
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        name: Hadolint
+        description: Lint Dockerfiles
+        files: ^.*Dockerfile.*$
+
+  # Security checks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        name: Bandit Security Linter
+        description: Security linter for Python
+        files: ^app/.*\.py$
+        args: ['-r', '-f', 'json']
+        exclude: ^(tests/|.*test.*\.py)$
+
+  # Commit message hooks
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.13.0
+    hooks:
+      - id: commitizen
+        name: Commitizen Check
+        description: Check commit message format
+        stages: [commit-msg]
+
+# Configuration
+default_language_version:
+  python: python3.13
+  node: "18.19.0"
+
+# Global excludes
+exclude: |
+  (?x)^(
+      .*\.min\.(js|css)$|
+      .*\.bundle\.(js|css)$|
+      node_modules/.*|
+      \.git/.*|
+      \.venv/.*|
+      venv/.*|
+      __pycache__/.*|
+      \.pytest_cache/.*|
+      \.mypy_cache/.*|
+      \.ruff_cache/.*|
+      build/.*|
+      dist/.*|
+      .*\.egg-info/.*|
+      logs/.*|
+      workspace/.*|
+      uploads/.*
+  )$
+
+# Fail fast - stop running hooks after first failure
+fail_fast: false
+
+# Minimum pre-commit version
+minimum_pre_commit_version: '3.0.0'
