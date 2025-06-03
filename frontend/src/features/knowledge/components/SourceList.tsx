@@ -16,6 +16,8 @@ import {
   Spin,
   Empty,
   Result,
+  Dropdown,
+  MenuProps,
 } from 'antd';
 import {
   EyeOutlined,
@@ -27,6 +29,14 @@ import {
   SearchOutlined,
   ReloadOutlined,
   PlusOutlined,
+  MoreOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  CopyOutlined,
+  CheckCircleFilled,
+  ClockCircleFilled,
+  ExclamationCircleFilled,
+  LoadingOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType, TableProps } from 'antd/es/table';
 import { KnowledgeSource, ProcessingStatus } from '../types/api';
@@ -102,10 +112,26 @@ const SourceList: React.FC<SourceListProps> = ({
   // Get status tag with appropriate color and content
   const getStatusTag = (status: ProcessingStatus) => {
     const statusConfig = {
-      pending: { color: 'orange', text: 'Pendente' },
-      processing: { color: 'blue', text: 'Processando' },
-      completed: { color: 'green', text: 'Concluído' },
-      failed: { color: 'red', text: 'Falhou' },
+      pending: {
+        color: 'orange',
+        text: 'Pendente',
+        icon: <ClockCircleFilled style={{ fontSize: '12px' }} />,
+      },
+      processing: {
+        color: 'blue',
+        text: 'Processando',
+        icon: <LoadingOutlined style={{ fontSize: '12px' }} />,
+      },
+      completed: {
+        color: 'green',
+        text: 'Concluído',
+        icon: <CheckCircleFilled style={{ fontSize: '12px' }} />,
+      },
+      failed: {
+        color: 'red',
+        text: 'Falhou',
+        icon: <ExclamationCircleFilled style={{ fontSize: '12px' }} />,
+      },
     };
 
     const config = statusConfig[status.status];
@@ -113,13 +139,19 @@ const SourceList: React.FC<SourceListProps> = ({
     if (status.status === 'processing' && status.progress !== undefined) {
       return (
         <Space direction='vertical' size={4}>
-          <Tag color={config.color}>{config.text}</Tag>
+          <Tag color={config.color} icon={config.icon}>
+            {config.text}
+          </Tag>
           <Progress percent={status.progress} size='small' strokeWidth={4} />
         </Space>
       );
     }
 
-    return <Tag color={config.color}>{config.text}</Tag>;
+    return (
+      <Tag color={config.color} icon={config.icon}>
+        {config.text}
+      </Tag>
+    );
   };
 
   // Format date in a user-friendly way
@@ -204,21 +236,41 @@ const SourceList: React.FC<SourceListProps> = ({
       sorter: (a, b) => a.filename.localeCompare(b.filename),
       render: (filename: string, record: KnowledgeSource) => (
         <Space>
-          <Avatar size='small' icon={getFileIcon(filename)} />
-          <div>
-            <Text strong>{filename}</Text>
-            {record.chunk_count && record.chunk_count > 0 && (
-              <div>
-                <Badge
-                  count={record.chunk_count}
-                  style={{ backgroundColor: '#52c41a' }}
-                  size='small'
-                />
-                <Text type='secondary' style={{ marginLeft: 4 }}>
-                  chunks
-                </Text>
-              </div>
-            )}
+          <Avatar
+            size='small'
+            icon={getFileIcon(filename)}
+            className='file-icon-avatar'
+          />
+          <div className='file-info'>
+            <div>
+              <Text strong className='filename'>
+                {filename}
+              </Text>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginTop: '2px',
+              }}
+            >
+              {record.chunk_count && record.chunk_count > 0 && (
+                <Space size={4}>
+                  <Badge
+                    count={record.chunk_count}
+                    style={{ backgroundColor: '#52c41a' }}
+                    size='small'
+                  />
+                  <Text type='secondary' style={{ fontSize: '11px' }}>
+                    chunks
+                  </Text>
+                </Space>
+              )}
+              <Text type='secondary' style={{ fontSize: '11px' }}>
+                {filename.split('.').pop()?.toUpperCase()}
+              </Text>
+            </div>
           </div>
         </Space>
       ),
@@ -253,48 +305,120 @@ const SourceList: React.FC<SourceListProps> = ({
     {
       title: 'Ações',
       key: 'actions',
-      width: 120,
-      render: (_, record: KnowledgeSource) => (
-        <Space size='small'>
-          <Tooltip title='Ver Detalhes'>
-            <Button
-              type='text'
-              icon={<EyeOutlined />}
-              onClick={() => onViewDetails?.(record)}
-              size='small'
-            />
-          </Tooltip>
+      width: 160,
+      render: (_, record: KnowledgeSource) => {
+        const getDropdownMenuItems = (
+          source: KnowledgeSource
+        ): MenuProps['items'] => [
+          {
+            key: 'view',
+            icon: <EyeOutlined />,
+            label: 'Ver Detalhes',
+            onClick: () => onViewDetails?.(source),
+          },
+          {
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: 'Editar',
+            disabled: true, // Placeholder for future feature
+          },
+          {
+            key: 'copy',
+            icon: <CopyOutlined />,
+            label: 'Copiar ID',
+            onClick: () => {
+              navigator.clipboard.writeText(source.id);
+              message.success('ID copiado para a área de transferência');
+            },
+          },
+          {
+            key: 'download',
+            icon: <DownloadOutlined />,
+            label: 'Baixar Arquivo',
+            disabled: true, // Placeholder for future feature
+          },
+          {
+            type: 'divider',
+          },
+          ...(source.status.status === 'failed'
+            ? [
+                {
+                  key: 'retry',
+                  icon: <ReloadOutlined />,
+                  label: 'Tentar Novamente',
+                  onClick: () => handleRetry(source),
+                },
+              ]
+            : []),
+          {
+            key: 'delete',
+            icon: <DeleteOutlined />,
+            label: 'Excluir',
+            danger: true,
+            onClick: () => {
+              // This will be handled by the popconfirm below
+            },
+          },
+        ];
 
-          {record.status.status === 'failed' && (
-            <Tooltip title='Tentar Novamente'>
+        return (
+          <Space size='small'>
+            <Tooltip title='Ver Detalhes'>
               <Button
                 type='text'
-                icon={<ReloadOutlined />}
-                onClick={() => handleRetry(record)}
+                icon={<EyeOutlined />}
+                onClick={() => onViewDetails?.(record)}
                 size='small'
+                className='source-action-btn'
               />
             </Tooltip>
-          )}
 
-          <Popconfirm
-            title='Excluir fonte'
-            description='Tem certeza que deseja excluir esta fonte? Esta ação não pode ser desfeita.'
-            onConfirm={() => handleDelete(record)}
-            okText='Sim'
-            cancelText='Não'
-            okType='danger'
-          >
-            <Tooltip title='Excluir'>
+            {record.status.status === 'failed' && (
+              <Tooltip title='Tentar Novamente'>
+                <Button
+                  type='text'
+                  icon={<ReloadOutlined />}
+                  onClick={() => handleRetry(record)}
+                  size='small'
+                  className='source-action-btn retry-btn'
+                />
+              </Tooltip>
+            )}
+
+            <Dropdown
+              menu={{ items: getDropdownMenuItems(record) }}
+              trigger={['click']}
+              placement='bottomRight'
+            >
               <Button
                 type='text'
-                danger
-                icon={<DeleteOutlined />}
+                icon={<MoreOutlined />}
                 size='small'
+                className='source-action-btn'
               />
-            </Tooltip>
-          </Popconfirm>
-        </Space>
-      ),
+            </Dropdown>
+
+            <Popconfirm
+              title='Excluir fonte'
+              description='Tem certeza que deseja excluir esta fonte? Esta ação não pode ser desfeita.'
+              onConfirm={() => handleDelete(record)}
+              okText='Sim'
+              cancelText='Não'
+              okType='danger'
+            >
+              <Tooltip title='Excluir'>
+                <Button
+                  type='text'
+                  danger
+                  icon={<DeleteOutlined />}
+                  size='small'
+                  className='source-action-btn delete-btn'
+                />
+              </Tooltip>
+            </Popconfirm>
+          </Space>
+        );
+      },
     },
   ];
 
