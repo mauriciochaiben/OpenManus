@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Select,
   Card,
@@ -11,7 +11,7 @@ import {
   Spin,
   Alert,
   Divider,
-} from 'antd';
+} from "antd";
 import {
   FileTextOutlined,
   FilePdfOutlined,
@@ -19,9 +19,9 @@ import {
   ClearOutlined,
   BookOutlined,
   InfoCircleOutlined,
-} from '@ant-design/icons';
-import { useKnowledgeSources } from '../../features/knowledge/hooks/useKnowledgeSources';
-import type { KnowledgeSource } from '../../features/knowledge/types/api';
+} from "@ant-design/icons";
+import { useKnowledgeSources } from "../../features/knowledge/hooks/useKnowledgeSources";
+import type { KnowledgeSource } from "../../features/knowledge/types/api";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -39,7 +39,7 @@ interface SourceSelectorProps {
 const SourceSelector: React.FC<SourceSelectorProps> = ({
   selectedSourceIds,
   onSelectionChange,
-  placeholder = 'Select knowledge sources to enhance responses',
+  placeholder = "Select knowledge sources to enhance responses",
   disabled = false,
   showCard = true,
   maxTagCount = 2,
@@ -49,12 +49,12 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
 
   const getFileIcon = (source: KnowledgeSource) => {
     if (
-      source.file_type === 'application/pdf' ||
-      source.filename.toLowerCase().endsWith('.pdf')
+      source.file_type === "application/pdf" ||
+      source.filename.toLowerCase().endsWith(".pdf")
     ) {
-      return <FilePdfOutlined style={{ color: '#ff4d4f', fontSize: '14px' }} />;
+      return <FilePdfOutlined style={{ color: "#ff4d4f", fontSize: "14px" }} />;
     }
-    return <FileTextOutlined style={{ color: '#1890ff', fontSize: '14px' }} />;
+    return <FileTextOutlined style={{ color: "#1890ff", fontSize: "14px" }} />;
   };
 
   const formatSourceLabel = (source: KnowledgeSource) => {
@@ -65,11 +65,11 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
         : source.filename;
 
     return (
-      <Space size='small'>
+      <Space size="small">
         {getFileIcon(source)}
         <span>{displayName}</span>
         {source.chunk_count && !compact && (
-          <Tag color='blue' style={{ fontSize: '10px' }}>
+          <Tag color="blue" style={{ fontSize: "10px" }}>
             {source.chunk_count}
           </Tag>
         )}
@@ -85,15 +85,15 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
     if (selectedSourceIds.length === 0) return null;
 
     const selectedSources = completedSources.filter((source) =>
-      selectedSourceIds.includes(source.id)
+      selectedSourceIds.includes(source.id),
     );
 
     return (
-      <div style={{ marginTop: '8px' }}>
-        <Text type='secondary' style={{ fontSize: '12px' }}>
+      <div style={{ marginTop: "8px" }}>
+        <Text type="secondary" style={{ fontSize: "12px" }}>
           Selected sources:
         </Text>
-        <div style={{ marginTop: '4px' }}>
+        <div style={{ marginTop: "4px" }}>
           <Space wrap size={[4, 4]}>
             {selectedSources.map((source) => (
               <Tooltip
@@ -104,11 +104,11 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
                   closable
                   onClose={() => {
                     const newSelection = selectedSourceIds.filter(
-                      (id) => id !== source.id
+                      (id) => id !== source.id,
                     );
                     onSelectionChange(newSelection);
                   }}
-                  style={{ fontSize: '11px' }}
+                  style={{ fontSize: "11px" }}
                   icon={getFileIcon(source)}
                 >
                   {source.filename.length > 15
@@ -136,10 +136,10 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
           onClose={onClose}
           style={{
             marginRight: 4,
-            fontSize: '11px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
+            fontSize: "11px",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
           }}
         >
           {getFileIcon(source)}
@@ -152,82 +152,82 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
   };
 
   const selectorContent = (
-    <Space direction='vertical' style={{ width: '100%' }} size='small'>
+    <Space direction="vertical" style={{ width: "100%" }} size="small">
       {!compact && (
         <>
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            <Space size='small'>
-              <BookOutlined style={{ color: '#1890ff' }} />
-              <Text strong style={{ fontSize: '14px' }}>
+            <Space size="small">
+              <BookOutlined style={{ color: "#1890ff" }} />
+              <Text strong style={{ fontSize: "14px" }}>
                 Knowledge Context
               </Text>
-              <Tooltip title='Select documents to provide additional context for AI responses'>
+              <Tooltip title="Select documents to provide additional context for AI responses">
                 <InfoCircleOutlined
-                  style={{ color: '#666', fontSize: '12px' }}
+                  style={{ color: "#666", fontSize: "12px" }}
                 />
               </Tooltip>
             </Space>
-            <Space size='small'>
+            <Space size="small">
               {selectedSourceIds.length > 0 && (
-                <Tooltip title='Clear all selected sources'>
+                <Tooltip title="Clear all selected sources">
                   <Button
-                    type='text'
-                    size='small'
+                    type="text"
+                    size="small"
                     icon={<ClearOutlined />}
                     onClick={handleClearAll}
                     disabled={disabled}
-                    style={{ fontSize: '12px' }}
+                    style={{ fontSize: "12px" }}
                   >
                     Clear
                   </Button>
                 </Tooltip>
               )}
-              <Tooltip title='Refresh sources list'>
+              <Tooltip title="Refresh sources list">
                 <Button
-                  type='text'
-                  size='small'
+                  type="text"
+                  size="small"
                   icon={<ReloadOutlined />}
                   onClick={refresh}
                   loading={loading}
                   disabled={disabled}
-                  style={{ fontSize: '12px' }}
+                  style={{ fontSize: "12px" }}
                 />
               </Tooltip>
             </Space>
           </div>
-          <Divider style={{ margin: '8px 0' }} />
+          <Divider style={{ margin: "8px 0" }} />
         </>
       )}
 
       {error && (
         <Alert
-          message='Error loading sources'
+          message="Error loading sources"
           description={error}
-          type='error'
+          type="error"
           showIcon
-          style={{ marginBottom: '8px' }}
+          style={{ marginBottom: "8px" }}
         />
       )}
 
       <Select
-        mode='multiple'
+        mode="multiple"
         value={selectedSourceIds}
         onChange={onSelectionChange}
-        placeholder={compact ? 'Add context sources...' : placeholder}
+        placeholder={compact ? "Add context sources..." : placeholder}
         disabled={disabled || loading}
-        style={{ width: '100%' }}
-        size={compact ? 'small' : 'middle'}
+        style={{ width: "100%" }}
+        size={compact ? "small" : "middle"}
         maxTagCount={maxTagCount}
         tagRender={customTagRender}
         maxTagPlaceholder={(omittedValues) => (
           <Tooltip title={`${omittedValues.length} more sources selected`}>
-            <Tag style={{ fontSize: '11px' }}>+{omittedValues.length}</Tag>
+            <Tag style={{ fontSize: "11px" }}>+{omittedValues.length}</Tag>
           </Tooltip>
         )}
         filterOption={(input, option) => {
@@ -237,12 +237,12 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
             false
           );
         }}
-        optionLabelProp='label'
+        optionLabelProp="label"
         notFoundContent={
           loading ? (
-            <div style={{ textAlign: 'center', padding: '12px' }}>
-              <Spin size='small' />
-              <div style={{ marginTop: '4px', fontSize: '12px' }}>
+            <div style={{ textAlign: "center", padding: "12px" }}>
+              <Spin size="small" />
+              <div style={{ marginTop: "4px", fontSize: "12px" }}>
                 Loading sources...
               </div>
             </div>
@@ -250,20 +250,20 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description={
-                <div style={{ fontSize: '12px' }}>
+                <div style={{ fontSize: "12px" }}>
                   <div>No completed sources available</div>
-                  <Text type='secondary' style={{ fontSize: '11px' }}>
+                  <Text type="secondary" style={{ fontSize: "11px" }}>
                     Upload documents in Knowledge Management
                   </Text>
                 </div>
               }
-              style={{ padding: '12px' }}
+              style={{ padding: "12px" }}
             />
           ) : (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description='No sources match your search'
-              style={{ padding: '12px' }}
+              description="No sources match your search"
+              style={{ padding: "12px" }}
             />
           )
         }
@@ -272,16 +272,16 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
           <Option key={source.id} value={source.id} label={source.filename}>
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
               }}
             >
               <Tooltip title={source.filename}>
                 {formatSourceLabel(source)}
               </Tooltip>
               {source.chunk_count && (
-                <Text type='secondary' style={{ fontSize: '11px' }}>
+                <Text type="secondary" style={{ fontSize: "11px" }}>
                   {source.chunk_count} chunks
                 </Text>
               )}
@@ -293,7 +293,7 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
       {!compact &&
         selectedSourceIds.length === 0 &&
         completedSources.length > 0 && (
-          <Text type='secondary' style={{ fontSize: '11px' }}>
+          <Text type="secondary" style={{ fontSize: "11px" }}>
             💡 Select sources to provide context and improve AI response
             accuracy
           </Text>
@@ -306,13 +306,13 @@ const SourceSelector: React.FC<SourceSelectorProps> = ({
   if (showCard) {
     return (
       <Card
-        size='small'
+        size="small"
         style={{
-          marginBottom: compact ? '8px' : '16px',
+          marginBottom: compact ? "8px" : "16px",
           border:
-            selectedSourceIds.length > 0 ? '1px solid #1890ff' : undefined,
+            selectedSourceIds.length > 0 ? "1px solid #1890ff" : undefined,
         }}
-        bodyStyle={{ padding: compact ? '12px' : '16px' }}
+        bodyStyle={{ padding: compact ? "12px" : "16px" }}
       >
         {selectorContent}
       </Card>

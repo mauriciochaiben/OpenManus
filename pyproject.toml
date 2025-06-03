@@ -51,7 +51,7 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Enable comprehensive linting rules for modern Python development
 select = [
     # pycodestyle
     "E",
@@ -80,6 +80,55 @@ select = [
     "RSE",
     # flake8-type-checking
     "TCH",
+    # pydocstyle
+    "D",
+    # flake8-annotations
+    "ANN",
+    # flake8-async
+    "ASYNC",
+    # flake8-bandit (security)
+    "S",
+    # flake8-logging-format
+    "G",
+    # pylint
+    "PL",
+    # Ruff-specific rules
+    "RUF",
+]
+
+# Ignore specific rules that can be too strict for this project
+ignore = [
+    # Missing docstring in public module/class/method/function
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D107",
+    # Docstring formatting issues that are too strict
+    "D200",
+    "D212",
+    "D400",
+    "D401",
+    "D415",
+    # Missing type annotations (can be too strict for existing code)
+    "ANN101",
+    "ANN102",
+    "ANN201",
+    "ANN202",
+    "ANN204",
+    "ANN206",
+    # Security issues that are false positives in this context
+    "S101", # Use of assert
+    "S104", # Possible binding to all interfaces
+    "S108", # Probable insecure usage of temp file/directory
+    "S311", # Standard pseudo-random generators
+    # Pylint rules that can be too opinionated
+    "PLR0913", # Too many arguments
+    "PLR0915", # Too many statements
+    "PLR2004", # Magic value used in comparison
+    "PLW2901", # Redefined loop variable
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

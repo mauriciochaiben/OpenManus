@@ -1,9 +1,9 @@
-import React, { Suspense, useEffect, useRef } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-import LoadingFallback from './LoadingFallback';
-import RouteErrorFallback from './RouteErrorFallback';
-import FeatureErrorBoundary from './FeatureErrorBoundary';
-import { reportLazyLoad } from '../../components/common/LazyLoadIndicator';
+import React, { Suspense, useEffect, useRef } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import LoadingFallback from "./LoadingFallback";
+import RouteErrorFallback from "./RouteErrorFallback";
+import FeatureErrorBoundary from "./FeatureErrorBoundary";
+import { reportLazyLoad } from "../../components/common/LazyLoadIndicator";
 
 interface LazyRouteWrapperProps {
   children: React.ReactNode;

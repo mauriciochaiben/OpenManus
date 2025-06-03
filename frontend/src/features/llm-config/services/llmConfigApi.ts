@@ -12,16 +12,16 @@ import {
   TestLLMConfigRequest,
   LLMConfigListResponse,
   LLMProvidersResponse,
-} from '../types';
+} from "../types";
 
-const API_BASE = '/api/v2/llm-config';
+const API_BASE = "/api/v2/llm-config";
 
 class LLMConfigService {
   // Get all available providers
   async getProviders(): Promise<LLMProvider[]> {
     const response = await fetch(`${API_BASE}/providers`);
     if (!response.ok) {
-      throw new Error('Failed to fetch LLM providers');
+      throw new Error("Failed to fetch LLM providers");
     }
     const data: LLMProvidersResponse = await response.json();
     return data.providers;
@@ -30,7 +30,7 @@ class LLMConfigService {
   // Get all configurations
   async getConfigurations(
     page = 1,
-    pageSize = 50
+    pageSize = 50,
   ): Promise<LLMConfigListResponse> {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -39,7 +39,7 @@ class LLMConfigService {
 
     const response = await fetch(`${API_BASE}/configurations?${params}`);
     if (!response.ok) {
-      throw new Error('Failed to fetch LLM configurations');
+      throw new Error("Failed to fetch LLM configurations");
     }
     return response.json();
   }
@@ -48,19 +48,19 @@ class LLMConfigService {
   async getConfiguration(id: string): Promise<LLMConfiguration> {
     const response = await fetch(`${API_BASE}/configurations/${id}`);
     if (!response.ok) {
-      throw new Error('Failed to fetch LLM configuration');
+      throw new Error("Failed to fetch LLM configuration");
     }
     return response.json();
   }
 
   // Create new configuration
   async createConfiguration(
-    config: CreateLLMConfigRequest
+    config: CreateLLMConfigRequest,
   ): Promise<LLMConfiguration> {
     const response = await fetch(`${API_BASE}/configurations`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(config),
     });
@@ -69,15 +69,15 @@ class LLMConfigService {
       const error = await response.json();
 
       // Feedback de erro
-      const { message } = await import('antd');
-      message.error('Erro ao criar configuração LLM. Tente novamente.');
+      const { message } = await import("antd");
+      message.error("Erro ao criar configuração LLM. Tente novamente.");
 
-      throw new Error(error.detail || 'Failed to create LLM configuration');
+      throw new Error(error.detail || "Failed to create LLM configuration");
     }
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Configuração LLM criada com sucesso!');
+    const { message } = await import("antd");
+    message.success("Configuração LLM criada com sucesso!");
 
     return response.json();
   }
@@ -85,12 +85,12 @@ class LLMConfigService {
   // Update configuration
   async updateConfiguration(
     id: string,
-    updates: UpdateLLMConfigRequest
+    updates: UpdateLLMConfigRequest,
   ): Promise<LLMConfiguration> {
     const response = await fetch(`${API_BASE}/configurations/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(updates),
     });
@@ -99,15 +99,15 @@ class LLMConfigService {
       const error = await response.json();
 
       // Feedback de erro
-      const { message } = await import('antd');
-      message.error('Erro ao atualizar configuração LLM. Tente novamente.');
+      const { message } = await import("antd");
+      message.error("Erro ao atualizar configuração LLM. Tente novamente.");
 
-      throw new Error(error.detail || 'Failed to update LLM configuration');
+      throw new Error(error.detail || "Failed to update LLM configuration");
     }
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Configuração LLM atualizada com sucesso!');
+    const { message } = await import("antd");
+    message.success("Configuração LLM atualizada com sucesso!");
 
     return response.json();
   }
@@ -115,22 +115,22 @@ class LLMConfigService {
   // Delete configuration
   async deleteConfiguration(id: string): Promise<void> {
     const response = await fetch(`${API_BASE}/configurations/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
 
     if (!response.ok) {
       const error = await response.json();
 
       // Feedback de erro
-      const { message } = await import('antd');
-      message.error('Erro ao excluir configuração LLM. Tente novamente.');
+      const { message } = await import("antd");
+      message.error("Erro ao excluir configuração LLM. Tente novamente.");
 
-      throw new Error(error.detail || 'Failed to delete LLM configuration');
+      throw new Error(error.detail || "Failed to delete LLM configuration");
     }
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Configuração LLM excluída com sucesso!');
+    const { message } = await import("antd");
+    message.success("Configuração LLM excluída com sucesso!");
   }
 
   // Set default configuration
@@ -138,23 +138,23 @@ class LLMConfigService {
     const response = await fetch(
       `${API_BASE}/configurations/${id}/set-default`,
       {
-        method: 'POST',
-      }
+        method: "POST",
+      },
     );
 
     if (!response.ok) {
       const error = await response.json();
 
       // Feedback de erro
-      const { message } = await import('antd');
-      message.error('Erro ao definir configuração padrão. Tente novamente.');
+      const { message } = await import("antd");
+      message.error("Erro ao definir configuração padrão. Tente novamente.");
 
-      throw new Error(error.detail || 'Failed to set default configuration');
+      throw new Error(error.detail || "Failed to set default configuration");
     }
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Configuração padrão definida com sucesso!');
+    const { message } = await import("antd");
+    message.success("Configuração padrão definida com sucesso!");
 
     return response.json();
   }
@@ -162,21 +162,21 @@ class LLMConfigService {
   // Test configuration
   async testConfiguration(
     id: string,
-    testRequest?: TestLLMConfigRequest
+    testRequest?: TestLLMConfigRequest,
   ): Promise<LLMTestResult> {
-    const body = testRequest || { prompt: 'Hello, this is a test message.' };
+    const body = testRequest || { prompt: "Hello, this is a test message." };
 
     const response = await fetch(`${API_BASE}/configurations/${id}/test`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || 'Failed to test LLM configuration');
+      throw new Error(error.detail || "Failed to test LLM configuration");
     }
     return response.json();
   }
@@ -185,7 +185,7 @@ class LLMConfigService {
   async getUsageStats(id: string): Promise<LLMUsageStats> {
     const response = await fetch(`${API_BASE}/configurations/${id}/stats`);
     if (!response.ok) {
-      throw new Error('Failed to fetch usage statistics');
+      throw new Error("Failed to fetch usage statistics");
     }
     return response.json();
   }
@@ -193,7 +193,7 @@ class LLMConfigService {
   // Activate/deactivate configuration
   async toggleConfiguration(
     id: string,
-    isActive: boolean
+    isActive: boolean,
   ): Promise<LLMConfiguration> {
     return this.updateConfiguration(id, { isActive });
   }
@@ -202,7 +202,7 @@ class LLMConfigService {
   async getProviderModels(providerId: string): Promise<any[]> {
     const response = await fetch(`${API_BASE}/providers/${providerId}/models`);
     if (!response.ok) {
-      throw new Error('Failed to fetch provider models');
+      throw new Error("Failed to fetch provider models");
     }
     const data = await response.json();
     return data.models || [];
@@ -212,17 +212,17 @@ class LLMConfigService {
   async validateApiKey(
     providerId: string,
     apiKey: string,
-    baseUrl?: string
+    baseUrl?: string,
   ): Promise<boolean> {
     const response = await fetch(
       `${API_BASE}/providers/${providerId}/validate`,
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ api_key: apiKey, base_url: baseUrl }),
-      }
+      },
     );
 
     if (!response.ok) {

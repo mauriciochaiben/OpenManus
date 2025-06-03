@@ -1,6 +1,6 @@
 // Canvas node components exports
-import PromptNodeComponent from './PromptNode';
-import ResponseNodeComponent from './ResponseNode';
+import PromptNodeComponent from "./PromptNode";
+import ResponseNodeComponent from "./ResponseNode";
 
 export { PromptNodeComponent as PromptNode };
 export { ResponseNodeComponent as ResponseNode };

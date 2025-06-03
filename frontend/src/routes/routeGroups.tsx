@@ -1,6 +1,6 @@
-import { Route } from 'react-router-dom';
-import LazyRouteWrapper from './components/LazyRouteWrapper';
-import * as LazyComponents from './lazyComponents';
+import { Route } from "react-router-dom";
+import LazyRouteWrapper from "./components/LazyRouteWrapper";
+import * as LazyComponents from "./lazyComponents";
 
 /**
  * Core application routes - páginas principais e essenciais
@@ -8,22 +8,22 @@ import * as LazyComponents from './lazyComponents';
 export const CoreRoutes = () => (
   <>
     <Route
-      path='/'
+      path="/"
       element={
         <LazyRouteWrapper
-          loadingMessage='Carregando página inicial...'
-          componentName='HomePage'
+          loadingMessage="Carregando página inicial..."
+          componentName="HomePage"
         >
           <LazyComponents.HomePage />
         </LazyRouteWrapper>
       }
     />
     <Route
-      path='/dashboard'
+      path="/dashboard"
       element={
         <LazyRouteWrapper
-          loadingMessage='Carregando painel...'
-          componentName='DashboardPage'
+          loadingMessage="Carregando painel..."
+          componentName="DashboardPage"
         >
           <LazyComponents.DashboardPage />
         </LazyRouteWrapper>
@@ -40,12 +40,12 @@ export const FeatureRoutes = () => (
   <>
     {/* Communication & Interaction */}
     <Route
-      path='/chat'
+      path="/chat"
       element={
         <LazyRouteWrapper
-          loadingMessage='Carregando chat...'
-          componentName='ChatPage'
-          featureName='Communication'
+          loadingMessage="Carregando chat..."
+          componentName="ChatPage"
+          featureName="Communication"
         >
           <LazyComponents.ChatPage />
         </LazyRouteWrapper>
@@ -54,11 +54,11 @@ export const FeatureRoutes = () => (
 
     {/* Knowledge Management */}
     <Route
-      path='/knowledge'
+      path="/knowledge"
       element={
         <LazyRouteWrapper
-          loadingMessage='Carregando base de conhecimento...'
-          componentName='KnowledgePage'
+          loadingMessage="Carregando base de conhecimento..."
+          componentName="KnowledgePage"
         >
           <LazyComponents.KnowledgePage />
         </LazyRouteWrapper>
@@ -67,33 +67,33 @@ export const FeatureRoutes = () => (
 
     {/* Productivity & Organization */}
     <Route
-      path='/notes'
+      path="/notes"
       element={
         <LazyRouteWrapper
-          loadingMessage='Carregando notas...'
-          componentName='NotesPage'
+          loadingMessage="Carregando notas..."
+          componentName="NotesPage"
         >
           <LazyComponents.NotesPage />
         </LazyRouteWrapper>
       }
     />
     <Route
-      path='/tasks'
+      path="/tasks"
       element={
         <LazyRouteWrapper
-          loadingMessage='Carregando tarefas...'
-          componentName='TasksPage'
+          loadingMessage="Carregando tarefas..."
+          componentName="TasksPage"
         >
           <LazyComponents.TasksPage />
         </LazyRouteWrapper>
       }
     />
     <Route
-      path='/task/:id'
+      path="/task/:id"
       element={
         <LazyRouteWrapper
-          loadingMessage='Carregando detalhes da tarefa...'
-          componentName='TaskDetailPage'
+          loadingMessage="Carregando detalhes da tarefa..."
+          componentName="TaskDetailPage"
         >
           <LazyComponents.TaskDetailPage />
         </LazyRouteWrapper>
@@ -102,11 +102,11 @@ export const FeatureRoutes = () => (
 
     {/* Agents & Automation */}
     <Route
-      path='/agents'
+      path="/agents"
       element={
         <LazyRouteWrapper
-          loadingMessage='Carregando agentes...'
-          componentName='AgentsPage'
+          loadingMessage="Carregando agentes..."
+          componentName="AgentsPage"
         >
           <LazyComponents.AgentsPage />
         </LazyRouteWrapper>
@@ -115,11 +115,11 @@ export const FeatureRoutes = () => (
 
     {/* Visual & Creative */}
     <Route
-      path='/canvas'
+      path="/canvas"
       element={
         <LazyRouteWrapper
-          loadingMessage='Carregando canvas...'
-          componentName='CanvasPage'
+          loadingMessage="Carregando canvas..."
+          componentName="CanvasPage"
         >
           <LazyComponents.CanvasPage />
         </LazyRouteWrapper>
@@ -128,11 +128,11 @@ export const FeatureRoutes = () => (
 
     {/* Workflow Processing */}
     <Route
-      path='/workflow'
+      path="/workflow"
       element={
         <LazyRouteWrapper
-          loadingMessage='Carregando workflow...'
-          componentName='WorkflowApp'
+          loadingMessage="Carregando workflow..."
+          componentName="WorkflowApp"
         >
           <LazyComponents.WorkflowApp />
         </LazyRouteWrapper>
@@ -147,33 +147,33 @@ export const FeatureRoutes = () => (
 export const ConfigRoutes = () => (
   <>
     <Route
-      path='/llm-config'
+      path="/llm-config"
       element={
-        <LazyRouteWrapper loadingMessage='Carregando configurações LLM...'>
+        <LazyRouteWrapper loadingMessage="Carregando configurações LLM...">
           <LazyComponents.LLMConfigurationPage />
         </LazyRouteWrapper>
       }
     />
     <Route
-      path='/mcp-config'
+      path="/mcp-config"
       element={
-        <LazyRouteWrapper loadingMessage='Carregando configurações MCP...'>
+        <LazyRouteWrapper loadingMessage="Carregando configurações MCP...">
           <LazyComponents.MCPConfigPage />
         </LazyRouteWrapper>
       }
     />
     <Route
-      path='/settings'
+      path="/settings"
       element={
-        <LazyRouteWrapper loadingMessage='Carregando configurações...'>
+        <LazyRouteWrapper loadingMessage="Carregando configurações...">
           <LazyComponents.SettingsPage />
         </LazyRouteWrapper>
       }
     />
     <Route
-      path='/theme-demo'
+      path="/theme-demo"
       element={
-        <LazyRouteWrapper loadingMessage='Carregando demonstração do tema...'>
+        <LazyRouteWrapper loadingMessage="Carregando demonstração do tema...">
           <LazyComponents.ThemeDemoPage />
         </LazyRouteWrapper>
       }

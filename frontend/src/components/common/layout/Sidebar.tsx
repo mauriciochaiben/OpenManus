@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout, Menu, Typography } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React from "react";
+import { Layout, Menu, Typography } from "antd";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   HomeOutlined,
   SettingOutlined,
@@ -12,7 +12,7 @@ import {
   BookOutlined,
   ExperimentOutlined,
   BranchesOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 
 const { Sider } = Layout;
 const { Title } = Typography;
@@ -24,71 +24,71 @@ const Sidebar: React.FC = () => {
   const menuItems = [
     // Core Navigation
     {
-      key: 'core',
-      type: 'group' as const,
-      label: 'Principal',
+      key: "core",
+      type: "group" as const,
+      label: "Principal",
       children: [
         {
-          key: '/',
+          key: "/",
           icon: <HomeOutlined />,
-          label: 'Home',
+          label: "Home",
         },
         {
-          key: '/dashboard',
+          key: "/dashboard",
           icon: <DashboardOutlined />,
-          label: 'Dashboard',
+          label: "Dashboard",
         },
       ],
     },
     // Features
     {
-      key: 'features',
-      type: 'group' as const,
-      label: 'Funcionalidades',
+      key: "features",
+      type: "group" as const,
+      label: "Funcionalidades",
       children: [
         {
-          key: '/chat',
+          key: "/chat",
           icon: <MessageOutlined />,
-          label: 'AI Chat',
+          label: "AI Chat",
         },
         {
-          key: '/knowledge',
+          key: "/knowledge",
           icon: <BookOutlined />,
-          label: 'Base de Conhecimento',
+          label: "Base de Conhecimento",
         },
         {
-          key: '/workflow',
+          key: "/workflow",
           icon: <BranchesOutlined />,
-          label: 'Workflows',
+          label: "Workflows",
         },
         {
-          key: '/canvas',
+          key: "/canvas",
           icon: <ExperimentOutlined />,
-          label: 'Canvas (Beta)',
+          label: "Canvas (Beta)",
           disabled: true,
         },
       ],
     },
     // Configuration
     {
-      key: 'config',
-      type: 'group' as const,
-      label: 'Configurações',
+      key: "config",
+      type: "group" as const,
+      label: "Configurações",
       children: [
         {
-          key: '/llm-config',
+          key: "/llm-config",
           icon: <ApiOutlined />,
-          label: 'Configurar LLM',
+          label: "Configurar LLM",
         },
         {
-          key: '/mcp-config',
+          key: "/mcp-config",
           icon: <CloudServerOutlined />,
-          label: 'Configurar MCP',
+          label: "Configurar MCP",
         },
         {
-          key: '/settings',
+          key: "/settings",
           icon: <SettingOutlined />,
-          label: 'Configurações',
+          label: "Configurações",
         },
       ],
     },
@@ -101,37 +101,37 @@ const Sidebar: React.FC = () => {
   return (
     <Sider
       width={250}
-      className='sidebar'
+      className="sidebar"
       style={{
-        background: '#001529',
-        borderRight: '1px solid #303030',
-        height: '100vh',
-        position: 'fixed',
+        background: "#001529",
+        borderRight: "1px solid #303030",
+        height: "100vh",
+        position: "fixed",
         left: 0,
         top: 0,
         bottom: 0,
-        overflow: 'auto',
+        overflow: "auto",
         zIndex: 1000,
-        boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
+        boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
       }}
     >
-      <div style={{ padding: '24px 16px' }}>
+      <div style={{ padding: "24px 16px" }}>
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '32px',
-            padding: '12px',
-            background: 'rgba(255,255,255,0.1)',
-            borderRadius: '8px',
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "32px",
+            padding: "12px",
+            background: "rgba(255,255,255,0.1)",
+            borderRadius: "8px",
           }}
         >
           <RocketOutlined
             style={{
-              fontSize: '28px',
-              color: '#1890ff',
-              marginRight: '12px',
-              textShadow: '0 0 10px rgba(24,144,255,0.5)',
+              fontSize: "28px",
+              color: "#1890ff",
+              marginRight: "12px",
+              textShadow: "0 0 10px rgba(24,144,255,0.5)",
             }}
           />
           <div>
@@ -139,8 +139,8 @@ const Sidebar: React.FC = () => {
               level={4}
               style={{
                 margin: 0,
-                color: '#fff',
-                fontSize: '18px',
+                color: "#fff",
+                fontSize: "18px",
                 fontWeight: 600,
               }}
             >
@@ -148,9 +148,9 @@ const Sidebar: React.FC = () => {
             </Title>
             <div
               style={{
-                color: '#8c8c8c',
-                fontSize: '12px',
-                marginTop: '2px',
+                color: "#8c8c8c",
+                fontSize: "12px",
+                marginTop: "2px",
               }}
             >
               AI Assistant Platform
@@ -159,15 +159,15 @@ const Sidebar: React.FC = () => {
         </div>
 
         <Menu
-          mode='inline'
+          mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItems}
           onClick={handleMenuClick}
-          theme='dark'
+          theme="dark"
           style={{
-            border: 'none',
-            background: 'transparent',
-            fontSize: '14px',
+            border: "none",
+            background: "transparent",
+            fontSize: "14px",
           }}
         />
       </div>

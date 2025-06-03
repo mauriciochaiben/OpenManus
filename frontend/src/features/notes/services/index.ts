@@ -1,3 +1,3 @@
 // Notes feature services exports
 
-export * from './notesApi';
+export * from "./notesApi";

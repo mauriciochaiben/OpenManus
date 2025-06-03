@@ -288,8 +288,8 @@ body,
   padding: 12px !important;
   display: block !important;
   margin: 0 !important;
-  font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono',
-    monospace !important;
+  font-family:
+    "SFMono-Regular", "Monaco", "Inconsolata", "Roboto Mono", monospace !important;
   font-size: 13px !important;
   line-height: 1.5 !important;
   overflow-x: auto;
@@ -515,7 +515,7 @@ body,
 }
 
 .user-message .message-bubble::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 12px;
   right: -8px;
@@ -527,7 +527,7 @@ body,
 }
 
 .assistant-message .message-bubble::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 12px;
   left: -8px;
@@ -849,7 +849,7 @@ body,
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   padding: 12px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 12px;
   white-space: pre-wrap;
   overflow-x: auto;
@@ -861,7 +861,7 @@ body,
   color: #fff;
   padding: 16px;
   border-radius: 4px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 12px;
   max-height: 400px;
   overflow-y: auto;
@@ -1039,7 +1039,7 @@ body,
   padding: 8px 12px;
   display: block;
   margin: 8px 0;
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 12px;
   line-height: 1.45;
   overflow-x: auto;
@@ -1448,7 +1448,7 @@ body,
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   padding: 12px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 12px;
   white-space: pre-wrap;
   overflow-x: auto;
@@ -1460,7 +1460,7 @@ body,
   color: #fff;
   padding: 16px;
   border-radius: 4px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 12px;
   max-height: 400px;
   overflow-y: auto;
@@ -1638,7 +1638,7 @@ body,
   padding: 8px 12px;
   display: block;
   margin: 8px 0;
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 12px;
   line-height: 1.45;
   overflow-x: auto;

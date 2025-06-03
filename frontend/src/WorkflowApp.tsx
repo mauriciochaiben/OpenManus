@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   ConfigProvider,
   theme,
@@ -12,14 +12,14 @@ import {
   Spin,
   Upload,
   message,
-} from 'antd';
+} from "antd";
 import {
   PlayCircleOutlined,
   ClearOutlined,
   UploadOutlined,
   FileTextOutlined,
-} from '@ant-design/icons';
-import './App.css';
+} from "@ant-design/icons";
+import "./App.css";
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
@@ -28,7 +28,7 @@ const { Dragger } = Upload;
 
 interface WorkflowStatus {
   id?: string;
-  status: 'idle' | 'running' | 'completed' | 'failed';
+  status: "idle" | "running" | "completed" | "failed";
   currentStep?: string;
   results: Array<{
     step: string;
@@ -41,11 +41,11 @@ interface WorkflowStatus {
 
 interface WorkflowEvent {
   type:
-    | 'workflow_started'
-    | 'workflow_step_started'
-    | 'workflow_step_completed'
-    | 'workflow_completed'
-    | 'workflow_failed';
+    | "workflow_started"
+    | "workflow_step_started"
+    | "workflow_step_completed"
+    | "workflow_completed"
+    | "workflow_failed";
   workflow_id: string;
   step_name?: string;
   status?: string;
@@ -60,11 +60,11 @@ const useWorkflowWebSocket = (onMessage: (event: WorkflowEvent) => void) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const websocket = new WebSocket('ws://localhost:8000/ws/workflow');
+    const websocket = new WebSocket("ws://localhost:8000/ws/workflow");
 
     websocket.onopen = () => {
       setIsConnected(true);
-      console.log('WebSocket connected');
+      console.log("WebSocket connected");
     };
 
     websocket.onmessage = (event) => {
@@ -72,17 +72,17 @@ const useWorkflowWebSocket = (onMessage: (event: WorkflowEvent) => void) => {
         const data: WorkflowEvent = JSON.parse(event.data);
         onMessage(data);
       } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
+        console.error("Failed to parse WebSocket message:", error);
       }
     };
 
     websocket.onclose = () => {
       setIsConnected(false);
-      console.log('WebSocket disconnected');
+      console.log("WebSocket disconnected");
     };
 
     websocket.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error("WebSocket error:", error);
     };
 
     setWs(websocket);
@@ -102,9 +102,9 @@ interface DocumentUploadStatus {
 }
 
 const WorkflowApp: React.FC = () => {
-  const [taskInput, setTaskInput] = useState<string>('');
+  const [taskInput, setTaskInput] = useState<string>("");
   const [workflowStatus, setWorkflowStatus] = useState<WorkflowStatus>({
-    status: 'idle',
+    status: "idle",
     results: [],
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -116,30 +116,30 @@ const WorkflowApp: React.FC = () => {
 
   // Handle WebSocket workflow events
   const handleWorkflowEvent = useCallback((event: WorkflowEvent) => {
-    console.log('Received workflow event:', event);
+    console.log("Received workflow event:", event);
 
     setWorkflowStatus((prev) => {
       switch (event.type) {
-        case 'workflow_started':
+        case "workflow_started":
           return {
             ...prev,
             id: event.workflow_id,
-            status: 'running',
-            currentStep: 'Workflow started...',
+            status: "running",
+            currentStep: "Workflow started...",
             results: [],
             error: undefined,
           };
 
-        case 'workflow_step_started':
+        case "workflow_step_started":
           return {
             ...prev,
             currentStep: `Executing step: ${event.step_name}`,
           };
 
-        case 'workflow_step_completed':
+        case "workflow_step_completed": {
           const newResult = {
-            step: event.step_name || 'Unknown step',
-            status: event.status || 'completed',
+            step: event.step_name || "Unknown step",
+            status: event.status || "completed",
             result: event.result,
             timestamp: event.timestamp,
           };
@@ -148,20 +148,21 @@ const WorkflowApp: React.FC = () => {
             results: [...prev.results, newResult],
             currentStep: `Step ${event.step_name} completed`,
           };
+        }
 
-        case 'workflow_completed':
+        case "workflow_completed":
           return {
             ...prev,
-            status: 'completed',
+            status: "completed",
             currentStep: undefined,
           };
 
-        case 'workflow_failed':
+        case "workflow_failed":
           return {
             ...prev,
-            status: 'failed',
+            status: "failed",
             currentStep: undefined,
-            error: event.error || 'Workflow failed',
+            error: event.error || "Workflow failed",
           };
 
         default:
@@ -178,30 +179,30 @@ const WorkflowApp: React.FC = () => {
 
     setIsSubmitting(true);
     setWorkflowStatus({
-      status: 'running',
+      status: "running",
       results: [],
-      currentStep: 'Initializing workflow...',
+      currentStep: "Initializing workflow...",
     });
 
     try {
-      const response = await fetch('http://localhost:8000/workflows/simple', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/workflows/simple", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title: 'User Task',
+          title: "User Task",
           description: taskInput,
           steps: [
             {
-              name: 'plan_task',
-              agent_type: 'planner',
+              name: "plan_task",
+              agent_type: "planner",
               config: { objective: taskInput },
             },
             {
-              name: 'execute_plan',
-              agent_type: 'tool_user',
-              config: { tools: ['file_manager', 'code_editor'] },
+              name: "execute_plan",
+              agent_type: "tool_user",
+              config: { tools: ["file_manager", "code_editor"] },
             },
           ],
         }),
@@ -212,26 +213,26 @@ const WorkflowApp: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Workflow started:', data);
+      console.log("Workflow started:", data);
 
       // The WebSocket will handle real-time updates
       setIsSubmitting(false);
     } catch (error) {
-      console.error('Failed to start workflow:', error);
+      console.error("Failed to start workflow:", error);
       setWorkflowStatus({
-        status: 'failed',
+        status: "failed",
         results: [],
         error:
-          error instanceof Error ? error.message : 'Failed to start workflow',
+          error instanceof Error ? error.message : "Failed to start workflow",
       });
       setIsSubmitting(false);
     }
   };
 
   const handleClear = () => {
-    setTaskInput('');
+    setTaskInput("");
     setWorkflowStatus({
-      status: 'idle',
+      status: "idle",
       results: [],
     });
   };
@@ -240,15 +241,15 @@ const WorkflowApp: React.FC = () => {
     setDocumentUpload((prev) => ({ ...prev, uploading: true }));
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
       const response = await fetch(
-        'http://localhost:8000/knowledge/sources/upload',
+        "http://localhost:8000/knowledge/sources/upload",
         {
-          method: 'POST',
+          method: "POST",
           body: formData,
-        }
+        },
       );
 
       if (!response.ok) {
@@ -265,7 +266,7 @@ const WorkflowApp: React.FC = () => {
 
       message.success(`Document "${file.name}" uploaded successfully!`);
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error("Upload failed:", error);
       setDocumentUpload((prev) => ({
         ...prev,
         uploading: false,
@@ -277,15 +278,15 @@ const WorkflowApp: React.FC = () => {
   };
 
   const uploadProps = {
-    name: 'file',
+    name: "file",
     multiple: false,
-    accept: '.pdf,.txt,.md,.docx,.html,.json,.csv',
+    accept: ".pdf,.txt,.md,.docx,.html,.json,.csv",
     beforeUpload: (file: File) => {
       handleFileUpload(file);
       return false; // Prevent automatic upload
     },
     onDrop(e: React.DragEvent<HTMLDivElement>) {
-      console.log('Dropped files', e.dataTransfer.files);
+      console.log("Dropped files", e.dataTransfer.files);
     },
   };
 
@@ -294,32 +295,32 @@ const WorkflowApp: React.FC = () => {
       theme={{
         algorithm: theme.defaultAlgorithm,
         token: {
-          colorPrimary: '#6366f1',
+          colorPrimary: "#6366f1",
           borderRadius: 8,
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-          colorBgContainer: '#ffffff',
-          colorBgLayout: '#f5f5f5',
+          fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+          colorBgContainer: "#ffffff",
+          colorBgLayout: "#f5f5f5",
         },
       }}
     >
-      <div className='app-container'>
-        <Layout className='app-layout'>
-          <Header className='app-header'>
-            <div className='header-content'>
-              <Title level={2} className='header-title'>
+      <div className="app-container">
+        <Layout className="app-layout">
+          <Header className="app-header">
+            <div className="header-content">
+              <Title level={2} className="header-title">
                 OpenManus - AI Workflow Assistant
               </Title>
-              <div className='connection-status'>
-                <Text className='connection-text'>
-                  WebSocket: {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
+              <div className="connection-status">
+                <Text className="connection-text">
+                  WebSocket: {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
                 </Text>
               </div>
             </div>
           </Header>
 
-          <Content className='app-content'>
-            <div className='content-wrapper'>
-              <Space direction='vertical' size={24} className='main-space'>
+          <Content className="app-content">
+            <div className="content-wrapper">
+              <Space direction="vertical" size={24} className="main-space">
                 {/* Document Upload Section */}
                 <Card
                   title={
@@ -328,17 +329,17 @@ const WorkflowApp: React.FC = () => {
                       <span>Upload Documents</span>
                     </Space>
                   }
-                  className='upload-card'
+                  className="upload-card"
                   bordered
                 >
-                  <Dragger {...uploadProps} className='upload-dragger'>
-                    <p className='ant-upload-drag-icon'>
+                  <Dragger {...uploadProps} className="upload-dragger">
+                    <p className="ant-upload-drag-icon">
                       <UploadOutlined />
                     </p>
-                    <p className='ant-upload-text'>
+                    <p className="ant-upload-text">
                       Click or drag files to upload
                     </p>
-                    <p className='ant-upload-hint'>
+                    <p className="ant-upload-hint">
                       Support for PDF, TXT, MD, DOCX, HTML, JSON, CSV files
                     </p>
                   </Dragger>
@@ -349,7 +350,7 @@ const WorkflowApp: React.FC = () => {
                       {documentUpload.uploaded.length > 0 && (
                         <Alert
                           message={`${documentUpload.uploaded.length} document(s) uploaded successfully`}
-                          type='success'
+                          type="success"
                           showIcon
                           style={{ marginBottom: 8 }}
                         />
@@ -357,7 +358,7 @@ const WorkflowApp: React.FC = () => {
                       {documentUpload.failed.length > 0 && (
                         <Alert
                           message={`${documentUpload.failed.length} upload(s) failed`}
-                          type='error'
+                          type="error"
                           showIcon
                         />
                       )}
@@ -367,36 +368,36 @@ const WorkflowApp: React.FC = () => {
 
                 {/* Task Input Section */}
                 <Card
-                  title='Describe Your Task'
-                  className='task-input-card'
+                  title="Describe Your Task"
+                  className="task-input-card"
                   bordered
                 >
-                  <div className='task-input-content'>
+                  <div className="task-input-content">
                     <TextArea
                       value={taskInput}
                       onChange={(e) => setTaskInput(e.target.value)}
                       placeholder="Describe what you want to accomplish... (e.g., 'Create a Python script to analyze CSV data and generate a report')"
                       rows={4}
-                      disabled={workflowStatus.status === 'running'}
-                      className='task-textarea'
+                      disabled={workflowStatus.status === "running"}
+                      className="task-textarea"
                       showCount
                       maxLength={1000}
                     />
 
-                    <div className='task-actions'>
-                      <Space size='middle'>
+                    <div className="task-actions">
+                      <Space size="middle">
                         <Button
-                          type='primary'
+                          type="primary"
                           icon={<PlayCircleOutlined />}
                           onClick={handleSubmit}
                           loading={isSubmitting}
                           disabled={
                             !taskInput.trim() ||
-                            workflowStatus.status === 'running' ||
+                            workflowStatus.status === "running" ||
                             !isConnected
                           }
-                          size='large'
-                          className='start-button'
+                          size="large"
+                          className="start-button"
                         >
                           Start Workflow
                         </Button>
@@ -404,9 +405,9 @@ const WorkflowApp: React.FC = () => {
                         <Button
                           icon={<ClearOutlined />}
                           onClick={handleClear}
-                          disabled={workflowStatus.status === 'running'}
-                          size='large'
-                          className='clear-button'
+                          disabled={workflowStatus.status === "running"}
+                          size="large"
+                          className="clear-button"
                         >
                           Clear
                         </Button>
@@ -415,25 +416,25 @@ const WorkflowApp: React.FC = () => {
 
                     {!isConnected && (
                       <Alert
-                        message='WebSocket Disconnected'
-                        description='Real-time updates are not available. Please refresh the page to reconnect.'
-                        type='warning'
+                        message="WebSocket Disconnected"
+                        description="Real-time updates are not available. Please refresh the page to reconnect."
+                        type="warning"
                         showIcon
-                        className='connection-alert'
+                        className="connection-alert"
                       />
                     )}
                   </div>
                 </Card>
 
                 {/* Workflow Status Section */}
-                {workflowStatus.status !== 'idle' && (
+                {workflowStatus.status !== "idle" && (
                   <Card
-                    title='Workflow Status'
-                    className='workflow-status-card'
+                    title="Workflow Status"
+                    className="workflow-status-card"
                     bordered
                     extra={
-                      <div className='status-badge'>
-                        <Text type='secondary' className='status-label'>
+                      <div className="status-badge">
+                        <Text type="secondary" className="status-label">
                           Status:
                         </Text>
                         <Text
@@ -446,51 +447,51 @@ const WorkflowApp: React.FC = () => {
                       </div>
                     }
                   >
-                    <div className='workflow-content'>
+                    <div className="workflow-content">
                       {/* Current Step */}
                       {workflowStatus.currentStep && (
                         <Alert
-                          message='Current Step'
+                          message="Current Step"
                           description={
-                            <div className='current-step'>
-                              <Spin size='small' />
-                              <Text className='step-text'>
+                            <div className="current-step">
+                              <Spin size="small" />
+                              <Text className="step-text">
                                 {workflowStatus.currentStep}
                               </Text>
                             </div>
                           }
-                          type='info'
+                          type="info"
                           showIcon
-                          className='step-alert'
+                          className="step-alert"
                         />
                       )}
 
                       {/* Error Display */}
                       {workflowStatus.error && (
                         <Alert
-                          message='Workflow Failed'
+                          message="Workflow Failed"
                           description={workflowStatus.error}
-                          type='error'
+                          type="error"
                           showIcon
-                          className='error-alert'
+                          className="error-alert"
                         />
                       )}
 
                       {/* Results Display */}
                       {workflowStatus.results.length > 0 && (
-                        <div className='results-section'>
-                          <Title level={4} className='results-title'>
+                        <div className="results-section">
+                          <Title level={4} className="results-title">
                             Execution Results
                           </Title>
-                          <div className='results-list'>
+                          <div className="results-list">
                             {workflowStatus.results.map((result, index) => (
                               <Card
                                 key={index}
-                                size='small'
-                                className='result-card'
+                                size="small"
+                                className="result-card"
                                 title={
-                                  <div className='result-header'>
-                                    <Text strong className='step-name'>
+                                  <div className="result-header">
+                                    <Text strong className="step-name">
                                       {result.step}
                                     </Text>
                                     <Text
@@ -501,16 +502,16 @@ const WorkflowApp: React.FC = () => {
                                   </div>
                                 }
                                 extra={
-                                  <Text type='secondary' className='timestamp'>
+                                  <Text type="secondary" className="timestamp">
                                     {new Date(
-                                      result.timestamp
+                                      result.timestamp,
                                     ).toLocaleTimeString()}
                                   </Text>
                                 }
                               >
                                 {result.result && (
-                                  <div className='result-content'>
-                                    <Text code className='result-text'>
+                                  <div className="result-content">
+                                    <Text code className="result-text">
                                       {result.result}
                                     </Text>
                                   </div>
@@ -522,13 +523,13 @@ const WorkflowApp: React.FC = () => {
                       )}
 
                       {/* Success Message */}
-                      {workflowStatus.status === 'completed' && (
+                      {workflowStatus.status === "completed" && (
                         <Alert
-                          message='Workflow Completed Successfully'
-                          description='All steps have been executed successfully. Check the results above for details.'
-                          type='success'
+                          message="Workflow Completed Successfully"
+                          description="All steps have been executed successfully. Check the results above for details."
+                          type="success"
                           showIcon
-                          className='success-alert'
+                          className="success-alert"
                         />
                       )}
                     </div>

@@ -1,8 +1,8 @@
 // Hook for WebSocket integration with React and Zustand
-import { useEffect, useCallback, useState, useRef } from 'react';
-import { webSocketManager, ConnectionState } from '../services/websocket';
-import { eventBus } from '../utils/eventBus';
-import { useTaskStore } from '../features/tasks/hooks/useTaskStore';
+import { useEffect, useCallback, useState, useRef } from "react";
+import { webSocketManager, ConnectionState } from "../services/websocket";
+import { eventBus } from "../utils/eventBus";
+import { useTaskStore } from "../features/tasks/hooks/useTaskStore";
 
 export interface UseWebSocketOptions {
   autoConnect?: boolean;
@@ -21,7 +21,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     onMessage,
   } = options;
   const [connectionState, setConnectionState] =
-    useState<ConnectionState>('disconnected');
+    useState<ConnectionState>("disconnected");
   const [isConnected, setIsConnected] = useState(false);
   const taskStore = useTaskStore();
 
@@ -37,27 +37,27 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         return;
       }
 
-      ws.current = new WebSocket('ws://localhost:8080'); // Replace with your WebSocket URL
+      ws.current = new WebSocket("ws://localhost:8080"); // Replace with your WebSocket URL
 
       ws.current.onopen = () => {
         setIsConnected(true);
-        setConnectionState('connected');
+        setConnectionState("connected");
         reconnectAttempts.current = 0;
         onConnect?.();
-        console.log('WebSocket connected');
+        console.log("WebSocket connected");
       };
 
       ws.current.onmessage = (event) => {
         const message = JSON.parse(event.data);
-        console.log('Message received:', message);
+        console.log("Message received:", message);
         onMessage?.(message);
       };
 
       ws.current.onclose = (event) => {
         setIsConnected(false);
-        setConnectionState('disconnected');
+        setConnectionState("disconnected");
         onDisconnect?.(event.reason);
-        console.log('WebSocket disconnected:', event.code, event.reason);
+        console.log("WebSocket disconnected:", event.code, event.reason);
 
         // Attempt to reconnect if not a normal closure
         if (
@@ -73,14 +73,14 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       };
 
       ws.current.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        setConnectionState('disconnected');
+        console.error("WebSocket error:", error);
+        setConnectionState("disconnected");
         setIsConnected(false);
         onError?.(error);
       };
     } catch (error) {
-      console.error('Failed to create WebSocket connection:', error);
-      setConnectionState('disconnected');
+      console.error("Failed to create WebSocket connection:", error);
+      setConnectionState("disconnected");
       setIsConnected(false);
       onError?.(error);
     }
@@ -93,12 +93,12 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     }
 
     if (ws.current) {
-      ws.current.close(1000, 'Normal closure');
+      ws.current.close(1000, "Normal closure");
       ws.current = null;
     }
 
     setIsConnected(false);
-    setConnectionState('disconnected');
+    setConnectionState("disconnected");
   }, []);
 
   const sendMessage = useCallback((type: string, data: any) => {
@@ -106,7 +106,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       const message = JSON.stringify({ type, data });
       ws.current.send(message);
     } else {
-      console.warn('WebSocket is not connected. Message not sent:', {
+      console.warn("WebSocket is not connected. Message not sent:", {
         type,
         data,
       });
@@ -117,38 +117,38 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   useEffect(() => {
     // Task-related events
     const handleTaskCreated = (task: any) => {
-      console.log('Task created via WebSocket:', task);
+      console.log("Task created via WebSocket:", task);
       taskStore.fetchTasks(); // Refresh tasks list
     };
 
     const handleTaskUpdated = (task: any) => {
-      console.log('Task updated via WebSocket:', task);
+      console.log("Task updated via WebSocket:", task);
       taskStore.fetchTasks(); // Refresh tasks to get latest state
     };
 
     const handleTaskCompleted = (task: any) => {
-      console.log('Task completed via WebSocket:', task);
+      console.log("Task completed via WebSocket:", task);
       taskStore.fetchTasks();
 
       // Show notification
-      eventBus.emit('notification:received', {
+      eventBus.emit("notification:received", {
         id: `task-completed-${task.id}`,
-        type: 'success' as const,
-        title: 'Task Completed',
+        type: "success" as const,
+        title: "Task Completed",
         message: `Task "${task.title}" has been completed successfully`,
         duration: 5000,
       });
     };
 
     const handleTaskFailed = (data: { id: string; error: string }) => {
-      console.log('Task failed via WebSocket:', data);
+      console.log("Task failed via WebSocket:", data);
       taskStore.fetchTasks();
 
       // Show error notification
-      eventBus.emit('notification:received', {
+      eventBus.emit("notification:received", {
         id: `task-failed-${data.id}`,
-        type: 'error' as const,
-        title: 'Task Failed',
+        type: "error" as const,
+        title: "Task Failed",
         message: `Task failed: ${data.error}`,
         duration: 10000,
       });
@@ -159,18 +159,18 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       progress: number;
       status: string;
     }) => {
-      console.log('Task progress via WebSocket:', data);
+      console.log("Task progress via WebSocket:", data);
       // Update task progress in store
       const currentTask = taskStore.currentTask;
       if (currentTask && currentTask.id === data.id) {
         // Update current task progress if it matches
         const validStatus = [
-          'pending',
-          'running',
-          'completed',
-          'error',
+          "pending",
+          "running",
+          "completed",
+          "error",
         ].includes(data.status)
-          ? (data.status as 'pending' | 'running' | 'completed' | 'error')
+          ? (data.status as "pending" | "running" | "completed" | "error")
           : currentTask.status;
 
         const updatedTask = {
@@ -183,11 +183,11 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     // Register event listeners
     const unsubscribeFunctions = [
-      eventBus.on('task:created', handleTaskCreated),
-      eventBus.on('task:updated', handleTaskUpdated),
-      eventBus.on('task:completed', handleTaskCompleted),
-      eventBus.on('task:failed', handleTaskFailed),
-      eventBus.on('task:progressUpdated', handleTaskProgress),
+      eventBus.on("task:created", handleTaskCreated),
+      eventBus.on("task:updated", handleTaskUpdated),
+      eventBus.on("task:completed", handleTaskCompleted),
+      eventBus.on("task:failed", handleTaskFailed),
+      eventBus.on("task:progressUpdated", handleTaskProgress),
     ];
 
     // Auto-connect if enabled
@@ -224,7 +224,7 @@ export function useNotifications() {
       if (notification.duration) {
         setTimeout(() => {
           setNotifications((prev) =>
-            prev.filter((n) => n.id !== notification.id)
+            prev.filter((n) => n.id !== notification.id),
           );
         }, notification.duration);
       }
@@ -239,9 +239,9 @@ export function useNotifications() {
     };
 
     const unsubscribeFunctions = [
-      eventBus.on('notification:received', handleNotificationReceived),
-      eventBus.on('notification:dismissed', handleNotificationDismissed),
-      eventBus.on('notification:cleared', handleNotificationCleared),
+      eventBus.on("notification:received", handleNotificationReceived),
+      eventBus.on("notification:dismissed", handleNotificationDismissed),
+      eventBus.on("notification:cleared", handleNotificationCleared),
     ];
 
     return () => {
@@ -250,11 +250,11 @@ export function useNotifications() {
   }, []);
 
   const dismissNotification = useCallback((notificationId: string) => {
-    eventBus.emit('notification:dismissed', { id: notificationId });
+    eventBus.emit("notification:dismissed", { id: notificationId });
   }, []);
 
   const clearAllNotifications = useCallback(() => {
-    eventBus.emit('notification:cleared', {});
+    eventBus.emit("notification:cleared", {});
   }, []);
 
   return {

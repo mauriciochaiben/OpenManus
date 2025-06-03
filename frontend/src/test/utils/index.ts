@@ -17,21 +17,21 @@ export class MockWebSocket {
 
   constructor(
     public url: string,
-    public protocols?: string | string[]
+    public protocols?: string | string[],
   ) {
     setTimeout(() => {
       this.readyState = MockWebSocket.OPEN;
-      this.onopen?.(new Event('open'));
+      this.onopen?.(new Event("open"));
     }, 0);
   }
 
   send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void {
     if (this.readyState !== MockWebSocket.OPEN) {
-      throw new Error('WebSocket is not open');
+      throw new Error("WebSocket is not open");
     }
     // Simulate message echo for testing
     setTimeout(() => {
-      const event = new MessageEvent('message', { data });
+      const event = new MessageEvent("message", { data });
       this.onmessage?.(event);
     }, 0);
   }
@@ -40,9 +40,9 @@ export class MockWebSocket {
     this.readyState = MockWebSocket.CLOSING;
     setTimeout(() => {
       this.readyState = MockWebSocket.CLOSED;
-      const event = new CloseEvent('close', {
+      const event = new CloseEvent("close", {
         code: code || 1000,
-        reason: reason || '',
+        reason: reason || "",
       });
       this.onclose?.(event);
     }, 0);
@@ -89,9 +89,9 @@ export const mockApiResponse = (data: any, status = 200, ok = true) => {
     text: () => Promise.resolve(JSON.stringify(data)),
     headers: new Headers(),
     redirected: false,
-    statusText: status === 200 ? 'OK' : 'Error',
-    type: 'default' as ResponseType,
-    url: '',
+    statusText: status === 200 ? "OK" : "Error",
+    type: "default" as ResponseType,
+    url: "",
     clone: jest.fn(),
     body: null,
     bodyUsed: false,
@@ -125,7 +125,7 @@ export const createMockLocalStorage = () => {
     },
   };
 
-  Object.defineProperty(window, 'localStorage', {
+  Object.defineProperty(window, "localStorage", {
     value: mockStorage,
     writable: true,
   });
@@ -157,7 +157,7 @@ export const createMockSessionStorage = () => {
     },
   };
 
-  Object.defineProperty(window, 'sessionStorage', {
+  Object.defineProperty(window, "sessionStorage", {
     value: mockStorage,
     writable: true,
   });
@@ -180,7 +180,7 @@ export const setupTestEnvironment = () => {
   createMockSessionStorage();
 
   // Mock navigator.onLine
-  Object.defineProperty(navigator, 'onLine', {
+  Object.defineProperty(navigator, "onLine", {
     writable: true,
     value: true,
   });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Card,
   Row,
@@ -11,7 +11,7 @@ import {
   Space,
   Divider,
   Tabs,
-} from 'antd';
+} from "antd";
 import {
   ThunderboltOutlined,
   StarOutlined,
@@ -20,8 +20,8 @@ import {
   SettingOutlined,
   UserOutlined,
   HomeOutlined,
-} from '@ant-design/icons';
-import { useTheme } from '../theme';
+} from "@ant-design/icons";
+import { useTheme } from "../theme";
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -35,50 +35,50 @@ const ThemeDemoPage: React.FC = () => {
 
   const tabItems = [
     {
-      key: '1',
-      label: 'Componentes Básicos',
+      key: "1",
+      label: "Componentes Básicos",
       children: (
-        <div style={{ padding: '24px' }}>
+        <div style={{ padding: "24px" }}>
           <Row gutter={[24, 24]}>
             <Col xs={24} md={12}>
-              <Card title='Botões' className='openManus-card'>
+              <Card title="Botões" className="openManus-card">
                 <Space
-                  direction='vertical'
-                  size='middle'
-                  style={{ width: '100%' }}
+                  direction="vertical"
+                  size="middle"
+                  style={{ width: "100%" }}
                 >
-                  <Button type='primary' className='openManus-btn-primary'>
+                  <Button type="primary" className="openManus-btn-primary">
                     Primário
                   </Button>
                   <Button>Padrão</Button>
-                  <Button type='dashed'>Tracejado</Button>
-                  <Button type='text'>Texto</Button>
+                  <Button type="dashed">Tracejado</Button>
+                  <Button type="text">Texto</Button>
                   <Button danger>Perigo</Button>
                 </Space>
               </Card>
             </Col>
             <Col xs={24} md={12}>
-              <Card title='Inputs' className='openManus-card'>
+              <Card title="Inputs" className="openManus-card">
                 <Space
-                  direction='vertical'
-                  size='middle'
-                  style={{ width: '100%' }}
+                  direction="vertical"
+                  size="middle"
+                  style={{ width: "100%" }}
                 >
                   <Input
-                    placeholder='Input normal'
-                    className='openManus-input'
+                    placeholder="Input normal"
+                    className="openManus-input"
                   />
                   <Input.Password
-                    placeholder='Senha'
-                    className='openManus-input'
+                    placeholder="Senha"
+                    className="openManus-input"
                   />
                   <Select
-                    placeholder='Selecione uma opção'
-                    style={{ width: '100%' }}
+                    placeholder="Selecione uma opção"
+                    style={{ width: "100%" }}
                   >
-                    <Option value='1'>Opção 1</Option>
-                    <Option value='2'>Opção 2</Option>
-                    <Option value='3'>Opção 3</Option>
+                    <Option value="1">Opção 1</Option>
+                    <Option value="2">Opção 2</Option>
+                    <Option value="3">Opção 3</Option>
                   </Select>
                 </Space>
               </Card>
@@ -88,43 +88,43 @@ const ThemeDemoPage: React.FC = () => {
       ),
     },
     {
-      key: '2',
-      label: 'Badges e Ícones',
+      key: "2",
+      label: "Badges e Ícones",
       children: (
-        <div style={{ padding: '24px' }}>
+        <div style={{ padding: "24px" }}>
           <Row gutter={[24, 24]}>
             <Col xs={24} md={12}>
-              <Card title='Badges' className='openManus-card'>
-                <Space size='large' wrap>
+              <Card title="Badges" className="openManus-card">
+                <Space size="large" wrap>
                   <Badge count={5}>
                     <Button icon={<UserOutlined />}>Usuários</Button>
                   </Badge>
                   <Badge count={0} showZero>
                     <Button icon={<HomeOutlined />}>Home</Button>
                   </Badge>
-                  <Badge status='success' text='Ativo' />
-                  <Badge status='error' text='Erro' />
-                  <Badge status='warning' text='Aviso' />
+                  <Badge status="success" text="Ativo" />
+                  <Badge status="error" text="Erro" />
+                  <Badge status="warning" text="Aviso" />
                 </Space>
               </Card>
             </Col>
             <Col xs={24} md={12}>
-              <Card title='Ícones' className='openManus-card'>
-                <Space size='large' wrap>
+              <Card title="Ícones" className="openManus-card">
+                <Space size="large" wrap>
                   <ThunderboltOutlined
-                    style={{ fontSize: '24px', color: '#1890ff' }}
+                    style={{ fontSize: "24px", color: "#1890ff" }}
                   />
                   <StarOutlined
-                    style={{ fontSize: '24px', color: '#faad14' }}
+                    style={{ fontSize: "24px", color: "#faad14" }}
                   />
                   <HeartOutlined
-                    style={{ fontSize: '24px', color: '#ff4d4f' }}
+                    style={{ fontSize: "24px", color: "#ff4d4f" }}
                   />
                   <LikeOutlined
-                    style={{ fontSize: '24px', color: '#52c41a' }}
+                    style={{ fontSize: "24px", color: "#52c41a" }}
                   />
                   <SettingOutlined
-                    style={{ fontSize: '24px', color: '#722ed1' }}
+                    style={{ fontSize: "24px", color: "#722ed1" }}
                   />
                 </Space>
               </Card>
@@ -134,12 +134,12 @@ const ThemeDemoPage: React.FC = () => {
       ),
     },
     {
-      key: '3',
-      label: 'Tipografia',
+      key: "3",
+      label: "Tipografia",
       children: (
-        <div style={{ padding: '24px' }}>
-          <Card title='Tipografia' className='openManus-card'>
-            <Space direction='vertical' size='large' style={{ width: '100%' }}>
+        <div style={{ padding: "24px" }}>
+          <Card title="Tipografia" className="openManus-card">
+            <Space direction="vertical" size="large" style={{ width: "100%" }}>
               <div>
                 <Title level={1}>Título H1</Title>
                 <Title level={2}>Título H2</Title>
@@ -154,13 +154,13 @@ const ThemeDemoPage: React.FC = () => {
                   o tema customizado do OpenManus. O tema foi projetado para ser
                   moderno, limpo e acessível.
                 </Paragraph>
-                <Text type='secondary'>Texto secundário</Text>
+                <Text type="secondary">Texto secundário</Text>
                 <br />
-                <Text type='success'>Texto de sucesso</Text>
+                <Text type="success">Texto de sucesso</Text>
                 <br />
-                <Text type='warning'>Texto de aviso</Text>
+                <Text type="warning">Texto de aviso</Text>
                 <br />
-                <Text type='danger'>Texto de erro</Text>
+                <Text type="danger">Texto de erro</Text>
                 <br />
                 <Text disabled>Texto desabilitado</Text>
                 <br />
@@ -184,10 +184,10 @@ const ThemeDemoPage: React.FC = () => {
   ];
 
   return (
-    <div className='openManus-fade-in-up' style={{ padding: '24px' }}>
+    <div className="openManus-fade-in-up" style={{ padding: "24px" }}>
       {/* Header da página */}
-      <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-        <Title level={2} className='openManus-header-title'>
+      <div style={{ marginBottom: "32px", textAlign: "center" }}>
+        <Title level={2} className="openManus-header-title">
           🎨 Demonstração do Tema OpenManus
         </Title>
         <Paragraph>
@@ -195,86 +195,86 @@ const ThemeDemoPage: React.FC = () => {
           tema claro e escuro usando o botão no header.
         </Paragraph>
 
-        <Space size='large'>
+        <Space size="large">
           <Button
-            type='primary'
+            type="primary"
             onClick={toggleTheme}
-            className='openManus-btn-primary'
+            className="openManus-btn-primary"
           >
-            {isDarkMode ? '☀️ Tema Claro' : '🌙 Tema Escuro'}
+            {isDarkMode ? "☀️ Tema Claro" : "🌙 Tema Escuro"}
           </Button>
           <Badge
-            count={isDarkMode ? 'Escuro' : 'Claro'}
+            count={isDarkMode ? "Escuro" : "Claro"}
             style={{
-              backgroundColor: isDarkMode ? '#1890ff' : '#52c41a',
-              borderRadius: '12px',
-              fontSize: '12px',
+              backgroundColor: isDarkMode ? "#1890ff" : "#52c41a",
+              borderRadius: "12px",
+              fontSize: "12px",
             }}
           />
         </Space>
       </div>
 
       {/* Status do tema atual */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '32px' }}>
+      <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
         <Col xs={24} lg={8}>
-          <Card className='openManus-card openManus-shadow'>
-            <div style={{ textAlign: 'center' }}>
+          <Card className="openManus-card openManus-shadow">
+            <div style={{ textAlign: "center" }}>
               <ThunderboltOutlined
                 style={{
-                  fontSize: '48px',
-                  color: '#1890ff',
-                  marginBottom: '16px',
+                  fontSize: "48px",
+                  color: "#1890ff",
+                  marginBottom: "16px",
                 }}
               />
               <Title level={4}>Tema Ativo</Title>
-              <Text style={{ fontSize: '18px' }}>
-                {isDarkMode ? 'Modo Escuro' : 'Modo Claro'}
+              <Text style={{ fontSize: "18px" }}>
+                {isDarkMode ? "Modo Escuro" : "Modo Claro"}
               </Text>
             </div>
           </Card>
         </Col>
         <Col xs={24} lg={8}>
-          <Card className='openManus-card openManus-shadow'>
-            <div style={{ textAlign: 'center' }}>
+          <Card className="openManus-card openManus-shadow">
+            <div style={{ textAlign: "center" }}>
               <StarOutlined
                 style={{
-                  fontSize: '48px',
-                  color: '#faad14',
-                  marginBottom: '16px',
+                  fontSize: "48px",
+                  color: "#faad14",
+                  marginBottom: "16px",
                 }}
               />
               <Title level={4}>Componentes</Title>
-              <Text style={{ fontSize: '18px' }}>Layout + Menu + Header</Text>
+              <Text style={{ fontSize: "18px" }}>Layout + Menu + Header</Text>
             </div>
           </Card>
         </Col>
         <Col xs={24} lg={8}>
-          <Card className='openManus-card openManus-shadow'>
-            <div style={{ textAlign: 'center' }}>
+          <Card className="openManus-card openManus-shadow">
+            <div style={{ textAlign: "center" }}>
               <HeartOutlined
                 style={{
-                  fontSize: '48px',
-                  color: '#ff4d4f',
-                  marginBottom: '16px',
+                  fontSize: "48px",
+                  color: "#ff4d4f",
+                  marginBottom: "16px",
                 }}
               />
               <Title level={4}>Customização</Title>
-              <Text style={{ fontSize: '18px' }}>Cores + Fontes + Estilos</Text>
+              <Text style={{ fontSize: "18px" }}>Cores + Fontes + Estilos</Text>
             </div>
           </Card>
         </Col>
       </Row>
 
       {/* Tabs com exemplos */}
-      <Card className='openManus-card openManus-shadow-lg'>
-        <Tabs items={tabItems} defaultActiveKey='1' />
+      <Card className="openManus-card openManus-shadow-lg">
+        <Tabs items={tabItems} defaultActiveKey="1" />
       </Card>
 
       {/* Informações do tema */}
       <Card
-        title='Informações do Tema'
-        className='openManus-card openManus-shadow'
-        style={{ marginTop: '32px' }}
+        title="Informações do Tema"
+        className="openManus-card openManus-shadow"
+        style={{ marginTop: "32px" }}
       >
         <Row gutter={[16, 16]}>
           <Col xs={24} md={12}>

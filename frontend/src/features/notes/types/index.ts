@@ -47,7 +47,7 @@ export interface NoteSearchQuery {
   limit?: number;
   offset?: number;
   sort_by?: string;
-  sort_order?: 'asc' | 'desc';
+  sort_order?: "asc" | "desc";
 }
 
 export interface NoteSearchResponse {

@@ -1,7 +1,7 @@
-import type { ChatMessage } from '../../../types';
-import { createNote } from '../../notes/services/notesApi';
-import type { NoteCreate } from '../../notes/types';
-import { copyToClipboard } from '../../../shared/utils/clipboard';
+import type { ChatMessage } from "../../../types";
+import { createNote } from "../../notes/services/notesApi";
+import type { NoteCreate } from "../../notes/types";
+import { copyToClipboard } from "../../../shared/utils/clipboard";
 
 // Re-export copyToClipboard from shared utils for backward compatibility
 export { copyToClipboard };
@@ -10,7 +10,7 @@ export { copyToClipboard };
  * Save a chat message as a note
  */
 export const saveMessageAsNote = async (
-  message: ChatMessage
+  message: ChatMessage,
 ): Promise<void> => {
   try {
     // Generate a meaningful title from the message content
@@ -20,10 +20,10 @@ export const saveMessageAsNote = async (
     const noteData: NoteCreate = {
       title,
       content: formatMessageAsNote(message),
-      tags: ['chat', 'ai-response'],
+      tags: ["chat", "ai-response"],
       is_public: false,
       metadata: {
-        source_type: 'chat_message',
+        source_type: "chat_message",
         message_id: message.id,
         message_role: message.role,
         message_timestamp: message.timestamp,
@@ -34,7 +34,7 @@ export const saveMessageAsNote = async (
     // Create the note
     await createNote(noteData);
   } catch (error) {
-    console.error('Error saving message as note:', error);
+    console.error("Error saving message as note:", error);
     throw error;
   }
 };
@@ -45,10 +45,10 @@ export const saveMessageAsNote = async (
 const generateNoteTitle = (content: string): string => {
   // Clean the content and get first line or meaningful chunk
   const cleaned = content.trim();
-  const lines = cleaned.split('\n').filter((line) => line.trim());
+  const lines = cleaned.split("\n").filter((line) => line.trim());
 
   if (lines.length === 0) {
-    return 'Chat Message Note';
+    return "Chat Message Note";
   }
 
   const firstLine = lines[0].trim();
@@ -74,13 +74,13 @@ const truncateTitle = (title: string): string => {
 
   // Try to truncate at word boundary
   const truncated = title.substring(0, maxLength);
-  const lastSpace = truncated.lastIndexOf(' ');
+  const lastSpace = truncated.lastIndexOf(" ");
 
   if (lastSpace > maxLength * 0.7) {
-    return truncated.substring(0, lastSpace) + '...';
+    return `${truncated.substring(0, lastSpace)}...`;
   }
 
-  return truncated + '...';
+  return `${truncated}...`;
 };
 
 /**
@@ -88,7 +88,7 @@ const truncateTitle = (title: string): string => {
  */
 const formatMessageAsNote = (message: ChatMessage): string => {
   const timestamp = new Date(message.timestamp).toLocaleString();
-  const role = message.role === 'user' ? 'User' : 'AI Assistant';
+  const role = message.role === "user" ? "User" : "AI Assistant";
 
   let content = `# Chat Message - ${role}\n\n`;
   content += `**Timestamp:** ${timestamp}\n`;
@@ -108,9 +108,9 @@ const formatMessageAsNote = (message: ChatMessage): string => {
  * Format timestamp for display
  */
 export const formatTime = (timestamp: string): string => {
-  return new Date(timestamp).toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(timestamp).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
@@ -118,11 +118,11 @@ export const formatTime = (timestamp: string): string => {
  * Format timestamp with date for notes
  */
 export const formatDateTime = (timestamp: string): string => {
-  return new Date(timestamp).toLocaleString('pt-BR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(timestamp).toLocaleString("pt-BR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };

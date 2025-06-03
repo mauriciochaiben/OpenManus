@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { Task, LogEntry, TaskStep } from '../types';
-import { taskApi } from '../services/api';
-import { eventBus } from '../utils/eventBus';
+import { useState, useEffect, useCallback } from "react";
+import type { Task, LogEntry, TaskStep } from "../types";
+import { taskApi } from "../services/api";
+import { eventBus } from "../utils/eventBus";
 
 export const useTask = (taskId?: string) => {
   const [task, setTask] = useState<Task | null>(null);
@@ -18,7 +18,7 @@ export const useTask = (taskId?: string) => {
       const taskData = await taskApi.getTask(id);
       setTask(taskData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch task');
+      setError(err instanceof Error ? err.message : "Failed to fetch task");
     } finally {
       setLoading(false);
     }
@@ -48,7 +48,7 @@ export const useTask = (taskId?: string) => {
 
             const updatedSteps = prevTask.steps ? [...prevTask.steps] : [];
             const stepIndex = updatedSteps.findIndex(
-              (s) => s.id === data.step.id
+              (s) => s.id === data.step.id,
             );
 
             if (stepIndex >= 0) {
@@ -76,9 +76,9 @@ export const useTask = (taskId?: string) => {
       };
 
       // Subscribe to events
-      const unsubTaskUpdate = eventBus.on('task:updated', handleTaskUpdate);
-      const unsubStepUpdate = eventBus.on('task:stepUpdated', handleStepUpdate);
-      const unsubLogEntry = eventBus.on('task:logEntry', handleLogEntry);
+      const unsubTaskUpdate = eventBus.on("task:updated", handleTaskUpdate);
+      const unsubStepUpdate = eventBus.on("task:stepUpdated", handleStepUpdate);
+      const unsubLogEntry = eventBus.on("task:logEntry", handleLogEntry);
 
       return () => {
         unsubTaskUpdate();
@@ -109,7 +109,7 @@ export const useTasks = () => {
       const tasksData = await taskApi.getTasks();
       setTasks(tasksData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch tasks');
+      setError(err instanceof Error ? err.message : "Failed to fetch tasks");
     } finally {
       setLoading(false);
     }
@@ -122,7 +122,7 @@ export const useTasks = () => {
       return response.task;
     } catch (err) {
       throw new Error(
-        err instanceof Error ? err.message : 'Failed to create task'
+        err instanceof Error ? err.message : "Failed to create task",
       );
     }
   }, []);
@@ -133,7 +133,7 @@ export const useTasks = () => {
       setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
     } catch (err) {
       throw new Error(
-        err instanceof Error ? err.message : 'Failed to delete task'
+        err instanceof Error ? err.message : "Failed to delete task",
       );
     }
   }, []);
@@ -144,7 +144,7 @@ export const useTasks = () => {
       // Task status will be updated via WebSocket
     } catch (err) {
       throw new Error(
-        err instanceof Error ? err.message : 'Failed to cancel task'
+        err instanceof Error ? err.message : "Failed to cancel task",
       );
     }
   }, []);
@@ -166,7 +166,7 @@ export const useTasks = () => {
       });
     };
 
-    const unsubTaskUpdate = eventBus.on('task:updated', handleTaskUpdate);
+    const unsubTaskUpdate = eventBus.on("task:updated", handleTaskUpdate);
 
     return () => {
       unsubTaskUpdate();

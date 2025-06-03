@@ -1,43 +1,43 @@
 // WebSocket status indicator component
-import React from 'react';
-import { useWebSocket } from '../../../hooks/useWebSocket';
-import './WebSocketStatus.css';
+import React from "react";
+import { useWebSocket } from "../../../hooks/useWebSocket";
+import "./WebSocketStatus.css";
 
 const WebSocketStatus: React.FC = () => {
   const { connectionState, isConnected, connect, disconnect } = useWebSocket();
 
   const getStatusInfo = () => {
     switch (connectionState) {
-      case 'connected':
+      case "connected":
         return {
-          icon: '🟢',
-          text: 'Connected',
-          className: 'ws-status--connected',
+          icon: "🟢",
+          text: "Connected",
+          className: "ws-status--connected",
         };
-      case 'connecting':
+      case "connecting":
         return {
-          icon: '🟡',
-          text: 'Connecting...',
-          className: 'ws-status--connecting',
+          icon: "🟡",
+          text: "Connecting...",
+          className: "ws-status--connecting",
         };
-      case 'reconnecting':
+      case "reconnecting":
         return {
-          icon: '🟠',
-          text: 'Reconnecting...',
-          className: 'ws-status--reconnecting',
+          icon: "🟠",
+          text: "Reconnecting...",
+          className: "ws-status--reconnecting",
         };
-      case 'failed':
+      case "failed":
         return {
-          icon: '🔴',
-          text: 'Connection failed',
-          className: 'ws-status--failed',
+          icon: "🔴",
+          text: "Connection failed",
+          className: "ws-status--failed",
         };
-      case 'disconnected':
+      case "disconnected":
       default:
         return {
-          icon: '⚫',
-          text: 'Disconnected',
-          className: 'ws-status--disconnected',
+          icon: "⚫",
+          text: "Disconnected",
+          className: "ws-status--disconnected",
         };
     }
   };
@@ -54,19 +54,19 @@ const WebSocketStatus: React.FC = () => {
 
   return (
     <div className={`ws-status ${statusInfo.className}`}>
-      <div className='ws-status__indicator'>
-        <span className='ws-status__icon'>{statusInfo.icon}</span>
-        <span className='ws-status__text'>{statusInfo.text}</span>
+      <div className="ws-status__indicator">
+        <span className="ws-status__icon">{statusInfo.icon}</span>
+        <span className="ws-status__text">{statusInfo.text}</span>
       </div>
       <button
-        className='ws-status__toggle'
+        className="ws-status__toggle"
         onClick={handleToggleConnection}
         disabled={
-          connectionState === 'connecting' || connectionState === 'reconnecting'
+          connectionState === "connecting" || connectionState === "reconnecting"
         }
-        title={isConnected ? 'Disconnect WebSocket' : 'Connect WebSocket'}
+        title={isConnected ? "Disconnect WebSocket" : "Connect WebSocket"}
       >
-        {isConnected ? 'Disconnect' : 'Connect'}
+        {isConnected ? "Disconnect" : "Connect"}
       </button>
     </div>
   );

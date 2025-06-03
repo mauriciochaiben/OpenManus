@@ -8,17 +8,17 @@ export interface WebSocketMessage {
 }
 
 export type WebSocketConnectionState =
-  | 'connecting'
-  | 'connected'
-  | 'disconnected'
-  | 'reconnecting'
-  | 'failed';
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "reconnecting"
+  | "failed";
 
 // Simple Event Emitter for browser compatibility
 class SimpleEventEmitter {
-  private events: { [key: string]: Function[] } = {};
+  private events: { [key: string]: ((...args: any[]) => void)[] } = {};
 
-  on(event: string, listener: Function): void {
+  on(event: string, listener: (...args: any[]) => void): void {
     if (!this.events[event]) {
       this.events[event] = [];
     }
@@ -31,7 +31,7 @@ class SimpleEventEmitter {
     }
   }
 
-  off(event: string, listener: Function): void {
+  off(event: string, listener: (...args: any[]) => void): void {
     if (this.events[event]) {
       this.events[event] = this.events[event].filter((l) => l !== listener);
     }
@@ -47,7 +47,7 @@ export class RobustWebSocket extends SimpleEventEmitter {
   private heartbeatInterval = 30000;
   private heartbeatTimer?: number;
   private reconnectTimer?: number;
-  private connectionState: WebSocketConnectionState = 'disconnected';
+  private connectionState: WebSocketConnectionState = "disconnected";
   private isManuallyDisconnected = false;
 
   constructor(url: string) {
@@ -64,13 +64,13 @@ export class RobustWebSocket extends SimpleEventEmitter {
     }
 
     this.isManuallyDisconnected = false;
-    this.setConnectionState('connecting');
+    this.setConnectionState("connecting");
 
     try {
       this.ws = new WebSocket(this.url);
       this.setupEventListeners();
     } catch (error) {
-      console.error('Failed to create WebSocket connection:', error);
+      console.error("Failed to create WebSocket connection:", error);
       this.handleConnectionError();
     }
   }
@@ -79,9 +79,9 @@ export class RobustWebSocket extends SimpleEventEmitter {
     this.isManuallyDisconnected = true;
     this.cleanup();
     if (this.ws) {
-      this.ws.close(1000, 'Manual disconnect');
+      this.ws.close(1000, "Manual disconnect");
     }
-    this.setConnectionState('disconnected');
+    this.setConnectionState("disconnected");
   }
 
   send(message: WebSocketMessage): boolean {
@@ -93,11 +93,11 @@ export class RobustWebSocket extends SimpleEventEmitter {
           id: this.generateMessageId(),
         };
         this.ws.send(JSON.stringify(messageWithTimestamp));
-        this.emit('messageSent', messageWithTimestamp);
+        this.emit("messageSent", messageWithTimestamp);
         return true;
       } catch (error) {
-        console.error('Failed to send message:', error);
-        this.emit('sendError', error);
+        console.error("Failed to send message:", error);
+        this.emit("sendError", error);
         return false;
       }
     }
@@ -109,40 +109,40 @@ export class RobustWebSocket extends SimpleEventEmitter {
   }
 
   isConnected(): boolean {
-    return this.connectionState === 'connected';
+    return this.connectionState === "connected";
   }
 
   private setupEventListeners(): void {
     if (!this.ws) return;
 
     this.ws.onopen = () => {
-      console.log('WebSocket connected');
+      console.log("WebSocket connected");
       this.reconnectAttempts = 0;
-      this.setConnectionState('connected');
+      this.setConnectionState("connected");
       this.startHeartbeat();
-      this.emit('connected');
+      this.emit("connected");
     };
 
     this.ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        this.emit('message', message);
+        this.emit("message", message);
 
         // Handle heartbeat response
-        if (message.type === 'pong') {
-          this.emit('heartbeat');
+        if (message.type === "pong") {
+          this.emit("heartbeat");
         }
       } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
-        this.emit('parseError', error);
+        console.error("Failed to parse WebSocket message:", error);
+        this.emit("parseError", error);
       }
     };
 
     this.ws.onclose = (event) => {
-      console.log('WebSocket closed:', event.code, event.reason);
+      console.log("WebSocket closed:", event.code, event.reason);
       this.cleanup();
-      this.setConnectionState('disconnected');
-      this.emit('disconnected', { code: event.code, reason: event.reason });
+      this.setConnectionState("disconnected");
+      this.emit("disconnected", { code: event.code, reason: event.reason });
 
       if (!this.isManuallyDisconnected && event.code !== 1000) {
         this.scheduleReconnect();
@@ -150,8 +150,8 @@ export class RobustWebSocket extends SimpleEventEmitter {
     };
 
     this.ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      this.emit('error', error);
+      console.error("WebSocket error:", error);
+      this.emit("error", error);
       this.handleConnectionError();
     };
   }
@@ -160,14 +160,14 @@ export class RobustWebSocket extends SimpleEventEmitter {
     if (this.connectionState !== state) {
       const previousState = this.connectionState;
       this.connectionState = state;
-      this.emit('stateChange', { from: previousState, to: state });
+      this.emit("stateChange", { from: previousState, to: state });
     }
   }
 
   private startHeartbeat(): void {
     this.heartbeatTimer = window.setInterval(() => {
       if (this.ws?.readyState === WebSocket.OPEN) {
-        this.send({ type: 'ping', data: {} });
+        this.send({ type: "ping", data: {} });
       }
     }, this.heartbeatInterval);
   }
@@ -185,23 +185,23 @@ export class RobustWebSocket extends SimpleEventEmitter {
 
   private scheduleReconnect(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('Max reconnection attempts reached');
-      this.setConnectionState('failed');
-      this.emit('maxReconnectAttemptsReached');
+      console.error("Max reconnection attempts reached");
+      this.setConnectionState("failed");
+      this.emit("maxReconnectAttemptsReached");
       return;
     }
 
     this.reconnectAttempts++;
-    this.setConnectionState('reconnecting');
+    this.setConnectionState("reconnecting");
 
     const delay =
       this.reconnectInterval * Math.pow(1.5, this.reconnectAttempts - 1);
     console.log(
-      `Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+      `Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
     );
 
     this.reconnectTimer = window.setTimeout(() => {
-      this.emit('reconnecting', this.reconnectAttempts);
+      this.emit("reconnecting", this.reconnectAttempts);
       this.connect();
     }, delay);
   }
@@ -230,45 +230,45 @@ export class EventBus extends SimpleEventEmitter {
 
   // Task-related events
   emitTaskCreated(task: any): void {
-    this.emit('task:created', task);
+    this.emit("task:created", task);
   }
 
   emitTaskUpdated(task: any): void {
-    this.emit('task:updated', task);
+    this.emit("task:updated", task);
   }
 
   emitTaskCompleted(task: any): void {
-    this.emit('task:completed', task);
+    this.emit("task:completed", task);
   }
 
   emitTaskFailed(task: any, error: any): void {
-    this.emit('task:failed', { task, error });
+    this.emit("task:failed", { task, error });
   }
 
   emitTaskProgress(taskId: string, progress: number): void {
-    this.emit('task:progress', { taskId, progress });
+    this.emit("task:progress", { taskId, progress });
   }
 
   // WebSocket-related events
   emitWebSocketConnected(): void {
-    this.emit('websocket:connected');
+    this.emit("websocket:connected");
   }
 
   emitWebSocketDisconnected(reason?: string): void {
-    this.emit('websocket:disconnected', reason);
+    this.emit("websocket:disconnected", reason);
   }
 
   emitWebSocketError(error: any): void {
-    this.emit('websocket:error', error);
+    this.emit("websocket:error", error);
   }
 
   // Notification events
   emitNotification(notification: any): void {
-    this.emit('notification:show', notification);
+    this.emit("notification:show", notification);
   }
 
   emitNotificationClear(notificationId: string): void {
-    this.emit('notification:clear', notificationId);
+    this.emit("notification:clear", notificationId);
   }
 }
 
@@ -305,54 +305,54 @@ export class WebSocketManager {
 
   private setupEventHandlers(): void {
     // WebSocket events
-    this.ws.on('connected', () => {
-      console.log('WebSocket manager: Connected');
+    this.ws.on("connected", () => {
+      console.log("WebSocket manager: Connected");
       this.eventBus.emitWebSocketConnected();
     });
 
-    this.ws.on('disconnected', (event: any) => {
-      console.log('WebSocket manager: Disconnected');
+    this.ws.on("disconnected", (event: any) => {
+      console.log("WebSocket manager: Disconnected");
       this.eventBus.emitWebSocketDisconnected(event.reason);
     });
 
-    this.ws.on('error', (error: any) => {
-      console.error('WebSocket manager: Error', error);
+    this.ws.on("error", (error: any) => {
+      console.error("WebSocket manager: Error", error);
       this.eventBus.emitWebSocketError(error);
     });
 
-    this.ws.on('message', (message: WebSocketMessage) => {
+    this.ws.on("message", (message: WebSocketMessage) => {
       this.handleIncomingMessage(message);
     });
 
-    this.ws.on('stateChange', (change: any) => {
+    this.ws.on("stateChange", (change: any) => {
       console.log(`WebSocket state changed: ${change.from} -> ${change.to}`);
-      this.eventBus.emit('websocket:stateChange', change);
+      this.eventBus.emit("websocket:stateChange", change);
     });
   }
 
   private handleIncomingMessage(message: WebSocketMessage): void {
-    console.log('Received WebSocket message:', message);
+    console.log("Received WebSocket message:", message);
 
     switch (message.type) {
-      case 'task_created':
+      case "task_created":
         this.eventBus.emitTaskCreated(message.data);
         break;
-      case 'task_updated':
+      case "task_updated":
         this.eventBus.emitTaskUpdated(message.data);
         break;
-      case 'task_completed':
+      case "task_completed":
         this.eventBus.emitTaskCompleted(message.data);
         break;
-      case 'task_failed':
+      case "task_failed":
         this.eventBus.emitTaskFailed(message.data.task, message.data.error);
         break;
-      case 'task_progress':
+      case "task_progress":
         this.eventBus.emitTaskProgress(
           message.data.taskId,
-          message.data.progress
+          message.data.progress,
         );
         break;
-      case 'notification':
+      case "notification":
         this.eventBus.emitNotification(message.data);
         break;
       default:
@@ -368,6 +368,6 @@ const clientId = `frontend-alt-${Date.now()}-${Math.random()
   .toString(36)
   .substr(2, 9)}`;
 export const webSocketManager = new WebSocketManager(
-  `ws://localhost:8000/api/v2/chat/ws/${clientId}`
+  `ws://localhost:8000/api/v2/chat/ws/${clientId}`,
 );
 export const eventBus = EventBus.getInstance();

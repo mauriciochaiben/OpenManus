@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Input, Button, Space, Typography, Badge, Tooltip, Affix } from 'antd';
-import { SendOutlined, BookOutlined, UpOutlined } from '@ant-design/icons';
-import { SourceSelector } from '../../features/knowledge/components';
+import React, { useState } from "react";
+import { Input, Button, Space, Typography, Badge, Tooltip, Affix } from "antd";
+import { SendOutlined, BookOutlined, UpOutlined } from "@ant-design/icons";
+import { SourceSelector } from "../../features/knowledge/components";
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -17,9 +17,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
   onSendMessage,
   loading = false,
   disabled = false,
-  placeholder = 'Type your message or describe a task...',
+  placeholder = "Type your message or describe a task...",
 }) => {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([]);
   const [showKnowledgeContext, setShowKnowledgeContext] = useState(false);
 
@@ -27,15 +27,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
     if (message.trim()) {
       onSendMessage(
         message.trim(),
-        selectedSourceIds.length > 0 ? selectedSourceIds : undefined
+        selectedSourceIds.length > 0 ? selectedSourceIds : undefined,
       );
-      setMessage('');
+      setMessage("");
       // Keep source selection for convenience
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -49,20 +49,20 @@ const ChatInput: React.FC<ChatInputProps> = ({
     if (selectedSourceIds.length === 0) return null;
 
     return (
-      <div style={{ marginTop: '8px' }}>
-        <Space size='small'>
-          <BookOutlined style={{ color: '#1890ff', fontSize: '12px' }} />
-          <Text type='secondary' style={{ fontSize: '12px' }}>
+      <div style={{ marginTop: "8px" }}>
+        <Space size="small">
+          <BookOutlined style={{ color: "#1890ff", fontSize: "12px" }} />
+          <Text type="secondary" style={{ fontSize: "12px" }}>
             Using {selectedSourceIds.length} knowledge source
-            {selectedSourceIds.length !== 1 ? 's' : ''} for context
+            {selectedSourceIds.length !== 1 ? "s" : ""} for context
           </Text>
           <Button
-            type='link'
-            size='small'
+            type="link"
+            size="small"
             onClick={toggleKnowledgeContext}
-            style={{ fontSize: '12px', padding: 0 }}
+            style={{ fontSize: "12px", padding: 0 }}
           >
-            {showKnowledgeContext ? 'Hide' : 'Manage'}
+            {showKnowledgeContext ? "Hide" : "Manage"}
           </Button>
         </Space>
       </div>
@@ -73,13 +73,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
     <Affix offsetBottom={0}>
       <div
         style={{
-          background: '#fff',
-          borderTop: '1px solid #f0f0f0',
-          padding: '16px',
+          background: "#fff",
+          borderTop: "1px solid #f0f0f0",
+          padding: "16px",
         }}
       >
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <Space direction='vertical' style={{ width: '100%' }} size='small'>
+        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+          <Space direction="vertical" style={{ width: "100%" }} size="small">
             {/* Knowledge context selector - shown when expanded */}
             {showKnowledgeContext && (
               <SourceSelector
@@ -87,7 +87,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 onSelectionChange={setSelectedSourceIds}
                 showCard={true}
                 compact={true}
-                placeholder='Select documents to provide context for better responses'
+                placeholder="Select documents to provide context for better responses"
               />
             )}
 
@@ -96,7 +96,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             {/* Main input area */}
             <div
-              style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}
+              style={{ display: "flex", gap: "8px", alignItems: "flex-end" }}
             >
               <div style={{ flex: 1 }}>
                 <TextArea
@@ -107,50 +107,50 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   disabled={disabled || loading}
                   autoSize={{ minRows: 1, maxRows: 4 }}
                   style={{
-                    borderRadius: '8px',
-                    resize: 'none',
+                    borderRadius: "8px",
+                    resize: "none",
                   }}
                 />
               </div>
 
-              <Space direction='vertical' size='small'>
+              <Space direction="vertical" size="small">
                 <Tooltip
                   title={
                     showKnowledgeContext
-                      ? 'Hide knowledge context'
-                      : 'Add knowledge context'
+                      ? "Hide knowledge context"
+                      : "Add knowledge context"
                   }
                 >
                   <Button
-                    type={selectedSourceIds.length > 0 ? 'primary' : 'default'}
+                    type={selectedSourceIds.length > 0 ? "primary" : "default"}
                     ghost={selectedSourceIds.length > 0}
                     icon={
                       showKnowledgeContext ? <UpOutlined /> : <BookOutlined />
                     }
                     onClick={toggleKnowledgeContext}
                     disabled={disabled}
-                    size='small'
+                    size="small"
                   >
                     {selectedSourceIds.length > 0 && (
                       <Badge
                         count={selectedSourceIds.length}
-                        size='small'
+                        size="small"
                         offset={[2, -2]}
-                        style={{ fontSize: '10px' }}
+                        style={{ fontSize: "10px" }}
                       />
                     )}
                   </Button>
                 </Tooltip>
 
-                <Tooltip title='Send message'>
+                <Tooltip title="Send message">
                   <Button
-                    type='primary'
+                    type="primary"
                     icon={<SendOutlined />}
                     onClick={handleSend}
                     disabled={disabled || loading || !message.trim()}
                     loading={loading}
-                    size='large'
-                    style={{ borderRadius: '8px' }}
+                    size="large"
+                    style={{ borderRadius: "8px" }}
                   >
                     Send
                   </Button>
@@ -161,21 +161,21 @@ const ChatInput: React.FC<ChatInputProps> = ({
             {/* Hint text */}
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
               }}
             >
-              <Text type='secondary' style={{ fontSize: '11px' }}>
+              <Text type="secondary" style={{ fontSize: "11px" }}>
                 Press Shift+Enter for new line, Enter to send
               </Text>
 
               {selectedSourceIds.length === 0 && (
                 <Button
-                  type='link'
-                  size='small'
+                  type="link"
+                  size="small"
                   onClick={toggleKnowledgeContext}
-                  style={{ fontSize: '11px', padding: 0 }}
+                  style={{ fontSize: "11px", padding: 0 }}
                 >
                   + Add knowledge context
                 </Button>

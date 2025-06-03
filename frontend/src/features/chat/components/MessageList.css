@@ -262,7 +262,7 @@
 
 /* Speech Bubbles */
 .user-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 16px;
   right: -8px;
@@ -274,7 +274,7 @@
 }
 
 .assistant-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 16px;
   left: -8px;

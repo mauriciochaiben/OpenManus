@@ -4,10 +4,10 @@
  */
 
 // Clipboard utilities
-export * from './clipboard';
+export * from "./clipboard";
 
 // Text and data formatters
-export * from './formatters';
+export * from "./formatters";
 
 // Validation utilities
-export * from './validation';
+export * from "./validation";

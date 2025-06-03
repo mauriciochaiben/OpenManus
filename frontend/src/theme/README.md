@@ -58,7 +58,7 @@ Arquivo de exportação centralizada para facilitar importações.
 ### Usando o Tema em Componentes
 
 ```tsx
-import { useTheme } from '@/theme';
+import { useTheme } from "@/theme";
 
 function MyComponent() {
   const { isDark, toggleTheme } = useTheme();
@@ -66,7 +66,7 @@ function MyComponent() {
   return (
     <div>
       <Button onClick={toggleTheme}>
-        Alternar para tema {isDark ? 'claro' : 'escuro'}
+        Alternar para tema {isDark ? "claro" : "escuro"}
       </Button>
     </div>
   );

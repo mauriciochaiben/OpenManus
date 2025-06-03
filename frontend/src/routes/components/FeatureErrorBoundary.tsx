@@ -1,6 +1,6 @@
-import React from 'react';
-import { Result, Button } from 'antd';
-import { ReloadOutlined, HomeOutlined } from '@ant-design/icons';
+import React from "react";
+import { Result, Button } from "antd";
+import { ReloadOutlined, HomeOutlined } from "@ant-design/icons";
 
 interface FeatureErrorBoundaryState {
   hasError: boolean;
@@ -37,7 +37,7 @@ class FeatureErrorBoundary extends React.Component<
     console.error(
       `Error in feature "${this.props.featureName}":`,
       error,
-      errorInfo
+      errorInfo,
     );
   }
 
@@ -46,29 +46,29 @@ class FeatureErrorBoundary extends React.Component<
   };
 
   handleGoHome = () => {
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   render() {
     if (this.state.hasError) {
       return (
         <Result
-          status='error'
+          status="error"
           title={`Erro na feature ${this.props.featureName}`}
-          subTitle='Algo deu errado ao carregar esta funcionalidade. Tente recarregar a página ou voltar ao início.'
+          subTitle="Algo deu errado ao carregar esta funcionalidade. Tente recarregar a página ou voltar ao início."
           extra={[
             <Button
-              type='primary'
+              type="primary"
               icon={<ReloadOutlined />}
               onClick={this.handleReload}
-              key='reload'
+              key="reload"
             >
               Recarregar Página
             </Button>,
             <Button
               icon={<HomeOutlined />}
               onClick={this.handleGoHome}
-              key='home'
+              key="home"
             >
               Voltar ao Início
             </Button>,

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -9,8 +9,8 @@ import {
   useReactFlow,
   ConnectionMode,
   SelectionMode,
-} from 'reactflow';
-import { Card, Space, Button, Typography, Tooltip } from 'antd';
+} from "reactflow";
+import { Card, Space, Button, Typography, Tooltip } from "antd";
 import {
   ZoomInOutlined,
   ZoomOutOutlined,
@@ -20,15 +20,15 @@ import {
   PlayCircleOutlined,
   StopOutlined,
   ClearOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 
-import { useCanvasStore } from '../store/canvasStore';
-import { CanvasNode, CanvasEdge } from '../types';
-import { nodeTypes } from './nodes';
-import { useCanvasWebSocket } from '../hooks/useCanvasWebSocket';
+import { useCanvasStore } from "../store/canvasStore";
+import { CanvasNode, CanvasEdge } from "../types";
+import { nodeTypes } from "./nodes";
+import { useCanvasWebSocket } from "../hooks/useCanvasWebSocket";
 
 // Import ReactFlow CSS
-import 'reactflow/dist/style.css';
+import "reactflow/dist/style.css";
 
 const { Text } = Typography;
 
@@ -42,7 +42,7 @@ interface CanvasWorkspaceProps {
 
 const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
   className,
-  height = '100vh',
+  height = "100vh",
   readOnly = false,
   onSave,
   onExecute,
@@ -89,7 +89,7 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
     (viewport: any) => {
       setViewport(viewport);
     },
-    [setViewport]
+    [setViewport],
   );
 
   // Handle node selection
@@ -140,36 +140,36 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
       if (readOnly) return;
 
       // Clear selection
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         clearSelection();
       }
 
       // Save (Ctrl+S)
-      if (event.ctrlKey && event.key === 's') {
+      if (event.ctrlKey && event.key === "s") {
         event.preventDefault();
         handleSave();
       }
 
       // Execute (Ctrl+Enter)
-      if (event.ctrlKey && event.key === 'Enter') {
+      if (event.ctrlKey && event.key === "Enter") {
         event.preventDefault();
         handleExecute();
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [readOnly, clearSelection, handleSave, handleExecute]);
 
-  const isExecuting = execution?.status === 'running';
+  const isExecuting = execution?.status === "running";
 
   return (
     <div
       className={className}
       style={{
-        width: '100%',
-        height: typeof height === 'number' ? `${height}px` : height,
-        position: 'relative',
+        width: "100%",
+        height: typeof height === "number" ? `${height}px` : height,
+        position: "relative",
       }}
       ref={reactFlowWrapper}
     >
@@ -185,22 +185,22 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
         connectionMode={ConnectionMode.Loose}
         selectionMode={SelectionMode.Partial}
         fitView
-        attributionPosition='bottom-left'
+        attributionPosition="bottom-left"
         proOptions={{ hideAttribution: true }}
         deleteKeyCode={null} // Handle delete with custom logic
-        multiSelectionKeyCode='Shift'
-        selectionKeyCode='Shift'
+        multiSelectionKeyCode="Shift"
+        selectionKeyCode="Shift"
         panOnDrag={!readOnly}
         nodesConnectable={!readOnly}
         nodesDraggable={!readOnly}
         elementsSelectable={!readOnly}
       >
         {/* Background */}
-        <Background gap={20} size={1} color='#f0f0f0' />
+        <Background gap={20} size={1} color="#f0f0f0" />
 
         {/* Controls */}
         <Controls
-          position='bottom-left'
+          position="bottom-left"
           showZoom={true}
           showFitView={true}
           showInteractive={true}
@@ -208,54 +208,54 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
 
         {/* Mini Map */}
         <MiniMap
-          position='bottom-right'
+          position="bottom-right"
           nodeColor={(node) => {
             switch (node.data?.status) {
-              case 'running':
-                return '#1890ff';
-              case 'completed':
-                return '#52c41a';
-              case 'failed':
-                return '#ff4d4f';
+              case "running":
+                return "#1890ff";
+              case "completed":
+                return "#52c41a";
+              case "failed":
+                return "#ff4d4f";
               default:
-                return '#d9d9d9';
+                return "#d9d9d9";
             }
           }}
-          maskColor='rgba(0, 0, 0, 0.1)'
+          maskColor="rgba(0, 0, 0, 0.1)"
           pannable
           zoomable
         />
 
         {/* Top Control Panel */}
-        <Panel position='top-left'>
-          <Card size='small' style={{ minWidth: '300px' }}>
+        <Panel position="top-left">
+          <Card size="small" style={{ minWidth: "300px" }}>
             <Space>
               <Space.Compact>
-                <Tooltip title='Zoom In'>
+                <Tooltip title="Zoom In">
                   <Button
                     icon={<ZoomInOutlined />}
-                    size='small'
+                    size="small"
                     onClick={handleZoomIn}
                   />
                 </Tooltip>
-                <Tooltip title='Zoom Out'>
+                <Tooltip title="Zoom Out">
                   <Button
                     icon={<ZoomOutOutlined />}
-                    size='small'
+                    size="small"
                     onClick={handleZoomOut}
                   />
                 </Tooltip>
-                <Tooltip title='Fit View'>
+                <Tooltip title="Fit View">
                   <Button
                     icon={<FullscreenOutlined />}
-                    size='small'
+                    size="small"
                     onClick={handleFitView}
                   />
                 </Tooltip>
-                <Tooltip title='Center'>
+                <Tooltip title="Center">
                   <Button
                     icon={<AimOutlined />}
-                    size='small'
+                    size="small"
                     onClick={handleZoomToFit}
                   />
                 </Tooltip>
@@ -263,36 +263,36 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
 
               {!readOnly && (
                 <>
-                  <Tooltip title='Save Workflow (Ctrl+S)'>
+                  <Tooltip title="Save Workflow (Ctrl+S)">
                     <Button
                       icon={<SaveOutlined />}
-                      size='small'
-                      type='primary'
+                      size="small"
+                      type="primary"
                       onClick={handleSave}
                     >
                       Save
                     </Button>
                   </Tooltip>
 
-                  <Tooltip title='Execute Workflow (Ctrl+Enter)'>
+                  <Tooltip title="Execute Workflow (Ctrl+Enter)">
                     <Button
                       icon={
                         isExecuting ? <StopOutlined /> : <PlayCircleOutlined />
                       }
-                      size='small'
-                      type={isExecuting ? 'default' : 'primary'}
+                      size="small"
+                      type={isExecuting ? "default" : "primary"}
                       loading={isExecuting}
                       onClick={handleExecute}
                       disabled={nodes.length === 0}
                     >
-                      {isExecuting ? 'Stop' : 'Execute'}
+                      {isExecuting ? "Stop" : "Execute"}
                     </Button>
                   </Tooltip>
 
-                  <Tooltip title='Clear Canvas'>
+                  <Tooltip title="Clear Canvas">
                     <Button
                       icon={<ClearOutlined />}
-                      size='small'
+                      size="small"
                       danger
                       onClick={handleClear}
                       disabled={nodes.length === 0}
@@ -307,17 +307,17 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
         </Panel>
 
         {/* Status Panel */}
-        <Panel position='top-right'>
-          <Card size='small'>
-            <Space direction='vertical' size='small'>
-              <Text type='secondary' style={{ fontSize: '12px' }}>
+        <Panel position="top-right">
+          <Card size="small">
+            <Space direction="vertical" size="small">
+              <Text type="secondary" style={{ fontSize: "12px" }}>
                 Nodes: {nodes.length} | Edges: {edges.length}
               </Text>
 
               {execution && (
                 <Text
-                  type={execution.status === 'failed' ? 'danger' : 'success'}
-                  style={{ fontSize: '12px' }}
+                  type={execution.status === "failed" ? "danger" : "success"}
+                  style={{ fontSize: "12px" }}
                 >
                   Status: {execution.status}
                 </Text>
@@ -327,17 +327,17 @@ const CanvasContent: React.FC<CanvasWorkspaceProps> = ({
         </Panel>
 
         {/* Connection Status Panel */}
-        <Panel position='top-center'>
+        <Panel position="top-center">
           {!isConnected && (
             <Card
-              size='small'
+              size="small"
               style={{
-                backgroundColor: '#fff2f0',
-                border: '1px solid #ffccc7',
+                backgroundColor: "#fff2f0",
+                border: "1px solid #ffccc7",
               }}
             >
               <Space>
-                <Text type='danger' style={{ fontSize: '12px' }}>
+                <Text type="danger" style={{ fontSize: "12px" }}>
                   WebSocket disconnected - Real-time updates unavailable
                 </Text>
               </Space>

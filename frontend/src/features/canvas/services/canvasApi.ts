@@ -4,12 +4,12 @@
  * Provides functions to interact with canvas and workflow endpoints
  */
 
-import axios from 'axios';
-import { CanvasNode, CanvasEdge } from '../types';
+import axios from "axios";
+import { CanvasNode, CanvasEdge } from "../types";
 
 // API base configuration
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const CANVAS_API_BASE = `${API_BASE_URL}/api/v1/canvas`;
 const WORKFLOW_API_BASE = `${API_BASE_URL}/api/v1/workflows`;
 
@@ -18,14 +18,14 @@ const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Response interfaces
 interface NodeExecutionResponse {
   id: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   result?: string;
   error?: string;
   execution_time?: number;
@@ -33,7 +33,7 @@ interface NodeExecutionResponse {
 
 interface WorkflowExecutionResponse {
   workflow_id: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   nodes: Record<string, NodeExecutionResponse>;
 }
 
@@ -49,20 +49,20 @@ export const createNode = async (node: CanvasNode): Promise<CanvasNode> => {
         type: node.type,
         position: node.position,
         data: node.data,
-      }
+      },
     );
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Nó criado com sucesso!');
+    const { message } = await import("antd");
+    message.success("Nó criado com sucesso!");
 
     return response.data;
   } catch (error) {
-    console.error('Error creating node:', error);
+    console.error("Error creating node:", error);
 
     // Feedback de erro
-    const { message } = await import('antd');
-    message.error('Erro ao criar nó. Tente novamente.');
+    const { message } = await import("antd");
+    message.error("Erro ao criar nó. Tente novamente.");
 
     throw error;
   }
@@ -73,25 +73,25 @@ export const createNode = async (node: CanvasNode): Promise<CanvasNode> => {
  */
 export const updateNode = async (
   nodeId: string,
-  updates: Partial<CanvasNode>
+  updates: Partial<CanvasNode>,
 ): Promise<CanvasNode> => {
   try {
     const response = await apiClient.put<CanvasNode>(
       `${CANVAS_API_BASE}/nodes/${nodeId}`,
-      updates
+      updates,
     );
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Nó atualizado com sucesso!');
+    const { message } = await import("antd");
+    message.success("Nó atualizado com sucesso!");
 
     return response.data;
   } catch (error) {
-    console.error('Error updating node:', error);
+    console.error("Error updating node:", error);
 
     // Feedback de erro
-    const { message } = await import('antd');
-    message.error('Erro ao atualizar nó. Tente novamente.');
+    const { message } = await import("antd");
+    message.error("Erro ao atualizar nó. Tente novamente.");
 
     throw error;
   }
@@ -105,14 +105,14 @@ export const deleteNode = async (nodeId: string): Promise<void> => {
     await apiClient.delete(`${CANVAS_API_BASE}/nodes/${nodeId}`);
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Nó excluído com sucesso!');
+    const { message } = await import("antd");
+    message.success("Nó excluído com sucesso!");
   } catch (error) {
-    console.error('Error deleting node:', error);
+    console.error("Error deleting node:", error);
 
     // Feedback de erro
-    const { message } = await import('antd');
-    message.error('Erro ao excluir nó. Tente novamente.');
+    const { message } = await import("antd");
+    message.error("Erro ao excluir nó. Tente novamente.");
 
     throw error;
   }
@@ -124,7 +124,7 @@ export const deleteNode = async (nodeId: string): Promise<void> => {
 export const executePromptNode = async (
   nodeId: string,
   prompt: string,
-  sourceIds?: string[]
+  sourceIds?: string[],
 ): Promise<NodeExecutionResponse> => {
   try {
     const response = await apiClient.post<NodeExecutionResponse>(
@@ -132,20 +132,20 @@ export const executePromptNode = async (
       {
         prompt,
         source_ids: sourceIds,
-      }
+      },
     );
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Execução do nó iniciada com sucesso!');
+    const { message } = await import("antd");
+    message.success("Execução do nó iniciada com sucesso!");
 
     return response.data;
   } catch (error) {
-    console.error('Error executing prompt node:', error);
+    console.error("Error executing prompt node:", error);
 
     // Feedback de erro
-    const { message } = await import('antd');
-    message.error('Erro ao executar nó. Tente novamente.');
+    const { message } = await import("antd");
+    message.error("Erro ao executar nó. Tente novamente.");
 
     throw error;
   }
@@ -156,14 +156,14 @@ export const executePromptNode = async (
  */
 export const executeCanvasWorkflow = async (
   nodes: CanvasNode[],
-  edges: CanvasEdge[]
+  edges: CanvasEdge[],
 ): Promise<WorkflowExecutionResponse> => {
   try {
     const response = await apiClient.post<WorkflowExecutionResponse>(
       `${WORKFLOW_API_BASE}/canvas`,
       {
-        title: 'Canvas Workflow',
-        description: 'Workflow executed from canvas',
+        title: "Canvas Workflow",
+        description: "Workflow executed from canvas",
         nodes: nodes.map((node) => ({
           id: node.id,
           type: node.type,
@@ -174,23 +174,23 @@ export const executeCanvasWorkflow = async (
           target: edge.target,
           type: edge.type,
         })),
-      }
+      },
     );
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Execução do workflow iniciada com sucesso!');
+    const { message } = await import("antd");
+    message.success("Execução do workflow iniciada com sucesso!");
 
     return response.data;
   } catch (error) {
-    console.error('Error executing canvas workflow:', error);
+    console.error("Error executing canvas workflow:", error);
 
     // Feedback de erro
-    const { message } = await import('antd');
-    message.error('Erro ao executar workflow. Tente novamente.');
+    const { message } = await import("antd");
+    message.error("Erro ao executar workflow. Tente novamente.");
 
     throw error;
   }
 };
 
-export * from '../types';
+export * from "../types";

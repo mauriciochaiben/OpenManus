@@ -160,12 +160,12 @@ Cada feature deve ter um `index.ts` que re-exporta tudo:
 
 ```typescript
 // feature/index.ts
-export * from './components';
-export * from './hooks';
-export * from './services';
-export * from './store';
-export * from './types';
-export * from './utils';
+export * from "./components";
+export * from "./hooks";
+export * from "./services";
+export * from "./store";
+export * from "./types";
+export * from "./utils";
 ```
 
 ## Boas Práticas

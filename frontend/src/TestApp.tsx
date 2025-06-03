@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 
 const TestApp: React.FC = () => {
   return (
     <div
       style={{
-        padding: '20px',
-        backgroundColor: '#f0f0f0',
-        minHeight: '100vh',
+        padding: "20px",
+        backgroundColor: "#f0f0f0",
+        minHeight: "100vh",
       }}
     >
       <h1>TESTE - OpenManus Frontend</h1>

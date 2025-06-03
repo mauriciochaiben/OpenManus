@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Table,
@@ -13,7 +13,7 @@ import {
   message,
   Popconfirm,
   Alert,
-} from 'antd';
+} from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -21,14 +21,14 @@ import {
   ReloadOutlined,
   PlayCircleOutlined,
   PauseCircleOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 import {
   getMCPServers,
   createMCPServer,
   updateMCPServer,
   deleteMCPServer,
-} from '../services/api';
-import type { MCPServer, MCPServerConfig } from '../types';
+} from "../services/api";
+import type { MCPServer, MCPServerConfig } from "../types";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -46,7 +46,7 @@ const MCPConfigPage: React.FC = () => {
       const response = await getMCPServers();
       setServers(response);
     } catch (error) {
-      message.error('Failed to load MCP servers');
+      message.error("Failed to load MCP servers");
     } finally {
       setLoading(false);
     }
@@ -81,22 +81,22 @@ const MCPConfigPage: React.FC = () => {
         host: values.host,
         port: values.port,
         enabled: values.enabled || false,
-        description: values.description || '',
+        description: values.description || "",
       };
 
       if (editingServer) {
         await updateMCPServer(editingServer.id, serverData);
-        message.success('MCP server updated successfully');
+        message.success("MCP server updated successfully");
       } else {
         await createMCPServer(serverData);
-        message.success('MCP server created successfully');
+        message.success("MCP server created successfully");
       }
 
       setModalVisible(false);
       loadServers();
     } catch (error) {
       message.error(
-        `Failed to ${editingServer ? 'update' : 'create'} MCP server`
+        `Failed to ${editingServer ? "update" : "create"} MCP server`,
       );
     }
   };
@@ -104,10 +104,10 @@ const MCPConfigPage: React.FC = () => {
   const handleDeleteServer = async (serverId: string) => {
     try {
       await deleteMCPServer(serverId);
-      message.success('MCP server deleted successfully');
+      message.success("MCP server deleted successfully");
       loadServers();
     } catch (error) {
-      message.error('Failed to delete MCP server');
+      message.error("Failed to delete MCP server");
     }
   };
 
@@ -117,23 +117,23 @@ const MCPConfigPage: React.FC = () => {
         ...server,
         enabled: !server.enabled,
       });
-      message.success(`MCP server ${!server.enabled ? 'enabled' : 'disabled'}`);
+      message.success(`MCP server ${!server.enabled ? "enabled" : "disabled"}`);
       loadServers();
     } catch (error) {
-      message.error('Failed to toggle MCP server');
+      message.error("Failed to toggle MCP server");
     }
   };
 
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
       render: (text: string, record: MCPServer) => (
-        <Space direction='vertical' size='small'>
+        <Space direction="vertical" size="small">
           <Text strong>{text}</Text>
           {record.description && (
-            <Text type='secondary' style={{ fontSize: '12px' }}>
+            <Text type="secondary" style={{ fontSize: "12px" }}>
               {record.description}
             </Text>
           )}
@@ -141,8 +141,8 @@ const MCPConfigPage: React.FC = () => {
       ),
     },
     {
-      title: 'Host:Port',
-      key: 'endpoint',
+      title: "Host:Port",
+      key: "endpoint",
       render: (record: MCPServer) => (
         <Text code>
           {record.host}:{record.port}
@@ -150,73 +150,73 @@ const MCPConfigPage: React.FC = () => {
       ),
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
       render: (status: string, record: MCPServer) => {
         const getStatusColor = () => {
-          if (!record.enabled) return 'default';
+          if (!record.enabled) return "default";
           switch (status) {
-            case 'connected':
-              return 'success';
-            case 'connecting':
-              return 'processing';
-            case 'error':
-              return 'error';
+            case "connected":
+              return "success";
+            case "connecting":
+              return "processing";
+            case "error":
+              return "error";
             default:
-              return 'warning';
+              return "warning";
           }
         };
 
         return (
           <Space>
             <Tag color={getStatusColor()}>
-              {record.enabled ? status?.toUpperCase() || 'UNKNOWN' : 'DISABLED'}
+              {record.enabled ? status?.toUpperCase() || "UNKNOWN" : "DISABLED"}
             </Tag>
           </Space>
         );
       },
     },
     {
-      title: 'Last Seen',
-      dataIndex: 'last_seen',
-      key: 'last_seen',
+      title: "Last Seen",
+      dataIndex: "last_seen",
+      key: "last_seen",
       render: (lastSeen: string) => {
-        if (!lastSeen) return <Text type='secondary'>Never</Text>;
+        if (!lastSeen) return <Text type="secondary">Never</Text>;
         const date = new Date(lastSeen);
-        return <Text type='secondary'>{date.toLocaleString()}</Text>;
+        return <Text type="secondary">{date.toLocaleString()}</Text>;
       },
     },
     {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
       render: (record: MCPServer) => (
         <Space>
           <Button
-            type='text'
+            type="text"
             icon={
               record.enabled ? <PauseCircleOutlined /> : <PlayCircleOutlined />
             }
             onClick={() => handleToggleServer(record)}
-            title={record.enabled ? 'Disable' : 'Enable'}
+            title={record.enabled ? "Disable" : "Enable"}
           />
           <Button
-            type='text'
+            type="text"
             icon={<EditOutlined />}
             onClick={() => handleEditServer(record)}
-            title='Edit'
+            title="Edit"
           />
           <Popconfirm
-            title='Are you sure you want to delete this MCP server?'
+            title="Are you sure you want to delete this MCP server?"
             onConfirm={() => handleDeleteServer(record.id)}
-            okText='Yes'
-            cancelText='No'
+            okText="Yes"
+            cancelText="No"
           >
             <Button
-              type='text'
+              type="text"
               icon={<DeleteOutlined />}
               danger
-              title='Delete'
+              title="Delete"
             />
           </Popconfirm>
         </Space>
@@ -225,19 +225,19 @@ const MCPConfigPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px', marginLeft: '250px' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <Space direction='vertical' style={{ width: '100%' }} size='large'>
+    <div style={{ padding: "24px", marginLeft: "250px" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+        <Space direction="vertical" style={{ width: "100%" }} size="large">
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
             <div>
               <Title level={2}>MCP Server Configuration</Title>
-              <Text type='secondary'>
+              <Text type="secondary">
                 Manage Model Context Protocol servers for enhanced AI
                 capabilities
               </Text>
@@ -251,7 +251,7 @@ const MCPConfigPage: React.FC = () => {
                 Refresh
               </Button>
               <Button
-                type='primary'
+                type="primary"
                 icon={<PlusOutlined />}
                 onClick={handleCreateServer}
               >
@@ -261,9 +261,9 @@ const MCPConfigPage: React.FC = () => {
           </div>
 
           <Alert
-            message='About MCP Servers'
+            message="About MCP Servers"
             description="Model Context Protocol (MCP) servers extend the AI assistant's capabilities by providing access to external tools, data sources, and services. Configure and manage your MCP servers here."
-            type='info'
+            type="info"
             showIcon
           />
 
@@ -271,7 +271,7 @@ const MCPConfigPage: React.FC = () => {
             <Table
               columns={columns}
               dataSource={servers}
-              rowKey='id'
+              rowKey="id"
               loading={loading}
               pagination={{
                 pageSize: 10,
@@ -282,56 +282,56 @@ const MCPConfigPage: React.FC = () => {
           </Card>
 
           <Modal
-            title={editingServer ? 'Edit MCP Server' : 'Add MCP Server'}
+            title={editingServer ? "Edit MCP Server" : "Add MCP Server"}
             open={modalVisible}
             onOk={() => form.submit()}
             onCancel={() => setModalVisible(false)}
-            okText={editingServer ? 'Update' : 'Create'}
+            okText={editingServer ? "Update" : "Create"}
             width={600}
           >
-            <Form form={form} layout='vertical' onFinish={handleSubmit}>
+            <Form form={form} layout="vertical" onFinish={handleSubmit}>
               <Form.Item
-                label='Server Name'
-                name='name'
+                label="Server Name"
+                name="name"
                 rules={[
-                  { required: true, message: 'Please enter a server name' },
+                  { required: true, message: "Please enter a server name" },
                 ]}
               >
-                <Input placeholder='e.g., File Manager, Database Connector' />
+                <Input placeholder="e.g., File Manager, Database Connector" />
               </Form.Item>
 
               <Form.Item
-                label='Host'
-                name='host'
-                rules={[{ required: true, message: 'Please enter the host' }]}
+                label="Host"
+                name="host"
+                rules={[{ required: true, message: "Please enter the host" }]}
               >
-                <Input placeholder='localhost or IP address' />
+                <Input placeholder="localhost or IP address" />
               </Form.Item>
 
               <Form.Item
-                label='Port'
-                name='port'
+                label="Port"
+                name="port"
                 rules={[
-                  { required: true, message: 'Please enter the port' },
+                  { required: true, message: "Please enter the port" },
                   {
-                    type: 'number',
+                    type: "number",
                     min: 1,
                     max: 65535,
-                    message: 'Port must be between 1 and 65535',
+                    message: "Port must be between 1 and 65535",
                   },
                 ]}
               >
-                <Input type='number' placeholder='8080' />
+                <Input type="number" placeholder="8080" />
               </Form.Item>
 
-              <Form.Item label='Description' name='description'>
+              <Form.Item label="Description" name="description">
                 <TextArea
                   rows={3}
-                  placeholder='Optional description of what this MCP server provides'
+                  placeholder="Optional description of what this MCP server provides"
                 />
               </Form.Item>
 
-              <Form.Item label='Enabled' name='enabled' valuePropName='checked'>
+              <Form.Item label="Enabled" name="enabled" valuePropName="checked">
                 <Switch />
               </Form.Item>
             </Form>

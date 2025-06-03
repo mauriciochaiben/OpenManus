@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Card,
   Progress,
@@ -8,7 +8,7 @@ import {
   Tag,
   Alert,
   Spin,
-} from 'antd';
+} from "antd";
 import {
   PlayCircleOutlined,
   PauseCircleOutlined,
@@ -16,10 +16,10 @@ import {
   ExclamationCircleOutlined,
   ClockCircleOutlined,
   RobotOutlined,
-} from '@ant-design/icons';
-import { useTask } from '../../hooks/useTasks';
-import { eventBus } from '../../utils/eventBus';
-import type { ExecutionStep, TaskExecution } from '../../types';
+} from "@ant-design/icons";
+import { useTask } from "../../hooks/useTasks";
+import { eventBus } from "../../utils/eventBus";
+import type { ExecutionStep, TaskExecution } from "../../types";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -36,7 +36,7 @@ const TaskExecutionDashboard: React.FC<TaskExecutionDashboardProps> = ({
 
   useEffect(() => {
     // Subscribe to task updates using EventBus
-    const unsubscribeTask = eventBus.on('task:updated', (data: any) => {
+    const unsubscribeTask = eventBus.on("task:updated", (data: any) => {
       if (data.task_id === taskId) {
         // Task data will be automatically updated through React Query
       }
@@ -44,20 +44,20 @@ const TaskExecutionDashboard: React.FC<TaskExecutionDashboardProps> = ({
 
     // Subscribe to execution updates
     const unsubscribeExecution = eventBus.on(
-      'task:executionUpdated',
+      "task:executionUpdated",
       (data: any) => {
         if (data.task_id === taskId) {
           setExecution(data.execution);
         }
-      }
+      },
     );
 
     // Subscribe to step updates
-    const unsubscribeStep = eventBus.on('task:stepUpdated', (data: any) => {
+    const unsubscribeStep = eventBus.on("task:stepUpdated", (data: any) => {
       if (data.task_id === taskId) {
         setSteps((prev) => {
           const existingIndex = prev.findIndex(
-            (step) => step.id === data.step.id
+            (step) => step.id === data.step.id,
           );
           if (existingIndex >= 0) {
             const newSteps = [...prev];
@@ -65,7 +65,7 @@ const TaskExecutionDashboard: React.FC<TaskExecutionDashboardProps> = ({
             return newSteps;
           } else {
             return [...prev, data.step].sort(
-              (a, b) => a.step_number - b.step_number
+              (a, b) => a.step_number - b.step_number,
             );
           }
         });
@@ -81,9 +81,9 @@ const TaskExecutionDashboard: React.FC<TaskExecutionDashboardProps> = ({
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px' }}>
-        <Spin size='large' />
-        <p style={{ marginTop: '16px' }}>Loading task execution...</p>
+      <div style={{ textAlign: "center", padding: "40px" }}>
+        <Spin size="large" />
+        <p style={{ marginTop: "16px" }}>Loading task execution...</p>
       </div>
     );
   }
@@ -91,9 +91,9 @@ const TaskExecutionDashboard: React.FC<TaskExecutionDashboardProps> = ({
   if (error || !task) {
     return (
       <Alert
-        message='Error'
-        description='Failed to load task execution data'
-        type='error'
+        message="Error"
+        description="Failed to load task execution data"
+        type="error"
         showIcon
       />
     );
@@ -101,67 +101,67 @@ const TaskExecutionDashboard: React.FC<TaskExecutionDashboardProps> = ({
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'running':
-        return <PlayCircleOutlined style={{ color: '#1890ff' }} />;
-      case 'paused':
-        return <PauseCircleOutlined style={{ color: '#faad14' }} />;
-      case 'completed':
-        return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
-      case 'failed':
-        return <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />;
+      case "running":
+        return <PlayCircleOutlined style={{ color: "#1890ff" }} />;
+      case "paused":
+        return <PauseCircleOutlined style={{ color: "#faad14" }} />;
+      case "completed":
+        return <CheckCircleOutlined style={{ color: "#52c41a" }} />;
+      case "failed":
+        return <ExclamationCircleOutlined style={{ color: "#ff4d4f" }} />;
       default:
-        return <ClockCircleOutlined style={{ color: '#d9d9d9' }} />;
+        return <ClockCircleOutlined style={{ color: "#d9d9d9" }} />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'running':
-        return 'processing';
-      case 'paused':
-        return 'warning';
-      case 'completed':
-        return 'success';
-      case 'failed':
-        return 'error';
+      case "running":
+        return "processing";
+      case "paused":
+        return "warning";
+      case "completed":
+        return "success";
+      case "failed":
+        return "error";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   const calculateProgress = () => {
     if (!execution || steps.length === 0) return 0;
     const completedSteps = steps.filter(
-      (step) => step.status === 'completed'
+      (step) => step.status === "completed",
     ).length;
     return Math.round((completedSteps / steps.length) * 100);
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Space direction='vertical' style={{ width: '100%' }} size='large'>
+    <div style={{ padding: "24px" }}>
+      <Space direction="vertical" style={{ width: "100%" }} size="large">
         {/* Task Header */}
         <Card>
-          <Space direction='vertical' style={{ width: '100%' }}>
+          <Space direction="vertical" style={{ width: "100%" }}>
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
               }}
             >
               <div style={{ flex: 1 }}>
                 <Title level={3} style={{ margin: 0 }}>
                   {task.title}
                 </Title>
-                <Paragraph style={{ marginTop: '8px', marginBottom: '16px' }}>
+                <Paragraph style={{ marginTop: "8px", marginBottom: "16px" }}>
                   {task.description}
                 </Paragraph>
                 <Space>
                   <Tag color={getStatusColor(task.status)}>
                     {getStatusIcon(task.status)} {task.status.toUpperCase()}
                   </Tag>
-                  <Tag color='blue'>{task.complexity.toUpperCase()}</Tag>
+                  <Tag color="blue">{task.complexity.toUpperCase()}</Tag>
                   {/* <Tag color="purple">{task.priority?.toUpperCase()}</Tag> */}
                 </Space>
               </div>
@@ -171,13 +171,13 @@ const TaskExecutionDashboard: React.FC<TaskExecutionDashboardProps> = ({
 
         {/* Execution Progress */}
         {execution && (
-          <Card title='Execution Progress'>
-            <Space direction='vertical' style={{ width: '100%' }}>
+          <Card title="Execution Progress">
+            <Space direction="vertical" style={{ width: "100%" }}>
               <div
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
                 <Text strong>Overall Progress</Text>
@@ -185,27 +185,27 @@ const TaskExecutionDashboard: React.FC<TaskExecutionDashboardProps> = ({
               </div>
               <Progress
                 percent={calculateProgress()}
-                status={task.status === 'error' ? 'exception' : 'active'}
+                status={task.status === "error" ? "exception" : "active"}
                 strokeColor={{
-                  '0%': '#108ee9',
-                  '100%': '#87d068',
+                  "0%": "#108ee9",
+                  "100%": "#87d068",
                 }}
               />
 
               <div
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  marginTop: '16px',
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginTop: "16px",
                 }}
               >
                 <div>
-                  <Text type='secondary'>Started: </Text>
+                  <Text type="secondary">Started: </Text>
                   <Text>{new Date(execution.started_at).toLocaleString()}</Text>
                 </div>
                 {execution.completed_at && (
                   <div>
-                    <Text type='secondary'>Completed: </Text>
+                    <Text type="secondary">Completed: </Text>
                     <Text>
                       {new Date(execution.completed_at).toLocaleString()}
                     </Text>
@@ -218,28 +218,28 @@ const TaskExecutionDashboard: React.FC<TaskExecutionDashboardProps> = ({
 
         {/* Execution Steps */}
         {steps.length > 0 && (
-          <Card title='Execution Steps'>
+          <Card title="Execution Steps">
             <Timeline>
               {steps.map((step) => (
                 <Timeline.Item
                   key={step.id}
                   dot={getStatusIcon(step.status)}
                   color={
-                    step.status === 'completed'
-                      ? 'green'
-                      : step.status === 'failed'
-                        ? 'red'
-                        : step.status === 'running'
-                          ? 'blue'
-                          : 'gray'
+                    step.status === "completed"
+                      ? "green"
+                      : step.status === "failed"
+                        ? "red"
+                        : step.status === "running"
+                          ? "blue"
+                          : "gray"
                   }
                 >
-                  <Space direction='vertical' style={{ width: '100%' }}>
+                  <Space direction="vertical" style={{ width: "100%" }}>
                     <div
                       style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
                       <Text strong>
@@ -251,24 +251,24 @@ const TaskExecutionDashboard: React.FC<TaskExecutionDashboardProps> = ({
                     </div>
 
                     {step.description && (
-                      <Text type='secondary'>{step.description}</Text>
+                      <Text type="secondary">{step.description}</Text>
                     )}
 
                     {step.agent_name && (
                       <div>
-                        <RobotOutlined style={{ marginRight: '8px' }} />
+                        <RobotOutlined style={{ marginRight: "8px" }} />
                         <Text>Executed by: {step.agent_name}</Text>
                       </div>
                     )}
 
                     {step.started_at && (
                       <div>
-                        <Text type='secondary' style={{ fontSize: '12px' }}>
+                        <Text type="secondary" style={{ fontSize: "12px" }}>
                           Started: {new Date(step.started_at).toLocaleString()}
                           {step.completed_at && (
                             <>
-                              {' '}
-                              • Completed:{' '}
+                              {" "}
+                              • Completed:{" "}
                               {new Date(step.completed_at).toLocaleString()}
                             </>
                           )}
@@ -278,21 +278,21 @@ const TaskExecutionDashboard: React.FC<TaskExecutionDashboardProps> = ({
 
                     {step.error_message && (
                       <Alert
-                        message='Error'
+                        message="Error"
                         description={step.error_message}
-                        type='error'
+                        type="error"
                         showIcon
                       />
                     )}
 
                     {step.output && step.output.trim() && (
                       <Card
-                        size='small'
-                        style={{ background: '#f5f5f5', marginTop: '8px' }}
+                        size="small"
+                        style={{ background: "#f5f5f5", marginTop: "8px" }}
                       >
                         <Text
                           code
-                          style={{ whiteSpace: 'pre-wrap', fontSize: '12px' }}
+                          style={{ whiteSpace: "pre-wrap", fontSize: "12px" }}
                         >
                           {step.output}
                         </Text>

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Routes } from 'react-router-dom';
-import { CoreRoutes, FeatureRoutes, ConfigRoutes } from './routeGroups';
+import React from "react";
+import { Routes } from "react-router-dom";
+import { CoreRoutes, FeatureRoutes, ConfigRoutes } from "./routeGroups";
 
 /**
  * Configuração principal de rotas com lazy loading

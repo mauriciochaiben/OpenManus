@@ -1,8 +1,8 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Space } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import TaskExecutionDashboard from '../components/features/TaskExecutionDashboard';
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Button, Space } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
+import TaskExecutionDashboard from "../components/features/TaskExecutionDashboard";
 
 const TaskDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,10 +13,10 @@ const TaskDetailPage: React.FC = () => {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <Space style={{ marginBottom: '24px' }}>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/')}>
+    <div style={{ minHeight: "100vh", background: "#f5f5f5" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+        <Space style={{ marginBottom: "24px" }}>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/")}>
             Back to Home
           </Button>
         </Space>

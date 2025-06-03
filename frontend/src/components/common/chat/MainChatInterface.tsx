@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   Input,
   Button,
@@ -11,7 +11,7 @@ import {
   Dropdown,
   Progress,
   type MenuProps,
-} from 'antd';
+} from "antd";
 import {
   SendOutlined,
   RobotOutlined,
@@ -23,18 +23,18 @@ import {
   ThunderboltOutlined,
   ApiOutlined,
   MoreOutlined,
-} from '@ant-design/icons';
-import { chatApi } from '../../../services/api';
-import { webSocketManager } from '../../../services/websocket';
-import { eventBus } from '../../../utils/eventBus';
-import type { ChatMessage } from '../../../types';
-import { MessageList } from '../../../features/chat/components';
+} from "@ant-design/icons";
+import { chatApi } from "../../../services/api";
+import { webSocketManager } from "../../../services/websocket";
+import { eventBus } from "../../../utils/eventBus";
+import type { ChatMessage } from "../../../types";
+import { MessageList } from "../../../features/chat/components";
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
 
 interface ProcessingStatus {
-  type: 'single' | 'multi' | 'mcp' | null;
+  type: "single" | "multi" | "mcp" | null;
   stage: string;
   progress: number;
   agents?: string[];
@@ -42,12 +42,12 @@ interface ProcessingStatus {
 
 const MainChatInterface: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [processingStatus, setProcessingStatus] = useState<ProcessingStatus>({
     type: null,
-    stage: '',
+    stage: "",
     progress: 0,
   });
   const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
@@ -55,7 +55,7 @@ const MainChatInterface: React.FC = () => {
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // Initialize WebSocket connection and load chat history
@@ -64,18 +64,18 @@ const MainChatInterface: React.FC = () => {
     initializeWebSocket();
 
     // Listen to WebSocket events
-    const unsubscribeConnected = eventBus.on('websocket:connected', () => {
+    const unsubscribeConnected = eventBus.on("websocket:connected", () => {
       setIsWebSocketConnected(true);
     });
 
     const unsubscribeDisconnected = eventBus.on(
-      'websocket:disconnected',
+      "websocket:disconnected",
       () => {
         setIsWebSocketConnected(false);
-      }
+      },
     );
 
-    const unsubscribeMessage = eventBus.on('websocket:message', (data: any) => {
+    const unsubscribeMessage = eventBus.on("websocket:message", (data: any) => {
       handleWebSocketMessage(data);
     });
 
@@ -90,17 +90,17 @@ const MainChatInterface: React.FC = () => {
     try {
       webSocketManager.connect();
     } catch (error) {
-      console.error('Failed to initialize WebSocket:', error);
+      console.error("Failed to initialize WebSocket:", error);
     }
   };
 
   const handleWebSocketMessage = (data: any) => {
-    if (data.type === 'chat_message') {
+    if (data.type === "chat_message") {
       // Real-time message received
       loadChatHistory(); // Refresh messages
-    } else if (data.type === 'task_progress') {
+    } else if (data.type === "task_progress") {
       // Update processing status with detailed information
-      const stage = data.stage || data.description || 'Processando...';
+      const stage = data.stage || data.description || "Processando...";
       const progress = data.progress || 0;
       const agents = data.agents || [];
       const execution_type = data.execution_type || null;
@@ -119,23 +119,23 @@ const MainChatInterface: React.FC = () => {
         progress: Math.min(100, Math.max(0, progress)),
         agents: agents,
       });
-    } else if (data.type === 'task_completed') {
+    } else if (data.type === "task_completed") {
       // Clear processing status
-      setProcessingStatus({ type: null, stage: '', progress: 0 });
+      setProcessingStatus({ type: null, stage: "", progress: 0 });
       // Reload messages to show final result
       loadChatHistory();
-    } else if (data.type === 'task_failed') {
+    } else if (data.type === "task_failed") {
       // Show error status
       setProcessingStatus({
         type: null,
-        stage: 'Erro no processamento',
+        stage: "Erro no processamento",
         progress: 0,
         agents: [],
       });
       // Reload messages to show error
       setTimeout(() => {
         loadChatHistory();
-        setProcessingStatus({ type: null, stage: '', progress: 0 });
+        setProcessingStatus({ type: null, stage: "", progress: 0 });
       }, 2000);
     }
   };
@@ -147,9 +147,9 @@ const MainChatInterface: React.FC = () => {
         // Add welcome message if no history
         setMessages([
           {
-            id: '1',
-            role: 'assistant',
-            content: 'Como posso ajudá-lo hoje? 💭',
+            id: "1",
+            role: "assistant",
+            content: "Como posso ajudá-lo hoje? 💭",
             timestamp: new Date().toISOString(),
           },
         ]);
@@ -157,13 +157,13 @@ const MainChatInterface: React.FC = () => {
         setMessages(history);
       }
     } catch (error) {
-      console.error('Error loading chat history:', error);
+      console.error("Error loading chat history:", error);
       // Add welcome message if error
       setMessages([
         {
-          id: '1',
-          role: 'assistant',
-          content: 'Como posso ajudá-lo hoje? 💭',
+          id: "1",
+          role: "assistant",
+          content: "Como posso ajudá-lo hoje? 💭",
           timestamp: new Date().toISOString(),
         },
       ]);
@@ -174,13 +174,13 @@ const MainChatInterface: React.FC = () => {
     if (!inputValue.trim() || isLoading) return;
 
     const userMessage = inputValue.trim();
-    setInputValue('');
+    setInputValue("");
     setIsLoading(true);
 
     // Initialize processing status - will be updated by WebSocket
     setProcessingStatus({
       type: null,
-      stage: 'Iniciando processamento...',
+      stage: "Iniciando processamento...",
       progress: 5,
     });
 
@@ -199,11 +199,11 @@ const MainChatInterface: React.FC = () => {
       }
 
       // Clear processing status
-      setProcessingStatus({ type: null, stage: '', progress: 0 });
+      setProcessingStatus({ type: null, stage: "", progress: 0 });
     } catch (error) {
-      console.error('Error sending message:', error);
-      message.error('Erro ao enviar mensagem. Tente novamente.');
-      setProcessingStatus({ type: null, stage: '', progress: 0 });
+      console.error("Error sending message:", error);
+      message.error("Erro ao enviar mensagem. Tente novamente.");
+      setProcessingStatus({ type: null, stage: "", progress: 0 });
     } finally {
       setIsLoading(false);
     }
@@ -219,23 +219,23 @@ const MainChatInterface: React.FC = () => {
       await chatApi.clearHistory();
       setMessages([
         {
-          id: '1',
-          role: 'assistant',
-          content: 'Como posso ajudá-lo hoje? 💭',
+          id: "1",
+          role: "assistant",
+          content: "Como posso ajudá-lo hoje? 💭",
           timestamp: new Date().toISOString(),
         },
       ]);
       setSuggestions([]);
-      setProcessingStatus({ type: null, stage: '', progress: 0 });
-      message.success('Histórico de chat limpo!');
+      setProcessingStatus({ type: null, stage: "", progress: 0 });
+      message.success("Histórico de chat limpo!");
     } catch (error) {
-      console.error('Error clearing chat:', error);
-      message.error('Erro ao limpar chat.');
+      console.error("Error clearing chat:", error);
+      message.error("Erro ao limpar chat.");
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -243,11 +243,11 @@ const MainChatInterface: React.FC = () => {
 
   const getExecutionTypeIcon = (type: string) => {
     switch (type) {
-      case 'single':
+      case "single":
         return <RobotOutlined />;
-      case 'multi':
+      case "multi":
         return <BranchesOutlined />;
-      case 'mcp':
+      case "mcp":
         return <ApiOutlined />;
       default:
         return <ThunderboltOutlined />;
@@ -256,34 +256,34 @@ const MainChatInterface: React.FC = () => {
 
   const getExecutionTypeLabel = (type: string) => {
     switch (type) {
-      case 'single':
-        return 'Agente Único';
-      case 'multi':
-        return 'Multi-Agentes';
-      case 'mcp':
-        return 'Protocolo MCP';
+      case "single":
+        return "Agente Único";
+      case "multi":
+        return "Multi-Agentes";
+      case "mcp":
+        return "Protocolo MCP";
       default:
-        return 'Processando';
+        return "Processando";
     }
   };
 
-  const menuItems: MenuProps['items'] = [
+  const menuItems: MenuProps["items"] = [
     {
-      key: 'history',
-      label: 'Histórico Completo',
+      key: "history",
+      label: "Histórico Completo",
       icon: <HistoryOutlined />,
     },
     {
-      key: 'settings',
-      label: 'Configurações',
+      key: "settings",
+      label: "Configurações",
       icon: <SettingOutlined />,
     },
     {
-      type: 'divider',
+      type: "divider",
     },
     {
-      key: 'clear',
-      label: 'Limpar Conversa',
+      key: "clear",
+      label: "Limpar Conversa",
       icon: <ClearOutlined />,
       danger: true,
       onClick: handleClearChat,
@@ -291,34 +291,34 @@ const MainChatInterface: React.FC = () => {
   ];
 
   return (
-    <div className='main-chat-container'>
+    <div className="main-chat-container">
       {/* Chat Header */}
-      <div className='chat-header'>
-        <div className='chat-title'>
+      <div className="chat-header">
+        <div className="chat-title">
           <Space>
-            <div className='chat-logo'>
+            <div className="chat-logo">
               <RobotOutlined />
             </div>
             <div>
-              <Title level={4} style={{ margin: 0, color: 'white' }}>
+              <Title level={4} style={{ margin: 0, color: "white" }}>
                 OpenManus AI
               </Title>
-              <div className='connection-status'>
+              <div className="connection-status">
                 <Badge
-                  status={isWebSocketConnected ? 'success' : 'error'}
-                  text={isWebSocketConnected ? 'Conectado' : 'Desconectado'}
+                  status={isWebSocketConnected ? "success" : "error"}
+                  text={isWebSocketConnected ? "Conectado" : "Desconectado"}
                 />
               </div>
             </div>
           </Space>
         </div>
 
-        <div className='chat-actions'>
-          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+        <div className="chat-actions">
+          <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
             <Button
-              type='text'
+              type="text"
               icon={<MoreOutlined />}
-              style={{ color: 'white' }}
+              style={{ color: "white" }}
             />
           </Dropdown>
         </div>
@@ -326,18 +326,18 @@ const MainChatInterface: React.FC = () => {
 
       {/* Processing Status */}
       {(isLoading || processingStatus.type) && (
-        <div className='processing-status'>
-          <Space direction='vertical' style={{ width: '100%' }}>
+        <div className="processing-status">
+          <Space direction="vertical" style={{ width: "100%" }}>
             <Space>
               {processingStatus.type &&
                 getExecutionTypeIcon(processingStatus.type)}
-              <Spin size='small' />
+              <Spin size="small" />
               <Text strong>
                 {processingStatus.type
                   ? `${getExecutionTypeLabel(processingStatus.type)} - ${
                       processingStatus.stage
                     }`
-                  : processingStatus.stage || 'Processando...'}
+                  : processingStatus.stage || "Processando..."}
               </Text>
             </Space>
 
@@ -345,8 +345,8 @@ const MainChatInterface: React.FC = () => {
             {processingStatus.progress > 0 && (
               <Progress
                 percent={processingStatus.progress}
-                size='small'
-                status='active'
+                size="small"
+                status="active"
                 showInfo={true}
                 format={(percent) => `${percent}%`}
               />
@@ -354,12 +354,12 @@ const MainChatInterface: React.FC = () => {
 
             {/* Active Agents */}
             {processingStatus.agents && processingStatus.agents.length > 0 && (
-              <div className='active-agents'>
-                <Text type='secondary' style={{ marginRight: 8 }}>
+              <div className="active-agents">
+                <Text type="secondary" style={{ marginRight: 8 }}>
                   Agentes ativos:
                 </Text>
                 {processingStatus.agents.map((agent) => (
-                  <Tag key={agent} color='blue' icon={<RobotOutlined />}>
+                  <Tag key={agent} color="blue" icon={<RobotOutlined />}>
                     {agent}
                   </Tag>
                 ))}
@@ -370,14 +370,14 @@ const MainChatInterface: React.FC = () => {
       )}
 
       {/* Messages Area */}
-      <div className='messages-container'>
+      <div className="messages-container">
         <MessageList
           messages={messages}
           isLoading={isLoading}
           formatTime={(timestamp: string) => {
-            return new Date(timestamp).toLocaleTimeString('pt-BR', {
-              hour: '2-digit',
-              minute: '2-digit',
+            return new Date(timestamp).toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
             });
           }}
         />
@@ -386,14 +386,14 @@ const MainChatInterface: React.FC = () => {
 
       {/* Suggestions */}
       {suggestions.length > 0 && (
-        <div className='suggestions-container'>
+        <div className="suggestions-container">
           <Space size={[8, 8]} wrap>
-            <BulbOutlined className='suggestions-icon' />
-            <Text type='secondary'>Sugestões:</Text>
+            <BulbOutlined className="suggestions-icon" />
+            <Text type="secondary">Sugestões:</Text>
             {suggestions.map((suggestion, index) => (
               <Tag
                 key={index}
-                className='suggestion-tag'
+                className="suggestion-tag"
                 onClick={() => handleSuggestionClick(suggestion)}
               >
                 {suggestion}
@@ -404,26 +404,26 @@ const MainChatInterface: React.FC = () => {
       )}
 
       {/* Input Area */}
-      <div className='input-container'>
-        <div className='input-wrapper'>
+      <div className="input-container">
+        <div className="input-wrapper">
           <TextArea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder='Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)'
+            placeholder="Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"
             autoSize={{ minRows: 1, maxRows: 4 }}
-            className='message-input'
+            className="message-input"
             disabled={isLoading}
           />
           <Button
-            type='primary'
-            icon={isLoading ? <Spin size='small' /> : <SendOutlined />}
+            type="primary"
+            icon={isLoading ? <Spin size="small" /> : <SendOutlined />}
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || isLoading}
-            className='send-button'
-            size='large'
+            className="send-button"
+            size="large"
           >
-            {isLoading ? 'Enviando...' : 'Enviar'}
+            {isLoading ? "Enviando..." : "Enviar"}
           </Button>
         </div>
       </div>

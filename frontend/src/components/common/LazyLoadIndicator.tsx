@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { notification } from 'antd';
-import { CheckCircleOutlined } from '@ant-design/icons';
+import React, { useEffect } from "react";
+import { notification } from "antd";
+import { CheckCircleOutlined } from "@ant-design/icons";
 
 interface LazyLoadEvent {
   componentName: string;
@@ -15,27 +15,27 @@ const LazyLoadIndicator: React.FC = () => {
       const { componentName, loadTime } = event.detail;
 
       // Mostrar notificação apenas em desenvolvimento
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         notification.success({
-          message: 'Componente Carregado',
+          message: "Componente Carregado",
           description: `${componentName} carregado em ${loadTime}ms`,
-          placement: 'bottomRight',
+          placement: "bottomRight",
           duration: 2,
-          icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+          icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
         });
       }
     };
 
     // Escutar eventos customizados de lazy loading
     window.addEventListener(
-      'lazy-component-loaded',
-      handleChunkLoad as EventListener
+      "lazy-component-loaded",
+      handleChunkLoad as EventListener,
     );
 
     return () => {
       window.removeEventListener(
-        'lazy-component-loaded',
-        handleChunkLoad as EventListener
+        "lazy-component-loaded",
+        handleChunkLoad as EventListener,
       );
     };
   }, []);
@@ -49,7 +49,7 @@ export default LazyLoadIndicator;
 export const reportLazyLoad = (componentName: string, startTime: number) => {
   const loadTime = performance.now() - startTime;
 
-  const event = new CustomEvent('lazy-component-loaded', {
+  const event = new CustomEvent("lazy-component-loaded", {
     detail: {
       componentName,
       loadTime: Math.round(loadTime),
@@ -59,7 +59,7 @@ export const reportLazyLoad = (componentName: string, startTime: number) => {
   window.dispatchEvent(event);
 
   // Log para desenvolvimento
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     console.log(`🚀 Lazy loaded: ${componentName} (${Math.round(loadTime)}ms)`);
   }
 };

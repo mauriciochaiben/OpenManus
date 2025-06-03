@@ -1,12 +1,12 @@
 // Tests for the Zustand task store
-import { describe, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { TaskFactory, ApiResponseFactory } from '../../factories';
-import { useTaskStore } from '../../../features/tasks/hooks/useTaskStore';
-import { taskService } from '../../../features/tasks/services';
+import { describe, expect, beforeEach, afterEach, vi } from "vitest";
+import { renderHook, act } from "@testing-library/react";
+import { TaskFactory, ApiResponseFactory } from "../../factories";
+import { useTaskStore } from "../../../features/tasks/hooks/useTaskStore";
+import { taskService } from "../../../features/tasks/services";
 
 // Mock the task service
-vi.mock('../../../features/tasks/services', () => ({
+vi.mock("../../../features/tasks/services", () => ({
   taskService: {
     getTasks: vi.fn(),
     getTask: vi.fn(),
@@ -28,7 +28,7 @@ const setupTestEnvironment = () => {
   };
 };
 
-describe('useTaskStore', () => {
+describe("useTaskStore", () => {
   let testEnv: any;
 
   beforeEach(() => {
@@ -47,8 +47,8 @@ describe('useTaskStore', () => {
     vi.clearAllMocks();
   });
 
-  describe('Initial State', () => {
-    it('should have correct initial state', () => {
+  describe("Initial State", () => {
+    it("should have correct initial state", () => {
       const { result } = renderHook(() => useTaskStore());
 
       expect(result.current.tasks).toEqual([]);
@@ -58,8 +58,8 @@ describe('useTaskStore', () => {
     });
   });
 
-  describe('fetchTasks', () => {
-    it('should fetch tasks successfully', async () => {
+  describe("fetchTasks", () => {
+    it("should fetch tasks successfully", async () => {
       const mockTasks = TaskFactory.createMultiple(3);
       const mockResponse = { success: true, data: mockTasks };
 
@@ -77,9 +77,9 @@ describe('useTaskStore', () => {
       expect(taskService.getTasks).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle fetch tasks error', async () => {
+    it("should handle fetch tasks error", async () => {
       const mockError = ApiResponseFactory.createErrorResponse(
-        'Failed to fetch tasks'
+        "Failed to fetch tasks",
       );
 
       (taskService.getTasks as any).mockResolvedValue(mockError);
@@ -91,13 +91,13 @@ describe('useTaskStore', () => {
       });
 
       expect(result.current.loading).toBe(false);
-      expect(result.current.error).toBe('Failed to fetch tasks');
+      expect(result.current.error).toBe("Failed to fetch tasks");
       expect(result.current.tasks).toEqual([]);
     });
 
-    it('should handle network error', async () => {
+    it("should handle network error", async () => {
       (taskService.getTasks as any).mockRejectedValue(
-        new Error('Network error')
+        new Error("Network error"),
       );
 
       const { result } = renderHook(() => useTaskStore());
@@ -107,11 +107,11 @@ describe('useTaskStore', () => {
       });
 
       expect(result.current.loading).toBe(false);
-      expect(result.current.error).toBe('Network error');
+      expect(result.current.error).toBe("Network error");
       expect(result.current.tasks).toEqual([]);
     });
 
-    it('should set loading state during fetch', async () => {
+    it("should set loading state during fetch", async () => {
       let resolvePromise: (value: any) => void;
       const promise = new Promise((resolve) => {
         resolvePromise = resolve;
@@ -137,9 +137,9 @@ describe('useTaskStore', () => {
     });
   });
 
-  describe('createTask', () => {
-    it('should create task successfully', async () => {
-      const taskData = { title: 'New Task', description: 'Test task' };
+  describe("createTask", () => {
+    it("should create task successfully", async () => {
+      const taskData = { title: "New Task", description: "Test task" };
       const newTask = TaskFactory.create(taskData);
       const mockResponse = { success: true, data: newTask };
 
@@ -159,10 +159,10 @@ describe('useTaskStore', () => {
       expect(taskService.createTask).toHaveBeenCalledWith(taskData);
     });
 
-    it('should handle create task error', async () => {
-      const taskData = { title: 'New Task', description: 'Test task' };
+    it("should handle create task error", async () => {
+      const taskData = { title: "New Task", description: "Test task" };
       const mockError = ApiResponseFactory.createErrorResponse(
-        'Failed to create task'
+        "Failed to create task",
       );
 
       (taskService.createTask as any).mockResolvedValue(mockError);
@@ -178,13 +178,13 @@ describe('useTaskStore', () => {
       });
 
       expect(result.current.loading).toBe(false);
-      expect(result.current.error).toBe('Failed to create task');
+      expect(result.current.error).toBe("Failed to create task");
       expect(result.current.tasks).toEqual([]);
     });
   });
 
-  describe('getTask', () => {
-    it('should get task successfully', async () => {
+  describe("getTask", () => {
+    it("should get task successfully", async () => {
       const task = TaskFactory.create();
       const mockResponse = { success: true, data: task };
 
@@ -204,10 +204,10 @@ describe('useTaskStore', () => {
       expect(taskService.getTask).toHaveBeenCalledWith(task.id);
     });
 
-    it('should handle get task error', async () => {
-      const taskId = 'test-task-id';
+    it("should handle get task error", async () => {
+      const taskId = "test-task-id";
       const mockError =
-        ApiResponseFactory.createErrorResponse('Task not found');
+        ApiResponseFactory.createErrorResponse("Task not found");
 
       (taskService.getTask as any).mockResolvedValue(mockError);
 
@@ -219,16 +219,16 @@ describe('useTaskStore', () => {
       });
 
       expect(result.current.loading).toBe(false);
-      expect(result.current.error).toBe('Task not found');
+      expect(result.current.error).toBe("Task not found");
       expect(result.current.currentTask).toBeNull();
       expect(retrievedTask).toBeNull();
     });
   });
 
-  describe('updateTask', () => {
-    it('should update task successfully', async () => {
+  describe("updateTask", () => {
+    it("should update task successfully", async () => {
       const existingTask = TaskFactory.create();
-      const updates = { title: 'Updated Task' };
+      const updates = { title: "Updated Task" };
       const updatedTask = { ...existingTask, ...updates };
       const mockResponse = { success: true, data: updatedTask };
 
@@ -254,15 +254,15 @@ describe('useTaskStore', () => {
       expect(result.current.currentTask).toEqual(updatedTask);
       expect(taskService.updateTask).toHaveBeenCalledWith(
         existingTask.id,
-        updates
+        updates,
       );
     });
   });
 
-  describe('executeTask', () => {
-    it('should execute task successfully', async () => {
+  describe("executeTask", () => {
+    it("should execute task successfully", async () => {
       const task = TaskFactory.create();
-      const runningTask = { ...task, status: 'running' as const };
+      const runningTask = { ...task, status: "running" as const };
       const mockResponse = { success: true, data: runningTask };
 
       useTaskStore.setState({
@@ -282,15 +282,15 @@ describe('useTaskStore', () => {
 
       expect(result.current.loading).toBe(false);
       expect(result.current.error).toBeNull();
-      expect(result.current.tasks[0].status).toBe('running');
+      expect(result.current.tasks[0].status).toBe("running");
       expect(taskService.executeTask).toHaveBeenCalledWith(task.id);
     });
   });
 
-  describe('cancelTask', () => {
-    it('should cancel task successfully', async () => {
+  describe("cancelTask", () => {
+    it("should cancel task successfully", async () => {
       const runningTask = TaskFactory.createInProgress();
-      const cancelledTask = { ...runningTask, status: 'error' as const };
+      const cancelledTask = { ...runningTask, status: "error" as const };
       const mockResponse = { success: true, data: cancelledTask };
 
       useTaskStore.setState({
@@ -310,17 +310,17 @@ describe('useTaskStore', () => {
 
       expect(result.current.loading).toBe(false);
       expect(result.current.error).toBeNull();
-      expect(result.current.tasks[0].status).toBe('error');
-      expect(result.current.currentTask?.status).toBe('error');
+      expect(result.current.tasks[0].status).toBe("error");
+      expect(result.current.currentTask?.status).toBe("error");
     });
   });
 
-  describe('deleteTask', () => {
-    it('should delete task successfully', async () => {
+  describe("deleteTask", () => {
+    it("should delete task successfully", async () => {
       const task = TaskFactory.create();
       const mockResponse = {
         success: true,
-        message: 'Operation successful',
+        message: "Operation successful",
         data: null,
       };
 
@@ -347,8 +347,8 @@ describe('useTaskStore', () => {
     });
   });
 
-  describe('setCurrentTask', () => {
-    it('should set current task', () => {
+  describe("setCurrentTask", () => {
+    it("should set current task", () => {
       const task = TaskFactory.create();
       const { result } = renderHook(() => useTaskStore());
 
@@ -359,7 +359,7 @@ describe('useTaskStore', () => {
       expect(result.current.currentTask).toEqual(task);
     });
 
-    it('should clear current task', () => {
+    it("should clear current task", () => {
       const task = TaskFactory.create();
       useTaskStore.setState({ currentTask: task });
 
@@ -373,9 +373,9 @@ describe('useTaskStore', () => {
     });
   });
 
-  describe('clearError', () => {
-    it('should clear error', () => {
-      useTaskStore.setState({ error: 'Test error' });
+  describe("clearError", () => {
+    it("should clear error", () => {
+      useTaskStore.setState({ error: "Test error" });
 
       const { result } = renderHook(() => useTaskStore());
 

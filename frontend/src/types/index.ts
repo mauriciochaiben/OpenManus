@@ -3,9 +3,9 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  complexity: 'simple' | 'complex';
-  mode: 'auto' | 'single' | 'multi';
-  status: 'pending' | 'running' | 'completed' | 'error';
+  complexity: "simple" | "complex";
+  mode: "auto" | "single" | "multi";
+  status: "pending" | "running" | "completed" | "error";
   createdAt: string;
   completedAt?: string;
   result?: string;
@@ -18,7 +18,7 @@ export interface TaskStep {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'running' | 'completed' | 'error';
+  status: "pending" | "running" | "completed" | "error";
   startedAt?: string;
   completedAt?: string;
   result?: string;
@@ -31,7 +31,7 @@ export interface UploadedDocument {
   size: number;
   type: string;
   url?: string;
-  status: 'uploading' | 'uploaded' | 'processing' | 'processed' | 'error';
+  status: "uploading" | "uploaded" | "processing" | "processed" | "error";
   extractedText?: string;
   error?: string;
 }
@@ -39,7 +39,7 @@ export interface UploadedDocument {
 export interface LogEntry {
   id: string;
   timestamp: string;
-  level: 'info' | 'warning' | 'error' | 'success';
+  level: "info" | "warning" | "error" | "success";
   message: string;
   source?: string;
 }
@@ -48,7 +48,7 @@ export interface LogEntry {
 export interface CreateTaskRequest {
   title: string;
   description: string;
-  mode?: 'auto' | 'single' | 'multi';
+  mode?: "auto" | "single" | "multi";
   documents?: string[]; // Document IDs
   config?: TaskConfig;
 }
@@ -74,12 +74,12 @@ export interface ComplexityAnalysis {
     multipleDomains: boolean;
     timeConsuming: boolean;
   };
-  recommendation: 'single' | 'multi';
+  recommendation: "single" | "multi";
 }
 
 // WebSocket message types
 export interface WebSocketMessage {
-  type: 'task_update' | 'step_update' | 'log_entry' | 'error';
+  type: "task_update" | "step_update" | "log_entry" | "error";
   taskId: string;
   data: any;
 }
@@ -90,18 +90,18 @@ export interface AppSettings {
   wsBaseUrl: string;
   maxFileSize: number;
   allowedFileTypes: string[];
-  defaultTaskMode: 'auto' | 'single' | 'multi';
+  defaultTaskMode: "auto" | "single" | "multi";
   enableRealTimeUpdates: boolean;
 }
 
 export interface MCPServer {
   id: string;
   name: string;
-  type?: 'sse' | 'stdio';
+  type?: "sse" | "stdio";
   url?: string;
   command?: string;
   args?: string[];
-  status: 'connected' | 'disconnected' | 'error';
+  status: "connected" | "disconnected" | "error";
   host?: string;
   port?: number;
   enabled?: boolean;
@@ -124,7 +124,7 @@ export interface UIState {
 export interface TaskFormData {
   title: string;
   description: string;
-  mode: 'auto' | 'single' | 'multi';
+  mode: "auto" | "single" | "multi";
   documents: File[];
   config: {
     maxSteps: number;
@@ -137,8 +137,8 @@ export interface TaskFormData {
 export interface Agent {
   id: string;
   name: string;
-  type: 'manus' | 'browser' | 'swe' | 'mcp' | 'data_analysis';
-  status: 'idle' | 'running' | 'finished';
+  type: "manus" | "browser" | "swe" | "mcp" | "data_analysis";
+  status: "idle" | "running" | "finished";
   capabilities: string[];
 }
 
@@ -147,15 +147,15 @@ export interface MultiAgentFlow {
   agents: Agent[];
   coordinationEnabled: boolean;
   planningEnabled: boolean;
-  executionMode: 'auto' | 'force_single' | 'force_multi';
+  executionMode: "auto" | "force_single" | "force_multi";
 }
 
 // Additional types for API compatibility
 export interface TaskCreateRequest {
   title: string;
   description: string;
-  complexity: 'low' | 'medium' | 'high';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  complexity: "low" | "medium" | "high";
+  priority: "low" | "medium" | "high" | "urgent";
   document_ids?: string[];
   tags?: string[];
 }
@@ -166,7 +166,7 @@ export interface DocumentUploadResponse {
   file_size: number;
   file_type: string;
   upload_url?: string;
-  status: 'uploaded' | 'processing' | 'processed' | 'error';
+  status: "uploaded" | "processing" | "processed" | "error";
 }
 
 export interface MCPServerConfig {
@@ -180,7 +180,7 @@ export interface MCPServerConfig {
 export interface TaskExecution {
   id: string;
   task_id: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   started_at: string;
   completed_at?: string;
   progress: number;
@@ -191,7 +191,7 @@ export interface ExecutionStep {
   step_number: number;
   title: string;
   description?: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   started_at?: string;
   completed_at?: string;
   agent_name?: string;
@@ -202,7 +202,7 @@ export interface ExecutionStep {
 // Chat types
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: string;
   task_id?: string;
@@ -231,7 +231,7 @@ export interface ApiResponse<T = any> {
 export interface UpdateTaskRequest {
   title?: string;
   description?: string;
-  mode?: 'auto' | 'single' | 'multi';
+  mode?: "auto" | "single" | "multi";
   documents?: string[];
   config?: TaskConfig;
 }
@@ -258,7 +258,7 @@ export interface RecentActivity {
 
 export interface Notification {
   id: string;
-  type: 'success' | 'error' | 'warning' | 'info';
+  type: "success" | "error" | "warning" | "info";
   title: string;
   message: string;
   timestamp: string;
@@ -266,10 +266,10 @@ export interface Notification {
 }
 
 export interface HealthStatus {
-  status: 'healthy' | 'unhealthy';
+  status: "healthy" | "unhealthy";
   version: string;
   message?: string;
-  services?: Record<string, 'connected' | 'disconnected' | 'error'>;
+  services?: Record<string, "connected" | "disconnected" | "error">;
 }
 
 export interface SystemInfo {

@@ -1,14 +1,14 @@
-import React from 'react';
+import React from "react";
 
 const TestComponent: React.FC = () => {
   return (
     <div
       style={{
-        padding: '20px',
-        backgroundColor: '#f0f0f0',
-        textAlign: 'center',
-        fontSize: '24px',
-        color: '#333',
+        padding: "20px",
+        backgroundColor: "#f0f0f0",
+        textAlign: "center",
+        fontSize: "24px",
+        color: "#333",
       }}
     >
       <h1>🎉 OpenManus Frontend is Working!</h1>

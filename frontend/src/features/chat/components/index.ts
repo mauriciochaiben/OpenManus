@@ -1,2 +1,2 @@
 // Chat components exports
-export { default as MessageList } from './MessageList';
+export { default as MessageList } from "./MessageList";

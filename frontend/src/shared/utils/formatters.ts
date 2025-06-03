@@ -14,20 +14,20 @@ export const capitalize = (str: string): string => {
  */
 export const truncateText = (text: string, maxLength: number = 100): string => {
   if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength).trim() + '...';
+  return `${text.substring(0, maxLength).trim()}...`;
 };
 
 /**
  * Format file size in human readable format
  */
 export const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
 
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 };
 
 /**
@@ -38,22 +38,22 @@ export const formatRelativeTime = (date: Date): string => {
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   if (diffInSeconds < 60) {
-    return 'just now';
+    return "just now";
   }
 
   const diffInMinutes = Math.floor(diffInSeconds / 60);
   if (diffInMinutes < 60) {
-    return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+    return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
   }
 
   const diffInHours = Math.floor(diffInMinutes / 60);
   if (diffInHours < 24) {
-    return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
   }
 
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays < 30) {
-    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
   }
 
   return date.toLocaleDateString();
@@ -75,11 +75,11 @@ export const formatJSON = (obj: any, indent: number = 2): string => {
  */
 export const stripMarkdown = (text: string): string => {
   return text
-    .replace(/\*\*(.*?)\*\*/g, '$1') // Bold
-    .replace(/\*(.*?)\*/g, '$1') // Italic
-    .replace(/`(.*?)`/g, '$1') // Code
-    .replace(/#{1,6}\s/g, '') // Headers
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Links
-    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1') // Images
+    .replace(/\*\*(.*?)\*\*/g, "$1") // Bold
+    .replace(/\*(.*?)\*/g, "$1") // Italic
+    .replace(/`(.*?)`/g, "$1") // Code
+    .replace(/#{1,6}\s/g, "") // Headers
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Links
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1") // Images
     .trim();
 };

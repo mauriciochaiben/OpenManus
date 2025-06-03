@@ -78,18 +78,18 @@ frontend/src/shared/
 
 ```typescript
 // Import specific utilities
-import { copyToClipboard, isValidEmail } from '../../../shared/utils';
+import { copyToClipboard, isValidEmail } from "../../../shared/utils";
 
 // Import from specific modules
-import { formatFileSize, truncateText } from '../../../shared/utils/formatters';
-import { validatePassword } from '../../../shared/utils/validation';
+import { formatFileSize, truncateText } from "../../../shared/utils/formatters";
+import { validatePassword } from "../../../shared/utils/validation";
 ```
 
 ### Shared Components
 
 ```typescript
 // Import shared components
-import { SourceSelector } from '../../../shared/components';
+import { SourceSelector } from "../../../shared/components";
 ```
 
 ## Migration Benefits

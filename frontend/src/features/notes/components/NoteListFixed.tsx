@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   List,
   Card,
@@ -15,7 +15,7 @@ import {
   Tooltip,
   Popconfirm,
   message,
-} from 'antd';
+} from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -27,9 +27,9 @@ import {
   GlobalOutlined,
   LockOutlined,
   ReloadOutlined,
-} from '@ant-design/icons';
-import { Note, NoteSearchQuery } from '../types';
-import { listNotes, searchNotes, deleteNote } from '../services/notesApi';
+} from "@ant-design/icons";
+import { Note, NoteSearchQuery } from "../types";
+import { listNotes, searchNotes, deleteNote } from "../services/notesApi";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -54,9 +54,9 @@ const NoteList: React.FC<NoteListProps> = ({
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('updated_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("updated_at");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   // Fetch notes
   const fetchNotes = async () => {
@@ -89,8 +89,8 @@ const NoteList: React.FC<NoteListProps> = ({
         setTotal(response.total);
       }
     } catch (error) {
-      console.error('Error fetching notes:', error);
-      setError('Falha ao carregar notas. Tente novamente.');
+      console.error("Error fetching notes:", error);
+      setError("Falha ao carregar notas. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -104,11 +104,11 @@ const NoteList: React.FC<NoteListProps> = ({
   const handleDelete = async (noteId: string) => {
     try {
       await deleteNote(noteId);
-      message.success('Note deleted successfully');
+      message.success("Note deleted successfully");
       fetchNotes();
     } catch (error) {
-      message.error('Failed to delete note');
-      console.error('Error deleting note:', error);
+      message.error("Failed to delete note");
+      console.error("Error deleting note:", error);
     }
   };
 
@@ -125,8 +125,8 @@ const NoteList: React.FC<NoteListProps> = ({
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 1) return 'Today';
-    if (diffDays === 2) return 'Yesterday';
+    if (diffDays === 1) return "Today";
+    if (diffDays === 2) return "Yesterday";
     if (diffDays <= 7) return `${diffDays} days ago`;
 
     return date.toLocaleDateString();
@@ -137,29 +137,29 @@ const NoteList: React.FC<NoteListProps> = ({
     <List.Item
       key={note.id}
       actions={[
-        <Tooltip key='view' title='View note'>
+        <Tooltip key="view" title="View note">
           <Button
-            type='text'
+            type="text"
             icon={<EyeOutlined />}
             onClick={() => onViewNote?.(note)}
           />
         </Tooltip>,
-        <Tooltip key='edit' title='Edit note'>
+        <Tooltip key="edit" title="Edit note">
           <Button
-            type='text'
+            type="text"
             icon={<EditOutlined />}
             onClick={() => onEditNote?.(note)}
           />
         </Tooltip>,
         <Popconfirm
-          key='delete'
-          title='Are you sure you want to delete this note?'
+          key="delete"
+          title="Are you sure you want to delete this note?"
           onConfirm={() => handleDelete(note.id)}
-          okText='Yes'
-          cancelText='No'
+          okText="Yes"
+          cancelText="No"
         >
-          <Tooltip title='Delete note'>
-            <Button type='text' icon={<DeleteOutlined />} danger />
+          <Tooltip title="Delete note">
+            <Button type="text" icon={<DeleteOutlined />} danger />
           </Tooltip>
         </Popconfirm>,
       ]}
@@ -168,46 +168,46 @@ const NoteList: React.FC<NoteListProps> = ({
         avatar={
           <div
             style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '8px',
-              backgroundColor: '#f0f0f0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              width: "40px",
+              height: "40px",
+              borderRadius: "8px",
+              backgroundColor: "#f0f0f0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <BookOutlined style={{ fontSize: '18px', color: '#1890ff' }} />
+            <BookOutlined style={{ fontSize: "18px", color: "#1890ff" }} />
           </div>
         }
         title={
-          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Space style={{ width: "100%", justifyContent: "space-between" }}>
             <Text
               strong
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
               onClick={() => onViewNote?.(note)}
             >
               {note.title}
             </Text>
             <Space>
               {note.is_public ? (
-                <Tooltip title='Public note'>
-                  <GlobalOutlined style={{ color: '#52c41a' }} />
+                <Tooltip title="Public note">
+                  <GlobalOutlined style={{ color: "#52c41a" }} />
                 </Tooltip>
               ) : (
-                <Tooltip title='Private note'>
-                  <LockOutlined style={{ color: '#999' }} />
+                <Tooltip title="Private note">
+                  <LockOutlined style={{ color: "#999" }} />
                 </Tooltip>
               )}
             </Space>
           </Space>
         }
         description={
-          <Space direction='vertical' style={{ width: '100%' }} size='small'>
+          <Space direction="vertical" style={{ width: "100%" }} size="small">
             {/* Content preview */}
             <Paragraph
               ellipsis={{ rows: 2, expandable: false }}
-              style={{ margin: 0, color: '#666' }}
+              style={{ margin: 0, color: "#666" }}
             >
               {note.content}
             </Paragraph>
@@ -216,7 +216,7 @@ const NoteList: React.FC<NoteListProps> = ({
             {note.tags && note.tags.length > 0 && (
               <Space wrap size={[4, 4]}>
                 {note.tags.map((tag) => (
-                  <Tag key={tag} color='blue'>
+                  <Tag key={tag} color="blue">
                     {tag}
                   </Tag>
                 ))}
@@ -224,29 +224,29 @@ const NoteList: React.FC<NoteListProps> = ({
             )}
 
             {/* Metadata */}
-            <Space wrap style={{ marginTop: '8px' }}>
-              <Space size='small'>
-                <ClockCircleOutlined style={{ color: '#999' }} />
-                <Text type='secondary' style={{ fontSize: '12px' }}>
+            <Space wrap style={{ marginTop: "8px" }}>
+              <Space size="small">
+                <ClockCircleOutlined style={{ color: "#999" }} />
+                <Text type="secondary" style={{ fontSize: "12px" }}>
                   Updated {formatDate(note.updated_at)}
                 </Text>
               </Space>
 
               {note.word_count && (
-                <Text type='secondary' style={{ fontSize: '12px' }}>
+                <Text type="secondary" style={{ fontSize: "12px" }}>
                   {note.word_count} words
                 </Text>
               )}
 
               {note.reading_time && (
-                <Text type='secondary' style={{ fontSize: '12px' }}>
+                <Text type="secondary" style={{ fontSize: "12px" }}>
                   {note.reading_time} read
                 </Text>
               )}
 
               {note.source_count && note.source_count > 0 && (
-                <Text type='secondary' style={{ fontSize: '12px' }}>
-                  {note.source_count} source{note.source_count > 1 ? 's' : ''}
+                <Text type="secondary" style={{ fontSize: "12px" }}>
+                  {note.source_count} source{note.source_count > 1 ? "s" : ""}
                 </Text>
               )}
             </Space>
@@ -260,24 +260,24 @@ const NoteList: React.FC<NoteListProps> = ({
   if (error) {
     return (
       <Card>
-        <Space direction='vertical' style={{ width: '100%' }} size='large'>
+        <Space direction="vertical" style={{ width: "100%" }} size="large">
           {/* Header */}
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
             <Space>
-              <BookOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+              <BookOutlined style={{ fontSize: "24px", color: "#1890ff" }} />
               <Typography.Title level={4} style={{ margin: 0 }}>
                 Notes
               </Typography.Title>
             </Space>
             {onCreateNote && (
               <Button
-                type='primary'
+                type="primary"
                 icon={<PlusOutlined />}
                 onClick={onCreateNote}
                 disabled
@@ -288,9 +288,9 @@ const NoteList: React.FC<NoteListProps> = ({
           </div>
 
           {/* Controls */}
-          <Space style={{ width: '100%' }}>
+          <Space style={{ width: "100%" }}>
             <Search
-              placeholder='Search notes...'
+              placeholder="Search notes..."
               allowClear
               disabled
               style={{ width: 300 }}
@@ -298,28 +298,28 @@ const NoteList: React.FC<NoteListProps> = ({
             />
 
             <Select
-              placeholder='Sort by'
+              placeholder="Sort by"
               value={`${sortBy}-${sortOrder}`}
               disabled
               style={{ width: 150 }}
             >
-              <Option value='updated_at-desc'>Latest Updated</Option>
-              <Option value='updated_at-asc'>Oldest Updated</Option>
-              <Option value='created_at-desc'>Recently Created</Option>
-              <Option value='created_at-asc'>Oldest Created</Option>
-              <Option value='title-asc'>Title A-Z</Option>
-              <Option value='title-desc'>Title Z-A</Option>
+              <Option value="updated_at-desc">Latest Updated</Option>
+              <Option value="updated_at-asc">Oldest Updated</Option>
+              <Option value="created_at-desc">Recently Created</Option>
+              <Option value="created_at-asc">Oldest Created</Option>
+              <Option value="title-asc">Title A-Z</Option>
+              <Option value="title-desc">Title Z-A</Option>
             </Select>
           </Space>
 
           <Result
-            status='error'
-            title='Erro ao carregar notas'
+            status="error"
+            title="Erro ao carregar notas"
             subTitle={error}
             extra={[
               <Button
-                key='retry'
-                type='primary'
+                key="retry"
+                type="primary"
                 icon={<ReloadOutlined />}
                 onClick={handleRetry}
               >
@@ -334,24 +334,24 @@ const NoteList: React.FC<NoteListProps> = ({
 
   return (
     <Card>
-      <Space direction='vertical' style={{ width: '100%' }} size='large'>
+      <Space direction="vertical" style={{ width: "100%" }} size="large">
         {/* Header */}
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
           <Space>
-            <BookOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+            <BookOutlined style={{ fontSize: "24px", color: "#1890ff" }} />
             <Typography.Title level={4} style={{ margin: 0 }}>
               Notes
             </Typography.Title>
           </Space>
           {onCreateNote && (
             <Button
-              type='primary'
+              type="primary"
               icon={<PlusOutlined />}
               onClick={onCreateNote}
             >
@@ -361,9 +361,9 @@ const NoteList: React.FC<NoteListProps> = ({
         </div>
 
         {/* Controls */}
-        <Space style={{ width: '100%' }}>
+        <Space style={{ width: "100%" }}>
           <Search
-            placeholder='Search notes...'
+            placeholder="Search notes..."
             allowClear
             onSearch={(value) => setSearchQuery(value)}
             style={{ width: 300 }}
@@ -371,21 +371,21 @@ const NoteList: React.FC<NoteListProps> = ({
           />
 
           <Select
-            placeholder='Sort by'
+            placeholder="Sort by"
             value={`${sortBy}-${sortOrder}`}
             onChange={(value) => {
-              const [field, order] = value.split('-');
+              const [field, order] = value.split("-");
               setSortBy(field);
-              setSortOrder(order as 'asc' | 'desc');
+              setSortOrder(order as "asc" | "desc");
             }}
             style={{ width: 150 }}
           >
-            <Option value='updated_at-desc'>Latest Updated</Option>
-            <Option value='updated_at-asc'>Oldest Updated</Option>
-            <Option value='created_at-desc'>Recently Created</Option>
-            <Option value='created_at-asc'>Oldest Created</Option>
-            <Option value='title-asc'>Title A-Z</Option>
-            <Option value='title-desc'>Title Z-A</Option>
+            <Option value="updated_at-desc">Latest Updated</Option>
+            <Option value="updated_at-asc">Oldest Updated</Option>
+            <Option value="created_at-desc">Recently Created</Option>
+            <Option value="created_at-asc">Oldest Created</Option>
+            <Option value="title-asc">Title A-Z</Option>
+            <Option value="title-desc">Title Z-A</Option>
           </Select>
         </Space>
 
@@ -395,20 +395,20 @@ const NoteList: React.FC<NoteListProps> = ({
             <Empty
               description={
                 searchQuery
-                  ? 'Nenhuma nota encontrada com o termo pesquisado'
+                  ? "Nenhuma nota encontrada com o termo pesquisado"
                   : sourceId
-                    ? 'Nenhuma nota vinculada a esta fonte'
-                    : 'Nenhuma nota criada ainda'
+                    ? "Nenhuma nota vinculada a esta fonte"
+                    : "Nenhuma nota criada ainda"
               }
               image={Empty.PRESENTED_IMAGE_SIMPLE}
             >
               {searchQuery ? (
-                <Button type='primary' onClick={() => setSearchQuery('')}>
+                <Button type="primary" onClick={() => setSearchQuery("")}>
                   Limpar Busca
                 </Button>
               ) : onCreateNote ? (
                 <Button
-                  type='primary'
+                  type="primary"
                   icon={<PlusOutlined />}
                   onClick={onCreateNote}
                 >
@@ -418,7 +418,7 @@ const NoteList: React.FC<NoteListProps> = ({
             </Empty>
           ) : (
             <List
-              itemLayout='vertical'
+              itemLayout="vertical"
               dataSource={notes}
               renderItem={renderNoteItem}
             />

@@ -1,6 +1,6 @@
-import { expect, afterEach, vi } from 'vitest';
-import { cleanup } from '@testing-library/react';
-import * as matchers from '@testing-library/jest-dom/matchers';
+import { expect, afterEach, vi } from "vitest";
+import { cleanup } from "@testing-library/react";
+import * as matchers from "@testing-library/jest-dom/matchers";
 
 // extends Vitest's expect method with methods from react-testing-library
 expect.extend(matchers);
@@ -42,7 +42,7 @@ Object.assign(global.WebSocket, {
 global.fetch = vi.fn();
 
 // Mock localStorage
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: {
     getItem: vi.fn(),
     setItem: vi.fn(),
@@ -53,7 +53,7 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 // Mock sessionStorage
-Object.defineProperty(window, 'sessionStorage', {
+Object.defineProperty(window, "sessionStorage", {
   value: {
     getItem: vi.fn(),
     setItem: vi.fn(),
@@ -64,7 +64,7 @@ Object.defineProperty(window, 'sessionStorage', {
 });
 
 // Mock matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
     matches: false,

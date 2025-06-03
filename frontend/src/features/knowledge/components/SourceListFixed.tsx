@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   List,
   Card,
@@ -18,7 +18,7 @@ import {
   Avatar,
   Dropdown,
   MenuProps,
-} from 'antd';
+} from "antd";
 import {
   SearchOutlined,
   MoreOutlined,
@@ -36,9 +36,9 @@ import {
   SyncOutlined,
   FilterOutlined,
   ReloadOutlined,
-} from '@ant-design/icons';
-import { KnowledgeSource } from '../types/api';
-import { listSources, reprocessSource } from '../services/knowledgeApi';
+} from "@ant-design/icons";
+import { KnowledgeSource } from "../types/api";
+import { listSources, reprocessSource } from "../services/knowledgeApi";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -64,9 +64,9 @@ const SourceList: React.FC<SourceListProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
 
   // Fetch sources with filters and pagination
   const fetchSources = useCallback(async () => {
@@ -76,15 +76,15 @@ const SourceList: React.FC<SourceListProps> = ({
       const response = await listSources({
         page: currentPage,
         page_size: pageSize,
-        status: statusFilter !== 'all' ? statusFilter : undefined,
-        file_type: typeFilter !== 'all' ? typeFilter : undefined,
+        status: statusFilter !== "all" ? statusFilter : undefined,
+        file_type: typeFilter !== "all" ? typeFilter : undefined,
       });
 
       setSources(response.sources);
       setTotal(response.total);
     } catch (error) {
-      console.error('Error fetching sources:', error);
-      setError('Falha ao carregar fontes de conhecimento. Tente novamente.');
+      console.error("Error fetching sources:", error);
+      setError("Falha ao carregar fontes de conhecimento. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -119,55 +119,55 @@ const SourceList: React.FC<SourceListProps> = ({
       await reprocessSource(sourceId);
       fetchSources();
     } catch (error) {
-      console.error('Error retrying processing:', error);
+      console.error("Error retrying processing:", error);
     }
   };
 
   // Get file type icon
   const getFileIcon = (filename: string, fileType: string) => {
-    const extension = filename.toLowerCase().split('.').pop();
+    const extension = filename.toLowerCase().split(".").pop();
 
-    if (fileType.includes('pdf') || extension === 'pdf') {
-      return <FilePdfOutlined style={{ color: '#ff4d4f', fontSize: '20px' }} />;
+    if (fileType.includes("pdf") || extension === "pdf") {
+      return <FilePdfOutlined style={{ color: "#ff4d4f", fontSize: "20px" }} />;
     }
     if (
-      fileType.includes('audio') ||
-      ['mp3', 'wav', 'm4a', 'aac'].includes(extension || '')
+      fileType.includes("audio") ||
+      ["mp3", "wav", "m4a", "aac"].includes(extension || "")
     ) {
-      return <AudioOutlined style={{ color: '#722ed1', fontSize: '20px' }} />;
+      return <AudioOutlined style={{ color: "#722ed1", fontSize: "20px" }} />;
     }
-    return <FileTextOutlined style={{ color: '#1890ff', fontSize: '20px' }} />;
+    return <FileTextOutlined style={{ color: "#1890ff", fontSize: "20px" }} />;
   };
 
   // Get status configuration
   const getStatusConfig = (status: any) => {
-    const statusStr = typeof status === 'object' ? status.status : status;
+    const statusStr = typeof status === "object" ? status.status : status;
 
     switch (statusStr) {
-      case 'completed':
+      case "completed":
         return {
-          color: 'success',
+          color: "success",
           icon: <CheckCircleOutlined />,
-          text: 'Completed',
+          text: "Completed",
         };
-      case 'processing':
+      case "processing":
         return {
-          color: 'processing',
+          color: "processing",
           icon: <LoadingOutlined spin />,
-          text: 'Processing',
+          text: "Processing",
         };
-      case 'failed':
+      case "failed":
         return {
-          color: 'error',
+          color: "error",
           icon: <ExclamationCircleOutlined />,
-          text: 'Failed',
+          text: "Failed",
         };
-      case 'pending':
+      case "pending":
       default:
         return {
-          color: 'default',
+          color: "default",
           icon: <ClockCircleOutlined />,
-          text: 'Pending',
+          text: "Pending",
         };
     }
   };
@@ -179,8 +179,8 @@ const SourceList: React.FC<SourceListProps> = ({
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 1) return 'Today';
-    if (diffDays === 2) return 'Yesterday';
+    if (diffDays === 1) return "Today";
+    if (diffDays === 2) return "Yesterday";
     if (diffDays <= 7) return `${diffDays} days ago`;
 
     return date.toLocaleDateString();
@@ -188,45 +188,45 @@ const SourceList: React.FC<SourceListProps> = ({
 
   // Format file size
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   };
 
   // Get dropdown menu items
-  const getDropdownItems = (source: KnowledgeSource): MenuProps['items'] => [
+  const getDropdownItems = (source: KnowledgeSource): MenuProps["items"] => [
     {
-      key: 'view',
-      label: 'View Details',
+      key: "view",
+      label: "View Details",
       icon: <EyeOutlined />,
       onClick: () => onSourceView?.(source),
     },
     {
-      key: 'download',
-      label: 'Download',
+      key: "download",
+      label: "Download",
       icon: <DownloadOutlined />,
     },
     ...(source.status &&
-    (typeof source.status === 'object'
+    (typeof source.status === "object"
       ? source.status.status
-      : source.status) === 'failed'
+      : source.status) === "failed"
       ? [
           {
-            key: 'retry',
-            label: 'Retry Processing',
+            key: "retry",
+            label: "Retry Processing",
             icon: <SyncOutlined />,
             onClick: () => handleRetryProcessing(source.id),
           },
         ]
       : []),
     {
-      type: 'divider' as const,
+      type: "divider" as const,
     },
     {
-      key: 'delete',
-      label: 'Delete',
+      key: "delete",
+      label: "Delete",
       icon: <DeleteOutlined />,
       danger: true,
     },
@@ -239,25 +239,25 @@ const SourceList: React.FC<SourceListProps> = ({
     return (
       <List.Item
         key={source.id}
-        className='source-list-item'
+        className="source-list-item"
         style={{
-          padding: '16px',
-          borderRadius: '8px',
-          marginBottom: '8px',
-          border: '1px solid #f0f0f0',
-          backgroundColor: '#fafafa',
-          cursor: onSourceSelect ? 'pointer' : 'default',
+          padding: "16px",
+          borderRadius: "8px",
+          marginBottom: "8px",
+          border: "1px solid #f0f0f0",
+          backgroundColor: "#fafafa",
+          cursor: onSourceSelect ? "pointer" : "default",
         }}
         onClick={() => onSourceSelect?.(source)}
         actions={
           showActions
             ? [
                 <Dropdown
-                  key='actions'
+                  key="actions"
                   menu={{ items: getDropdownItems(source) }}
-                  trigger={['click']}
+                  trigger={["click"]}
                 >
-                  <Button type='text' icon={<MoreOutlined />} />
+                  <Button type="text" icon={<MoreOutlined />} />
                 </Dropdown>,
               ]
             : undefined
@@ -267,17 +267,17 @@ const SourceList: React.FC<SourceListProps> = ({
           avatar={
             <Badge
               count={source.chunk_count || 0}
-              size='small'
-              style={{ backgroundColor: '#52c41a' }}
+              size="small"
+              style={{ backgroundColor: "#52c41a" }}
             >
               <Avatar
                 icon={getFileIcon(source.filename, source.file_type)}
-                style={{ backgroundColor: '#f5f5f5' }}
+                style={{ backgroundColor: "#f5f5f5" }}
               />
             </Badge>
           }
           title={
-            <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+            <Space style={{ width: "100%", justifyContent: "space-between" }}>
               <Tooltip title={source.filename}>
                 <Link
                   strong
@@ -285,7 +285,7 @@ const SourceList: React.FC<SourceListProps> = ({
                     e.stopPropagation();
                     onSourceView?.(source);
                   }}
-                  style={{ maxWidth: '300px' }}
+                  style={{ maxWidth: "300px" }}
                   ellipsis
                 >
                   {source.filename}
@@ -298,7 +298,7 @@ const SourceList: React.FC<SourceListProps> = ({
                 </Tag>
 
                 {source.size && (
-                  <Text type='secondary' style={{ fontSize: '12px' }}>
+                  <Text type="secondary" style={{ fontSize: "12px" }}>
                     {formatFileSize(source.size)}
                   </Text>
                 )}
@@ -306,44 +306,44 @@ const SourceList: React.FC<SourceListProps> = ({
             </Space>
           }
           description={
-            <Space direction='vertical' style={{ width: '100%' }} size='small'>
+            <Space direction="vertical" style={{ width: "100%" }} size="small">
               {/* Processing Progress */}
               {source.status &&
-                typeof source.status === 'object' &&
-                source.status.status === 'processing' &&
+                typeof source.status === "object" &&
+                source.status.status === "processing" &&
                 source.status.progress && (
                   <Progress
                     percent={source.status.progress || 0}
-                    size='small'
-                    status='active'
+                    size="small"
+                    status="active"
                     format={(percent) => `${percent}% processed`}
                   />
                 )}
 
               {/* Metadata */}
               <Space wrap>
-                <Space size='small'>
-                  <CalendarOutlined style={{ color: '#666' }} />
-                  <Text type='secondary' style={{ fontSize: '12px' }}>
+                <Space size="small">
+                  <CalendarOutlined style={{ color: "#666" }} />
+                  <Text type="secondary" style={{ fontSize: "12px" }}>
                     {formatDate(source.upload_date)}
                   </Text>
                 </Space>
 
                 {source.chunk_count && (
-                  <Space size='small'>
-                    <FileTextOutlined style={{ color: '#666' }} />
-                    <Text type='secondary' style={{ fontSize: '12px' }}>
+                  <Space size="small">
+                    <FileTextOutlined style={{ color: "#666" }} />
+                    <Text type="secondary" style={{ fontSize: "12px" }}>
                       {source.chunk_count} chunks
                     </Text>
                   </Space>
                 )}
 
                 {source.status &&
-                  typeof source.status === 'object' &&
+                  typeof source.status === "object" &&
                   source.status.last_updated && (
-                    <Space size='small'>
-                      <ClockCircleOutlined style={{ color: '#666' }} />
-                      <Text type='secondary' style={{ fontSize: '12px' }}>
+                    <Space size="small">
+                      <ClockCircleOutlined style={{ color: "#666" }} />
+                      <Text type="secondary" style={{ fontSize: "12px" }}>
                         Updated {formatDate(source.status.last_updated)}
                       </Text>
                     </Space>
@@ -352,10 +352,10 @@ const SourceList: React.FC<SourceListProps> = ({
 
               {/* Error Message */}
               {source.status &&
-                typeof source.status === 'object' &&
-                source.status.status === 'failed' &&
+                typeof source.status === "object" &&
+                source.status.status === "failed" &&
                 source.status.error_message && (
-                  <Text type='danger' style={{ fontSize: '12px' }}>
+                  <Text type="danger" style={{ fontSize: "12px" }}>
                     Error: {source.status.error_message}
                   </Text>
                 )}
@@ -366,9 +366,9 @@ const SourceList: React.FC<SourceListProps> = ({
                   ellipsis={{ rows: 2, expandable: false }}
                   style={{
                     margin: 0,
-                    fontSize: '12px',
-                    color: '#666',
-                    maxWidth: '500px',
+                    fontSize: "12px",
+                    color: "#666",
+                    maxWidth: "500px",
                   }}
                 >
                   {source.metadata.description}
@@ -384,16 +384,16 @@ const SourceList: React.FC<SourceListProps> = ({
   // Show error state
   if (error) {
     return (
-      <div className='source-list-container'>
+      <div className="source-list-container">
         {/* Filters */}
         <Card
-          size='small'
-          style={{ marginBottom: '16px' }}
-          bodyStyle={{ padding: '12px' }}
+          size="small"
+          style={{ marginBottom: "16px" }}
+          bodyStyle={{ padding: "12px" }}
         >
-          <Space wrap style={{ width: '100%' }}>
+          <Space wrap style={{ width: "100%" }}>
             <Search
-              placeholder='Search sources...'
+              placeholder="Search sources..."
               allowClear
               onSearch={handleSearch}
               style={{ width: 300 }}
@@ -402,34 +402,34 @@ const SourceList: React.FC<SourceListProps> = ({
             />
 
             <Select
-              placeholder='Status'
+              placeholder="Status"
               value={statusFilter}
               onChange={setStatusFilter}
               style={{ width: 120 }}
               suffixIcon={<FilterOutlined />}
               disabled
             >
-              <Option value='all'>All Status</Option>
-              <Option value='completed'>Completed</Option>
-              <Option value='processing'>Processing</Option>
-              <Option value='failed'>Failed</Option>
-              <Option value='pending'>Pending</Option>
+              <Option value="all">All Status</Option>
+              <Option value="completed">Completed</Option>
+              <Option value="processing">Processing</Option>
+              <Option value="failed">Failed</Option>
+              <Option value="pending">Pending</Option>
             </Select>
 
             <Select
-              placeholder='File Type'
+              placeholder="File Type"
               value={typeFilter}
               onChange={setTypeFilter}
               style={{ width: 120 }}
               disabled
             >
-              <Option value='all'>All Types</Option>
-              <Option value='pdf'>PDF</Option>
-              <Option value='text'>Text</Option>
-              <Option value='audio'>Audio</Option>
+              <Option value="all">All Types</Option>
+              <Option value="pdf">PDF</Option>
+              <Option value="text">Text</Option>
+              <Option value="audio">Audio</Option>
             </Select>
 
-            <Tooltip title='Refresh list'>
+            <Tooltip title="Refresh list">
               <Button
                 icon={<SyncOutlined />}
                 onClick={fetchSources}
@@ -442,13 +442,13 @@ const SourceList: React.FC<SourceListProps> = ({
         </Card>
 
         <Result
-          status='error'
-          title='Erro ao carregar fontes'
+          status="error"
+          title="Erro ao carregar fontes"
           subTitle={error}
           extra={[
             <Button
-              key='retry'
-              type='primary'
+              key="retry"
+              type="primary"
               icon={<ReloadOutlined />}
               onClick={handleRetry}
             >
@@ -461,16 +461,16 @@ const SourceList: React.FC<SourceListProps> = ({
   }
 
   return (
-    <div className='source-list-container'>
+    <div className="source-list-container">
       {/* Filters */}
       <Card
-        size='small'
-        style={{ marginBottom: '16px' }}
-        bodyStyle={{ padding: '12px' }}
+        size="small"
+        style={{ marginBottom: "16px" }}
+        bodyStyle={{ padding: "12px" }}
       >
-        <Space wrap style={{ width: '100%' }}>
+        <Space wrap style={{ width: "100%" }}>
           <Search
-            placeholder='Search sources...'
+            placeholder="Search sources..."
             allowClear
             onSearch={handleSearch}
             style={{ width: 300 }}
@@ -478,32 +478,32 @@ const SourceList: React.FC<SourceListProps> = ({
           />
 
           <Select
-            placeholder='Status'
+            placeholder="Status"
             value={statusFilter}
             onChange={setStatusFilter}
             style={{ width: 120 }}
             suffixIcon={<FilterOutlined />}
           >
-            <Option value='all'>All Status</Option>
-            <Option value='completed'>Completed</Option>
-            <Option value='processing'>Processing</Option>
-            <Option value='failed'>Failed</Option>
-            <Option value='pending'>Pending</Option>
+            <Option value="all">All Status</Option>
+            <Option value="completed">Completed</Option>
+            <Option value="processing">Processing</Option>
+            <Option value="failed">Failed</Option>
+            <Option value="pending">Pending</Option>
           </Select>
 
           <Select
-            placeholder='File Type'
+            placeholder="File Type"
             value={typeFilter}
             onChange={setTypeFilter}
             style={{ width: 120 }}
           >
-            <Option value='all'>All Types</Option>
-            <Option value='pdf'>PDF</Option>
-            <Option value='text'>Text</Option>
-            <Option value='audio'>Audio</Option>
+            <Option value="all">All Types</Option>
+            <Option value="pdf">PDF</Option>
+            <Option value="text">Text</Option>
+            <Option value="audio">Audio</Option>
           </Select>
 
-          <Tooltip title='Refresh list'>
+          <Tooltip title="Refresh list">
             <Button
               icon={<SyncOutlined />}
               onClick={fetchSources}
@@ -520,26 +520,26 @@ const SourceList: React.FC<SourceListProps> = ({
         {!loading && sources.length === 0 ? (
           <Empty
             description={
-              searchQuery || statusFilter !== 'all' || typeFilter !== 'all'
-                ? 'Nenhuma fonte encontrada com os filtros aplicados'
-                : 'Nenhuma fonte de conhecimento foi enviada ainda'
+              searchQuery || statusFilter !== "all" || typeFilter !== "all"
+                ? "Nenhuma fonte encontrada com os filtros aplicados"
+                : "Nenhuma fonte de conhecimento foi enviada ainda"
             }
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             style={{
-              padding: '60px 20px',
-              backgroundColor: '#fafafa',
-              borderRadius: '8px',
+              padding: "60px 20px",
+              backgroundColor: "#fafafa",
+              borderRadius: "8px",
             }}
           >
             {(searchQuery ||
-              statusFilter !== 'all' ||
-              typeFilter !== 'all') && (
+              statusFilter !== "all" ||
+              typeFilter !== "all") && (
               <Button
-                type='primary'
+                type="primary"
                 onClick={() => {
-                  setSearchQuery('');
-                  setStatusFilter('all');
-                  setTypeFilter('all');
+                  setSearchQuery("");
+                  setStatusFilter("all");
+                  setTypeFilter("all");
                 }}
               >
                 Limpar Filtros
@@ -551,18 +551,18 @@ const SourceList: React.FC<SourceListProps> = ({
             <List
               dataSource={sources}
               renderItem={renderSourceItem}
-              style={{ minHeight: '400px' }}
+              style={{ minHeight: "400px" }}
             />
 
             {/* Pagination */}
             {total > pageSize && (
               <div
                 style={{
-                  textAlign: 'center',
-                  marginTop: '24px',
-                  padding: '16px',
-                  backgroundColor: '#fafafa',
-                  borderRadius: '8px',
+                  textAlign: "center",
+                  marginTop: "24px",
+                  padding: "16px",
+                  backgroundColor: "#fafafa",
+                  borderRadius: "8px",
                 }}
               >
                 <Pagination

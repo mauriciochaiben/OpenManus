@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Layout,
   Menu,
@@ -7,9 +7,9 @@ import {
   Dropdown,
   Badge,
   Button,
-} from 'antd';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { useTheme } from '../theme';
+} from "antd";
+import { useNavigate, useLocation, Outlet } from "react-router-dom";
+import { useTheme } from "../theme";
 import {
   HomeOutlined,
   SettingOutlined,
@@ -27,7 +27,7 @@ import {
   ProfileOutlined,
   SunOutlined,
   MoonOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 
 const { Sider, Header, Content } = Layout;
 const { Title } = Typography;
@@ -45,71 +45,71 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const menuItems = [
     // Core Navigation
     {
-      key: 'core',
-      type: 'group' as const,
-      label: 'Principal',
+      key: "core",
+      type: "group" as const,
+      label: "Principal",
       children: [
         {
-          key: '/',
+          key: "/",
           icon: <HomeOutlined />,
-          label: 'Home',
+          label: "Home",
         },
         {
-          key: '/dashboard',
+          key: "/dashboard",
           icon: <DashboardOutlined />,
-          label: 'Dashboard',
+          label: "Dashboard",
         },
       ],
     },
     // Features
     {
-      key: 'features',
-      type: 'group' as const,
-      label: 'Funcionalidades',
+      key: "features",
+      type: "group" as const,
+      label: "Funcionalidades",
       children: [
         {
-          key: '/chat',
+          key: "/chat",
           icon: <MessageOutlined />,
-          label: 'Chat/Agente',
+          label: "Chat/Agente",
         },
         {
-          key: '/knowledge',
+          key: "/knowledge",
           icon: <BookOutlined />,
-          label: 'Conhecimento',
+          label: "Conhecimento",
         },
         {
-          key: '/workflow',
+          key: "/workflow",
           icon: <BranchesOutlined />,
-          label: 'Workflows',
+          label: "Workflows",
         },
         {
-          key: '/canvas',
+          key: "/canvas",
           icon: <ExperimentOutlined />,
-          label: 'Canvas (Beta)',
+          label: "Canvas (Beta)",
           disabled: true,
         },
       ],
     },
     // Configuration
     {
-      key: 'config',
-      type: 'group' as const,
-      label: 'Configurações',
+      key: "config",
+      type: "group" as const,
+      label: "Configurações",
       children: [
         {
-          key: '/llm-config',
+          key: "/llm-config",
           icon: <ApiOutlined />,
-          label: 'Configurar LLM',
+          label: "Configurar LLM",
         },
         {
-          key: '/mcp-config',
+          key: "/mcp-config",
           icon: <CloudServerOutlined />,
-          label: 'Configurar MCP',
+          label: "Configurar MCP",
         },
         {
-          key: '/settings',
+          key: "/settings",
           icon: <SettingOutlined />,
-          label: 'Configurações',
+          label: "Configurações",
         },
       ],
     },
@@ -118,25 +118,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   // Menu do usuário no Header
   const userMenuItems = [
     {
-      key: 'profile',
+      key: "profile",
       icon: <ProfileOutlined />,
-      label: 'Perfil',
-      onClick: () => navigate('/profile'),
+      label: "Perfil",
+      onClick: () => navigate("/profile"),
     },
     {
-      key: 'settings',
+      key: "settings",
       icon: <SettingOutlined />,
-      label: 'Configurações',
-      onClick: () => navigate('/settings'),
+      label: "Configurações",
+      onClick: () => navigate("/settings"),
     },
-    { type: 'divider' as const },
+    { type: "divider" as const },
     {
-      key: 'logout',
+      key: "logout",
       icon: <LogoutOutlined />,
-      label: 'Sair',
+      label: "Sair",
       onClick: () => {
         // Lógica de logout aqui
-        console.log('Logout');
+        console.log("Logout");
       },
     },
   ];
@@ -146,41 +146,41 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
       <Sider
         width={250}
         style={{
-          background: '#001529',
-          borderRight: '1px solid #303030',
-          height: '100vh',
-          position: 'fixed',
+          background: "#001529",
+          borderRight: "1px solid #303030",
+          height: "100vh",
+          position: "fixed",
           left: 0,
           top: 0,
           bottom: 0,
-          overflow: 'auto',
+          overflow: "auto",
           zIndex: 1000,
-          boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
+          boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
         }}
       >
         {/* Logo e Título */}
-        <div style={{ padding: '24px 16px' }}>
+        <div style={{ padding: "24px 16px" }}>
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginBottom: '32px',
-              padding: '12px',
-              background: 'rgba(255,255,255,0.1)',
-              borderRadius: '8px',
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "32px",
+              padding: "12px",
+              background: "rgba(255,255,255,0.1)",
+              borderRadius: "8px",
             }}
           >
             <RocketOutlined
               style={{
-                fontSize: '28px',
-                color: '#1890ff',
-                marginRight: '12px',
-                textShadow: '0 0 10px rgba(24,144,255,0.5)',
+                fontSize: "28px",
+                color: "#1890ff",
+                marginRight: "12px",
+                textShadow: "0 0 10px rgba(24,144,255,0.5)",
               }}
             />
             <div>
@@ -188,8 +188,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 level={4}
                 style={{
                   margin: 0,
-                  color: '#fff',
-                  fontSize: '18px',
+                  color: "#fff",
+                  fontSize: "18px",
                   fontWeight: 600,
                 }}
               >
@@ -197,9 +197,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               </Title>
               <div
                 style={{
-                  color: '#8c8c8c',
-                  fontSize: '12px',
-                  marginTop: '2px',
+                  color: "#8c8c8c",
+                  fontSize: "12px",
+                  marginTop: "2px",
                 }}
               >
                 AI Assistant Platform
@@ -209,15 +209,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
           {/* Menu de Navegação */}
           <Menu
-            mode='inline'
+            mode="inline"
             selectedKeys={[location.pathname]}
             items={menuItems}
             onClick={handleMenuClick}
-            theme='dark'
+            theme="dark"
             style={{
-              border: 'none',
-              background: 'transparent',
-              fontSize: '14px',
+              border: "none",
+              background: "transparent",
+              fontSize: "14px",
             }}
           />
         </div>
@@ -228,80 +228,80 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         {/* Header */}
         <Header
           style={{
-            background: '#fff',
-            padding: '0 24px',
-            borderBottom: '1px solid #f0f0f0',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            background: "#fff",
+            padding: "0 24px",
+            borderBottom: "1px solid #f0f0f0",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
           }}
         >
           {/* Breadcrumb ou Título da Página */}
           <div>
-            <Title level={4} style={{ margin: 0, color: '#262626' }}>
-              {location.pathname === '/'
-                ? 'Home'
-                : location.pathname === '/dashboard'
-                  ? 'Dashboard'
-                  : location.pathname === '/chat'
-                    ? 'Chat/Agente'
-                    : location.pathname === '/knowledge'
-                      ? 'Base de Conhecimento'
-                      : location.pathname === '/workflow'
-                        ? 'Workflows'
-                        : location.pathname === '/llm-config'
-                          ? 'Configurar LLM'
-                          : location.pathname === '/mcp-config'
-                            ? 'Configurar MCP'
-                            : location.pathname === '/settings'
-                              ? 'Configurações'
-                              : 'OpenManus'}
+            <Title level={4} style={{ margin: 0, color: "#262626" }}>
+              {location.pathname === "/"
+                ? "Home"
+                : location.pathname === "/dashboard"
+                  ? "Dashboard"
+                  : location.pathname === "/chat"
+                    ? "Chat/Agente"
+                    : location.pathname === "/knowledge"
+                      ? "Base de Conhecimento"
+                      : location.pathname === "/workflow"
+                        ? "Workflows"
+                        : location.pathname === "/llm-config"
+                          ? "Configurar LLM"
+                          : location.pathname === "/mcp-config"
+                            ? "Configurar MCP"
+                            : location.pathname === "/settings"
+                              ? "Configurações"
+                              : "OpenManus"}
             </Title>
           </div>
 
           {/* Ações do Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             {/* Botão de Troca de Tema */}
             <Button
-              type='text'
+              type="text"
               icon={isDarkMode ? <SunOutlined /> : <MoonOutlined />}
               onClick={toggleTheme}
-              style={{ border: 'none' }}
-              title={isDarkMode ? 'Ativar tema claro' : 'Ativar tema escuro'}
+              style={{ border: "none" }}
+              title={isDarkMode ? "Ativar tema claro" : "Ativar tema escuro"}
             />
 
             {/* Notificações */}
-            <Badge count={3} size='small'>
+            <Badge count={3} size="small">
               <Button
-                type='text'
+                type="text"
                 icon={<BellOutlined />}
-                style={{ border: 'none' }}
+                style={{ border: "none" }}
               />
             </Badge>
 
             {/* Menu do Usuário */}
             <Dropdown
               menu={{ items: userMenuItems }}
-              placement='bottomRight'
-              trigger={['click']}
+              placement="bottomRight"
+              trigger={["click"]}
             >
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                  padding: '8px',
-                  borderRadius: '6px',
-                  transition: 'background-color 0.2s',
+                  display: "flex",
+                  alignItems: "center",
+                  cursor: "pointer",
+                  padding: "8px",
+                  borderRadius: "6px",
+                  transition: "background-color 0.2s",
                 }}
               >
                 <Avatar
                   size={32}
                   icon={<UserOutlined />}
-                  style={{ marginRight: '8px' }}
+                  style={{ marginRight: "8px" }}
                 />
-                <span style={{ fontSize: '14px', color: '#262626' }}>
+                <span style={{ fontSize: "14px", color: "#262626" }}>
                   Usuário
                 </span>
               </div>
@@ -312,10 +312,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         {/* Content */}
         <Content
           style={{
-            padding: '32px',
-            background: '#f5f5f5',
-            minHeight: 'calc(100vh - 64px)',
-            overflow: 'auto',
+            padding: "32px",
+            background: "#f5f5f5",
+            minHeight: "calc(100vh - 64px)",
+            overflow: "auto",
           }}
         >
           {children || <Outlet />}

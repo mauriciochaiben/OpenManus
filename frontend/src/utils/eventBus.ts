@@ -2,50 +2,50 @@ export type EventHandler<T = any> = (data: T) => void;
 
 export interface AppEvent {
   // WebSocket Events
-  'websocket:connected': {};
-  'websocket:disconnected': { code: number; reason: string };
-  'websocket:error': { error: Event };
-  'websocket:message': { type: string; data: any };
-  'websocket:connectionStateChanged': { state: string };
-  'websocket:maxReconnectAttemptsReached': { attempts: number };
+  "websocket:connected": Record<string, never>;
+  "websocket:disconnected": { code: number; reason: string };
+  "websocket:error": { error: Event };
+  "websocket:message": { type: string; data: any };
+  "websocket:connectionStateChanged": { state: string };
+  "websocket:maxReconnectAttemptsReached": { attempts: number };
 
   // Task Events
-  'task:created': { id: string; title: string };
-  'task:updated': { id: string; changes: any };
-  'task:deleted': { id: string };
-  'task:progressUpdated': { id: string; progress: number; status: string };
-  'task:completed': { id: string; result: any };
-  'task:failed': { id: string; error: string };
-  'task:started': { id: string };
-  'task:paused': { id: string };
-  'task:resumed': { id: string };
+  "task:created": { id: string; title: string };
+  "task:updated": { id: string; changes: any };
+  "task:deleted": { id: string };
+  "task:progressUpdated": { id: string; progress: number; status: string };
+  "task:completed": { id: string; result: any };
+  "task:failed": { id: string; error: string };
+  "task:started": { id: string };
+  "task:paused": { id: string };
+  "task:resumed": { id: string };
 
   // Notification Events
-  'notification:received': {
+  "notification:received": {
     id: string;
-    type: 'success' | 'error' | 'warning' | 'info';
+    type: "success" | "error" | "warning" | "info";
     title: string;
     message: string;
     duration?: number;
   };
-  'notification:dismissed': { id: string };
-  'notification:cleared': {};
+  "notification:dismissed": { id: string };
+  "notification:cleared": Record<string, never>;
 
   // System Events
-  'system:statusChanged': { status: string; details?: any };
-  'system:error': { error: string; details?: any };
-  'system:maintenance': { message: string; startTime?: Date; endTime?: Date };
+  "system:statusChanged": { status: string; details?: any };
+  "system:error": { error: string; details?: any };
+  "system:maintenance": { message: string; startTime?: Date; endTime?: Date };
 
   // User Events
-  'user:authenticated': { user: any };
-  'user:loggedOut': {};
-  'user:profileUpdated': { user: any };
+  "user:authenticated": { user: any };
+  "user:loggedOut": Record<string, never>;
+  "user:profileUpdated": { user: any };
 
   // UI Events
-  'ui:themeChanged': { theme: 'light' | 'dark' };
-  'ui:sidebarToggled': { isOpen: boolean };
-  'ui:modalOpened': { modalId: string };
-  'ui:modalClosed': { modalId: string };
+  "ui:themeChanged": { theme: "light" | "dark" };
+  "ui:sidebarToggled": { isOpen: boolean };
+  "ui:modalOpened": { modalId: string };
+  "ui:modalClosed": { modalId: string };
 
   // Dynamic WebSocket events (for any websocket:* event)
   [key: `websocket:${string}`]: any;
@@ -58,7 +58,7 @@ export class EventBus {
 
   private constructor() {
     // Enable debug mode in development
-    this.debug = process.env.NODE_ENV === 'development';
+    this.debug = process.env.NODE_ENV === "development";
   }
 
   public static getInstance(): EventBus {
@@ -76,7 +76,7 @@ export class EventBus {
 
   public on<K extends keyof AppEvent>(
     event: K,
-    handler: EventHandler<AppEvent[K]>
+    handler: EventHandler<AppEvent[K]>,
   ): () => void;
   public on(event: string, handler: EventHandler<any>): () => void;
   public on(event: string, handler: EventHandler<any>): () => void {
@@ -101,7 +101,7 @@ export class EventBus {
 
   public once<K extends keyof AppEvent>(
     event: K,
-    handler: EventHandler<AppEvent[K]>
+    handler: EventHandler<AppEvent[K]>,
   ): () => void;
   public once(event: string, handler: EventHandler<any>): () => void;
   public once(event: string, handler: EventHandler<any>): () => void {
@@ -138,7 +138,7 @@ export class EventBus {
 
   public off<K extends keyof AppEvent>(
     event: K,
-    handler?: EventHandler<AppEvent[K]>
+    handler?: EventHandler<AppEvent[K]>,
   ): void;
   public off(event: string, handler?: EventHandler<any>): void;
   public off(event: string, handler?: EventHandler<any>): void {
@@ -161,7 +161,7 @@ export class EventBus {
 
   public removeAllListeners(): void {
     this.listeners.clear();
-    this.log('Removed all event listeners');
+    this.log("Removed all event listeners");
   }
 
   public getListenerCount(event: string): number {
@@ -180,7 +180,7 @@ export class EventBus {
   // Utility method to create a Promise that resolves when an event is emitted
   public waitFor<K extends keyof AppEvent>(
     event: K,
-    timeout?: number
+    timeout?: number,
   ): Promise<AppEvent[K]>;
   public waitFor(event: string, timeout?: number): Promise<any>;
   public waitFor(event: string, timeout?: number): Promise<any> {

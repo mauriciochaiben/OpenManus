@@ -2,15 +2,15 @@
  * LLM Configuration Store using Zustand
  */
 
-import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
 import {
   LLMConfiguration,
   LLMProvider,
   LLMTestResult,
   LLMUsageStats,
-} from '../types';
-import { llmConfigService } from '../services/llmConfigApi';
+} from "../types";
+import { llmConfigService } from "../services/llmConfigApi";
 
 interface LLMConfigState {
   // State
@@ -63,7 +63,7 @@ export const useLLMConfigStore = create<LLMConfigState>()(
               error:
                 error instanceof Error
                   ? error.message
-                  : 'Failed to fetch providers',
+                  : "Failed to fetch providers",
               loading: false,
             });
           }
@@ -93,7 +93,7 @@ export const useLLMConfigStore = create<LLMConfigState>()(
               error:
                 error instanceof Error
                   ? error.message
-                  : 'Failed to fetch configurations',
+                  : "Failed to fetch configurations",
               loading: false,
             });
           }
@@ -124,7 +124,7 @@ export const useLLMConfigStore = create<LLMConfigState>()(
               error:
                 error instanceof Error
                   ? error.message
-                  : 'Failed to create configuration',
+                  : "Failed to create configuration",
               loading: false,
             });
             throw error;
@@ -136,10 +136,10 @@ export const useLLMConfigStore = create<LLMConfigState>()(
           try {
             const updatedConfig = await llmConfigService.updateConfiguration(
               id,
-              updates
+              updates,
             );
             const configurations = get().configurations.map((c) =>
-              c.id === id ? updatedConfig : c
+              c.id === id ? updatedConfig : c,
             );
 
             // Update current config if it's the one being updated
@@ -159,7 +159,7 @@ export const useLLMConfigStore = create<LLMConfigState>()(
               error:
                 error instanceof Error
                   ? error.message
-                  : 'Failed to update configuration',
+                  : "Failed to update configuration",
               loading: false,
             });
             throw error;
@@ -171,7 +171,7 @@ export const useLLMConfigStore = create<LLMConfigState>()(
           try {
             await llmConfigService.deleteConfiguration(id);
             const configurations = get().configurations.filter(
-              (c) => c.id !== id
+              (c) => c.id !== id,
             );
 
             // If deleted config was current, set new default
@@ -194,7 +194,7 @@ export const useLLMConfigStore = create<LLMConfigState>()(
               error:
                 error instanceof Error
                   ? error.message
-                  : 'Failed to delete configuration',
+                  : "Failed to delete configuration",
               loading: false,
             });
             throw error;
@@ -223,7 +223,7 @@ export const useLLMConfigStore = create<LLMConfigState>()(
               error:
                 error instanceof Error
                   ? error.message
-                  : 'Failed to set default configuration',
+                  : "Failed to set default configuration",
               loading: false,
             });
             throw error;
@@ -234,7 +234,7 @@ export const useLLMConfigStore = create<LLMConfigState>()(
           try {
             const result = await llmConfigService.testConfiguration(
               id,
-              testRequest
+              testRequest,
             );
             const testResults = { ...get().testResults, [id]: result };
             set({ testResults });
@@ -243,7 +243,7 @@ export const useLLMConfigStore = create<LLMConfigState>()(
             const failedResult: LLMTestResult = {
               success: false,
               latency: 0,
-              error: error instanceof Error ? error.message : 'Test failed',
+              error: error instanceof Error ? error.message : "Test failed",
               timestamp: new Date().toISOString(),
             };
             const testResults = { ...get().testResults, [id]: failedResult };
@@ -253,11 +253,7 @@ export const useLLMConfigStore = create<LLMConfigState>()(
         },
 
         toggleConfiguration: async (id, isActive) => {
-          try {
-            await get().updateConfiguration(id, { isActive });
-          } catch (error) {
-            throw error;
-          }
+          await get().updateConfiguration(id, { isActive });
         },
 
         fetchUsageStats: async (id) => {
@@ -266,7 +262,7 @@ export const useLLMConfigStore = create<LLMConfigState>()(
             const usageStats = { ...get().usageStats, [id]: stats };
             set({ usageStats });
           } catch (error) {
-            console.error('Failed to fetch usage stats:', error);
+            console.error("Failed to fetch usage stats:", error);
           }
         },
 
@@ -283,16 +279,16 @@ export const useLLMConfigStore = create<LLMConfigState>()(
         },
       }),
       {
-        name: 'llm-config-store',
+        name: "llm-config-store",
         partialize: (state) => ({
           currentConfig: state.currentConfig,
           configurations: state.configurations,
           providers: state.providers,
         }),
-      }
+      },
     ),
     {
-      name: 'llm-config-store',
-    }
-  )
+      name: "llm-config-store",
+    },
+  ),
 );

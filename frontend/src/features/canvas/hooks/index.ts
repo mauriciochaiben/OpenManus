@@ -1,3 +1,3 @@
 // Canvas hooks exports
-export * from './useCanvasWebSocket';
+export * from "./useCanvasWebSocket";
 export {};

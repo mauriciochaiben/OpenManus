@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Layout,
   Row,
@@ -10,15 +10,15 @@ import {
   Statistic,
   Alert,
   Badge,
-} from 'antd';
+} from "antd";
 import {
   BookOutlined,
   CloudUploadOutlined,
   FileTextOutlined,
   DatabaseOutlined,
-} from '@ant-design/icons';
-import { SourceUploader, SourceList } from '../features/knowledge/components';
-import type { UploadSourceResponse } from '../features/knowledge/types';
+} from "@ant-design/icons";
+import { SourceUploader, SourceList } from "../features/knowledge/components";
+import type { UploadSourceResponse } from "../features/knowledge/types";
 
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -33,7 +33,7 @@ const Knowledge: React.FC = () => {
 
   // Handle successful upload to refresh the source list
   const handleUploadSuccess = (response: UploadSourceResponse) => {
-    console.log('Upload successful:', response);
+    console.log("Upload successful:", response);
     // Update upload stats
     setUploadStats((prev) => ({
       ...prev,
@@ -44,29 +44,29 @@ const Knowledge: React.FC = () => {
 
   // Handle source deletion to refresh stats if needed
   const handleSourceDeleted = (sourceId: string) => {
-    console.log('Source deleted:', sourceId);
+    console.log("Source deleted:", sourceId);
   };
 
   // Handle upload error
   const handleUploadError = (error: any) => {
-    console.error('Upload error:', error);
+    console.error("Upload error:", error);
   };
 
   return (
-    <Layout style={{ minHeight: '100vh', background: '#f0f2f5' }}>
-      <Content style={{ padding: '24px' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+    <Layout style={{ minHeight: "100vh", background: "#f0f2f5" }}>
+      <Content style={{ padding: "24px" }}>
+        <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
           {/* Page Header */}
-          <div style={{ marginBottom: '32px' }}>
-            <Space align='center' style={{ marginBottom: '16px' }}>
-              <BookOutlined style={{ fontSize: '32px', color: '#1890ff' }} />
+          <div style={{ marginBottom: "32px" }}>
+            <Space align="center" style={{ marginBottom: "16px" }}>
+              <BookOutlined style={{ fontSize: "32px", color: "#1890ff" }} />
               <Title level={2} style={{ margin: 0 }}>
                 Knowledge Management
               </Title>
             </Space>
 
             <Paragraph
-              style={{ fontSize: '16px', color: '#666', marginBottom: '24px' }}
+              style={{ fontSize: "16px", color: "#666", marginBottom: "24px" }}
             >
               Upload and manage your knowledge sources. Transform documents into
               searchable content for enhanced AI assistance and information
@@ -76,42 +76,42 @@ const Knowledge: React.FC = () => {
             {/* Quick Stats */}
             <Row gutter={[16, 16]}>
               <Col xs={12} sm={6}>
-                <Card size='small'>
+                <Card size="small">
                   <Statistic
-                    title='Total Sources'
+                    title="Total Sources"
                     value={uploadStats.totalUploads}
                     prefix={<DatabaseOutlined />}
-                    valueStyle={{ color: '#1890ff' }}
+                    valueStyle={{ color: "#1890ff" }}
                   />
                 </Card>
               </Col>
               <Col xs={12} sm={6}>
-                <Card size='small'>
+                <Card size="small">
                   <Statistic
-                    title='Processing'
+                    title="Processing"
                     value={uploadStats.processingCount}
-                    prefix={<Badge status='processing' />}
-                    valueStyle={{ color: '#faad14' }}
+                    prefix={<Badge status="processing" />}
+                    valueStyle={{ color: "#faad14" }}
                   />
                 </Card>
               </Col>
               <Col xs={12} sm={6}>
-                <Card size='small'>
+                <Card size="small">
                   <Statistic
-                    title='Completed'
+                    title="Completed"
                     value={uploadStats.completedCount}
-                    prefix={<Badge status='success' />}
-                    valueStyle={{ color: '#52c41a' }}
+                    prefix={<Badge status="success" />}
+                    valueStyle={{ color: "#52c41a" }}
                   />
                 </Card>
               </Col>
               <Col xs={12} sm={6}>
-                <Card size='small'>
+                <Card size="small">
                   <Statistic
-                    title='Failed'
+                    title="Failed"
                     value={uploadStats.failedCount}
-                    prefix={<Badge status='error' />}
-                    valueStyle={{ color: '#ff4d4f' }}
+                    prefix={<Badge status="error" />}
+                    valueStyle={{ color: "#ff4d4f" }}
                   />
                 </Card>
               </Col>
@@ -119,7 +119,7 @@ const Knowledge: React.FC = () => {
           </div>
 
           {/* Upload Section */}
-          <Row gutter={[24, 24]} style={{ marginBottom: '32px' }}>
+          <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
             <Col xs={24} lg={14}>
               <SourceUploader
                 onUploadSuccess={handleUploadSuccess}
@@ -136,34 +136,34 @@ const Knowledge: React.FC = () => {
                     <span>Upload Guidelines</span>
                   </Space>
                 }
-                style={{ height: '100%' }}
+                style={{ height: "100%" }}
               >
                 <Space
-                  direction='vertical'
-                  size='middle'
-                  style={{ width: '100%' }}
+                  direction="vertical"
+                  size="middle"
+                  style={{ width: "100%" }}
                 >
                   <Alert
-                    message='Supported File Types'
+                    message="Supported File Types"
                     description={
-                      <Space direction='vertical' size='small'>
+                      <Space direction="vertical" size="small">
                         <Space>
-                          <FileTextOutlined style={{ color: '#1890ff' }} />
+                          <FileTextOutlined style={{ color: "#1890ff" }} />
                           <Text>Plain Text Files (.txt)</Text>
                         </Space>
                         <Space>
-                          <FileTextOutlined style={{ color: '#ff4d4f' }} />
+                          <FileTextOutlined style={{ color: "#ff4d4f" }} />
                           <Text>PDF Documents (.pdf)</Text>
                         </Space>
                       </Space>
                     }
-                    type='info'
+                    type="info"
                     showIcon
                   />
 
                   <div>
                     <Title level={5}>Processing Information</Title>
-                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                    <ul style={{ margin: 0, paddingLeft: "20px" }}>
                       <li>
                         Maximum file size: <Text strong>50MB</Text>
                       </li>
@@ -179,9 +179,9 @@ const Knowledge: React.FC = () => {
                   </div>
 
                   <Alert
-                    message='Pro Tip'
-                    description='For best results, ensure your documents have clear text content. Scanned PDFs may require OCR processing.'
-                    type='success'
+                    message="Pro Tip"
+                    description="For best results, ensure your documents have clear text content. Scanned PDFs may require OCR processing."
+                    type="success"
                     showIcon
                   />
                 </Space>
@@ -189,7 +189,7 @@ const Knowledge: React.FC = () => {
             </Col>
           </Row>
 
-          <Divider orientation='left'>
+          <Divider orientation="left">
             <Space>
               <DatabaseOutlined />
               <span>Source Management</span>
@@ -202,7 +202,7 @@ const Knowledge: React.FC = () => {
               handleSourceDeleted(sourceId);
             }}
             onViewDetails={(source) => {
-              console.log('View details for:', source);
+              console.log("View details for:", source);
             }}
           />
         </div>

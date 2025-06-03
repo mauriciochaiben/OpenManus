@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from 'antd';
-import { CanvasWorkspace } from '../features/canvas/components';
+import React from "react";
+import { Layout } from "antd";
+import { CanvasWorkspace } from "../features/canvas/components";
 
 const { Content } = Layout;
 
@@ -9,7 +9,7 @@ const { Content } = Layout;
  */
 const CanvasPage: React.FC = () => {
   return (
-    <Layout style={{ height: '100vh' }}>
+    <Layout style={{ height: "100vh" }}>
       <Content style={{ padding: 0 }}>
         <CanvasWorkspace />
       </Content>

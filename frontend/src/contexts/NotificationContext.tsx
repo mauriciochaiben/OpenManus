@@ -4,19 +4,19 @@ import React, {
   useState,
   useEffect,
   ReactNode,
-} from 'react';
-import { notification } from 'antd';
+} from "react";
+import { notification } from "antd";
 import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
   InfoCircleOutlined,
   WarningOutlined,
-} from '@ant-design/icons';
-import { eventBus } from '../utils/eventBus';
+} from "@ant-design/icons";
+import { eventBus } from "../utils/eventBus";
 
 export interface NotificationData {
   id: string;
-  type: 'success' | 'error' | 'warning' | 'info';
+  type: "success" | "error" | "warning" | "info";
   title: string;
   message: string;
   taskId?: string;
@@ -26,21 +26,21 @@ export interface NotificationData {
 interface NotificationContextType {
   notifications: NotificationData[];
   addNotification: (
-    notification: Omit<NotificationData, 'id' | 'timestamp'>
+    notification: Omit<NotificationData, "id" | "timestamp">,
   ) => void;
   removeNotification: (id: string) => void;
   clearAll: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (!context) {
     throw new Error(
-      'useNotifications must be used within a NotificationProvider'
+      "useNotifications must be used within a NotificationProvider",
     );
   }
   return context;
@@ -57,7 +57,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const [api, contextHolder] = notification.useNotification();
 
   const addNotification = (
-    notificationData: Omit<NotificationData, 'id' | 'timestamp'>
+    notificationData: Omit<NotificationData, "id" | "timestamp">,
   ) => {
     const newNotification: NotificationData = {
       ...notificationData,
@@ -76,13 +76,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     };
 
     switch (newNotification.type) {
-      case 'success':
+      case "success":
         api.success(config);
         break;
-      case 'error':
+      case "error":
         api.error({ ...config, duration: 8 });
         break;
-      case 'warning':
+      case "warning":
         api.warning(config);
         break;
       default:
@@ -100,31 +100,31 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'success':
-        return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
-      case 'error':
-        return <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />;
-      case 'warning':
-        return <WarningOutlined style={{ color: '#faad14' }} />;
+      case "success":
+        return <CheckCircleOutlined style={{ color: "#52c41a" }} />;
+      case "error":
+        return <ExclamationCircleOutlined style={{ color: "#ff4d4f" }} />;
+      case "warning":
+        return <WarningOutlined style={{ color: "#faad14" }} />;
       default:
-        return <InfoCircleOutlined style={{ color: '#1890ff' }} />;
+        return <InfoCircleOutlined style={{ color: "#1890ff" }} />;
     }
   };
 
   useEffect(() => {
     // Listen for task completion notifications using EventBus
-    const unsubTaskUpdate = eventBus.on('task:updated', (data: any) => {
-      if (data.task?.status === 'completed') {
+    const unsubTaskUpdate = eventBus.on("task:updated", (data: any) => {
+      if (data.task?.status === "completed") {
         addNotification({
-          type: 'success',
-          title: 'Task Completed',
+          type: "success",
+          title: "Task Completed",
           message: `Task "${data.task.title}" has been completed successfully!`,
           taskId: data.task.id,
         });
-      } else if (data.task?.status === 'error') {
+      } else if (data.task?.status === "error") {
         addNotification({
-          type: 'error',
-          title: 'Task Failed',
+          type: "error",
+          title: "Task Failed",
           message: `Task "${data.task.title}" encountered an error.`,
           taskId: data.task.id,
         });
@@ -132,18 +132,18 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     });
 
     // Listen for step notifications
-    const unsubStepUpdate = eventBus.on('task:stepUpdated', (data: any) => {
-      if (data.step?.status === 'completed') {
+    const unsubStepUpdate = eventBus.on("task:stepUpdated", (data: any) => {
+      if (data.step?.status === "completed") {
         addNotification({
-          type: 'info',
-          title: 'Step Completed',
+          type: "info",
+          title: "Step Completed",
           message: `Step "${data.step.title}" has been completed.`,
           taskId: data.taskId,
         });
-      } else if (data.step?.status === 'error') {
+      } else if (data.step?.status === "error") {
         addNotification({
-          type: 'warning',
-          title: 'Step Failed',
+          type: "warning",
+          title: "Step Failed",
           message: `Step "${data.step.title}" encountered an error.`,
           taskId: data.taskId,
         });
@@ -152,39 +152,39 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     // Listen for general system notifications
     const unsubNotification = eventBus.on(
-      'system:notification',
+      "system:notification",
       (data: any) => {
         addNotification({
-          type: data.type || 'info',
-          title: data.title || 'System Notification',
+          type: data.type || "info",
+          title: data.title || "System Notification",
           message: data.message,
           taskId: data.taskId,
         });
-      }
+      },
     );
 
     // Listen for WebSocket connection events
-    const unsubConnected = eventBus.on('websocket:connected', () => {
+    const unsubConnected = eventBus.on("websocket:connected", () => {
       addNotification({
-        type: 'success',
-        title: 'Connected',
-        message: 'Real-time updates are now active.',
+        type: "success",
+        title: "Connected",
+        message: "Real-time updates are now active.",
       });
     });
 
-    const unsubDisconnected = eventBus.on('websocket:disconnected', () => {
+    const unsubDisconnected = eventBus.on("websocket:disconnected", () => {
       addNotification({
-        type: 'warning',
-        title: 'Disconnected',
-        message: 'Real-time updates are temporarily unavailable.',
+        type: "warning",
+        title: "Disconnected",
+        message: "Real-time updates are temporarily unavailable.",
       });
     });
 
-    const unsubError = eventBus.on('websocket:error', () => {
+    const unsubError = eventBus.on("websocket:error", () => {
       addNotification({
-        type: 'error',
-        title: 'Connection Error',
-        message: 'Failed to connect to real-time services.',
+        type: "error",
+        title: "Connection Error",
+        message: "Failed to connect to real-time services.",
       });
     });
 

@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { listSources } from '../services/knowledgeApi';
-import type { KnowledgeSource, ApiError } from '../types/api';
+import { useState, useEffect, useCallback } from "react";
+import { listSources } from "../services/knowledgeApi";
+import type { KnowledgeSource, ApiError } from "../types/api";
 
 interface UseKnowledgeSourcesReturn {
   sources: KnowledgeSource[];
@@ -29,7 +29,7 @@ export const useKnowledgeSources = (): UseKnowledgeSourcesReturn => {
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.message);
-      console.error('Error fetching knowledge sources:', apiError);
+      console.error("Error fetching knowledge sources:", apiError);
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ export const useKnowledgeSources = (): UseKnowledgeSourcesReturn => {
     setSelectedSourceIds((prev) =>
       prev.includes(sourceId)
         ? prev.filter((id) => id !== sourceId)
-        : [...prev, sourceId]
+        : [...prev, sourceId],
     );
   }, []);
 
@@ -53,7 +53,7 @@ export const useKnowledgeSources = (): UseKnowledgeSourcesReturn => {
 
   // Filter completed sources
   const completedSources = sources.filter(
-    (source) => source.status.status === 'completed'
+    (source) => source.status.status === "completed",
   );
 
   // Initial fetch

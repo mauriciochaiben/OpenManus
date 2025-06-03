@@ -5,7 +5,7 @@
  * in the backend API.
  */
 
-import axios, { AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosResponse, AxiosError } from "axios";
 import {
   KnowledgeSource,
   UploadSourceRequest,
@@ -17,11 +17,11 @@ import {
   SearchKnowledgeRequest,
   SearchKnowledgeResponse,
   ApiError,
-} from '../types/api';
+} from "../types/api";
 
 // API base configuration
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const KNOWLEDGE_API_BASE = `${API_BASE_URL}/api/v1/knowledge`;
 
 // Configure axios instance
@@ -29,7 +29,7 @@ const apiClient = axios.create({
   baseURL: KNOWLEDGE_API_BASE,
   timeout: 30000, // 30 seconds timeout for file uploads
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -38,7 +38,7 @@ apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
     const apiError: ApiError = {
-      message: error.message || 'An error occurred',
+      message: error.message || "An error occurred",
       status_code: error.response?.status || 500,
     };
 
@@ -51,44 +51,44 @@ apiClient.interceptors.response.use(
     }
 
     throw apiError;
-  }
+  },
 );
 
 /**
  * Upload a file to the knowledge base
  */
 export const uploadSource = async (
-  request: UploadSourceRequest
+  request: UploadSourceRequest,
 ): Promise<UploadSourceResponse> => {
   const formData = new FormData();
-  formData.append('file', request.file);
+  formData.append("file", request.file);
 
   if (request.metadata) {
-    formData.append('metadata', JSON.stringify(request.metadata));
+    formData.append("metadata", JSON.stringify(request.metadata));
   }
 
   try {
     const response = await apiClient.post<UploadSourceResponse>(
-      '/sources/upload',
+      "/sources/upload",
       formData,
       {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Fonte de conhecimento enviada com sucesso!');
+    const { message } = await import("antd");
+    message.success("Fonte de conhecimento enviada com sucesso!");
 
     return response.data;
   } catch (error) {
-    console.error('Error uploading source:', error);
+    console.error("Error uploading source:", error);
 
     // Feedback de erro
-    const { message } = await import('antd');
-    message.error('Erro ao enviar fonte de conhecimento. Tente novamente.');
+    const { message } = await import("antd");
+    message.error("Erro ao enviar fonte de conhecimento. Tente novamente.");
 
     throw error;
   }
@@ -98,11 +98,11 @@ export const uploadSource = async (
  * Get the processing status of a specific source
  */
 export const getSourceStatus = async (
-  sourceId: string
+  sourceId: string,
 ): Promise<GetSourceStatusResponse> => {
   try {
     const response = await apiClient.get<GetSourceStatusResponse>(
-      `/sources/${sourceId}/status`
+      `/sources/${sourceId}/status`,
     );
 
     return response.data;
@@ -116,34 +116,34 @@ export const getSourceStatus = async (
  * List all knowledge sources with optional filtering and pagination
  */
 export const listSources = async (
-  params?: ListSourcesParams
+  params?: ListSourcesParams,
 ): Promise<ListSourcesResponse> => {
   try {
     const queryParams = new URLSearchParams();
 
     if (params?.page !== undefined) {
-      queryParams.append('page', params.page.toString());
+      queryParams.append("page", params.page.toString());
     }
 
     if (params?.page_size !== undefined) {
-      queryParams.append('page_size', params.page_size.toString());
+      queryParams.append("page_size", params.page_size.toString());
     }
 
     if (params?.status) {
-      queryParams.append('status', params.status);
+      queryParams.append("status", params.status);
     }
 
     if (params?.file_type) {
-      queryParams.append('file_type', params.file_type);
+      queryParams.append("file_type", params.file_type);
     }
 
     const response = await apiClient.get<ListSourcesResponse>(
-      `/sources?${queryParams.toString()}`
+      `/sources?${queryParams.toString()}`,
     );
 
     return response.data;
   } catch (error) {
-    console.error('Error listing sources:', error);
+    console.error("Error listing sources:", error);
     throw error;
   }
 };
@@ -154,7 +154,7 @@ export const listSources = async (
 export const getSource = async (sourceId: string): Promise<KnowledgeSource> => {
   try {
     const response = await apiClient.get<KnowledgeSource>(
-      `/sources/${sourceId}`
+      `/sources/${sourceId}`,
     );
     return response.data;
   } catch (error) {
@@ -167,24 +167,24 @@ export const getSource = async (sourceId: string): Promise<KnowledgeSource> => {
  * Delete a knowledge source and all its associated data
  */
 export const deleteSource = async (
-  sourceId: string
+  sourceId: string,
 ): Promise<DeleteSourceResponse> => {
   try {
     const response = await apiClient.delete<DeleteSourceResponse>(
-      `/sources/${sourceId}`
+      `/sources/${sourceId}`,
     );
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Fonte de conhecimento excluída com sucesso!');
+    const { message } = await import("antd");
+    message.success("Fonte de conhecimento excluída com sucesso!");
 
     return response.data;
   } catch (error) {
     console.error(`Error deleting source ${sourceId}:`, error);
 
     // Feedback de erro
-    const { message } = await import('antd');
-    message.error('Erro ao excluir fonte de conhecimento. Tente novamente.');
+    const { message } = await import("antd");
+    message.error("Erro ao excluir fonte de conhecimento. Tente novamente.");
 
     throw error;
   }
@@ -194,17 +194,17 @@ export const deleteSource = async (
  * Search for relevant content in the knowledge base
  */
 export const searchKnowledge = async (
-  request: SearchKnowledgeRequest
+  request: SearchKnowledgeRequest,
 ): Promise<SearchKnowledgeResponse> => {
   try {
     const response = await apiClient.post<SearchKnowledgeResponse>(
-      '/search',
-      request
+      "/search",
+      request,
     );
 
     return response.data;
   } catch (error) {
-    console.error('Error searching knowledge:', error);
+    console.error("Error searching knowledge:", error);
     throw error;
   }
 };
@@ -213,7 +213,7 @@ export const searchKnowledge = async (
  * Reprocess a knowledge source (useful if processing failed)
  */
 export const reprocessSource = async (
-  sourceId: string
+  sourceId: string,
 ): Promise<{ message: string; source_id: string }> => {
   try {
     const response = await apiClient.post<{
@@ -222,17 +222,17 @@ export const reprocessSource = async (
     }>(`/sources/${sourceId}/reprocess`);
 
     // Feedback de sucesso
-    const { message } = await import('antd');
-    message.success('Reprocessamento da fonte iniciado com sucesso!');
+    const { message } = await import("antd");
+    message.success("Reprocessamento da fonte iniciado com sucesso!");
 
     return response.data;
   } catch (error) {
     console.error(`Error reprocessing source ${sourceId}:`, error);
 
     // Feedback de erro
-    const { message } = await import('antd');
+    const { message } = await import("antd");
     message.error(
-      'Erro ao reprocessar fonte de conhecimento. Tente novamente.'
+      "Erro ao reprocessar fonte de conhecimento. Tente novamente.",
     );
 
     throw error;
@@ -250,10 +250,10 @@ export const getKnowledgeStats = async (): Promise<{
   total_size_bytes: number;
 }> => {
   try {
-    const response = await apiClient.get('/stats');
+    const response = await apiClient.get("/stats");
     return response.data;
   } catch (error) {
-    console.error('Error getting knowledge stats:', error);
+    console.error("Error getting knowledge stats:", error);
     throw error;
   }
 };
@@ -267,10 +267,10 @@ export const checkKnowledgeHealth = async (): Promise<{
   services: Record<string, string>;
 }> => {
   try {
-    const response = await apiClient.get('/health');
+    const response = await apiClient.get("/health");
     return response.data;
   } catch (error) {
-    console.error('Error checking knowledge health:', error);
+    console.error("Error checking knowledge health:", error);
     throw error;
   }
 };
@@ -279,4 +279,4 @@ export const checkKnowledgeHealth = async (): Promise<{
 export { apiClient as knowledgeApiClient };
 
 // Export all types for convenience
-export * from '../types/api';
+export * from "../types/api";

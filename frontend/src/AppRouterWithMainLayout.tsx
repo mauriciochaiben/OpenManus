@@ -1,9 +1,9 @@
-import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { NotificationProvider } from './contexts/NotificationContext';
-import { MainLayout } from './layouts';
-import LazyLoadIndicator from './components/common/LazyLoadIndicator';
-import AppRoutes from './routes';
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import { MainLayout } from "./layouts";
+import LazyLoadIndicator from "./components/common/LazyLoadIndicator";
+import AppRoutes from "./routes";
 
 /**
  * AppRouter alternativo usando o MainLayout refatorado

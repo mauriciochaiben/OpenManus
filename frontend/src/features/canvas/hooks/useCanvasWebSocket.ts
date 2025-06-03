@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { useWebSocket } from '../../../hooks/useWebSocket';
+import { useCallback } from "react";
+import { useWebSocket } from "../../../hooks/useWebSocket";
 
 export const useCanvasWebSocket = () => {
   const { isConnected, sendMessage } = useWebSocket({
@@ -10,20 +10,20 @@ export const useCanvasWebSocket = () => {
   const subscribeToNode = useCallback(
     (nodeId: string) => {
       if (isConnected) {
-        sendMessage('subscribe_node', { node_id: nodeId });
+        sendMessage("subscribe_node", { node_id: nodeId });
       }
     },
-    [isConnected, sendMessage]
+    [isConnected, sendMessage],
   );
 
   // Unsubscribe from node execution
   const unsubscribeFromNode = useCallback(
     (nodeId: string) => {
       if (isConnected) {
-        sendMessage('unsubscribe_node', { node_id: nodeId });
+        sendMessage("unsubscribe_node", { node_id: nodeId });
       }
     },
-    [isConnected, sendMessage]
+    [isConnected, sendMessage],
   );
 
   return {

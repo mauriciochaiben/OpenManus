@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Row,
   Col,
@@ -13,7 +13,7 @@ import {
   Empty,
   Spin,
   Alert,
-} from 'antd';
+} from "antd";
 import {
   UnorderedListOutlined,
   CheckCircleOutlined,
@@ -23,10 +23,10 @@ import {
   PlayCircleOutlined,
   FileTextOutlined,
   RobotOutlined,
-} from '@ant-design/icons';
-import { systemApi } from '../services/api';
-import { eventBus } from '../utils/eventBus';
-import type { Task } from '../types';
+} from "@ant-design/icons";
+import { systemApi } from "../services/api";
+import { eventBus } from "../utils/eventBus";
+import type { Task } from "../types";
 
 const { Title, Text } = Typography;
 
@@ -56,12 +56,12 @@ const DashboardPage: React.FC = () => {
 
     // Set up EventBus listeners for real-time updates
     const handleTaskUpdate = (data: any) => {
-      console.log('Task update received:', data);
+      console.log("Task update received:", data);
       refreshStats();
     };
 
-    const unsubTaskUpdate = eventBus.on('task:updated', handleTaskUpdate);
-    const unsubStepUpdate = eventBus.on('task:stepUpdated', handleTaskUpdate);
+    const unsubTaskUpdate = eventBus.on("task:updated", handleTaskUpdate);
+    const unsubStepUpdate = eventBus.on("task:stepUpdated", handleTaskUpdate);
 
     return () => {
       unsubTaskUpdate();
@@ -78,7 +78,7 @@ const DashboardPage: React.FC = () => {
         systemApi.getDashboardStats(),
         systemApi
           .getHealth()
-          .catch(() => ({ status: 'unknown', version: 'unknown' })),
+          .catch(() => ({ status: "unknown", version: "unknown" })),
       ]);
 
       // Set statistics from the API response
@@ -95,19 +95,19 @@ const DashboardPage: React.FC = () => {
         (activity: any) => ({
           id: activity.task_id,
           title: activity.task_title,
-          description: '', // Not provided in activity
+          description: "", // Not provided in activity
           status: activity.status,
           createdAt: activity.created_at,
           completedAt: activity.completed_at,
-          complexity: 'medium', // Default value
-          mode: 'auto', // Default value
-        })
+          complexity: "medium", // Default value
+          mode: "auto", // Default value
+        }),
       );
 
       setRecentTasks(recentTasksFromActivity);
       setSystemHealth(health);
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error("Error loading dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -133,18 +133,18 @@ const DashboardPage: React.FC = () => {
         (activity: any) => ({
           id: activity.task_id,
           title: activity.task_title,
-          description: '',
+          description: "",
           status: activity.status,
           createdAt: activity.created_at,
           completedAt: activity.completed_at,
-          complexity: 'medium',
-          mode: 'auto',
-        })
+          complexity: "medium",
+          mode: "auto",
+        }),
       );
 
       setRecentTasks(recentTasksFromActivity);
     } catch (error) {
-      console.error('Error refreshing stats:', error);
+      console.error("Error refreshing stats:", error);
     } finally {
       setRefreshing(false);
     }
@@ -152,40 +152,40 @@ const DashboardPage: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
-        return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
-      case 'running':
-        return <PlayCircleOutlined style={{ color: '#1890ff' }} />;
-      case 'pending':
-        return <ClockCircleOutlined style={{ color: '#faad14' }} />;
-      case 'error':
-        return <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />;
+      case "completed":
+        return <CheckCircleOutlined style={{ color: "#52c41a" }} />;
+      case "running":
+        return <PlayCircleOutlined style={{ color: "#1890ff" }} />;
+      case "pending":
+        return <ClockCircleOutlined style={{ color: "#faad14" }} />;
+      case "error":
+        return <ExclamationCircleOutlined style={{ color: "#ff4d4f" }} />;
       default:
-        return <ClockCircleOutlined style={{ color: '#d9d9d9' }} />;
+        return <ClockCircleOutlined style={{ color: "#d9d9d9" }} />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'success';
-      case 'running':
-        return 'processing';
-      case 'pending':
-        return 'warning';
-      case 'error':
-        return 'error';
+      case "completed":
+        return "success";
+      case "running":
+        return "processing";
+      case "pending":
+        return "warning";
+      case "error":
+        return "error";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(timestamp).toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -196,8 +196,8 @@ const DashboardPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '20%' }}>
-        <Spin size='large' />
+      <div style={{ textAlign: "center", marginTop: "20%" }}>
+        <Spin size="large" />
         <div style={{ marginTop: 16 }}>
           <Text>Carregando dashboard...</Text>
         </div>
@@ -206,13 +206,13 @@ const DashboardPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: "24px" }}>
       <div
         style={{
-          marginBottom: '24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          marginBottom: "24px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
         <Title level={2} style={{ margin: 0 }}>
@@ -231,54 +231,54 @@ const DashboardPage: React.FC = () => {
       {systemHealth && (
         <Alert
           message={`Sistema ${
-            systemHealth.status === 'healthy' ? 'Online' : 'Offline'
+            systemHealth.status === "healthy" ? "Online" : "Offline"
           }`}
           description={`Versão: ${systemHealth.version} | Status: ${systemHealth.status}`}
-          type={systemHealth.status === 'healthy' ? 'success' : 'error'}
+          type={systemHealth.status === "healthy" ? "success" : "error"}
           showIcon
-          style={{ marginBottom: '24px' }}
+          style={{ marginBottom: "24px" }}
         />
       )}
 
       {/* Statistics Cards */}
-      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+      <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title='Total de Tarefas'
+              title="Total de Tarefas"
               value={stats.totalTasks}
               prefix={<UnorderedListOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: "#1890ff" }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title='Concluídas'
+              title="Concluídas"
               value={stats.completedTasks}
               prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: "#52c41a" }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title='Em Execução'
+              title="Em Execução"
               value={stats.runningTasks}
               prefix={<PlayCircleOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: "#1890ff" }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title='Pendentes'
+              title="Pendentes"
               value={stats.pendingTasks}
               prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#faad14' }}
+              valueStyle={{ color: "#faad14" }}
             />
           </Card>
         </Col>
@@ -295,15 +295,15 @@ const DashboardPage: React.FC = () => {
               </Space>
             }
           >
-            <div style={{ textAlign: 'center' }}>
+            <div style={{ textAlign: "center" }}>
               <Progress
-                type='circle'
+                type="circle"
                 percent={completionPercentage}
                 format={() => `${completionPercentage}%`}
                 size={120}
               />
-              <div style={{ marginTop: '16px' }}>
-                <Text type='secondary'>
+              <div style={{ marginTop: "16px" }}>
+                <Text type="secondary">
                   {stats.completedTasks} de {stats.totalTasks} tarefas
                   concluídas
                 </Text>
@@ -311,8 +311,8 @@ const DashboardPage: React.FC = () => {
             </div>
 
             {stats.errorTasks > 0 && (
-              <div style={{ marginTop: '16px', textAlign: 'center' }}>
-                <Tag color='error'>{stats.errorTasks} tarefa(s) com erro</Tag>
+              <div style={{ marginTop: "16px", textAlign: "center" }}>
+                <Tag color="error">{stats.errorTasks} tarefa(s) com erro</Tag>
               </div>
             )}
           </Card>
@@ -330,8 +330,8 @@ const DashboardPage: React.FC = () => {
           >
             {recentTasks.length === 0 ? (
               <Empty
-                description='Nenhuma tarefa encontrada'
-                style={{ margin: '20px 0' }}
+                description="Nenhuma tarefa encontrada"
+                style={{ margin: "20px 0" }}
               />
             ) : (
               <List
@@ -352,15 +352,15 @@ const DashboardPage: React.FC = () => {
                         <div>
                           <Text
                             ellipsis
-                            style={{ display: 'block', marginBottom: '4px' }}
+                            style={{ display: "block", marginBottom: "4px" }}
                           >
                             {task.description}
                           </Text>
-                          <Text type='secondary' style={{ fontSize: '12px' }}>
+                          <Text type="secondary" style={{ fontSize: "12px" }}>
                             Criada em: {formatTime(task.createdAt)}
                             {task.completedAt && (
                               <>
-                                {' '}
+                                {" "}
                                 • Concluída em: {formatTime(task.completedAt)}
                               </>
                             )}

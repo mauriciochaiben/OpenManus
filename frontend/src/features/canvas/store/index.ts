@@ -1,3 +1,3 @@
 // Canvas store exports
-export * from './canvasStore';
+export * from "./canvasStore";
 export {};

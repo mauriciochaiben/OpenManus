@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Input,
@@ -12,25 +12,25 @@ import {
   Row,
   Col,
   Divider,
-} from 'antd';
+} from "antd";
 import {
   SaveOutlined,
   EditOutlined,
   TagOutlined,
   GlobalOutlined,
   LockOutlined,
-} from '@ant-design/icons';
-import MDEditor from '@uiw/react-md-editor';
-import { Note, NoteCreate, NoteUpdate } from '../types';
-import { createNote, updateNote, getNote } from '../services/notesApi';
-import { SourceSelector } from '../../../shared/components';
+} from "@ant-design/icons";
+import MDEditor from "@uiw/react-md-editor";
+import { Note, NoteCreate, NoteUpdate } from "../types";
+import { createNote, updateNote, getNote } from "../services/notesApi";
+import { SourceSelector } from "../../../shared/components";
 
 interface NoteEditorProps {
   noteId?: string;
   initialNote?: Note;
   onSave?: (note: Note) => void;
   onCancel?: () => void;
-  mode?: 'create' | 'edit' | 'view';
+  mode?: "create" | "edit" | "view";
 }
 
 const NoteEditor: React.FC<NoteEditorProps> = ({
@@ -38,20 +38,20 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   initialNote,
   onSave,
   onCancel,
-  mode: initialMode = 'create',
+  mode: initialMode = "create",
 }) => {
   const [mode, setMode] = useState(initialMode);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [note, setNote] = useState<Partial<Note>>({
-    title: '',
-    content: '',
+    title: "",
+    content: "",
     source_ids: [],
     tags: [],
     is_public: false,
     ...initialNote,
   });
-  const [newTag, setNewTag] = useState('');
+  const [newTag, setNewTag] = useState("");
 
   // Load note if noteId is provided
   useEffect(() => {
@@ -68,8 +68,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       const loadedNote = await getNote(noteId);
       setNote(loadedNote);
     } catch (error) {
-      message.error('Failed to load note');
-      console.error('Error loading note:', error);
+      message.error("Failed to load note");
+      console.error("Error loading note:", error);
     } finally {
       setLoading(false);
     }
@@ -78,12 +78,12 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   // Handle save
   const handleSave = async () => {
     if (!note.title?.trim()) {
-      message.error('Please enter a note title');
+      message.error("Please enter a note title");
       return;
     }
 
     if (!note.content?.trim()) {
-      message.error('Please enter note content');
+      message.error("Please enter note content");
       return;
     }
 
@@ -91,7 +91,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       setSaving(true);
       let savedNote: Note;
 
-      if (noteId && mode === 'edit') {
+      if (noteId && mode === "edit") {
         // Update existing note
         const updateData: NoteUpdate = {
           title: note.title,
@@ -115,13 +115,13 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         savedNote = await createNote(createData);
       }
 
-      message.success(`Note ${noteId ? 'updated' : 'created'} successfully`);
+      message.success(`Note ${noteId ? "updated" : "created"} successfully`);
       setNote(savedNote);
       onSave?.(savedNote);
-      setMode('view');
+      setMode("view");
     } catch (error) {
-      message.error(`Failed to ${noteId ? 'update' : 'create'} note`);
-      console.error('Error saving note:', error);
+      message.error(`Failed to ${noteId ? "update" : "create"} note`);
+      console.error("Error saving note:", error);
     } finally {
       setSaving(false);
     }
@@ -134,7 +134,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         ...prev,
         tags: [...(prev.tags || []), newTag.trim().toLowerCase()],
       }));
-      setNewTag('');
+      setNewTag("");
     }
   };
 
@@ -148,8 +148,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   if (loading) {
     return (
       <Card>
-        <div style={{ textAlign: 'center', padding: '40px' }}>
-          <Spin size='large' />
+        <div style={{ textAlign: "center", padding: "40px" }}>
+          <Spin size="large" />
         </div>
       </Card>
     );
@@ -161,31 +161,31 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         <Space>
           <EditOutlined />
           <span>
-            {mode === 'create'
-              ? 'New Note'
-              : mode === 'edit'
-                ? 'Edit Note'
-                : 'View Note'}
+            {mode === "create"
+              ? "New Note"
+              : mode === "edit"
+                ? "Edit Note"
+                : "View Note"}
           </span>
           {note.is_public ? (
-            <GlobalOutlined style={{ color: '#52c41a' }} />
+            <GlobalOutlined style={{ color: "#52c41a" }} />
           ) : (
-            <LockOutlined style={{ color: '#faad14' }} />
+            <LockOutlined style={{ color: "#faad14" }} />
           )}
         </Space>
       }
       extra={
         <Space>
-          {mode === 'view' && (
-            <Button icon={<EditOutlined />} onClick={() => setMode('edit')}>
+          {mode === "view" && (
+            <Button icon={<EditOutlined />} onClick={() => setMode("edit")}>
               Edit
             </Button>
           )}
-          {(mode === 'edit' || mode === 'create') && (
+          {(mode === "edit" || mode === "create") && (
             <>
               <Button onClick={onCancel}>Cancel</Button>
               <Button
-                type='primary'
+                type="primary"
                 icon={<SaveOutlined />}
                 loading={saving}
                 onClick={handleSave}
@@ -197,7 +197,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         </Space>
       }
     >
-      <Space direction='vertical' size='large' style={{ width: '100%' }}>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Title */}
         <div>
           <Typography.Text strong>Title</Typography.Text>
@@ -206,10 +206,10 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
             onChange={(e) =>
               setNote((prev) => ({ ...prev, title: e.target.value }))
             }
-            placeholder='Enter note title...'
-            disabled={mode === 'view'}
-            style={{ marginTop: '8px' }}
-            size='large'
+            placeholder="Enter note title..."
+            disabled={mode === "view"}
+            style={{ marginTop: "8px" }}
+            size="large"
           />
         </div>
 
@@ -223,9 +223,9 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 onChange={(checked) =>
                   setNote((prev) => ({ ...prev, is_public: checked }))
                 }
-                disabled={mode === 'view'}
-                checkedChildren='Public'
-                unCheckedChildren='Private'
+                disabled={mode === "view"}
+                checkedChildren="Public"
+                unCheckedChildren="Private"
               />
             </Space>
           </Col>
@@ -234,12 +234,12 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         {/* Tags */}
         <div>
           <Typography.Text strong>Tags</Typography.Text>
-          <div style={{ marginTop: '8px' }}>
+          <div style={{ marginTop: "8px" }}>
             <Space wrap>
               {note.tags?.map((tag) => (
                 <Tag
                   key={tag}
-                  closable={mode !== 'view'}
+                  closable={mode !== "view"}
                   onClose={() => removeTag(tag)}
                   icon={<TagOutlined />}
                 >
@@ -247,17 +247,17 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 </Tag>
               ))}
             </Space>
-            {mode !== 'view' && (
-              <div style={{ marginTop: '8px' }}>
+            {mode !== "view" && (
+              <div style={{ marginTop: "8px" }}>
                 <Input
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onPressEnter={addTag}
-                  placeholder='Add a tag...'
-                  style={{ width: '200px' }}
+                  placeholder="Add a tag..."
+                  style={{ width: "200px" }}
                   addonAfter={
                     <Button
-                      type='text'
+                      type="text"
                       onClick={addTag}
                       disabled={!newTag.trim()}
                     >
@@ -273,15 +273,15 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         {/* Knowledge Sources */}
         <div>
           <Typography.Text strong>Knowledge Sources</Typography.Text>
-          <div style={{ marginTop: '8px' }}>
+          <div style={{ marginTop: "8px" }}>
             <SourceSelector
               selectedSourceIds={note.source_ids || []}
               onSelectionChange={(sourceIds) =>
                 setNote((prev) => ({ ...prev, source_ids: sourceIds }))
               }
-              disabled={mode === 'view'}
+              disabled={mode === "view"}
               showCard={false}
-              placeholder='Link knowledge sources to this note'
+              placeholder="Link knowledge sources to this note"
             />
           </div>
         </div>
@@ -291,25 +291,25 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         {/* Content Editor */}
         <div>
           <Typography.Text strong>Content</Typography.Text>
-          <div style={{ marginTop: '8px' }}>
-            {mode === 'view' ? (
+          <div style={{ marginTop: "8px" }}>
+            {mode === "view" ? (
               <MDEditor.Markdown
-                source={note.content || ''}
+                source={note.content || ""}
                 style={{
-                  padding: '16px',
-                  border: '1px solid #d9d9d9',
-                  borderRadius: '6px',
+                  padding: "16px",
+                  border: "1px solid #d9d9d9",
+                  borderRadius: "6px",
                 }}
               />
             ) : (
               <MDEditor
-                value={note.content || ''}
+                value={note.content || ""}
                 onChange={(val) =>
-                  setNote((prev) => ({ ...prev, content: val || '' }))
+                  setNote((prev) => ({ ...prev, content: val || "" }))
                 }
-                preview='edit'
+                preview="edit"
                 height={400}
-                data-color-mode='light'
+                data-color-mode="light"
               />
             )}
           </div>
@@ -318,11 +318,11 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         {/* Metadata */}
         {note.word_count && (
           <Space>
-            <Typography.Text type='secondary'>
+            <Typography.Text type="secondary">
               {note.word_count} words
             </Typography.Text>
             {note.reading_time && (
-              <Typography.Text type='secondary'>
+              <Typography.Text type="secondary">
                 • {note.reading_time}
               </Typography.Text>
             )}

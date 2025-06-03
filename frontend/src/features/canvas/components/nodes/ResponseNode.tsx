@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Card, Typography, Space, Spin, Button, Tooltip } from 'antd';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React, { useState } from "react";
+import { Card, Typography, Space, Spin, Button, Tooltip } from "antd";
+import { Handle, Position, NodeProps } from "reactflow";
 import {
   MessageOutlined,
   CheckCircleOutlined,
@@ -8,7 +8,7 @@ import {
   LoadingOutlined,
   CopyOutlined,
   ExpandOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 
 const { Text, Paragraph } = Typography;
 
@@ -16,7 +16,7 @@ interface ResponseNodeData {
   label: string;
   response?: string;
   description?: string;
-  status?: 'idle' | 'running' | 'completed' | 'failed';
+  status?: "idle" | "running" | "completed" | "failed";
   error?: string;
   executionTime?: number;
   prompt?: string;
@@ -32,33 +32,33 @@ const ResponseNode: React.FC<ResponseNodeProps> = ({ data, selected }) => {
   // Get status icon and color
   const getStatusDisplay = () => {
     switch (data.status) {
-      case 'running':
+      case "running":
         return {
-          icon: <LoadingOutlined spin style={{ color: '#1890ff' }} />,
-          color: '#1890ff',
-          text: 'Processing',
-          bgColor: '#e6f7ff',
+          icon: <LoadingOutlined spin style={{ color: "#1890ff" }} />,
+          color: "#1890ff",
+          text: "Processing",
+          bgColor: "#e6f7ff",
         };
-      case 'completed':
+      case "completed":
         return {
-          icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
-          color: '#52c41a',
-          text: 'Completed',
-          bgColor: '#f6ffed',
+          icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
+          color: "#52c41a",
+          text: "Completed",
+          bgColor: "#f6ffed",
         };
-      case 'failed':
+      case "failed":
         return {
-          icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
-          color: '#ff4d4f',
-          text: 'Failed',
-          bgColor: '#fff2f0',
+          icon: <CloseCircleOutlined style={{ color: "#ff4d4f" }} />,
+          color: "#ff4d4f",
+          text: "Failed",
+          bgColor: "#fff2f0",
         };
       default:
         return {
-          icon: <MessageOutlined style={{ color: '#d9d9d9' }} />,
-          color: '#d9d9d9',
-          text: 'Waiting',
-          bgColor: '#fafafa',
+          icon: <MessageOutlined style={{ color: "#d9d9d9" }} />,
+          color: "#d9d9d9",
+          text: "Waiting",
+          bgColor: "#fafafa",
         };
     }
   };
@@ -78,43 +78,43 @@ const ResponseNode: React.FC<ResponseNodeProps> = ({ data, selected }) => {
   };
 
   return (
-    <div style={{ minWidth: '300px', maxWidth: expanded ? '600px' : '400px' }}>
+    <div style={{ minWidth: "300px", maxWidth: expanded ? "600px" : "400px" }}>
       {/* Input Handle */}
       <Handle
-        type='target'
+        type="target"
         position={Position.Left}
         style={{
-          background: '#555',
-          width: '12px',
-          height: '12px',
-          border: '2px solid #fff',
+          background: "#555",
+          width: "12px",
+          height: "12px",
+          border: "2px solid #fff",
         }}
         isConnectable={true}
       />
 
       {/* Node Content */}
       <Card
-        size='small'
+        size="small"
         style={{
-          border: selected ? '2px solid #1890ff' : '1px solid #d9d9d9',
-          borderRadius: '8px',
+          border: selected ? "2px solid #1890ff" : "1px solid #d9d9d9",
+          borderRadius: "8px",
           boxShadow: selected
-            ? '0 4px 12px rgba(24, 144, 255, 0.3)'
-            : '0 2px 8px rgba(0, 0, 0, 0.1)',
+            ? "0 4px 12px rgba(24, 144, 255, 0.3)"
+            : "0 2px 8px rgba(0, 0, 0, 0.1)",
           backgroundColor: statusDisplay.bgColor,
         }}
         title={
-          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Space style={{ width: "100%", justifyContent: "space-between" }}>
             <Space>
               {statusDisplay.icon}
               <Text strong>{data.label}</Text>
             </Space>
             <Space>
-              <Text style={{ fontSize: '10px', color: statusDisplay.color }}>
+              <Text style={{ fontSize: "10px", color: statusDisplay.color }}>
                 {statusDisplay.text}
               </Text>
               {data.executionTime && (
-                <Text style={{ fontSize: '10px' }} type='secondary'>
+                <Text style={{ fontSize: "10px" }} type="secondary">
                   {data.executionTime}s
                 </Text>
               )}
@@ -124,19 +124,19 @@ const ResponseNode: React.FC<ResponseNodeProps> = ({ data, selected }) => {
         extra={
           <Space>
             {data.response && (
-              <Tooltip title='Copy response'>
+              <Tooltip title="Copy response">
                 <Button
-                  type='text'
-                  size='small'
+                  type="text"
+                  size="small"
                   icon={<CopyOutlined />}
                   onClick={handleCopy}
                 />
               </Tooltip>
             )}
-            <Tooltip title={expanded ? 'Collapse' : 'Expand'}>
+            <Tooltip title={expanded ? "Collapse" : "Expand"}>
               <Button
-                type='text'
-                size='small'
+                type="text"
+                size="small"
                 icon={<ExpandOutlined />}
                 onClick={handleToggleExpanded}
               />
@@ -144,20 +144,20 @@ const ResponseNode: React.FC<ResponseNodeProps> = ({ data, selected }) => {
           </Space>
         }
       >
-        <Space direction='vertical' style={{ width: '100%' }} size='middle'>
+        <Space direction="vertical" style={{ width: "100%" }} size="middle">
           {/* Description */}
           {data.description && (
-            <Text type='secondary' style={{ fontSize: '12px' }}>
+            <Text type="secondary" style={{ fontSize: "12px" }}>
               {data.description}
             </Text>
           )}
 
           {/* Status Content */}
-          {data.status === 'running' && (
-            <div style={{ textAlign: 'center', padding: '20px' }}>
-              <Spin size='large' />
-              <div style={{ marginTop: '8px' }}>
-                <Text type='secondary'>Processing your request...</Text>
+          {data.status === "running" && (
+            <div style={{ textAlign: "center", padding: "20px" }}>
+              <Spin size="large" />
+              <div style={{ marginTop: "8px" }}>
+                <Text type="secondary">Processing your request...</Text>
               </div>
             </div>
           )}
@@ -166,20 +166,20 @@ const ResponseNode: React.FC<ResponseNodeProps> = ({ data, selected }) => {
           {data.response && (
             <div
               style={{
-                padding: '12px',
-                backgroundColor: '#fff',
-                border: '1px solid #e8e8e8',
-                borderRadius: '6px',
-                maxHeight: expanded ? 'none' : '200px',
-                overflow: expanded ? 'visible' : 'hidden',
+                padding: "12px",
+                backgroundColor: "#fff",
+                border: "1px solid #e8e8e8",
+                borderRadius: "6px",
+                maxHeight: expanded ? "none" : "200px",
+                overflow: expanded ? "visible" : "hidden",
               }}
             >
               <Paragraph
                 style={{
                   margin: 0,
-                  fontSize: '13px',
-                  lineHeight: '1.5',
-                  whiteSpace: 'pre-wrap',
+                  fontSize: "13px",
+                  lineHeight: "1.5",
+                  whiteSpace: "pre-wrap",
                 }}
                 ellipsis={expanded ? false : { rows: 6, expandable: false }}
               >
@@ -192,29 +192,29 @@ const ResponseNode: React.FC<ResponseNodeProps> = ({ data, selected }) => {
           {data.error && (
             <div
               style={{
-                padding: '12px',
-                backgroundColor: '#fff2f0',
-                border: '1px solid #ffccc7',
-                borderRadius: '6px',
+                padding: "12px",
+                backgroundColor: "#fff2f0",
+                border: "1px solid #ffccc7",
+                borderRadius: "6px",
               }}
             >
-              <Text type='danger' style={{ fontSize: '13px' }}>
+              <Text type="danger" style={{ fontSize: "13px" }}>
                 <strong>Error:</strong> {data.error}
               </Text>
             </div>
           )}
 
           {/* Waiting State */}
-          {data.status === 'idle' && !data.response && !data.error && (
+          {data.status === "idle" && !data.response && !data.error && (
             <div
               style={{
-                padding: '20px',
-                textAlign: 'center',
-                color: '#999',
-                fontStyle: 'italic',
+                padding: "20px",
+                textAlign: "center",
+                color: "#999",
+                fontStyle: "italic",
               }}
             >
-              <Text type='secondary'>
+              <Text type="secondary">
                 Connect a prompt node and execute to see results
               </Text>
             </div>
@@ -222,8 +222,8 @@ const ResponseNode: React.FC<ResponseNodeProps> = ({ data, selected }) => {
 
           {/* Character Count for Response */}
           {data.response && (
-            <div style={{ textAlign: 'right' }}>
-              <Text type='secondary' style={{ fontSize: '11px' }}>
+            <div style={{ textAlign: "right" }}>
+              <Text type="secondary" style={{ fontSize: "11px" }}>
                 {data.response.length} characters
               </Text>
             </div>
@@ -233,13 +233,13 @@ const ResponseNode: React.FC<ResponseNodeProps> = ({ data, selected }) => {
 
       {/* Output Handle */}
       <Handle
-        type='source'
+        type="source"
         position={Position.Right}
         style={{
-          background: '#555',
-          width: '12px',
-          height: '12px',
-          border: '2px solid #fff',
+          background: "#555",
+          width: "12px",
+          height: "12px",
+          border: "2px solid #fff",
         }}
         isConnectable={true}
       />

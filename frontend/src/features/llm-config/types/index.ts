@@ -6,7 +6,7 @@ export interface LLMProvider {
   id: string;
   name: string;
   displayName: string;
-  type: 'openai' | 'anthropic' | 'google' | 'ollama' | 'custom';
+  type: "openai" | "anthropic" | "google" | "ollama" | "custom";
   description: string;
   icon?: string;
   requiresApiKey: boolean;
@@ -49,7 +49,7 @@ export interface LLMConfiguration {
 export interface ModelParameter {
   name: string;
   displayName: string;
-  type: 'string' | 'number' | 'boolean' | 'select' | 'range';
+  type: "string" | "number" | "boolean" | "select" | "range";
   description: string;
   defaultValue: any;
   required: boolean;
@@ -60,24 +60,24 @@ export interface ModelParameter {
 }
 
 export type LLMFeature =
-  | 'chat'
-  | 'completion'
-  | 'embedding'
-  | 'image_analysis'
-  | 'function_calling'
-  | 'streaming'
-  | 'vision'
-  | 'code_generation';
+  | "chat"
+  | "completion"
+  | "embedding"
+  | "image_analysis"
+  | "function_calling"
+  | "streaming"
+  | "vision"
+  | "code_generation";
 
 export type ModelCapability =
-  | 'text_generation'
-  | 'conversation'
-  | 'function_calling'
-  | 'tool_use'
-  | 'vision'
-  | 'multimodal'
-  | 'code_completion'
-  | 'reasoning';
+  | "text_generation"
+  | "conversation"
+  | "function_calling"
+  | "tool_use"
+  | "vision"
+  | "multimodal"
+  | "code_completion"
+  | "reasoning";
 
 export interface LLMTestResult {
   success: boolean;

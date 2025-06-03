@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from "react";
 import {
   Card,
   Steps,
@@ -13,7 +13,7 @@ import {
   Spin,
   Result,
   Empty,
-} from 'antd';
+} from "antd";
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
@@ -24,8 +24,8 @@ import {
   InfoCircleOutlined,
   ExclamationCircleOutlined,
   DisconnectOutlined,
-} from '@ant-design/icons';
-import { useWebSocket } from '../../../hooks/useWebSocket';
+} from "@ant-design/icons";
+import { useWebSocket } from "../../../hooks/useWebSocket";
 
 const { Step } = Steps;
 const { Item: TimelineItem } = Timeline;
@@ -34,7 +34,7 @@ const { Text, Paragraph } = Typography;
 interface WorkflowStep {
   id: string;
   name: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   result?: string;
   error?: string;
   startTime?: string;
@@ -48,7 +48,7 @@ interface WorkflowState {
   id: string;
   title: string;
   description?: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   steps: WorkflowStep[];
   startTime?: string;
   endTime?: string;
@@ -73,7 +73,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
   onWorkflowFailed,
 }) => {
   const [workflowState, setWorkflowState] = useState<WorkflowState | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -92,24 +92,24 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           handleWorkflowEvent(message);
         }
       } catch (err) {
-        console.error('Error handling WebSocket message:', err);
+        console.error("Error handling WebSocket message:", err);
       }
     },
   });
 
-  const connectionError = connectionState === 'disconnected';
+  const connectionError = connectionState === "disconnected";
 
   const handleWorkflowEvent = useCallback(
     (event: any) => {
       const { type, ...eventData } = event;
 
       switch (type) {
-        case 'workflow_started':
+        case "workflow_started":
           setWorkflowState({
             id: eventData.workflow_id,
-            title: eventData.title || 'Workflow',
+            title: eventData.title || "Workflow",
             description: eventData.description,
-            status: 'running',
+            status: "running",
             steps: [],
             startTime: eventData.timestamp || new Date().toISOString(),
             contextEnhanced: eventData.context_enhanced,
@@ -117,19 +117,19 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           setLoading(false);
           break;
 
-        case 'workflow_step_started':
+        case "workflow_step_started":
           setWorkflowState((prev) => {
             if (!prev) return prev;
 
             const updatedSteps = [...prev.steps];
             const stepIndex = updatedSteps.findIndex(
-              (s) => s.id === eventData.step_id
+              (s) => s.id === eventData.step_id,
             );
 
             if (stepIndex >= 0) {
               updatedSteps[stepIndex] = {
                 ...updatedSteps[stepIndex],
-                status: 'running',
+                status: "running",
                 startTime: eventData.timestamp || new Date().toISOString(),
                 agentRole: eventData.agent_role,
               };
@@ -137,7 +137,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
               updatedSteps.push({
                 id: eventData.step_id,
                 name: eventData.step_name,
-                status: 'running',
+                status: "running",
                 startTime: eventData.timestamp || new Date().toISOString(),
                 agentRole: eventData.agent_role,
               });
@@ -152,13 +152,13 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           });
           break;
 
-        case 'workflow_step_completed':
+        case "workflow_step_completed":
           setWorkflowState((prev) => {
             if (!prev) return prev;
 
             const updatedSteps = [...prev.steps];
             const stepIndex = updatedSteps.findIndex(
-              (s) => s.id === eventData.step_id
+              (s) => s.id === eventData.step_id,
             );
 
             if (stepIndex >= 0) {
@@ -172,7 +172,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
 
               updatedSteps[stepIndex] = {
                 ...updatedSteps[stepIndex],
-                status: eventData.status === 'success' ? 'completed' : 'failed',
+                status: eventData.status === "success" ? "completed" : "failed",
                 result: eventData.result,
                 error: eventData.error,
                 endTime,
@@ -188,7 +188,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           });
           break;
 
-        case 'workflow_completed':
+        case "workflow_completed":
           setWorkflowState((prev) => {
             if (!prev) return prev;
 
@@ -201,7 +201,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
 
             const completedWorkflow = {
               ...prev,
-              status: 'completed' as const,
+              status: "completed" as const,
               endTime,
               totalDuration,
             };
@@ -211,7 +211,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           });
           break;
 
-        case 'workflow_failed':
+        case "workflow_failed":
           setWorkflowState((prev) => {
             if (!prev) return prev;
 
@@ -224,7 +224,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
 
             const failedWorkflow = {
               ...prev,
-              status: 'failed' as const,
+              status: "failed" as const,
               endTime,
               totalDuration,
             };
@@ -236,39 +236,39 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           break;
 
         default:
-          console.log('Unknown workflow event type:', type);
+          console.log("Unknown workflow event type:", type);
       }
     },
-    [onWorkflowComplete, onWorkflowFailed]
+    [onWorkflowComplete, onWorkflowFailed],
   );
 
   const getStepIcon = (step: WorkflowStep) => {
     switch (step.status) {
-      case 'completed':
-        return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
-      case 'failed':
-        return <CloseCircleOutlined style={{ color: '#ff4d4f' }} />;
-      case 'running':
-        return <LoadingOutlined style={{ color: '#1890ff' }} />;
-      case 'pending':
+      case "completed":
+        return <CheckCircleOutlined style={{ color: "#52c41a" }} />;
+      case "failed":
+        return <CloseCircleOutlined style={{ color: "#ff4d4f" }} />;
+      case "running":
+        return <LoadingOutlined style={{ color: "#1890ff" }} />;
+      case "pending":
       default:
-        return <ClockCircleOutlined style={{ color: '#d9d9d9' }} />;
+        return <ClockCircleOutlined style={{ color: "#d9d9d9" }} />;
     }
   };
 
   const getStepStatus = (
-    step: WorkflowStep
-  ): 'wait' | 'process' | 'finish' | 'error' => {
+    step: WorkflowStep,
+  ): "wait" | "process" | "finish" | "error" => {
     switch (step.status) {
-      case 'completed':
-        return 'finish';
-      case 'failed':
-        return 'error';
-      case 'running':
-        return 'process';
-      case 'pending':
+      case "completed":
+        return "finish";
+      case "failed":
+        return "error";
+      case "running":
+        return "process";
+      case "pending":
       default:
-        return 'wait';
+        return "wait";
     }
   };
 
@@ -285,7 +285,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
     if (!workflowState || workflowState.steps.length === 0) return 0;
 
     const completedSteps = workflowState.steps.filter(
-      (s) => s.status === 'completed' || s.status === 'failed'
+      (s) => s.status === "completed" || s.status === "failed",
     ).length;
 
     return (completedSteps / workflowState.steps.length) * 100;
@@ -299,14 +299,14 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
-            <Space direction='vertical'>
+            <Space direction="vertical">
               <Text strong>Nenhuma etapa encontrada</Text>
-              <Text type='secondary'>
+              <Text type="secondary">
                 O workflow ainda não iniciou nenhuma etapa
               </Text>
             </Space>
           }
-          style={{ padding: '40px 20px' }}
+          style={{ padding: "40px 20px" }}
         />
       );
     }
@@ -314,8 +314,8 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
     return (
       <Steps
         current={workflowState.currentStepIndex}
-        direction={compact ? 'horizontal' : 'vertical'}
-        size={compact ? 'small' : 'default'}
+        direction={compact ? "horizontal" : "vertical"}
+        size={compact ? "small" : "default"}
       >
         {workflowState.steps.map((step) => (
           <Step
@@ -323,26 +323,26 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
             title={
               <Space>
                 <span>{step.name}</span>
-                {step.agentRole && <Tag color='blue'>{step.agentRole}</Tag>}
+                {step.agentRole && <Tag color="blue">{step.agentRole}</Tag>}
                 {step.contextEnhanced && (
-                  <Tooltip title='Enhanced with knowledge context'>
-                    <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                  <Tooltip title="Enhanced with knowledge context">
+                    <InfoCircleOutlined style={{ color: "#1890ff" }} />
                   </Tooltip>
                 )}
               </Space>
             }
             description={
-              <Space direction='vertical' size='small'>
+              <Space direction="vertical" size="small">
                 {step.result && (
                   <Text
-                    type={step.status === 'failed' ? 'danger' : 'secondary'}
+                    type={step.status === "failed" ? "danger" : "secondary"}
                   >
                     {step.result}
                   </Text>
                 )}
-                {step.error && <Text type='danger'>{step.error}</Text>}
+                {step.error && <Text type="danger">{step.error}</Text>}
                 {step.duration && (
-                  <Text type='secondary' style={{ fontSize: '12px' }}>
+                  <Text type="secondary" style={{ fontSize: "12px" }}>
                     Duration: {formatDuration(step.duration)}
                   </Text>
                 )}
@@ -364,22 +364,22 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
-            <Space direction='vertical'>
+            <Space direction="vertical">
               <Text strong>Timeline vazia</Text>
-              <Text type='secondary'>Nenhuma atividade registrada ainda</Text>
+              <Text type="secondary">Nenhuma atividade registrada ainda</Text>
             </Space>
           }
-          style={{ padding: '40px 20px' }}
+          style={{ padding: "40px 20px" }}
         />
       );
     }
 
     return (
       <Timeline>
-        <TimelineItem color='blue' dot={<PlayCircleOutlined />}>
-          <Space direction='vertical' size='small'>
+        <TimelineItem color="blue" dot={<PlayCircleOutlined />}>
+          <Space direction="vertical" size="small">
             <Text strong>Workflow Started</Text>
-            <Text type='secondary'>
+            <Text type="secondary">
               {workflowState.startTime &&
                 new Date(workflowState.startTime).toLocaleString()}
             </Text>
@@ -390,28 +390,28 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           <TimelineItem
             key={step.id}
             color={
-              step.status === 'completed'
-                ? 'green'
-                : step.status === 'failed'
-                  ? 'red'
-                  : step.status === 'running'
-                    ? 'blue'
-                    : 'gray'
+              step.status === "completed"
+                ? "green"
+                : step.status === "failed"
+                  ? "red"
+                  : step.status === "running"
+                    ? "blue"
+                    : "gray"
             }
             dot={getStepIcon(step)}
           >
-            <Space direction='vertical' size='small'>
+            <Space direction="vertical" size="small">
               <Space>
                 <Text strong>{step.name}</Text>
-                {step.agentRole && <Tag color='blue'>{step.agentRole}</Tag>}
+                {step.agentRole && <Tag color="blue">{step.agentRole}</Tag>}
               </Space>
               {step.result && (
-                <Text type={step.status === 'failed' ? 'danger' : 'secondary'}>
+                <Text type={step.status === "failed" ? "danger" : "secondary"}>
                   {step.result}
                 </Text>
               )}
               {step.startTime && (
-                <Text type='secondary' style={{ fontSize: '12px' }}>
+                <Text type="secondary" style={{ fontSize: "12px" }}>
                   {new Date(step.startTime).toLocaleString()}
                   {step.duration && ` • ${formatDuration(step.duration)}`}
                 </Text>
@@ -420,11 +420,11 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           </TimelineItem>
         ))}
 
-        {workflowState.status === 'completed' && (
-          <TimelineItem color='green' dot={<CheckCircleOutlined />}>
-            <Space direction='vertical' size='small'>
+        {workflowState.status === "completed" && (
+          <TimelineItem color="green" dot={<CheckCircleOutlined />}>
+            <Space direction="vertical" size="small">
               <Text strong>Workflow Completed</Text>
-              <Text type='secondary'>
+              <Text type="secondary">
                 {workflowState.endTime &&
                   new Date(workflowState.endTime).toLocaleString()}
                 {workflowState.totalDuration &&
@@ -434,11 +434,11 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           </TimelineItem>
         )}
 
-        {workflowState.status === 'failed' && (
-          <TimelineItem color='red' dot={<CloseCircleOutlined />}>
-            <Space direction='vertical' size='small'>
+        {workflowState.status === "failed" && (
+          <TimelineItem color="red" dot={<CloseCircleOutlined />}>
+            <Space direction="vertical" size="small">
               <Text strong>Workflow Failed</Text>
-              <Text type='secondary'>
+              <Text type="secondary">
                 {workflowState.endTime &&
                   new Date(workflowState.endTime).toLocaleString()}
               </Text>
@@ -452,13 +452,13 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
   if (loading) {
     return (
       <Card>
-        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-          <Spin size='large' />
-          <div style={{ marginTop: '16px' }}>
+        <div style={{ textAlign: "center", padding: "60px 20px" }}>
+          <Spin size="large" />
+          <div style={{ marginTop: "16px" }}>
             <Text strong>Conectando ao workflow...</Text>
           </div>
-          <div style={{ marginTop: '8px' }}>
-            <Text type='secondary'>
+          <div style={{ marginTop: "8px" }}>
+            <Text type="secondary">
               Aguarde enquanto estabelecemos a conexão
             </Text>
           </div>
@@ -471,16 +471,16 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
     return (
       <Card>
         <Result
-          status='error'
+          status="error"
           icon={<DisconnectOutlined />}
-          title='Erro de Conexão'
-          subTitle='Não foi possível conectar às atualizações do workflow'
+          title="Erro de Conexão"
+          subTitle="Não foi possível conectar às atualizações do workflow"
           extra={[
             <Button
-              type='primary'
+              type="primary"
               icon={<ReloadOutlined />}
               onClick={reconnect}
-              key='retry'
+              key="retry"
             >
               Tentar Novamente
             </Button>,
@@ -494,15 +494,15 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
     return (
       <Card>
         <Result
-          status='404'
-          title='Workflow Não Encontrado'
+          status="404"
+          title="Workflow Não Encontrado"
           subTitle={`Nenhum workflow encontrado com ID: ${workflowId}`}
           extra={[
             <Button
-              type='primary'
+              type="primary"
               icon={<ReloadOutlined />}
               onClick={reconnect}
-              key='retry'
+              key="retry"
             >
               Tentar Reconectar
             </Button>,
@@ -518,20 +518,20 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
         <Space>
           <span>{workflowState.title}</span>
           {workflowState.contextEnhanced && (
-            <Tooltip title='This workflow uses knowledge context'>
-              <Tag color='blue'>Context Enhanced</Tag>
+            <Tooltip title="This workflow uses knowledge context">
+              <Tag color="blue">Context Enhanced</Tag>
             </Tooltip>
           )}
         </Space>
       }
       extra={
         !isConnected && (
-          <Tooltip title='Disconnected from real-time updates'>
+          <Tooltip title="Disconnected from real-time updates">
             <Button
-              size='small'
+              size="small"
               icon={<ReloadOutlined />}
               onClick={reconnect}
-              type='text'
+              type="text"
             >
               Reconnect
             </Button>
@@ -539,20 +539,20 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
         )
       }
     >
-      <Space direction='vertical' size='large' style={{ width: '100%' }}>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Workflow Description */}
         {workflowState.description && (
-          <Paragraph type='secondary'>{workflowState.description}</Paragraph>
+          <Paragraph type="secondary">{workflowState.description}</Paragraph>
         )}
 
         {/* Progress Bar */}
         <div>
-          <div style={{ marginBottom: '8px' }}>
+          <div style={{ marginBottom: "8px" }}>
             <Space>
               <Text strong>Progress:</Text>
               <Text>{Math.round(getWorkflowProgress())}%</Text>
               {workflowState.totalDuration && (
-                <Text type='secondary'>
+                <Text type="secondary">
                   • {formatDuration(workflowState.totalDuration)}
                 </Text>
               )}
@@ -561,18 +561,18 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           <Progress
             percent={getWorkflowProgress()}
             status={
-              workflowState.status === 'failed'
-                ? 'exception'
-                : workflowState.status === 'completed'
-                  ? 'success'
-                  : 'active'
+              workflowState.status === "failed"
+                ? "exception"
+                : workflowState.status === "completed"
+                  ? "success"
+                  : "active"
             }
             strokeColor={
-              workflowState.status === 'completed'
-                ? '#52c41a'
-                : workflowState.status === 'failed'
-                  ? '#ff4d4f'
-                  : '#1890ff'
+              workflowState.status === "completed"
+                ? "#52c41a"
+                : workflowState.status === "failed"
+                  ? "#ff4d4f"
+                  : "#1890ff"
             }
           />
         </div>
@@ -580,23 +580,23 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
         {/* Error Alert */}
         {error && (
           <Alert
-            message='Falha no Workflow'
+            message="Falha no Workflow"
             description={
-              <Space direction='vertical' size='small'>
+              <Space direction="vertical" size="small">
                 <Text>{error}</Text>
-                <Text type='secondary' style={{ fontSize: '12px' }}>
+                <Text type="secondary" style={{ fontSize: "12px" }}>
                   O workflow encontrou um erro e foi interrompido
                 </Text>
               </Space>
             }
-            type='error'
+            type="error"
             showIcon
             icon={<ExclamationCircleOutlined />}
             closable
             onClose={() => setError(null)}
             action={
               <Button
-                size='small'
+                size="small"
                 icon={<ReloadOutlined />}
                 onClick={reconnect}
               >

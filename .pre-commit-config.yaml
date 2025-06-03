@@ -3,7 +3,7 @@
 repos:
   # Basic file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: check-yaml
         name: Check YAML
@@ -40,59 +40,76 @@ repos:
 
   # Python code quality - Ruff (replaces black, flake8, isort, and more)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.4
+    rev: v0.6.8
     hooks:
       - id: ruff
         name: Ruff Linter
         description: Run Ruff linter
         args: [--fix, --exit-non-zero-on-fix]
-        files: ^(app/|tests/|scripts/|.*\.py)$
+        files: ^(app/|tests/|scripts/|demos/|examples/|.*\.py)$
       - id: ruff-format
         name: Ruff Formatter
         description: Run Ruff formatter (replaces black)
-        files: ^(app/|tests/|scripts/|.*\.py)$
+        files: ^(app/|tests/|scripts/|demos/|examples/|.*\.py)$
 
   # Python type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.1
+    rev: v1.11.2
     hooks:
       - id: mypy
         name: MyPy Type Checker
         description: Run mypy static type checker
         files: ^app/.*\.py$
-        args: [--ignore-missing-imports, --disallow-untyped-defs]
+        args: [--config-file=pyproject.toml]
         additional_dependencies:
           - types-requests
           - types-PyYAML
-          - types-redis
-          - types-toml
+          - types-python-dateutil
+          - pydantic
+          - fastapi
+          - sqlalchemy
 
   # Frontend - Prettier for formatting
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.1.0
+    rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
         name: Prettier
         description: Format frontend code with Prettier
-        files: ^frontend/.*\.(js|ts|jsx|tsx|css|scss|json|html|vue|yaml|yml|md)$
-        exclude: ^frontend/(node_modules|dist|build)/
+        files: ^frontend/.*\.(js|ts|jsx|tsx|css|scss|json|html|md)$
+        exclude: ^frontend/(node_modules|dist|build|coverage)/
+        args: [--config, frontend/.prettierrc]
 
   # Frontend - ESLint for JavaScript/TypeScript
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.56.0
+    rev: v9.11.1
     hooks:
       - id: eslint
         name: ESLint
         description: Lint JavaScript/TypeScript with ESLint
-        files: ^frontend/.*\.(js|ts|jsx|tsx|vue)$
-        exclude: ^frontend/(node_modules|dist|build)/
-        args: [--fix]
+        files: ^frontend/src/.*\.(js|ts|jsx|tsx)$
+        exclude: ^frontend/(node_modules|dist|build|coverage)/
+        args: [--config, frontend/.eslintrc.cjs, --fix]
         additional_dependencies:
-          - eslint@8.56.0
+          - eslint@8.57.0
           - eslint-config-prettier@9.1.0
-          - eslint-plugin-vue@9.19.2
-          - '@typescript-eslint/eslint-plugin@6.15.0'
-          - '@typescript-eslint/parser@6.15.0'
+          - '@typescript-eslint/eslint-plugin@7.18.0'
+          - '@typescript-eslint/parser@7.18.0'
+          - eslint-plugin-react@7.35.0
+          - eslint-plugin-react-hooks@4.6.2
+          - eslint-plugin-jsx-a11y@6.10.0
+          - eslint-plugin-import@2.30.0
+
+  # TypeScript type checking for frontend
+  - repo: local
+    hooks:
+      - id: typescript-check
+        name: TypeScript Check
+        description: Type check TypeScript files in frontend
+        entry: bash -c 'cd frontend && npm run type-check'
+        language: system
+        files: ^frontend/src/.*\.(ts|tsx)$
+        pass_filenames: false
 
   # Docker
   - repo: https://github.com/hadolint/hadolint
@@ -125,8 +142,8 @@ repos:
 
 # Configuration
 default_language_version:
-  python: python3.13
-  node: "18.19.0"
+  python: python3.12
+  node: "20.11.0"
 
 # Global excludes
 exclude: |

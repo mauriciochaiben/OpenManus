@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout, Typography } from 'antd';
-import { NoteList, NoteEditor } from '../features/notes/components';
+import React from "react";
+import { Layout, Typography } from "antd";
+import { NoteList, NoteEditor } from "../features/notes/components";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -10,10 +10,10 @@ const { Title } = Typography;
  */
 const NotesPage: React.FC = () => {
   return (
-    <Content style={{ padding: '24px' }}>
+    <Content style={{ padding: "24px" }}>
       <Title level={2}>Notes Management</Title>
       <div
-        style={{ display: 'flex', gap: '16px', height: 'calc(100vh - 200px)' }}
+        style={{ display: "flex", gap: "16px", height: "calc(100vh - 200px)" }}
       >
         <div style={{ flex: 1 }}>
           <NoteList />

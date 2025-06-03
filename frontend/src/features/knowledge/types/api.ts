@@ -14,7 +14,7 @@ export interface KnowledgeSource {
 }
 
 export interface ProcessingStatus {
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: "pending" | "processing" | "completed" | "failed";
   progress?: number;
   error_message?: string;
   processed_chunks?: number;

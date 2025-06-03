@@ -3,7 +3,7 @@
  * Inspired by Flowith 2.0 design principles
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Form,
   Input,
@@ -20,7 +20,7 @@ import {
   Collapse,
   Badge,
   message,
-} from 'antd';
+} from "antd";
 import {
   SaveOutlined,
   DisconnectOutlined,
@@ -29,15 +29,15 @@ import {
   InfoCircleOutlined,
   SettingOutlined,
   ApiOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 
 import {
   LLMConfiguration,
   LLMProvider,
   CreateLLMConfigRequest,
-} from '../types';
-import { useLLMProviders } from '../hooks/useLLMConfig';
-import { llmConfigService } from '../services/llmConfigApi';
+} from "../types";
+import { useLLMProviders } from "../hooks/useLLMConfig";
+import { llmConfigService } from "../services/llmConfigApi";
 
 const { Text, Title } = Typography;
 const { Panel } = Collapse;
@@ -47,7 +47,7 @@ interface LLMConfigFormProps {
   initialConfig?: LLMConfiguration;
   onSave: (config: LLMConfiguration) => void;
   onCancel: () => void;
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
 }
 
 const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
@@ -62,17 +62,17 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<LLMProvider | null>(
-    null
+    null,
   );
   const [selectedModel, setSelectedModel] = useState<any>(null);
   const [showApiKey, setShowApiKey] = useState(false);
-  const [customHeaders, setCustomHeaders] = useState<string>('{}');
+  const [customHeaders, setCustomHeaders] = useState<string>("{}");
   const [models, setModels] = useState<any[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
 
   // Initialize form with existing config
   useEffect(() => {
-    if (initialConfig && mode === 'edit') {
+    if (initialConfig && mode === "edit") {
       const provider = providers.find((p) => p.id === initialConfig.providerId);
       setSelectedProvider(provider || null);
 
@@ -88,7 +88,7 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
       });
 
       setCustomHeaders(
-        JSON.stringify(initialConfig.customHeaders || {}, null, 2)
+        JSON.stringify(initialConfig.customHeaders || {}, null, 2),
       );
     }
   }, [initialConfig, mode, providers, form]);
@@ -109,7 +109,7 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
         await llmConfigService.getProviderModels(providerId);
       setModels(providerModels);
     } catch (error) {
-      message.error('Failed to load models for provider');
+      message.error("Failed to load models for provider");
       setModels([]);
     } finally {
       setLoadingModels(false);
@@ -120,12 +120,12 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
     const provider = providers.find((p) => p.id === providerId);
     setSelectedProvider(provider || null);
     setSelectedModel(null);
-    form.setFieldValue('modelId', undefined);
+    form.setFieldValue("modelId", undefined);
 
     // Reset provider-specific fields
     if (provider) {
       form.setFieldsValue({
-        baseUrl: provider.baseUrl || '',
+        baseUrl: provider.baseUrl || "",
       });
     }
   };
@@ -169,7 +169,7 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
 
           if (result.success) {
             message.success(
-              `Test successful! Response received in ${result.latency}ms`
+              `Test successful! Response received in ${result.latency}ms`,
             );
           } else {
             message.error(`Test failed: ${result.error}`);
@@ -181,12 +181,12 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
       } else {
         const result = await llmConfigService.testConfiguration(configId, {
           prompt:
-            'This is a test message to verify the configuration is working.',
+            "This is a test message to verify the configuration is working.",
         });
 
         if (result.success) {
           message.success(
-            `Test successful! Response received in ${result.latency}ms`
+            `Test successful! Response received in ${result.latency}ms`,
           );
         } else {
           message.error(`Test failed: ${result.error}`);
@@ -194,8 +194,9 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
       }
     } catch (error) {
       message.error(
-        'Test failed: ' +
-          (error instanceof Error ? error.message : 'Unknown error')
+        `Test failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
       );
     } finally {
       setTesting(false);
@@ -235,25 +236,26 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
 
       let result: LLMConfiguration;
 
-      if (mode === 'create') {
+      if (mode === "create") {
         result = await llmConfigService.createConfiguration(configData);
-        message.success('Configuration created successfully!');
+        message.success("Configuration created successfully!");
       } else if (initialConfig) {
         result = await llmConfigService.updateConfiguration(
           initialConfig.id,
-          configData
+          configData,
         );
-        message.success('Configuration updated successfully!');
+        message.success("Configuration updated successfully!");
       } else {
-        throw new Error('Invalid mode or missing config');
+        throw new Error("Invalid mode or missing config");
       }
 
       onSave(result);
     } catch (error) {
-      console.error('Save error:', error);
+      console.error("Save error:", error);
       message.error(
-        'Failed to save configuration: ' +
-          (error instanceof Error ? error.message : 'Unknown error')
+        `Failed to save configuration: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
       );
     } finally {
       setLoading(false);
@@ -267,7 +269,7 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
           {parameter.displayName}
           {parameter.description && (
             <Tooltip title={parameter.description}>
-              <InfoCircleOutlined style={{ color: '#8c8c8c' }} />
+              <InfoCircleOutlined style={{ color: "#8c8c8c" }} />
             </Tooltip>
           )}
         </Space>
@@ -278,33 +280,33 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
     };
 
     switch (parameter.type) {
-      case 'number':
-      case 'range':
+      case "number":
+      case "range":
         return (
           <Form.Item key={parameter.name} {...commonProps}>
             <InputNumber
               min={parameter.min}
               max={parameter.max}
               step={parameter.step || 0.1}
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               placeholder={`Default: ${parameter.defaultValue}`}
             />
           </Form.Item>
         );
 
-      case 'boolean':
+      case "boolean":
         return (
           <Form.Item
             key={parameter.name}
             {...commonProps}
-            valuePropName='checked'
+            valuePropName="checked"
             initialValue={parameter.defaultValue}
           >
             <Switch />
           </Form.Item>
         );
 
-      case 'select':
+      case "select":
         return (
           <Form.Item key={parameter.name} {...commonProps}>
             <Select placeholder={`Default: ${parameter.defaultValue}`}>
@@ -330,56 +332,56 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
     <Card>
       <Form
         form={form}
-        layout='vertical'
+        layout="vertical"
         initialValues={{
           isActive: true,
           isDefault: false,
         }}
       >
-        <Space direction='vertical' size='large' style={{ width: '100%' }}>
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
           {/* Header */}
           <div>
             <Title level={4}>
-              <ApiOutlined /> {mode === 'create' ? 'Add New' : 'Edit'} LLM
+              <ApiOutlined /> {mode === "create" ? "Add New" : "Edit"} LLM
               Configuration
             </Title>
-            <Text type='secondary'>
+            <Text type="secondary">
               Configure your Large Language Model provider and settings
             </Text>
           </div>
 
           {/* Basic Configuration */}
           <Card
-            size='small'
+            size="small"
             title={
               <>
                 <SettingOutlined /> Basic Configuration
               </>
             }
           >
-            <Space direction='vertical' size='middle' style={{ width: '100%' }}>
+            <Space direction="vertical" size="middle" style={{ width: "100%" }}>
               <Form.Item
-                label='Configuration Name'
-                name='name'
+                label="Configuration Name"
+                name="name"
                 rules={[
                   {
                     required: true,
-                    message: 'Please enter a configuration name',
+                    message: "Please enter a configuration name",
                   },
                 ]}
               >
-                <Input placeholder='e.g., GPT-4 Production, Claude Dev, etc.' />
+                <Input placeholder="e.g., GPT-4 Production, Claude Dev, etc." />
               </Form.Item>
 
               <Form.Item
-                label='Provider'
-                name='providerId'
+                label="Provider"
+                name="providerId"
                 rules={[
-                  { required: true, message: 'Please select a provider' },
+                  { required: true, message: "Please select a provider" },
                 ]}
               >
                 <Select
-                  placeholder='Select LLM Provider'
+                  placeholder="Select LLM Provider"
                   loading={providersLoading}
                   onChange={handleProviderChange}
                 >
@@ -388,7 +390,7 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
                       <Space>
                         <Badge
                           status={
-                            provider.type === 'custom' ? 'warning' : 'success'
+                            provider.type === "custom" ? "warning" : "success"
                           }
                         />
                         {provider.displayName}
@@ -402,7 +404,7 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
                 <Alert
                   message={selectedProvider.displayName}
                   description={selectedProvider.description}
-                  type='info'
+                  type="info"
                   showIcon
                   style={{ marginBottom: 16 }}
                 />
@@ -410,12 +412,12 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
 
               {selectedProvider && (
                 <Form.Item
-                  label='Model'
-                  name='modelId'
-                  rules={[{ required: true, message: 'Please select a model' }]}
+                  label="Model"
+                  name="modelId"
+                  rules={[{ required: true, message: "Please select a model" }]}
                 >
                   <Select
-                    placeholder='Select Model'
+                    placeholder="Select Model"
                     loading={loadingModels}
                     onChange={handleModelChange}
                   >
@@ -424,7 +426,7 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
                         <div>
                           <div>{model.displayName}</div>
                           {model.description && (
-                            <Text type='secondary' style={{ fontSize: '12px' }}>
+                            <Text type="secondary" style={{ fontSize: "12px" }}>
                               {model.description}
                             </Text>
                           )}
@@ -439,14 +441,14 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
 
           {/* Authentication */}
           {selectedProvider?.requiresApiKey && (
-            <Card size='small' title='Authentication'>
+            <Card size="small" title="Authentication">
               <Form.Item
                 label={
                   <Space>
                     API Key
                     <Button
-                      type='text'
-                      size='small'
+                      type="text"
+                      size="small"
                       icon={
                         showApiKey ? <EyeInvisibleOutlined /> : <EyeOutlined />
                       }
@@ -454,26 +456,26 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
                     />
                   </Space>
                 }
-                name='apiKey'
+                name="apiKey"
                 rules={[
                   {
                     required: true,
-                    message: 'API Key is required for this provider',
+                    message: "API Key is required for this provider",
                   },
                 ]}
               >
                 <Input.Password
-                  placeholder='Enter your API key'
+                  placeholder="Enter your API key"
                   visibilityToggle={false}
-                  type={showApiKey ? 'text' : 'password'}
+                  type={showApiKey ? "text" : "password"}
                 />
               </Form.Item>
 
               {selectedProvider.baseUrl && (
                 <Form.Item
-                  label='Base URL'
-                  name='baseUrl'
-                  extra='Override the default API endpoint'
+                  label="Base URL"
+                  name="baseUrl"
+                  extra="Override the default API endpoint"
                 >
                   <Input placeholder={selectedProvider.baseUrl} />
                 </Form.Item>
@@ -490,12 +492,12 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
                     <SettingOutlined /> Model Parameters
                   </>
                 }
-                key='parameters'
+                key="parameters"
               >
                 <Space
-                  direction='vertical'
-                  size='middle'
-                  style={{ width: '100%' }}
+                  direction="vertical"
+                  size="middle"
+                  style={{ width: "100%" }}
                 >
                   {selectedModel.parameters.map(renderParameterField)}
                 </Space>
@@ -505,15 +507,15 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
 
           {/* Advanced Settings */}
           <Collapse>
-            <Panel header='Advanced Settings' key='advanced'>
+            <Panel header="Advanced Settings" key="advanced">
               <Space
-                direction='vertical'
-                size='middle'
-                style={{ width: '100%' }}
+                direction="vertical"
+                size="middle"
+                style={{ width: "100%" }}
               >
                 <Form.Item
-                  label='Custom Headers'
-                  extra='JSON format for additional headers'
+                  label="Custom Headers"
+                  extra="JSON format for additional headers"
                 >
                   <TextArea
                     value={customHeaders}
@@ -523,19 +525,19 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
                   />
                 </Form.Item>
 
-                <Space size='large'>
+                <Space size="large">
                   <Form.Item
-                    label='Set as Default'
-                    name='isDefault'
-                    valuePropName='checked'
+                    label="Set as Default"
+                    name="isDefault"
+                    valuePropName="checked"
                   >
                     <Switch />
                   </Form.Item>
 
                   <Form.Item
-                    label='Active'
-                    name='isActive'
-                    valuePropName='checked'
+                    label="Active"
+                    name="isActive"
+                    valuePropName="checked"
                   >
                     <Switch />
                   </Form.Item>
@@ -552,17 +554,17 @@ const LLMConfigForm: React.FC<LLMConfigFormProps> = ({
               icon={<DisconnectOutlined />}
               onClick={handleTest}
               loading={testing}
-              disabled={!selectedProvider || !form.getFieldValue('modelId')}
+              disabled={!selectedProvider || !form.getFieldValue("modelId")}
             >
               Test Connection
             </Button>
             <Button
-              type='primary'
+              type="primary"
               icon={<SaveOutlined />}
               onClick={handleSave}
               loading={loading}
             >
-              {mode === 'create' ? 'Create' : 'Update'} Configuration
+              {mode === "create" ? "Create" : "Update"} Configuration
             </Button>
           </Space>
         </Space>

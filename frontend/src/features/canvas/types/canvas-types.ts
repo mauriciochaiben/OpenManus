@@ -28,7 +28,7 @@ export interface CanvasNode extends BaseNode {
     label: string;
     description?: string;
     config?: Record<string, any>;
-    status?: 'idle' | 'running' | 'completed' | 'failed';
+    status?: "idle" | "running" | "completed" | "failed";
     result?: any;
     error?: string;
     prompt?: string;
@@ -55,10 +55,10 @@ export interface CanvasState {
 }
 
 export interface CanvasActions {
-  addNode: (node: Omit<CanvasNode, 'id'>) => void;
+  addNode: (node: Omit<CanvasNode, "id">) => void;
   updateNode: (id: string, updates: Partial<CanvasNode>) => void;
   deleteNode: (id: string) => void;
-  addEdge: (edge: Omit<CanvasEdge, 'id'>) => void;
+  addEdge: (edge: Omit<CanvasEdge, "id">) => void;
   deleteEdge: (id: string) => void;
   selectNode: (id: string | null) => void;
   executeNode: (id: string) => Promise<void>;
@@ -81,7 +81,7 @@ export interface NodeTemplate {
 
 export interface WorkflowExecution {
   id: string;
-  status: 'idle' | 'running' | 'completed' | 'failed';
+  status: "idle" | "running" | "completed" | "failed";
   nodes: Record<string, any>;
   startTime?: Date;
   endTime?: Date;
