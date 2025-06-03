@@ -1,6 +1,6 @@
 # 📋 Análise dos Diretórios de Exemplos - OpenManus
 
-**Data**: 3 de junho de 2025  
+**Data**: 3 de junho de 2025
 **Contexto**: Refatoração e limpeza do projeto após remoção do diretório `backend/`
 
 ## 🎯 Objetivo
