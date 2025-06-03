@@ -21,7 +21,7 @@ cd OpenManus
 
 3. ：
 
-```bash
+```bashs
 pip install -r requirements.txt
 ```
 
