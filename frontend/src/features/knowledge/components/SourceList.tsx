@@ -13,6 +13,9 @@ import {
   Progress,
   message,
   Avatar,
+  Spin,
+  Empty,
+  Result,
 } from 'antd';
 import {
   EyeOutlined,
@@ -23,6 +26,7 @@ import {
   FileOutlined,
   SearchOutlined,
   ReloadOutlined,
+  PlusOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType, TableProps } from 'antd/es/table';
 import { KnowledgeSource, ProcessingStatus } from '../types/api';
@@ -49,6 +53,7 @@ const SourceList: React.FC<SourceListProps> = ({
 }) => {
   const [sources, setSources] = useState<KnowledgeSource[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [fileTypeFilter, setFileTypeFilter] = useState<string>('all');
@@ -57,10 +62,12 @@ const SourceList: React.FC<SourceListProps> = ({
   const fetchSources = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await listSources({ page_size: 100 });
       setSources(response.sources);
     } catch (error) {
       console.error('Error fetching sources:', error);
+      setError('Erro ao carregar fontes. Tente novamente.');
       message.error('Erro ao carregar fontes');
     } finally {
       setLoading(false);
@@ -295,7 +302,7 @@ const SourceList: React.FC<SourceListProps> = ({
     columns,
     dataSource: filteredSources,
     rowKey: 'id',
-    loading,
+    loading: false, // Loading is handled separately with custom UI
     pagination: {
       pageSize: 10,
       showSizeChanger: true,
@@ -306,6 +313,9 @@ const SourceList: React.FC<SourceListProps> = ({
     scroll: { x: 800 },
     size: 'middle',
     className: 'source-list-table',
+    locale: {
+      emptyText: 'Nenhum dado', // Fallback, won't be shown due to custom empty handling
+    },
   };
 
   return (
@@ -351,8 +361,71 @@ const SourceList: React.FC<SourceListProps> = ({
         </Space>
       </div>
 
-      {/* Table */}
-      <Table {...tableProps} />
+      {/* Content Area */}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+          <Spin size='large' />
+          <div style={{ marginTop: '16px' }}>
+            <Text type='secondary'>Carregando fontes de conhecimento...</Text>
+          </div>
+        </div>
+      ) : error ? (
+        <Result
+          status='error'
+          title='Erro ao Carregar Fontes'
+          subTitle={error}
+          extra={[
+            <Button
+              type='primary'
+              icon={<ReloadOutlined />}
+              onClick={fetchSources}
+              key='retry'
+            >
+              Tentar Novamente
+            </Button>,
+          ]}
+        />
+      ) : filteredSources.length === 0 && sources.length === 0 ? (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={
+            <Space direction='vertical'>
+              <Text strong>Nenhuma fonte encontrada</Text>
+              <Text type='secondary'>
+                Comece adicionando uma fonte de conhecimento
+              </Text>
+            </Space>
+          }
+          style={{ padding: '60px 20px' }}
+        >
+          <Button type='primary' icon={<PlusOutlined />}>
+            Adicionar Fonte
+          </Button>
+        </Empty>
+      ) : filteredSources.length === 0 ? (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={
+            <Space direction='vertical'>
+              <Text strong>Nenhum resultado encontrado</Text>
+              <Text type='secondary'>Tente ajustar os filtros de busca</Text>
+            </Space>
+          }
+          style={{ padding: '40px 20px' }}
+        >
+          <Button
+            onClick={() => {
+              setSearchText('');
+              setStatusFilter('all');
+              setFileTypeFilter('all');
+            }}
+          >
+            Limpar Filtros
+          </Button>
+        </Empty>
+      ) : (
+        <Table {...tableProps} />
+      )}
     </div>
   );
 };

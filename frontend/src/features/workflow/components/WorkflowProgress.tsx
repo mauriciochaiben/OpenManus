@@ -11,6 +11,8 @@ import {
   Tooltip,
   Tag,
   Spin,
+  Result,
+  Empty,
 } from 'antd';
 import {
   CheckCircleOutlined,
@@ -20,6 +22,8 @@ import {
   PlayCircleOutlined,
   ReloadOutlined,
   InfoCircleOutlined,
+  ExclamationCircleOutlined,
+  DisconnectOutlined,
 } from '@ant-design/icons';
 import { useWebSocket } from '../../../hooks/useWebSocket';
 
@@ -290,6 +294,23 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
   const renderStepsView = () => {
     if (!workflowState) return null;
 
+    if (workflowState.steps.length === 0) {
+      return (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={
+            <Space direction='vertical'>
+              <Text strong>Nenhuma etapa encontrada</Text>
+              <Text type='secondary'>
+                O workflow ainda não iniciou nenhuma etapa
+              </Text>
+            </Space>
+          }
+          style={{ padding: '40px 20px' }}
+        />
+      );
+    }
+
     return (
       <Steps
         current={workflowState.currentStepIndex}
@@ -337,6 +358,21 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
 
   const renderTimelineView = () => {
     if (!workflowState) return null;
+
+    if (workflowState.steps.length === 0) {
+      return (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={
+            <Space direction='vertical'>
+              <Text strong>Timeline vazia</Text>
+              <Text type='secondary'>Nenhuma atividade registrada ainda</Text>
+            </Space>
+          }
+          style={{ padding: '40px 20px' }}
+        />
+      );
+    }
 
     return (
       <Timeline>
@@ -416,10 +452,15 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
   if (loading) {
     return (
       <Card>
-        <div style={{ textAlign: 'center', padding: '40px' }}>
+        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
           <Spin size='large' />
           <div style={{ marginTop: '16px' }}>
-            <Text>Connecting to workflow...</Text>
+            <Text strong>Conectando ao workflow...</Text>
+          </div>
+          <div style={{ marginTop: '8px' }}>
+            <Text type='secondary'>
+              Aguarde enquanto estabelecemos a conexão
+            </Text>
           </div>
         </div>
       </Card>
@@ -429,16 +470,21 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
   if (connectionError) {
     return (
       <Card>
-        <Alert
-          message='Connection Error'
-          description='Failed to connect to workflow updates'
-          type='error'
-          showIcon
-          action={
-            <Button size='small' onClick={reconnect} icon={<ReloadOutlined />}>
-              Retry
-            </Button>
-          }
+        <Result
+          status='error'
+          icon={<DisconnectOutlined />}
+          title='Erro de Conexão'
+          subTitle='Não foi possível conectar às atualizações do workflow'
+          extra={[
+            <Button
+              type='primary'
+              icon={<ReloadOutlined />}
+              onClick={reconnect}
+              key='retry'
+            >
+              Tentar Novamente
+            </Button>,
+          ]}
         />
       </Card>
     );
@@ -447,11 +493,20 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
   if (!workflowState) {
     return (
       <Card>
-        <Alert
-          message='Workflow Not Found'
-          description={`No workflow found with ID: ${workflowId}`}
-          type='warning'
-          showIcon
+        <Result
+          status='404'
+          title='Workflow Não Encontrado'
+          subTitle={`Nenhum workflow encontrado com ID: ${workflowId}`}
+          extra={[
+            <Button
+              type='primary'
+              icon={<ReloadOutlined />}
+              onClick={reconnect}
+              key='retry'
+            >
+              Tentar Reconectar
+            </Button>,
+          ]}
         />
       </Card>
     );
@@ -525,12 +580,29 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
         {/* Error Alert */}
         {error && (
           <Alert
-            message='Workflow Failed'
-            description={error}
+            message='Falha no Workflow'
+            description={
+              <Space direction='vertical' size='small'>
+                <Text>{error}</Text>
+                <Text type='secondary' style={{ fontSize: '12px' }}>
+                  O workflow encontrou um erro e foi interrompido
+                </Text>
+              </Space>
+            }
             type='error'
             showIcon
+            icon={<ExclamationCircleOutlined />}
             closable
             onClose={() => setError(null)}
+            action={
+              <Button
+                size='small'
+                icon={<ReloadOutlined />}
+                onClick={reconnect}
+              >
+                Reconectar
+              </Button>
+            }
           />
         )}
 

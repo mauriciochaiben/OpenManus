@@ -17,7 +17,6 @@ import {
   Tooltip,
   Badge,
   Statistic,
-  Empty,
   Result,
   Spin,
 } from 'antd';
@@ -67,15 +66,15 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
 
   const handleDelete = (config: LLMConfiguration) => {
     Modal.confirm({
-      title: 'Delete Configuration',
-      content: `Are you sure you want to delete "${config.name}"? This action cannot be undone.`,
+      title: 'Excluir Configuração',
+      content: `Tem certeza que deseja excluir "${config.name}"? Esta ação não pode ser desfeita.`,
       okType: 'danger',
       onOk: async () => {
         try {
           await actions.delete(config.id);
-          message.success('Configuration deleted successfully');
+          message.success('Configuração excluída com sucesso');
         } catch (error) {
-          message.error('Failed to delete configuration');
+          message.error('Falha ao excluir configuração');
         }
       },
     });
@@ -84,9 +83,9 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
   const handleSetDefault = async (config: LLMConfiguration) => {
     try {
       await actions.setDefault(config.id);
-      message.success(`"${config.name}" set as default configuration`);
+      message.success(`"${config.name}" definida como configuração padrão`);
     } catch (error) {
-      message.error('Failed to set default configuration');
+      message.error('Falha ao definir configuração padrão');
     }
   };
 
@@ -94,10 +93,10 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
     try {
       await actions.toggle(config.id, !config.isActive);
       message.success(
-        `Configuration ${config.isActive ? 'deactivated' : 'activated'}`
+        `Configuração ${config.isActive ? 'desativada' : 'ativada'}`
       );
     } catch (error) {
-      message.error('Failed to toggle configuration');
+      message.error('Falha ao alterar status da configuração');
     }
   };
 
@@ -106,12 +105,12 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
     try {
       const result = await testConfiguration(config.id);
       if (result.success) {
-        message.success(`Test successful! Latency: ${result.latency}ms`);
+        message.success(`Teste bem-sucedido! Latência: ${result.latency}ms`);
       } else {
-        message.error(`Test failed: ${result.error}`);
+        message.error(`Teste falhou: ${result.error}`);
       }
     } catch (error) {
-      message.error('Test failed');
+      message.error('Teste falhou');
     } finally {
       setTestingConfig(null);
     }
@@ -133,7 +132,7 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
   };
 
   const getStatusText = (isActive: boolean) => {
-    return isActive ? 'Active' : 'Inactive';
+    return isActive ? 'Ativa' : 'Inativa';
   };
 
   const getTestStatus = (configId: string) => {
@@ -143,13 +142,13 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
     return result.success ? (
       <Badge status='success' text={`${result.latency}ms`} />
     ) : (
-      <Badge status='error' text='Failed' />
+      <Badge status='error' text='Falhou' />
     );
   };
 
   const columns: ColumnsType<LLMConfiguration> = [
     {
-      title: 'Name',
+      title: 'Nome',
       dataIndex: 'name',
       key: 'name',
       render: (text, record) => (
@@ -164,7 +163,7 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
       ),
     },
     {
-      title: 'Provider',
+      title: 'Provedor',
       dataIndex: 'providerId',
       key: 'provider',
       render: (providerId) => (
@@ -172,7 +171,7 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
       ),
     },
     {
-      title: 'Model',
+      title: 'Modelo',
       dataIndex: 'modelId',
       key: 'model',
       render: (modelId) => <Text code>{modelId}</Text>,
@@ -186,23 +185,23 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
       ),
     },
     {
-      title: 'Last Test',
+      title: 'Último Teste',
       key: 'lastTest',
       render: (_, record) =>
-        getTestStatus(record.id) || <Text type='secondary'>Not tested</Text>,
+        getTestStatus(record.id) || <Text type='secondary'>Não testado</Text>,
     },
     {
-      title: 'Updated',
+      title: 'Atualizado',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      render: (date) => new Date(date).toLocaleDateString(),
+      render: (date) => new Date(date).toLocaleDateString('pt-BR'),
     },
     {
-      title: 'Actions',
+      title: 'Ações',
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <Tooltip title='Test Configuration'>
+          <Tooltip title='Testar Configuração'>
             <Button
               type='text'
               icon={<DisconnectOutlined />}
@@ -217,20 +216,20 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
               items: [
                 {
                   key: 'edit',
-                  label: 'Edit',
+                  label: 'Editar',
                   icon: <EditOutlined />,
                   onClick: () => handleEdit(record),
                 },
                 {
                   key: 'setDefault',
-                  label: record.isDefault ? 'Default' : 'Set as Default',
+                  label: record.isDefault ? 'Padrão' : 'Definir como Padrão',
                   icon: record.isDefault ? <StarFilled /> : <StarOutlined />,
                   disabled: record.isDefault,
                   onClick: () => handleSetDefault(record),
                 },
                 {
                   key: 'toggle',
-                  label: record.isActive ? 'Deactivate' : 'Activate',
+                  label: record.isActive ? 'Desativar' : 'Ativar',
                   icon: record.isActive ? (
                     <PauseCircleOutlined />
                   ) : (
@@ -241,7 +240,7 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
                 { type: 'divider' },
                 {
                   key: 'delete',
-                  label: 'Delete',
+                  label: 'Excluir',
                   icon: <DeleteOutlined />,
                   danger: true,
                   onClick: () => handleDelete(record),
@@ -267,7 +266,7 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
       showSizeChanger: true,
       showQuickJumper: true,
       showTotal: (total, range) =>
-        `${range[0]}-${range[1]} of ${total} configurations`,
+        `${range[0]}-${range[1]} de ${total} configurações`,
     },
     onRow: (record) => ({
       onClick: () => onConfigSelect?.(record),
@@ -293,10 +292,10 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
         >
           <div>
             <Title level={4} style={{ margin: 0 }}>
-              <ApiOutlined /> LLM Configurations
+              <ApiOutlined /> Configurações LLM
             </Title>
             <Text type='secondary'>
-              Manage your Large Language Model configurations
+              Gerencie suas configurações de Large Language Model
             </Text>
           </div>
 
@@ -307,7 +306,7 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
               prefix={<ApiOutlined />}
             />
             <Statistic
-              title='Active'
+              title='Ativas'
               value={activeConfigs}
               valueStyle={{ color: '#3f8600' }}
               prefix={<PlayCircleOutlined />}
@@ -317,7 +316,7 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
               icon={<PlusOutlined />}
               onClick={handleCreate}
             >
-              Add Configuration
+              Adicionar Configuração
             </Button>
           </Space>
         </div>
@@ -332,8 +331,8 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
           <Space>
             <StarFilled style={{ color: '#faad14' }} />
             <Text>
-              <Text strong>{defaultConfig.name}</Text> is set as the default
-              configuration
+              <Text strong>{defaultConfig.name}</Text> está definida como
+              configuração padrão
             </Text>
             <Text type='secondary'>
               ({defaultConfig.providerId} - {defaultConfig.modelId})
@@ -345,36 +344,45 @@ const LLMConfigList: React.FC<LLMConfigListProps> = ({ onConfigSelect }) => {
       {/* Configurations Table */}
       <Card>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
             <Spin size='large' />
+            <div style={{ marginTop: '16px' }}>
+              <Text strong>Carregando configurações...</Text>
+            </div>
+            <div style={{ marginTop: '8px' }}>
+              <Text type='secondary'>
+                Aguarde enquanto buscamos suas configurações LLM
+              </Text>
+            </div>
           </div>
         ) : configurations.length > 0 ? (
           <Table {...tableProps} />
         ) : (
-          <Empty
-            description={
-              <Result
-                status='404'
-                title='No Configurations Found'
-                subTitle="It looks like you don't have any LLM configurations yet."
-                extra={
-                  <Button
-                    type='primary'
-                    icon={<PlusOutlined />}
-                    onClick={handleCreate}
-                  >
-                    Create Configuration
-                  </Button>
-                }
-              />
-            }
+          <Result
+            status='404'
+            title='Nenhuma Configuração Encontrada'
+            subTitle='Você ainda não possui configurações de LLM. Crie sua primeira configuração para começar.'
+            icon={<ApiOutlined />}
+            extra={[
+              <Button
+                type='primary'
+                size='large'
+                icon={<PlusOutlined />}
+                onClick={handleCreate}
+                key='create'
+              >
+                Criar Primeira Configuração
+              </Button>,
+            ]}
           />
         )}
       </Card>
 
       {/* Configuration Form Modal */}
       <Modal
-        title={editingConfig ? 'Edit Configuration' : 'Add New Configuration'}
+        title={
+          editingConfig ? 'Editar Configuração' : 'Adicionar Nova Configuração'
+        }
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
