@@ -23,6 +23,95 @@ Enjoy your own agent with OpenManus!
 
 We're also excited to introduce [OpenManus-RL](https://github.com/OpenManus/OpenManus-RL), an open-source project dedicated to reinforcement learning (RL)- based (such as GRPO) tuning methods for LLM agents, developed collaboratively by researchers from UIUC and OpenManus.
 
+## 🏗️ Multi-Agent Architecture
+
+OpenManus features a sophisticated **multi-agent coordination system** that enables complex task execution through specialized AI agents working together:
+
+### 🤖 Agent Types
+- **Manus Agent**: Core coordination and general operations
+- **Browser Agent**: Web navigation and data collection
+- **SWE Agent**: Software engineering and code development
+- **Data Analysis Agent**: Data processing and visualization
+
+### 🔄 Flow Management
+- **FlowFactory**: Creates and manages different flow types
+- **Multi-Agent Flow**: Coordinates multiple agents for complex tasks
+- **Single Agent Flow**: Handles simple tasks with one agent
+
+### 🧠 Decision System
+- **Task Complexity Analysis**: Automatically determines if task requires multiple agents
+- **Agent Selection**: Chooses appropriate agents based on task requirements
+- **Execution Planning**: Plans and coordinates agent interactions
+
+### 🛠️ Coordination Tools
+- **Distributed Memory**: Shared memory for agent communication
+- **Planning Tool**: Strategic task planning capabilities
+- **Coordination Tool**: Inter-agent communication and synchronization
+
+### 📊 Performance Characteristics
+- Supports concurrent agent execution
+- Scales to handle complex multi-step tasks
+- Real-time progress monitoring
+- Automatic error recovery and fallbacks
+
+### 💡 Usage Examples
+
+**Simple Task (Single Agent)**
+```python
+"Calculate the square root of 144"
+# → Uses Manus Agent only
+```
+
+**Complex Task (Multi-Agent)**
+```python
+"Research AI trends in 2025 and create a comprehensive report"
+# → Uses Browser Agent + Manus Agent + coordination
+```
+
+**Very Complex Task (Full Multi-Agent)**
+```python
+"Research best practices for microservices, then create a Python implementation"
+# → Uses Browser Agent + SWE Agent + Manus Agent + planning
+```
+
+## 📋 API Reference
+
+### Core Endpoints
+
+#### Health & System
+- `GET /health` - Health check
+- `GET /info` - System information
+- `GET /agents` - Available agents
+
+#### Tasks
+- `POST /tasks` - Create new task
+- `GET /tasks` - List all tasks
+- `GET /tasks/{task_id}` - Get specific task
+- `DELETE /tasks/{task_id}` - Delete task
+- `POST /tasks/{task_id}/cancel` - Cancel task
+- `POST /tasks/{task_id}/retry` - Retry failed task
+- `GET /tasks/{task_id}/logs` - Get task logs
+- `POST /analyze-complexity` - Analyze task complexity
+
+#### Documents
+- `POST /documents/upload` - Upload document
+- `GET /documents/{doc_id}` - Get document info
+- `DELETE /documents/{doc_id}` - Delete document
+- `POST /documents/{doc_id}/process` - Process document
+- `GET /documents/{doc_id}/download` - Download document
+
+#### MCP Servers
+- `GET /mcp/servers` - List MCP servers
+- `POST /mcp/servers` - Create MCP server
+- `PUT /mcp/servers/{server_id}` - Update MCP server
+- `DELETE /mcp/servers/{server_id}` - Delete MCP server
+- `POST /mcp/servers/{server_id}/connect` - Connect to server
+- `POST /mcp/servers/{server_id}/disconnect` - Disconnect from server
+- `GET /mcp/servers/{server_id}/tools` - Get server tools
+
+#### WebSocket
+- `WS /ws/{client_id}` - WebSocket connection for real-time updates
+
 ## 🏗️ Architecture Overview
 
 OpenManus features a complete **5-pillar enterprise-grade architecture**:
@@ -68,37 +157,57 @@ OpenManus features a complete **5-pillar enterprise-grade architecture**:
 
 <video src="https://private-user-images.githubusercontent.com/61239030/420168772-6dcfd0d2-9142-45d9-b74e-d10aa75073c6.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDEzMTgwNTksIm5iZiI6MTc0MTMxNzc1OSwicGF0aCI6Ii82MTIzOTAzMC80MjAxNjg3NzItNmRjZmQwZDItOTE0Mi00NWQ5LWI3NGUtZDEwYWE3NTA3M2M2Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTAzMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwMzA3VDAzMjIzOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdiZjFkNjlmYWNjMmEzOTliM2Y3M2VlYjgyNDRlZDJmOWE3NWZhZjE1MzhiZWY4YmQ3NjdkNTYwYTU5ZDA2MzYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.UuHQCgWYkh0OQq9qsUWqGsUbhG3i9jcZDAMeHjLt5T4" data-canonical-src="https://private-user-images.githubusercontent.com/61239030/420168772-6dcfd0d2-9142-45d9-b74e-d10aa75073c6.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDEzMTgwNTksIm5iZiI6MTc0MTMxNzc1OSwicGF0aCI6Ii82MTIzOTAzMC80MjAxNjg3NzItNmRjZmQwZDItOTE0Mi00NWQ5LWI3NGUtZDEwYWE3NTA3M2M2Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTAzMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwMzA3VDAzMjIzOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdiZjFkNjlmYWNjMmEzOTliM2Y3M2VlYjgyNDRlZDJmOWE3NWZhZjE1MzhiZWY4YmQ3NjdkNTYwYTU5ZDA2MzYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.UuHQCgWYkh0OQq9qsUWqGsUbhG3i9jcZDAMeHjLt5T4" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
-## Installation
+## 🚀 Installation & Quick Start
 
-We provide a streamlined installation process. The **Quick Start** method is recommended for the best experience.
+### Prerequisites
+- Python 3.8+ with pip
+- Node.js 18+ with npm (for frontend)
+- Git
+- Docker (optional, for containerized deployment)
 
-### 🚀 Quick Start (Recommended)
+### Quick Start (Recommended)
 
 The easiest way to get OpenManus running with both frontend and backend:
 
-1. Clone the repository:
 ```bash
+# 1. Clone the repository
 git clone https://github.com/mauriciochaiben/OpenManus.git
 cd OpenManus
-```
 
-2. Run the development setup:
-```bash
+# 2. Run the automated setup
 ./start_dev.sh
 ```
 
 This script will automatically:
 - ✅ Check system dependencies (Python, Node.js)
 - ✅ Create Python virtual environment
-- ✅ Install all dependencies
+- ✅ Install all Python and Node.js dependencies
 - ✅ Start both frontend and backend services
+- ✅ Monitor service health
 
 **That's it!** Your OpenManus instance will be running with:
 - 🌐 Frontend: http://localhost:3000
 - 📡 Backend API: http://localhost:8000
 - 📚 API Documentation: http://localhost:8000/docs
 
-### 🐍 Manual Setup
+### Alternative Setup Methods
+
+#### 1. Python Setup Script (Recommended for Development)
+```bash
+# Complete setup with verification and health monitoring
+python3 setup_and_run.py
+
+# Backend only
+python3 setup_and_run.py --backend-only
+
+# Skip verification tests
+python3 setup_and_run.py --skip-tests
+
+# Force reinstall dependencies
+python3 setup_and_run.py --force-reinstall
+```
+
+#### 2. Manual Setup
 
 If you prefer manual setup:
 
@@ -201,6 +310,46 @@ This will start:
 
 ## Usage
 
+#### 3. Docker Setup (Optional)
+```bash
+# Build and run with Docker Compose
+docker-compose up --build
+
+# Or run individual services
+docker build -t openmanus-backend .
+docker run -p 8000:8000 openmanus-backend
+```
+
+### 🔑 Environment Configuration
+
+OpenManus uses environment-specific configuration files:
+
+- `config/config.toml` - Base configuration
+- `config/development.toml` - Development overrides
+- `config/production.toml` - Production overrides
+
+#### Configuration Structure
+```toml
+# LLM Configuration
+[llm]
+model = "gpt-4o"
+api_key = "your-api-key"
+base_url = "https://api.openai.com/v1"
+
+# Search Configuration
+[search]
+api_key = "your-search-api-key"
+
+# Browser Configuration
+[browser]
+headless = true
+timeout = 30
+
+# MCP Configuration
+[mcp]
+servers_config_file = "config/mcp.specialized.json"
+```
+
 ### 🚀 Running OpenManus
 
 After installation, you can use OpenManus in several ways:
@@ -283,6 +432,111 @@ python -m pytest tests/sandbox/ -v
 cd frontend && npm test
 ```
 
+## 🔧 Development Guide
+
+### Getting Started with Development
+
+1. **Complete Setup**: Run the automated setup first
+   ```bash
+   ./start_dev.sh
+   ```
+
+2. **Start Development Environment**:
+   ```bash
+   ./dev.sh
+   ```
+
+3. **VS Code Integration**: If using VS Code, you can use the built-in task:
+   - Open Command Palette (`Cmd+Shift+P`)
+   - Run "Tasks: Run Task"
+   - Select "start-openmanus-dev"
+
+### 🧪 Running Tests
+
+The project includes comprehensive tests for both backend and frontend:
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Run all backend tests
+python -m pytest tests/ -v
+
+# Run specific test categories
+python -m pytest tests/test_basic_functionality.py -v
+python -m pytest tests/test_multi_agent.py -v
+python -m pytest tests/sandbox/ -v
+
+# Frontend tests (if dependencies are installed)
+cd frontend && npm test
+```
+
+### 🚀 Pre-commit Hooks Setup
+
+OpenManus uses pre-commit hooks to maintain code quality and consistency:
+
+#### Installation
+```bash
+# Install pre-commit (if not already installed)
+pip install pre-commit
+
+# Install the hooks
+pre-commit install
+
+# Optional: Install commit-msg hook for conventional commits
+pre-commit install --hook-type commit-msg
+```
+
+#### Configured Hooks
+- **Python Backend**: Ruff linting and formatting, MyPy type checking, Bandit security checks
+- **Frontend**: ESLint, Prettier formatting
+- **General**: YAML/JSON/TOML validation, trailing whitespace, file permissions
+
+#### Usage
+```bash
+# Run hooks on all files
+pre-commit run --all-files
+
+# Hooks run automatically on git commit
+git commit -m "your message"
+
+# Skip hooks (not recommended)
+git commit -m "your message" --no-verify
+```
+
+### 🛠️ Development Workflow
+
+1. **Feature Development**:
+   ```bash
+   # Create feature branch
+   git checkout -b feature/your-feature-name
+
+   # Start development environment
+   ./start_dev.sh
+
+   # Make changes and test
+   python -m pytest tests/ -v
+
+   # Run pre-commit checks
+   pre-commit run --all-files
+
+   # Commit and push
+   git add .
+   git commit -m "feat: add your feature"
+   git push origin feature/your-feature-name
+   ```
+
+2. **Debugging**:
+   - Backend logs: Check `logs/` directory
+   - Frontend: Use browser developer tools
+   - API testing: http://localhost:8000/docs
+
+3. **Adding New Features**:
+   - Backend: Add to appropriate module in `app/`
+   - Frontend: Add components in `frontend/src/`
+   - Tests: Add corresponding tests in `tests/`
+   - Documentation: Update relevant documentation
+
 ### 📁 Project Architecture
 
 ```
@@ -352,41 +606,128 @@ We welcome any friendly suggestions and helpful contributions!
    ```bash
    git clone https://github.com/YOUR_USERNAME/OpenManus.git
    cd OpenManus
-   ./setup_openmanus.sh
+   ./start_dev.sh
    ```
 
 2. **Development Setup**:
    - Follow the installation guide above
-   - Run tests to ensure everything works
+   - Run tests to ensure everything works: `python -m pytest tests/ -v`
+   - Set up pre-commit hooks: `pre-commit install`
    - Create a feature branch for your changes
 
 3. **Code Standards**:
-   - Python: Follow PEP 8, use type hints
-   - TypeScript: Follow project ESLint configuration
-   - Add tests for new functionality
-   - Update documentation as needed
+   - **Python**: Follow PEP 8, use type hints, run `ruff check` and `mypy`
+   - **TypeScript**: Follow project ESLint configuration
+   - **Testing**: Add tests for new functionality (pytest for backend, Jest for frontend)
+   - **Documentation**: Update documentation as needed
+   - **Commits**: Use conventional commit format (feat:, fix:, docs:, etc.)
 
 4. **Pull Request Process**:
-   - Ensure all tests pass
+   - Ensure all tests pass: `python -m pytest tests/ -v`
    - Run pre-commit checks: `pre-commit run --all-files`
    - Provide clear description of changes
    - Reference any related issues
+   - Ensure your branch is up to date with main
 
 5. **Areas for Contribution**:
-   - 🐛 Bug fixes
-   - ✨ New features
-   - 📚 Documentation improvements
-   - 🧪 Test coverage
-   - 🌐 Internationalization
-   - 🎨 UI/UX improvements
+   - 🐛 Bug fixes and performance improvements
+   - ✨ New agent capabilities and tools
+   - 📚 Documentation improvements and translations
+   - 🧪 Test coverage and quality assurance
+   - 🌐 Internationalization (i18n) support
+   - 🎨 UI/UX improvements and accessibility
+   - 🔌 New MCP server integrations
+   - 🤖 Multi-agent workflow enhancements
 
-### 📞 Contact
+### 📞 Community & Support
 
-- 📧 Email: mannaandpoem@gmail.com
-- 💬 Discord: [Join our community](https://discord.gg/DYn29wFk9z)
-- 🐛 Issues: [GitHub Issues](https://github.com/mannaandpoem/OpenManus/issues)
+- 📧 **Email**: mannaandpoem@gmail.com
+- 💬 **Discord**: [Join our community](https://discord.gg/DYn29wFk9z)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/mannaandpoem/OpenManus/issues)
+- 📖 **Documentation**: Check the `docs/` directory for detailed guides
+- 🚀 **Demos**: Try our [Hugging Face Demo](https://huggingface.co/spaces/lyh-917/OpenManusDemo)
 
-**Note**: Before submitting a pull request, please use the pre-commit tool to check your changes. Run `pre-commit run --all-files` to execute the checks.
+### 🔧 Troubleshooting
+
+#### Common Issues
+
+**Installation Problems:**
+```bash
+# If Python dependencies fail
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# If Node.js dependencies fail
+cd frontend && npm install --legacy-peer-deps
+
+# If pre-commit hooks fail
+pre-commit clean
+pre-commit install
+```
+
+**Runtime Issues:**
+```bash
+# Check service status
+curl http://localhost:8000/health
+curl http://localhost:3000
+
+# View logs
+tail -f logs/app.log
+
+# Restart services
+./start_dev.sh
+```
+
+**Configuration Issues:**
+- Ensure `config/config.toml` exists and has valid API keys
+- Check environment variables are set correctly
+- Verify network connectivity for external APIs
+
+### 📊 Performance & Monitoring
+
+OpenManus includes built-in monitoring and performance tracking:
+
+- **Real-time WebSocket updates** for task progress
+- **Health check endpoints** for service monitoring
+- **Comprehensive logging** with configurable levels
+- **Metrics collection** for task execution times
+- **Error tracking** with detailed stack traces
+
+## 🚀 Deployment
+
+### Development Deployment
+```bash
+# Quick development setup
+./start_dev.sh
+
+# With custom configuration
+ENVIRONMENT=development python3 setup_and_run.py
+```
+
+### Production Deployment
+```bash
+# Using Docker Compose (recommended)
+docker-compose -f docker-compose.prod.yml up -d
+
+# Manual production setup
+ENVIRONMENT=production python3 setup_and_run.py --backend-only
+
+# Build frontend for production
+cd frontend && npm run build
+```
+
+### Environment Variables
+```bash
+# Core configuration
+ENVIRONMENT=production
+LOG_LEVEL=INFO
+API_HOST=0.0.0.0
+API_PORT=8000
+
+# External services
+OPENAI_API_KEY=your_openai_key
+ANTHROPIC_API_KEY=your_anthropic_key
+```
 
 ## Community Group
 Join our networking group on Feishu and share your experience with other developers!

@@ -9,11 +9,7 @@ from typing import Any
 import mcp.server.stdio
 import mcp.types as types
 from mcp.server import NotificationOptions, Server
-from mcp.types import (
-    InitializeResult,
-    Resource,
-    Tool,
-)
+from mcp.types import InitializeResult, Resource, Tool
 
 # Configuração baseada em variáveis de ambiente
 SPECIALIZATION = os.getenv("SPECIALIZATION", "research")
@@ -426,7 +422,7 @@ async def handle_call_tool(
         return [types.TextContent(type="text", text=f"Unknown tool: {name}")]
 
 
-async def main():
+async def main() -> None:
     # Inicializar e executar servidor via stdio
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
         await server.run(
