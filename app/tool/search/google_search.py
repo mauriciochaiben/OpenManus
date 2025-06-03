@@ -8,7 +8,7 @@ class GoogleSearchEngine(WebSearchEngine):
         self,
         query: str,
         num_results: int = 10,
-        *args,
+        *args,  # noqa: ARG002
         **kwargs,  # noqa: ARG002
     ) -> list[SearchItem]:
         """
@@ -22,14 +22,8 @@ class GoogleSearchEngine(WebSearchEngine):
         for i, item in enumerate(raw_results):
             if isinstance(item, str):
                 # If it's just a URL
-                results.append(
-                    {"title": f"Google Result {i+1}", "url": item, "description": ""}
-                )
+                results.append({"title": f"Google Result {i+1}", "url": item, "description": ""})
             else:
-                results.append(
-                    SearchItem(
-                        title=item.title, url=item.url, description=item.description
-                    )
-                )
+                results.append(SearchItem(title=item.title, url=item.url, description=item.description))
 
         return results

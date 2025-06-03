@@ -124,13 +124,9 @@ class DocumentAnalyzer(BaseTool):
                 raise ToolError(f"File not found: {file_path}")
 
             if not self._converter:
-                raise ToolError(
-                    "Document analysis tools not available. Please check Docling installation."
-                )
+                raise ToolError("Document analysis tools not available. Please check Docling installation.")
 
-            logger.info(
-                f"📊 Performing {analysis_type} analysis on: {Path(file_path).name}"
-            )
+            logger.info(f"📊 Performing {analysis_type} analysis on: {Path(file_path).name}")
 
             # Convert document
             result: ConversionResult = self._converter.convert(file_path)
@@ -138,9 +134,7 @@ class DocumentAnalyzer(BaseTool):
 
             # Perform specified analysis
             if analysis_type == "semantic_chunks":
-                content = await self._perform_semantic_chunking(
-                    doc, chunk_size, overlap_size
-                )
+                content = await self._perform_semantic_chunking(doc, chunk_size, overlap_size)
             elif analysis_type == "table_analysis":
                 content = await self._analyze_tables(doc)
             elif analysis_type == "formula_extraction":
@@ -160,18 +154,14 @@ class DocumentAnalyzer(BaseTool):
                     identify_key_entities,
                 )
 
-            result = ToolResult(
-                output=f"📊 Document analysis results ({analysis_type}):\n\n{content}"
-            )
+            result = ToolResult(output=f"📊 Document analysis results ({analysis_type}):\n\n{content}")
 
         except Exception as e:
             result = ToolResult(error=f"Analysis failed for {file_path}: {str(e)}")
 
         return str(result)
 
-    async def _perform_semantic_chunking(
-        self, doc: DoclingDocument, chunk_size: int, overlap_size: int
-    ) -> str:
+    async def _perform_semantic_chunking(self, doc: DoclingDocument, chunk_size: int, overlap_size: int) -> str:
         """Perform semantic chunking for RAG applications."""
         try:
             # Use Docling's hierarchical chunker
@@ -185,9 +175,7 @@ class DocumentAnalyzer(BaseTool):
 
             for i, chunk in enumerate(chunks, 1):
                 chunk_text = chunk.text if hasattr(chunk, "text") else str(chunk)
-                chunk_preview = (
-                    chunk_text[:200] + "..." if len(chunk_text) > 200 else chunk_text
-                )
+                chunk_preview = chunk_text[:200] + "..." if len(chunk_text) > 200 else chunk_text
 
                 result.append(f"Chunk {i}:")
                 result.append(f"  Length: {len(chunk_text)} characters")
@@ -205,10 +193,7 @@ class DocumentAnalyzer(BaseTool):
             logger.warning(f"Semantic chunking failed: {e}")
             # Fallback to simple text chunking
             text = doc.export_to_text()
-            chunks = [
-                text[i : i + chunk_size]
-                for i in range(0, len(text), chunk_size - overlap_size)
-            ]
+            chunks = [text[i : i + chunk_size] for i in range(0, len(text), chunk_size - overlap_size)]
 
             result = []
             result.append("=== FALLBACK TEXT CHUNKS ===\n")
@@ -296,9 +281,7 @@ class DocumentAnalyzer(BaseTool):
             formula_patterns = ["$", "\\(", "\\[", "equation", "formula"]
 
             math_found = any(indicator in text_content for indicator in math_indicators)
-            formula_found = any(
-                pattern in markdown_content for pattern in formula_patterns
-            )
+            formula_found = any(pattern in markdown_content for pattern in formula_patterns)
 
             if math_found or formula_found:
                 result.append("Mathematical content detected!")
@@ -308,9 +291,7 @@ class DocumentAnalyzer(BaseTool):
 
                 if math_found:
                     result.append("Mathematical symbols detected")
-                    found_symbols = [
-                        sym for sym in math_indicators if sym in text_content
-                    ]
+                    found_symbols = [sym for sym in math_indicators if sym in text_content]
                     result.append(f"Symbols found: {', '.join(found_symbols)}")
 
             else:
@@ -377,9 +358,7 @@ class DocumentAnalyzer(BaseTool):
 
         return "\n".join(result)
 
-    async def _summarize_content(
-        self, doc: DoclingDocument, identify_entities: bool
-    ) -> str:
+    async def _summarize_content(self, doc: DoclingDocument, identify_entities: bool) -> str:
         """Summarize document content with key insights."""
         result = []
         result.append("=== CONTENT SUMMARY ===\n")
@@ -402,9 +381,7 @@ class DocumentAnalyzer(BaseTool):
                     result.append(f"{i}. {summary_para}")
 
                 if len(paragraphs) > 3:
-                    result.append(
-                        f"\n... and {len(paragraphs) - 3} additional sections"
-                    )
+                    result.append(f"\n... and {len(paragraphs) - 3} additional sections")
 
             if identify_entities:
                 result.append("\n=== KEY ENTITY ANALYSIS ===")
@@ -455,9 +432,7 @@ class DocumentAnalyzer(BaseTool):
                         word_freq[word_clean] = word_freq.get(word_clean, 0) + 1
 
                 # Get top keywords
-                top_keywords = sorted(
-                    word_freq.items(), key=lambda x: x[1], reverse=True
-                )[:10]
+                top_keywords = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)[:10]
 
                 if top_keywords:
                     result.append("Most frequent terms:")
@@ -553,16 +528,10 @@ class DocumentAnalyzer(BaseTool):
             result.append("Document Statistics:")
             result.append(f"- Words: {word_count:,}")
             result.append(f"- Characters: {len(text_content):,}")
-            result.append(
-                f"- Paragraphs: {len([p for p in text_content.split('\\n\\n') if p.strip()])}"
-            )
+            result.append(f"- Paragraphs: {len([p for p in text_content.split('\\n\\n') if p.strip()])}")
 
             # Quick structure analysis
-            headers = [
-                line
-                for line in markdown_content.split("\\n")
-                if line.strip().startswith("#")
-            ]
+            headers = [line for line in markdown_content.split("\\n") if line.strip().startswith("#")]
             if headers:
                 result.append(f"- Sections: {len(headers)}")
 
@@ -592,9 +561,7 @@ class DocumentAnalyzer(BaseTool):
             result.append(await self._analyze_citations(doc))
             result.append("\\n" + "-" * 50 + "\\n")
 
-            result.append(
-                await self._perform_semantic_chunking(doc, chunk_size, overlap_size)
-            )
+            result.append(await self._perform_semantic_chunking(doc, chunk_size, overlap_size))
 
         except Exception as e:
             result.append(f"Full analysis failed: {str(e)}")

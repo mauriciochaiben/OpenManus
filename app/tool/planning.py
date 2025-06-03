@@ -71,16 +71,12 @@ class PlanningTool(BaseTool):
     async def execute(
         self,
         *,
-        command: Literal[
-            "create", "update", "list", "get", "set_active", "mark_step", "delete"
-        ],
+        command: Literal["create", "update", "list", "get", "set_active", "mark_step", "delete"],
         plan_id: str | None = None,
         title: str | None = None,
         steps: list[str] | None = None,
         step_index: int | None = None,
-        step_status: (
-            Literal["not_started", "in_progress", "completed", "blocked"] | None
-        ) = None,
+        step_status: (Literal["not_started", "in_progress", "completed", "blocked"] | None) = None,
         step_notes: str | None = None,
         **kwargs,  # noqa: ARG002
     ):
@@ -115,29 +111,19 @@ class PlanningTool(BaseTool):
             f"Unrecognized command: {command}. Allowed commands are: create, update, list, get, set_active, mark_step, delete"
         )
 
-    def _create_plan(
-        self, plan_id: str | None, title: str | None, steps: list[str] | None
-    ) -> ToolResult:
+    def _create_plan(self, plan_id: str | None, title: str | None, steps: list[str] | None) -> ToolResult:
         """Create a new plan with the given ID, title, and steps."""
         if not plan_id:
             raise ToolError("Parameter `plan_id` is required for command: create")
 
         if plan_id in self.plans:
-            raise ToolError(
-                f"A plan with ID '{plan_id}' already exists. Use 'update' to modify existing plans."
-            )
+            raise ToolError(f"A plan with ID '{plan_id}' already exists. Use 'update' to modify existing plans.")
 
         if not title:
             raise ToolError("Parameter `title` is required for command: create")
 
-        if (
-            not steps
-            or not isinstance(steps, list)
-            or not all(isinstance(step, str) for step in steps)
-        ):
-            raise ToolError(
-                "Parameter `steps` must be a non-empty list of strings for command: create"
-            )
+        if not steps or not isinstance(steps, list) or not all(isinstance(step, str) for step in steps):
+            raise ToolError("Parameter `steps` must be a non-empty list of strings for command: create")
 
         # Create a new plan with initialized step statuses
         plan = {
@@ -151,13 +137,9 @@ class PlanningTool(BaseTool):
         self.plans[plan_id] = plan
         self._current_plan_id = plan_id  # Set as active plan
 
-        return ToolResult(
-            output=f"Plan created successfully with ID: {plan_id}\n\n{self._format_plan(plan)}"
-        )
+        return ToolResult(output=f"Plan created successfully with ID: {plan_id}\n\n{self._format_plan(plan)}")
 
-    def _update_plan(
-        self, plan_id: str | None, title: str | None, steps: list[str] | None
-    ) -> ToolResult:
+    def _update_plan(self, plan_id: str | None, title: str | None, steps: list[str] | None) -> ToolResult:
         """Update an existing plan with new title or steps."""
         if not plan_id:
             raise ToolError("Parameter `plan_id` is required for command: update")
@@ -171,12 +153,8 @@ class PlanningTool(BaseTool):
             plan["title"] = title
 
         if steps:
-            if not isinstance(steps, list) or not all(
-                isinstance(step, str) for step in steps
-            ):
-                raise ToolError(
-                    "Parameter `steps` must be a list of strings for command: update"
-                )
+            if not isinstance(steps, list) or not all(isinstance(step, str) for step in steps):
+                raise ToolError("Parameter `steps` must be a list of strings for command: update")
 
             # Preserve existing step statuses for unchanged steps
             old_steps = plan["steps"]
@@ -200,23 +178,17 @@ class PlanningTool(BaseTool):
             plan["step_statuses"] = new_statuses
             plan["step_notes"] = new_notes
 
-        return ToolResult(
-            output=f"Plan updated successfully: {plan_id}\n\n{self._format_plan(plan)}"
-        )
+        return ToolResult(output=f"Plan updated successfully: {plan_id}\n\n{self._format_plan(plan)}")
 
     def _list_plans(self) -> ToolResult:
         """List all available plans."""
         if not self.plans:
-            return ToolResult(
-                output="No plans available. Create a plan with the 'create' command."
-            )
+            return ToolResult(output="No plans available. Create a plan with the 'create' command.")
 
         output = "Available plans:\n"
         for plan_id, plan in self.plans.items():
             current_marker = " (active)" if plan_id == self._current_plan_id else ""
-            completed = sum(
-                1 for status in plan["step_statuses"] if status == "completed"
-            )
+            completed = sum(1 for status in plan["step_statuses"] if status == "completed")
             total = len(plan["steps"])
             progress = f"{completed}/{total} steps completed"
             output += f"• {plan_id}{current_marker}: {plan['title']} - {progress}\n"
@@ -228,9 +200,7 @@ class PlanningTool(BaseTool):
         if not plan_id:
             # If no plan_id is provided, use the current active plan
             if not self._current_plan_id:
-                raise ToolError(
-                    "No active plan. Please specify a plan_id or set an active plan."
-                )
+                raise ToolError("No active plan. Please specify a plan_id or set an active plan.")
             plan_id = self._current_plan_id
 
         if plan_id not in self.plans:
@@ -263,9 +233,7 @@ class PlanningTool(BaseTool):
         if not plan_id:
             # If no plan_id is provided, use the current active plan
             if not self._current_plan_id:
-                raise ToolError(
-                    "No active plan. Please specify a plan_id or set an active plan."
-                )
+                raise ToolError("No active plan. Please specify a plan_id or set an active plan.")
             plan_id = self._current_plan_id
 
         if plan_id not in self.plans:
@@ -277,9 +245,7 @@ class PlanningTool(BaseTool):
         plan = self.plans[plan_id]
 
         if step_index < 0 or step_index >= len(plan["steps"]):
-            raise ToolError(
-                f"Invalid step_index: {step_index}. Valid indices range from 0 to {len(plan['steps'])-1}."
-            )
+            raise ToolError(f"Invalid step_index: {step_index}. Valid indices range from 0 to {len(plan['steps'])-1}.")
 
         if step_status and step_status not in [
             "not_started",
@@ -297,9 +263,7 @@ class PlanningTool(BaseTool):
         if step_notes:
             plan["step_notes"][step_index] = step_notes
 
-        return ToolResult(
-            output=f"Step {step_index} updated in plan '{plan_id}'.\n\n{self._format_plan(plan)}"
-        )
+        return ToolResult(output=f"Step {step_index} updated in plan '{plan_id}'.\n\n{self._format_plan(plan)}")
 
     def _delete_plan(self, plan_id: str | None) -> ToolResult:
         """Delete a plan."""
@@ -325,13 +289,9 @@ class PlanningTool(BaseTool):
         # Calculate progress statistics
         total_steps = len(plan["steps"])
         completed = sum(1 for status in plan["step_statuses"] if status == "completed")
-        in_progress = sum(
-            1 for status in plan["step_statuses"] if status == "in_progress"
-        )
+        in_progress = sum(1 for status in plan["step_statuses"] if status == "in_progress")
         blocked = sum(1 for status in plan["step_statuses"] if status == "blocked")
-        not_started = sum(
-            1 for status in plan["step_statuses"] if status == "not_started"
-        )
+        not_started = sum(1 for status in plan["step_statuses"] if status == "not_started")
 
         output += f"Progress: {completed}/{total_steps} steps completed "
         if total_steps > 0:

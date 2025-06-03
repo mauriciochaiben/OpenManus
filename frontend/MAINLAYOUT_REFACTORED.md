@@ -2,7 +2,8 @@
 
 ## Visão Geral
 
-O `MainLayout.tsx` foi refatorado para fornecer uma estrutura de layout completa e moderna usando Ant Design, incluindo:
+O `MainLayout.tsx` foi refatorado para fornecer uma estrutura de layout completa
+e moderna usando Ant Design, incluindo:
 
 - **Sider**: Navegação lateral com menu organizado por grupos
 - **Header**: Cabeçalho com informações do usuário e notificações
@@ -11,17 +12,20 @@ O `MainLayout.tsx` foi refatorado para fornecer uma estrutura de layout completa
 ## Características Principais
 
 ### 🎯 **Sider com Menu Organizado**
+
 - **Principal**: Home, Dashboard
 - **Funcionalidades**: Chat/Agente, Conhecimento, Workflows
 - **Configurações**: LLM Config, MCP Config, Settings
 
 ### 🎨 **Header Moderno**
+
 - Título dinâmico baseado na rota atual
 - Menu dropdown do usuário com avatar
 - Sistema de notificações com badge
 - Design responsivo e acessível
 
 ### 📱 **Layout Responsivo**
+
 - Sidebar fixa com 250px de largura
 - Content area com padding e scroll automático
 - Suporte a diferentes tamanhos de tela
@@ -56,11 +60,14 @@ import { Route } from 'react-router-dom';
 import { MainLayout } from '../layouts';
 import Dashboard from '../pages/Dashboard';
 
-<Route path="/dashboard" element={
-  <MainLayout>
-    <Dashboard />
-  </MainLayout>
-} />
+<Route
+  path='/dashboard'
+  element={
+    <MainLayout>
+      <Dashboard />
+    </MainLayout>
+  }
+/>;
 ```
 
 ### Opção 3: Como wrapper de layout
@@ -69,14 +76,13 @@ import Dashboard from '../pages/Dashboard';
 // src/components/PageWrapper.tsx
 import { MainLayout } from '../layouts';
 
-const PageWrapper = ({ children }) => (
-  <MainLayout>{children}</MainLayout>
-);
+const PageWrapper = ({ children }) => <MainLayout>{children}</MainLayout>;
 ```
 
 ## Componentes Integrados
 
 ### Menu de Navegação
+
 ```tsx
 const menuItems = [
   {
@@ -86,35 +92,39 @@ const menuItems = [
     children: [
       { key: '/chat', icon: <MessageOutlined />, label: 'Chat/Agente' },
       { key: '/knowledge', icon: <BookOutlined />, label: 'Conhecimento' },
-      { key: '/workflow', icon: <BranchesOutlined />, label: 'Workflows' }
-    ]
-  }
+      { key: '/workflow', icon: <BranchesOutlined />, label: 'Workflows' },
+    ],
+  },
 ];
 ```
 
 ### Header do Usuário
+
 ```tsx
 const userMenuItems = [
   { key: 'profile', icon: <ProfileOutlined />, label: 'Perfil' },
   { key: 'settings', icon: <SettingOutlined />, label: 'Configurações' },
   { type: 'divider' },
-  { key: 'logout', icon: <LogoutOutlined />, label: 'Sair' }
+  { key: 'logout', icon: <LogoutOutlined />, label: 'Sair' },
 ];
 ```
 
 ## Customização
 
 ### Alterar largura do Sider
+
 ```tsx
 <Sider width={300}> // Padrão: 250px
 ```
 
 ### Personalizar tema
+
 ```tsx
 <Menu theme="light"> // Padrão: "dark"
 ```
 
 ### Adicionar novos itens de menu
+
 ```tsx
 const menuItems = [
   // ...itens existentes
@@ -123,15 +133,16 @@ const menuItems = [
     type: 'group',
     label: 'Analytics',
     children: [
-      { key: '/reports', icon: <BarChartOutlined />, label: 'Relatórios' }
-    ]
-  }
+      { key: '/reports', icon: <BarChartOutlined />, label: 'Relatórios' },
+    ],
+  },
 ];
 ```
 
 ## Integração com Sistema Existente
 
 O MainLayout mantém compatibilidade com:
+
 - ✅ Sistema de roteamento existente (React Router)
 - ✅ Context providers (NotificationProvider)
 - ✅ Componentes de lazy loading

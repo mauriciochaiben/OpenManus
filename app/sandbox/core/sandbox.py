@@ -133,10 +133,7 @@ class DockerSandbox:
         Returns:
             Actual path on the host.
         """
-        host_path = (
-            Path(tempfile.gettempdir())
-            / f"sandbox_{Path(path).name}_{os.urandom(4).hex()}"
-        )
+        host_path = Path(tempfile.gettempdir()) / f"sandbox_{Path(path).name}_{os.urandom(4).hex()}"
         host_path.mkdir(parents=True, exist_ok=True)
         return str(host_path)
 
@@ -158,9 +155,7 @@ class DockerSandbox:
             raise RuntimeError("Sandbox not initialized")
 
         try:
-            return await self.terminal.run_command(
-                cmd, timeout=timeout or self.config.timeout
-            )
+            return await self.terminal.run_command(cmd, timeout=timeout or self.config.timeout)
         except TimeoutError as e:
             raise SandboxTimeoutError(
                 f"Command execution timed out after {timeout or self.config.timeout} seconds"
@@ -185,9 +180,7 @@ class DockerSandbox:
         try:
             # Get file archive
             resolved_path = self._safe_resolve_path(path)
-            tar_stream, _ = await asyncio.to_thread(
-                self.container.get_archive, resolved_path
-            )
+            tar_stream, _ = await asyncio.to_thread(self.container.get_archive, resolved_path)
 
             # Read file content from tar stream
             content = await self._read_from_tar(tar_stream)
@@ -220,14 +213,10 @@ class DockerSandbox:
                 await self.run_command(f"mkdir -p {parent_dir}")
 
             # Prepare file data
-            tar_stream = await self._create_tar_stream(
-                Path(path).name, content.encode("utf-8")
-            )
+            tar_stream = await self._create_tar_stream(Path(path).name, content.encode("utf-8"))
 
             # Write file
-            await asyncio.to_thread(
-                self.container.put_archive, parent_dir or "/", tar_stream
-            )
+            await asyncio.to_thread(self.container.put_archive, parent_dir or "/", tar_stream)
 
         except Exception as e:
             raise RuntimeError(f"Failed to write file: {e}") from e
@@ -248,11 +237,7 @@ class DockerSandbox:
         if ".." in path.split("/"):
             raise ValueError("Path contains potentially unsafe patterns")
 
-        return (
-            str(Path(self.config.work_dir) / path)
-            if not Path(path).is_absolute()
-            else path
-        )
+        return str(Path(self.config.work_dir) / path) if not Path(path).is_absolute() else path
 
     async def copy_from(self, src_path: str, dst_path: str) -> None:
         """Copies a file from the container.
@@ -273,9 +258,7 @@ class DockerSandbox:
 
             # Get file stream
             resolved_src = self._safe_resolve_path(src_path)
-            stream, stat = await asyncio.to_thread(
-                self.container.get_archive, resolved_src
-            )
+            stream, stat = await asyncio.to_thread(self.container.get_archive, resolved_src)
 
             # Create temporary directory to extract file
             with tempfile.TemporaryDirectory() as tmp_dir:
@@ -285,7 +268,7 @@ class DockerSandbox:
                     for chunk in stream:
                         f.write(chunk)
 
-                # Extract file
+                # Extract file safely
                 with tarfile.open(tar_path) as tar:
                     members = tar.getmembers()
                     if not members:
@@ -293,20 +276,30 @@ class DockerSandbox:
 
                     # If destination is a directory, we should preserve relative path structure
                     if Path(dst_path).is_dir():
-                        tar.extractall(dst_path)
+                        # Safe extraction to prevent path traversal attacks
+                        def is_safe_path(path, base_path):
+                            """Check if extraction path is safe"""
+                            return (
+                                Path(base_path).resolve() in Path(path).resolve().parents
+                                or Path(path).resolve() == Path(base_path).resolve()
+                            )
+
+                        safe_members = []
+                        for member in members:
+                            if member.isreg() or member.isdir():
+                                target_path = Path(dst_path) / member.name
+                                if is_safe_path(target_path, dst_path):
+                                    safe_members.append(member)
+                        tar.extractall(dst_path, members=safe_members)
                     else:
                         # If destination is a file, we only extract the source file's content
                         if len(members) > 1:
-                            raise RuntimeError(
-                                f"Source path is a directory but destination is a file: {src_path}"
-                            )
+                            raise RuntimeError(f"Source path is a directory but destination is a file: {src_path}")
 
                         with Path(dst_path).open("wb") as dst:
                             src_file = tar.extractfile(members[0])
                             if src_file is None:
-                                raise RuntimeError(
-                                    f"Failed to extract file: {src_path}"
-                                )
+                                raise RuntimeError(f"Failed to extract file: {src_path}")
                             dst.write(src_file.read())
 
         except docker.errors.NotFound as e:
@@ -345,9 +338,7 @@ class DockerSandbox:
                         for root, _, files in os.walk(src_path):
                             for file in files:
                                 file_path = Path(root) / file
-                                arcname = Path(dst_path).name / Path(
-                                    file_path
-                                ).relative_to(src_path)
+                                arcname = Path(dst_path).name / Path(file_path).relative_to(src_path)
                                 tar.add(file_path, arcname=arcname)
                     else:
                         # Add single file to tar
@@ -368,9 +359,7 @@ class DockerSandbox:
                 try:
                     await self.run_command(f"test -e {resolved_dst}")
                 except Exception as e:
-                    raise RuntimeError(
-                        f"Failed to verify file creation: {dst_path}"
-                    ) from e
+                    raise RuntimeError(f"Failed to verify file creation: {dst_path}") from e
 
         except FileNotFoundError:
             raise

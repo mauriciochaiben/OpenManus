@@ -7,14 +7,10 @@ class WebSearchTool(BaseTool):
     """A basic web search tool that simulates search functionality."""
 
     name: str = "web_search"
-    description: str = (
-        "Performs a web search for the given query and returns simulated search results"
-    )
+    description: str = "Performs a web search for the given query and returns simulated search results"
     parameters: dict[str, Any] = {
         "type": "object",
-        "properties": {
-            "query": {"type": "string", "description": "The search query to execute"}
-        },
+        "properties": {"query": {"type": "string", "description": "The search query to execute"}},
         "required": ["query"],
     }
 

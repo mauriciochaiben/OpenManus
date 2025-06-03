@@ -80,9 +80,7 @@ class YamlRoleConfigLoader(RoleConfigLoader):
             self._role_cache.clear()
 
             if not self.config_dir.exists():
-                logger.warning(
-                    f"Role config directory does not exist: {self.config_dir}"
-                )
+                logger.warning(f"Role config directory does not exist: {self.config_dir}")
                 self._cache_loaded = True
                 return
 
@@ -98,9 +96,7 @@ class YamlRoleConfigLoader(RoleConfigLoader):
                         logger.debug(f"Loaded role config: {role_name}")
 
                 except Exception as e:
-                    logger.error(
-                        f"Error loading role config from {yaml_file}: {str(e)}"
-                    )
+                    logger.error(f"Error loading role config from {yaml_file}: {str(e)}")
 
             # Also try to load from a single roles.yaml file
             roles_file = self.config_dir / "roles.yaml"
@@ -111,9 +107,7 @@ class YamlRoleConfigLoader(RoleConfigLoader):
 
                     if all_roles and isinstance(all_roles, dict):
                         self._role_cache.update(all_roles)
-                        logger.debug(
-                            f"Loaded roles from unified config: {list(all_roles.keys())}"
-                        )
+                        logger.debug(f"Loaded roles from unified config: {list(all_roles.keys())}")
 
                 except Exception as e:
                     logger.error(f"Error loading unified roles config: {str(e)}")
@@ -180,9 +174,7 @@ class RoleManager:
         "tool_user_agent": ToolUserAgent,
     }
 
-    def __init__(
-        self, config_loader: RoleConfigLoader, event_bus: EventBus | None = None
-    ):
+    def __init__(self, config_loader: RoleConfigLoader, event_bus: EventBus | None = None):
         """
         Initialize the role manager.
 
@@ -288,9 +280,7 @@ class RoleManager:
 
         return self._role_configs.get(role_name)
 
-    async def _create_agent_instance(
-        self, role_name: str, role_config: dict[str, Any], **kwargs
-    ) -> Any | None:
+    async def _create_agent_instance(self, role_name: str, role_config: dict[str, Any], **kwargs) -> Any | None:
         """
         Create an agent instance based on role configuration.
 
@@ -333,9 +323,7 @@ class RoleManager:
             return agent
 
         except Exception as e:
-            logger.error(
-                f"Error creating agent instance for role '{role_name}': {str(e)}"
-            )
+            logger.error(f"Error creating agent instance for role '{role_name}': {str(e)}")
             return None
 
     def clear_cache(self):
@@ -366,9 +354,7 @@ def create_yaml_role_manager(
     return RoleManager(config_loader, event_bus)
 
 
-def create_database_role_manager(
-    db_session=None, event_bus: EventBus | None = None
-) -> RoleManager:
+def create_database_role_manager(db_session=None, event_bus: EventBus | None = None) -> RoleManager:
     """
     Create a role manager with database configuration loader.
 

@@ -27,13 +27,9 @@ class SearchResult(BaseModel):
     position: int = Field(description="Position in search results")
     url: str = Field(description="URL of the search result")
     title: str = Field(default="", description="Title of the search result")
-    description: str = Field(
-        default="", description="Description or snippet of the search result"
-    )
+    description: str = Field(default="", description="Description or snippet of the search result")
     source: str = Field(description="The search engine that provided this result")
-    raw_content: str | None = Field(
-        default=None, description="Raw content from the search result page if available"
-    )
+    raw_content: str | None = Field(default=None, description="Raw content from the search result page if available")
 
     def __str__(self) -> str:
         """String representation of a search result."""
@@ -54,12 +50,8 @@ class SearchResponse(ToolResult):
     """Structured response from the web search tool, inheriting ToolResult."""
 
     query: str = Field(description="The search query that was executed")
-    results: list[SearchResult] = Field(
-        default_factory=list, description="List of search results"
-    )
-    metadata: SearchMetadata | None = Field(
-        default=None, description="Metadata about the search"
-    )
+    results: list[SearchResult] = Field(default_factory=list, description="List of search results")
+    metadata: SearchMetadata | None = Field(default=None, description="Metadata about the search")
 
     @model_validator(mode="after")
     def populate_output(self) -> "SearchResponse":
@@ -129,9 +121,7 @@ class WebContentFetcher:
             )
 
             if response.status_code != 200:
-                logger.warning(
-                    f"Failed to fetch content from {url}: HTTP {response.status_code}"
-                )
+                logger.warning(f"Failed to fetch content from {url}: HTTP {response.status_code}")
                 return None
 
             # Parse HTML with BeautifulSoup
@@ -260,9 +250,7 @@ class WebSearch(BaseTool):
                 )
                 await asyncio.sleep(retry_delay)
             else:
-                logger.error(
-                    f"All search engines failed after {max_retries} retries. Giving up."
-                )
+                logger.error(f"All search engines failed after {max_retries} retries. Giving up.")
 
         # Return an error response
         return SearchResponse(
@@ -271,9 +259,7 @@ class WebSearch(BaseTool):
             results=[],
         )
 
-    async def _try_all_engines(
-        self, query: str, num_results: int, search_params: dict[str, Any]
-    ) -> list[SearchResult]:
+    async def _try_all_engines(self, query: str, num_results: int, search_params: dict[str, Any]) -> list[SearchResult]:
         """Try all search engines in the configured order."""
         engine_order = self._get_engine_order()
         failed_engines = []
@@ -281,9 +267,7 @@ class WebSearch(BaseTool):
         for engine_name in engine_order:
             engine = self._search_engine[engine_name]
             logger.info(f"🔎 Attempting search with {engine_name.capitalize()}...")
-            search_items = await self._perform_search_with_engine(
-                engine, query, num_results, search_params
-            )
+            search_items = await self._perform_search_with_engine(engine, query, num_results, search_params)
 
             if not search_items:
                 continue
@@ -298,8 +282,7 @@ class WebSearch(BaseTool):
                 SearchResult(
                     position=i + 1,
                     url=item.url,
-                    title=item.title
-                    or f"Result {i+1}",  # Ensure we always have a title
+                    title=item.title or f"Result {i+1}",  # Ensure we always have a title
                     description=item.description or "",
                     source=engine_name,
                 )
@@ -310,9 +293,7 @@ class WebSearch(BaseTool):
             logger.error(f"All search engines failed: {', '.join(failed_engines)}")
         return []
 
-    async def _fetch_content_for_results(
-        self, results: list[SearchResult]
-    ) -> list[SearchResult]:
+    async def _fetch_content_for_results(self, results: list[SearchResult]) -> list[SearchResult]:
         """Fetch and add web content to search results."""
         if not results:
             return []
@@ -325,11 +306,7 @@ class WebSearch(BaseTool):
 
         # Explicit validation of return type
         return [
-            (
-                result
-                if isinstance(result, SearchResult)
-                else SearchResult(**result.dict())
-            )
+            (result if isinstance(result, SearchResult) else SearchResult(**result.dict()))
             for result in fetched_results
         ]
 
@@ -344,26 +321,16 @@ class WebSearch(BaseTool):
     def _get_engine_order(self) -> list[str]:
         """Determines the order in which to try search engines."""
         preferred = settings.search_config.engine.lower()
-        fallbacks = [
-            engine.lower() for engine in settings.search_config.fallback_engines
-        ]
+        fallbacks = [engine.lower() for engine in settings.search_config.fallback_engines]
 
         # Start with preferred engine, then fallbacks, then remaining engines
         engine_order = [preferred] if preferred in self._search_engine else []
-        engine_order.extend(
-            [
-                fb
-                for fb in fallbacks
-                if fb in self._search_engine and fb not in engine_order
-            ]
-        )
+        engine_order.extend([fb for fb in fallbacks if fb in self._search_engine and fb not in engine_order])
         engine_order.extend([e for e in self._search_engine if e not in engine_order])
 
         return engine_order
 
-    @retry(
-        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
-    )
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10))
     async def _perform_search_with_engine(
         self,
         engine: WebSearchEngine,
@@ -387,9 +354,5 @@ class WebSearch(BaseTool):
 
 if __name__ == "__main__":
     web_search = WebSearch()
-    search_response = asyncio.run(
-        web_search.execute(
-            query="Python programming", fetch_content=True, num_results=1
-        )
-    )
+    search_response = asyncio.run(web_search.execute(query="Python programming", fetch_content=True, num_results=1))
     print(search_response.to_tool_result())

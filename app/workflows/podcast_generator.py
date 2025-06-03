@@ -27,9 +27,7 @@ try:
     ELEVENLABS_AVAILABLE = True
 except ImportError:
     ELEVENLABS_AVAILABLE = False
-    logging.warning(
-        "ElevenLabs not available. Install elevenlabs package for TTS functionality."
-    )
+    logging.warning("ElevenLabs not available. Install elevenlabs package for TTS functionality.")
 
 logger = logging.getLogger(__name__)
 
@@ -224,19 +222,13 @@ class PodcastGenerator:
                             source_content = "\n\n".join(chunks)
                         else:
                             # Get all content from source
-                            source_content = await self.source_service.get_full_content(
-                                source_id
-                            )
+                            source_content = await self.source_service.get_full_content(source_id)
 
                         source = await self.source_service.get_source(source_id)
-                        content_parts.append(
-                            f"# From {source.filename}\n\n{source_content}"
-                        )
+                        content_parts.append(f"# From {source.filename}\n\n{source_content}")
 
                     except Exception as e:
-                        logger.error(
-                            f"Error getting content from source {source_id}: {str(e)}"
-                        )
+                        logger.error(f"Error getting content from source {source_id}: {str(e)}")
                         continue
 
             # Get content from notes
@@ -253,16 +245,10 @@ class PodcastGenerator:
             # If no specific sources but topic provided, use RAG broadly
             if not source_ids and not note_ids and topic:
                 try:
-                    chunks = await self.rag_service.retrieve_relevant_context(
-                        query=topic, k=10
-                    )
-                    content_parts.append(
-                        f"# Content about {topic}\n\n" + "\n\n".join(chunks)
-                    )
+                    chunks = await self.rag_service.retrieve_relevant_context(query=topic, k=10)
+                    content_parts.append(f"# Content about {topic}\n\n" + "\n\n".join(chunks))
                 except Exception as e:
-                    logger.error(
-                        f"Error getting RAG content for topic {topic}: {str(e)}"
-                    )
+                    logger.error(f"Error getting RAG content for topic {topic}: {str(e)}")
 
             if not content_parts:
                 raise ValidationError("No content found to generate podcast from")
@@ -300,13 +286,9 @@ class PodcastGenerator:
         """
         try:
             # Prepare prompt for script generation
-            word_count_target = (
-                duration_target * 2.5
-            )  # ~150 words per minute speaking pace
+            word_count_target = duration_target * 2.5  # ~150 words per minute speaking pace
 
-            hosts_description = "\n".join(
-                [f"- {host.name} ({host.role}): {host.personality}" for host in hosts]
-            )
+            hosts_description = "\n".join([f"- {host.name} ({host.role}): {host.personality}" for host in hosts])
 
             prompt = f"""Generate a {style} podcast script based on the following content.
 
@@ -337,7 +319,10 @@ The script should feel natural and conversational, not like reading from notes."
             # Generate script using LLM
             response = await self.llm_client.generate_response(
                 prompt=prompt,
-                system_prompt="You are an expert podcast script writer. Create engaging, natural-sounding dialogue that brings content to life through conversation.",
+                system_prompt=(
+                    "You are an expert podcast script writer. Create engaging, natural-sounding dialogue "
+                    "that brings content to life through conversation."
+                ),
                 max_tokens=3000,
                 temperature=0.7,
             )
@@ -389,9 +374,7 @@ The script should feel natural and conversational, not like reading from notes."
                 host_name = line[1:host_end]
                 dialogue = line[host_end + 2 :].strip()
 
-                current_segment["content"].append(
-                    {"speaker": host_name, "text": dialogue}
-                )
+                current_segment["content"].append({"speaker": host_name, "text": dialogue})
             # Check for timestamp markers
             elif line.startswith("[") and line.endswith("]") and "min" in line.lower():
                 if current_segment["content"]:
@@ -418,10 +401,7 @@ The script should feel natural and conversational, not like reading from notes."
                     "id": script.id,
                     "title": script.title,
                     "description": script.description,
-                    "hosts": [
-                        {"name": h.name, "role": h.role, "personality": h.personality}
-                        for h in script.hosts
-                    ],
+                    "hosts": [{"name": h.name, "role": h.role, "personality": h.personality} for h in script.hosts],
                     "segments": script.segments,
                     "metadata": script.metadata,
                     "created_at": script.created_at.isoformat(),
@@ -478,9 +458,7 @@ The script should feel natural and conversational, not like reading from notes."
                                 audio_segments.append(audio_data)
 
                             except Exception as e:
-                                logger.error(
-                                    f"Error generating audio for segment: {str(e)}"
-                                )
+                                logger.error(f"Error generating audio for segment: {str(e)}")
                                 continue
 
             if not audio_segments:
@@ -569,9 +547,7 @@ class PodcastWorkflow:
                 "data": {
                     "script_id": result["script"].id,
                     "audio_id": result["audio"].id if result["audio"] else None,
-                    "audio_file": (
-                        result["audio"].file_path if result["audio"] else None
-                    ),
+                    "audio_file": (result["audio"].file_path if result["audio"] else None),
                     "title": result["script"].title,
                     "duration": result["script"].total_duration_estimate,
                     "metadata": result["metadata"],

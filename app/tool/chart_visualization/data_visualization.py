@@ -68,14 +68,8 @@ Outputs:
         for item in json_info:
             if Path(item[path_str]).exists():
                 res.append(item[path_str])
-            elif Path(
-                f"{directory or settings.workspace_root}" / item[path_str]
-            ).exists():
-                res.append(
-                    str(
-                        Path(f"{directory or settings.workspace_root}") / item[path_str]
-                    )
-                )
+            elif Path(f"{directory or settings.workspace_root}" / item[path_str]).exists():
+                res.append(str(Path(f"{directory or settings.workspace_root}") / item[path_str]))
             else:
                 raise Exception(f"No such file or directory: {item[path_str]}")
         return res
@@ -92,9 +86,7 @@ Outputs:
                 content += "\n"
         return f"Chart Generated Successful!\n{content}"
 
-    async def data_visualization(
-        self, json_info: list[dict[str, str]], output_type: str, language: str
-    ) -> str:
+    async def data_visualization(self, json_info: list[dict[str, str]], output_type: str, language: str) -> str:
         data_list = []
         csv_file_path = self.get_file_path(json_info, "csvFilePath")
         for index, item in enumerate(json_info):
@@ -143,9 +135,7 @@ Outputs:
             }
         return {"observation": f"{self.success_output_template(success_list)}"}
 
-    async def add_insighs(
-        self, json_info: list[dict[str, str]], output_type: str
-    ) -> str:
+    async def add_insighs(self, json_info: list[dict[str, str]], output_type: str) -> str:
         data_list = []
         chart_file_path = self.get_file_path(
             json_info,
@@ -156,9 +146,7 @@ Outputs:
             if "insights_id" in item:
                 data_list.append(
                     {
-                        "file_name": Path(chart_file_path[index]).name.replace(
-                            f".{output_type}", ""
-                        ),
+                        "file_name": Path(chart_file_path[index]).name.replace(f".{output_type}", ""),
                         "insights_id": item["insights_id"],
                     }
                 )
@@ -180,11 +168,7 @@ Outputs:
                 error_list.append(f"Error in {chart_path}: {result['error']}")
             else:
                 success_list.append(chart_path)
-        success_template = (
-            f"# Charts Update with Insights\n{','.join(success_list)}"
-            if len(success_list) > 0
-            else ""
-        )
+        success_template = f"# Charts Update with Insights\n{','.join(success_list)}" if len(success_list) > 0 else ""
         if len(error_list) > 0:
             return {
                 "observation": f"# Error in chart insights:{'\n'.join(error_list)}\n{success_template}",

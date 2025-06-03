@@ -180,9 +180,7 @@ async def main():
     for index, item in enumerate(tasks):
         logger.info(f"Begin task {index} / {len(tasks)}!")
         agent = DataAnalysis()
-        await agent.run(
-            f"{prefix},chart_description:{item['prompt']},Data:{item['data']}"
-        )
+        await agent.run(f"{prefix},chart_description:{item['prompt']},Data:{item['data']}")
         logger.info(f"Finish with {item['prompt']}")
 
 

@@ -36,9 +36,7 @@ class RagService:
         self.embedding_service = embedding_service
         self.vector_store_client = vector_store_client
 
-    async def retrieve_relevant_context(
-        self, query: str, source_ids: list[str] | None = None, k: int = 5
-    ) -> list[str]:
+    async def retrieve_relevant_context(self, query: str, source_ids: list[str] | None = None, k: int = 5) -> list[str]:
         """
         Retrieve relevant context chunks for a given query.
 
@@ -169,9 +167,7 @@ class RagService:
                             }
                         )
 
-            logger.info(
-                f"Retrieved {len(context_with_scores)} context chunks with scores >= {min_score}"
-            )
+            logger.info(f"Retrieved {len(context_with_scores)} context chunks with scores >= {min_score}")
             return context_with_scores
 
         except Exception as e:

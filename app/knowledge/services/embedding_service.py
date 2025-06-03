@@ -45,9 +45,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
 
                 self._client = openai.AsyncOpenAI(api_key=self.api_key)
             except ImportError as e:
-                raise ImportError(
-                    "openai package is required for OpenAI embeddings"
-                ) from e
+                raise ImportError("openai package is required for OpenAI embeddings") from e
         return self._client
 
     async def generate_embeddings(self, texts: list[str]) -> list[list[float]]:
@@ -85,17 +83,13 @@ class SentenceTransformersProvider(EmbeddingProvider):
 
                 # Load model in thread executor to avoid blocking
                 loop = asyncio.get_event_loop()
-                self._model = await loop.run_in_executor(
-                    None, SentenceTransformer, self.model_name
-                )
+                self._model = await loop.run_in_executor(None, SentenceTransformer, self.model_name)
 
                 # Get dimension from model
                 self._dimension = self._model.get_sentence_embedding_dimension()
 
             except ImportError as e:
-                raise ImportError(
-                    "sentence-transformers package is required for local embeddings"
-                ) from e
+                raise ImportError("sentence-transformers package is required for local embeddings") from e
 
         return self._model
 
@@ -141,9 +135,7 @@ class OllamaEmbeddingProvider(EmbeddingProvider):
 
                 self._client = httpx.AsyncClient(base_url=self.base_url)
             except ImportError as e:
-                raise ImportError(
-                    "httpx package is required for Ollama embeddings"
-                ) from e
+                raise ImportError("httpx package is required for Ollama embeddings") from e
         return self._client
 
     async def generate_embeddings(self, texts: list[str]) -> list[list[float]]:
@@ -153,9 +145,7 @@ class OllamaEmbeddingProvider(EmbeddingProvider):
             embeddings = []
 
             for text in texts:
-                response = await client.post(
-                    "/api/embeddings", json={"model": self.model_name, "prompt": text}
-                )
+                response = await client.post("/api/embeddings", json={"model": self.model_name, "prompt": text})
                 response.raise_for_status()
 
                 data = response.json()
@@ -210,9 +200,7 @@ class EmbeddingService:
         if "openai" in model_name or "ada" in model_name:
             api_key = getattr(settings, "openai_api_key", None)
             if not api_key:
-                logger.warning(
-                    "OpenAI API key not found, falling back to SentenceTransformers"
-                )
+                logger.warning("OpenAI API key not found, falling back to SentenceTransformers")
                 return SentenceTransformersProvider(self.model_name)
             return OpenAIEmbeddingProvider(api_key, self.model_name)
 
@@ -244,9 +232,7 @@ class EmbeddingService:
 
         # Fallback for when provider isn't available
         if not self.provider:
-            logger.warning(
-                "No embedding provider available, returning dummy embeddings"
-            )
+            logger.warning("No embedding provider available, returning dummy embeddings")
             return [[0.0] * embedding_config.dimension for _ in texts]
 
         try:
@@ -262,9 +248,7 @@ class EmbeddingService:
 
                 # Normalize embeddings if required
                 if self.normalize:
-                    batch_embeddings = [
-                        self._normalize_embedding(emb) for emb in batch_embeddings
-                    ]
+                    batch_embeddings = [self._normalize_embedding(emb) for emb in batch_embeddings]
 
                 all_embeddings.extend(batch_embeddings)
 

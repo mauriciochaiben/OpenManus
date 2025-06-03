@@ -110,9 +110,7 @@ class SourceService:
                 metadata=metadata or {},
             )
 
-            logger.info(
-                f"File uploaded successfully: {source_doc.filename} ({source_doc.id})"
-            )
+            logger.info(f"File uploaded successfully: {source_doc.filename} ({source_doc.id})")
 
             # Start background processing
             asyncio.create_task(self._process_source_async(file_path, source_doc))
@@ -173,9 +171,7 @@ class SourceService:
             "pdf": ["application/pdf"],
             "txt": ["text/plain", "text/x-plain"],
             "md": ["text/markdown", "text/x-markdown", "text/plain"],
-            "docx": [
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            ],
+            "docx": ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
             "html": ["text/html"],
             "json": ["application/json", "text/json"],
             "csv": ["text/csv", "application/csv"],
@@ -270,9 +266,7 @@ class SourceService:
         # TODO: Save to database if using ORM
         # For now, we'll just return the in-memory object
 
-    async def _process_source_async(
-        self, file_path: str, source_doc: SourceDocument
-    ) -> None:
+    async def _process_source_async(self, file_path: str, source_doc: SourceDocument) -> None:
         """
         Asynchronously process source document in background.
 
@@ -312,9 +306,7 @@ class SourceService:
             # TODO: Update database record
 
             # Extract text content
-            content = await self._extract_text_content(
-                file_path, source_doc.document_type
-            )
+            content = await self._extract_text_content(file_path, source_doc.document_type)
             source_doc.content = content
             source_doc.content_length = len(content)
 
@@ -327,9 +319,7 @@ class SourceService:
             source_doc.embedding_count = embedding_count
 
             # Mark as completed
-            source_doc.mark_as_completed(
-                chunk_count=len(chunks), embedding_count=embedding_count
-            )
+            source_doc.mark_as_completed(chunk_count=len(chunks), embedding_count=embedding_count)
 
             logger.info(
                 f"Processing completed for {source_doc.filename}: "
@@ -343,9 +333,7 @@ class SourceService:
             # TODO: Update database record to failed status
             raise FileProcessingError(f"Processing failed: {str(e)}") from e
 
-    async def _extract_text_content(
-        self, file_path: str, doc_type: DocumentType | None
-    ) -> str:
+    async def _extract_text_content(self, file_path: str, doc_type: DocumentType | None) -> str:
         """
         Extract text content from file based on type.
 
@@ -402,9 +390,7 @@ class SourceService:
                         if text.strip():
                             text_parts.append(f"[Page {page_num + 1}]\n{text}")
                     except Exception as e:
-                        logger.warning(
-                            f"Failed to extract text from page {page_num + 1}: {str(e)}"
-                        )
+                        logger.warning(f"Failed to extract text from page {page_num + 1}: {str(e)}")
                         continue
 
                 return "\n\n".join(text_parts)
@@ -468,9 +454,7 @@ class SourceService:
             return "\n".join(chunk for chunk in chunks if chunk)
 
         except ImportError as e:
-            raise FileProcessingError(
-                "BeautifulSoup4 is required for HTML processing"
-            ) from e
+            raise FileProcessingError("BeautifulSoup4 is required for HTML processing") from e
         except Exception as e:
             raise FileProcessingError(f"HTML processing failed: {str(e)}") from e
 
@@ -516,9 +500,7 @@ class SourceService:
         except Exception as e:
             raise FileProcessingError(f"CSV processing failed: {str(e)}") from e
 
-    async def _create_text_chunks(
-        self, content: str, source_id: str
-    ) -> list[DocumentChunk]:
+    async def _create_text_chunks(self, content: str, source_id: str) -> list[DocumentChunk]:
         """
         Split text content into chunks using langchain text splitter.
 
@@ -556,27 +538,19 @@ class SourceService:
                     metadata={
                         "chunk_size": len(chunk_text),
                         "overlap_with_previous": chunk_index > 0,
-                        "text_preview": (
-                            chunk_text[:100] + "..."
-                            if len(chunk_text) > 100
-                            else chunk_text
-                        ),
+                        "text_preview": (chunk_text[:100] + "..." if len(chunk_text) > 100 else chunk_text),
                     },
                 )
 
                 chunks.append(chunk)
 
-            logger.info(
-                f"Created {len(chunks)} chunks from content ({len(content)} chars)"
-            )
+            logger.info(f"Created {len(chunks)} chunks from content ({len(content)} chars)")
             return chunks
 
         except Exception as e:
             raise FileProcessingError(f"Text chunking failed: {str(e)}") from e
 
-    async def _process_embeddings(
-        self, chunks: list[DocumentChunk], source_doc: SourceDocument
-    ) -> int:
+    async def _process_embeddings(self, chunks: list[DocumentChunk], source_doc: SourceDocument) -> int:
         """
         Generate embeddings for chunks and store in vector database.
 
@@ -611,11 +585,7 @@ class SourceService:
                     "chunk_id": chunk.id,
                     "chunk_index": chunk.chunk_index,
                     "filename": source_doc.filename,
-                    "document_type": (
-                        source_doc.document_type.value
-                        if source_doc.document_type
-                        else "unknown"
-                    ),
+                    "document_type": (source_doc.document_type.value if source_doc.document_type else "unknown"),
                     "content_length": chunk.content_length,
                     "start_position": chunk.start_position,
                     "end_position": chunk.end_position,
@@ -645,9 +615,7 @@ class SourceService:
             for chunk, vector_id in zip(chunks, vector_ids, strict=False):
                 chunk.embedding_id = vector_id
 
-            logger.info(
-                f"Created {len(vector_ids)} embeddings for {source_doc.filename}"
-            )
+            logger.info(f"Created {len(vector_ids)} embeddings for {source_doc.filename}")
             return len(vector_ids)
 
         except VectorStoreError as e:

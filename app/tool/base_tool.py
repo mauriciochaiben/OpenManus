@@ -21,9 +21,7 @@ class BaseTool(ABC):
 
     # Safety classification
     is_safe: bool = True  # Override to False for unsafe tools
-    requires_sandbox: bool = (
-        False  # Override to True for tools that should always be sandboxed
-    )
+    requires_sandbox: bool = False  # Override to True for tools that should always be sandboxed
     category = ToolCategory.SYSTEM  # Default category, should be overridden
 
     @abstractmethod

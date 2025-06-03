@@ -48,23 +48,13 @@ class SourceDocumentCreate(BaseModel):
         min_length=1,
         description="SHA-256 hash of the document content for deduplication",
     )
-    file_type: DocumentType = Field(
-        ..., description="Type of the document (pdf, txt, etc.)"
-    )
+    file_type: DocumentType = Field(..., description="Type of the document (pdf, txt, etc.)")
     mime_type: str = Field(..., description="MIME type of the document")
     file_size: int = Field(..., ge=0, description="Size of the document in bytes")
-    owner_id: str | None = Field(
-        default=None, description="ID of the user who uploaded the document"
-    )
-    category: str | None = Field(
-        default=None, description="Category or topic of the document"
-    )
-    tags: list[str] | None = Field(
-        default_factory=list, description="Tags associated with the document"
-    )
-    metadata: dict[str, Any] | None = Field(
-        default_factory=dict, description="Additional metadata for the document"
-    )
+    owner_id: str | None = Field(default=None, description="ID of the user who uploaded the document")
+    category: str | None = Field(default=None, description="Category or topic of the document")
+    tags: list[str] | None = Field(default_factory=list, description="Tags associated with the document")
+    metadata: dict[str, Any] | None = Field(default_factory=dict, description="Additional metadata for the document")
 
 
 class SourceDocument(SourceDocumentCreate):
@@ -79,30 +69,14 @@ class SourceDocument(SourceDocumentCreate):
         default_factory=lambda: str(uuid.uuid4()),
         description="Unique identifier for the document",
     )
-    status: DocumentStatus = Field(
-        default=DocumentStatus.PENDING, description="Processing status of the document"
-    )
-    file_path: Path | None = Field(
-        default=None, description="Path to the document file on disk"
-    )
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Document creation timestamp"
-    )
-    updated_at: datetime | None = Field(
-        default=None, description="Last update timestamp"
-    )
-    processed_at: datetime | None = Field(
-        default=None, description="Processing completion timestamp"
-    )
-    chunk_count: int = Field(
-        default=0, description="Number of chunks created from the document"
-    )
-    embedding_count: int = Field(
-        default=0, description="Number of embeddings created for the document"
-    )
-    error_message: str | None = Field(
-        default=None, description="Error message if processing failed"
-    )
+    status: DocumentStatus = Field(default=DocumentStatus.PENDING, description="Processing status of the document")
+    file_path: Path | None = Field(default=None, description="Path to the document file on disk")
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Document creation timestamp")
+    updated_at: datetime | None = Field(default=None, description="Last update timestamp")
+    processed_at: datetime | None = Field(default=None, description="Processing completion timestamp")
+    chunk_count: int = Field(default=0, description="Number of chunks created from the document")
+    embedding_count: int = Field(default=0, description="Number of embeddings created for the document")
+    error_message: str | None = Field(default=None, description="Error message if processing failed")
 
     @validator("tags", pre=True)
     def format_tags(cls, v):
@@ -165,13 +139,9 @@ class SearchRequest(BaseModel):
     """Request model for document search."""
 
     query: str = Field(..., min_length=1, description="Search query text")
-    source_ids: list[str] | None = Field(
-        default=None, description="Filter by specific source IDs"
-    )
+    source_ids: list[str] | None = Field(default=None, description="Filter by specific source IDs")
     k: int = Field(default=5, ge=1, le=100, description="Number of results to return")
-    min_score: float = Field(
-        default=0.0, ge=0.0, le=1.0, description="Minimum similarity score"
-    )
+    min_score: float = Field(default=0.0, ge=0.0, le=1.0, description="Minimum similarity score")
 
 
 class SearchResultItem(BaseModel):

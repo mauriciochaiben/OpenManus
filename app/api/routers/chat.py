@@ -102,9 +102,7 @@ async def send_chat_message(request: ChatRequest):
     timestamp = datetime.now().isoformat()
 
     # Store user message
-    user_message = ChatMessage(
-        id=str(uuid.uuid4()), role="user", content=request.message, timestamp=timestamp
-    )
+    user_message = ChatMessage(id=str(uuid.uuid4()), role="user", content=request.message, timestamp=timestamp)
 
     try:
         # Analisar complexidade da tarefa
@@ -113,7 +111,8 @@ async def send_chat_message(request: ChatRequest):
         # Verificar se é uma pergunta sobre o sistema ou uma tarefa real
         content_lower = request.message.lower()
 
-        # Respostas do sistema específicas (não executar agentes apenas para perguntas muito específicas)
+        # Respostas do sistema específicas
+        # (não executar agentes apenas para perguntas muito específicas)
         system_queries = [
             "o que são agentes",
             "que são agentes",
@@ -133,22 +132,21 @@ async def send_chat_message(request: ChatRequest):
 
         if is_system_query:
             if "agentes" in content_lower or "agents" in content_lower:
-                response_content = """O OpenManus utiliza múltiplos agentes especializados:
-
-🤖 **Manus Agent**: Operações gerais e coordenação
-🌐 **Browser Agent**: Navegação web e coleta de dados
-💻 **SWE Agent**: Desenvolvimento e programação
-📊 **Data Analysis Agent**: Análise de dados e visualizações
-
-Cada agente tem capacidades específicas e pode trabalhar em conjunto para tarefas complexas."""
+                response_content = (
+                    "O OpenManus utiliza múltiplos agentes especializados:\n\n"
+                    "🤖 **Manus Agent**: Operações gerais e coordenação\n"
+                    "🌐 **Browser Agent**: Navegação web e coleta de dados\n"
+                    "💻 **SWE Agent**: Desenvolvimento e programação\n"
+                    "📊 **Data Analysis Agent**: Análise de dados e visualizações\n\n"
+                    "Cada agente tem capacidades específicas e pode trabalhar "
+                    "em conjunto para tarefas complexas."
+                )
                 suggestions = [
                     "Como os agentes trabalham juntos?",
                     "Executar análise de dados",
                     "Navegar na web para pesquisa",
                 ]
-            elif "openmanus" in content_lower and (
-                "como" in content_lower or "funciona" in content_lower
-            ):
+            elif "openmanus" in content_lower and ("como" in content_lower or "funciona" in content_lower):
                 response_content = """🚀 **Como funciona o OpenManus:**
 
 O OpenManus é um sistema multi-agente que executa tarefas complexas:
@@ -169,17 +167,18 @@ O OpenManus é um sistema multi-agente que executa tarefas complexas:
                     "Analisar dados",
                 ]
             else:
-                response_content = """🚀 **Bem-vindo ao OpenManus!**
-
-Sou seu assistente de IA inteligente. Posso executar tarefas reais usando múltiplos agentes especializados:
-
-• **Análise de documentos** e processamento de dados
-• **Pesquisa na web** e coleta de informações
-• **Desenvolvimento** e automação de código
-• **Criação de relatórios** e apresentações
-• **Automação de tarefas** complexas
-
-**Como usar**: Simplesmente me diga o que você quer fazer, e eu executo usando os agentes apropriados!"""
+                response_content = (
+                    "🚀 **Bem-vindo ao OpenManus!**\n\n"
+                    "Sou seu assistente de IA inteligente. Posso executar tarefas reais "
+                    "usando múltiplos agentes especializados:\n\n"
+                    "• **Análise de documentos** e processamento de dados\n"
+                    "• **Pesquisa na web** e coleta de informações\n"
+                    "• **Desenvolvimento** e automação de código\n"
+                    "• **Criação de relatórios** e apresentações\n"
+                    "• **Automação de tarefas** complexas\n\n"
+                    "**Como usar**: Simplesmente me diga o que você quer fazer, "
+                    "e eu executo usando os agentes apropriados!"
+                )
                 suggestions = [
                     "O que são agentes?",
                     "Pesquisar sobre IA",
@@ -234,11 +233,7 @@ Sou seu assistente de IA inteligente. Posso executar tarefas reais usando múlti
                         progress=20,
                         execution_type="single",
                         agents=["manus"],
-                        task_name=(
-                            request.message[:50] + "..."
-                            if len(request.message) > 50
-                            else request.message
-                        ),
+                        task_name=(request.message[:50] + "..." if len(request.message) > 50 else request.message),
                         description="Processando tarefa com agente Manus",
                     )
 
@@ -276,21 +271,23 @@ Sou seu assistente de IA inteligente. Posso executar tarefas reais usando múlti
             or "insufficient_quota" in error_msg
             or "retryerror" in error_msg
         ):
-            logger.warning(
-                f"Rate limit/quota error detected, attempting with system fallback: {str(e)}"
-            )
+            logger.warning("Rate limit/quota error detected, " "attempting with system fallback: {str(e)}")
 
             # Try using mock LLM for system queries
             if is_system_query:
-                response_content = """🚀 **Sistema OpenManus (Modo Fallback)**
-
-Sou seu assistente de IA inteligente. Atualmente operando em modo de fallback devido à limitação de recursos externos.
-
-• **Funcionalidades Disponíveis**: Consultas sobre o sistema, informações gerais
-• **Limitações Temporárias**: Execução de tarefas complexas pode estar restrita
-• **Agentes**: Sistema multi-agente disponível quando recursos permitirem
-
-**Como usar**: Faça perguntas sobre o sistema ou tente novamente em alguns minutos para tarefas complexas."""
+                response_content = (
+                    "🚀 **Sistema OpenManus (Modo Fallback)**\n\n"
+                    "Sou seu assistente de IA inteligente. Atualmente operando "
+                    "em modo de fallback devido à limitação de recursos externos.\n\n"
+                    "• **Funcionalidades Disponíveis**: Consultas sobre o sistema, "
+                    "informações gerais\n"
+                    "• **Limitações Temporárias**: Execução de tarefas complexas "
+                    "pode estar restrita\n"
+                    "• **Agentes**: Sistema multi-agente disponível quando recursos "
+                    "permitirem\n\n"
+                    "**Como usar**: Faça perguntas sobre o sistema ou tente novamente "
+                    "em alguns minutos para tarefas complexas."
+                )
                 suggestions = [
                     "O que são agentes?",
                     "Como funciona o OpenManus?",
@@ -317,11 +314,12 @@ O sistema está enfrentando limitações temporárias de recursos externos.
         else:
             # For other types of errors, use generic error handling
             logger.error(f"Erro ao processar mensagem: {str(e)}")
-            response_content = f"""❌ **Erro ao processar tarefa**
-
-Ocorreu um erro durante a execução: {str(e)}
-
-Tente reformular sua solicitação ou verificar se os recursos necessários estão disponíveis."""
+            response_content = (
+                f"❌ **Erro ao processar tarefa**\n\n"
+                f"Ocorreu um erro durante a execução: {str(e)}\n\n"
+                f"Tente reformular sua solicitação ou verificar se os recursos "
+                f"necessários estão disponíveis."
+            )
             suggestions = [
                 "Tentar novamente",
                 "Simplificar a tarefa",
@@ -329,9 +327,7 @@ Tente reformular sua solicitação ou verificar se os recursos necessários est�
             ]
 
     # Create assistant response
-    assistant_message = ChatMessage(
-        id=response_id, role="assistant", content=response_content, timestamp=timestamp
-    )
+    assistant_message = ChatMessage(id=response_id, role="assistant", content=response_content, timestamp=timestamp)
 
     # Store messages in history (using 'default' session for now)
     session_id = "default"

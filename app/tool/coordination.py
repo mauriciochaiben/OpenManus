@@ -158,9 +158,7 @@ class CoordinationTool(BaseTool):
         self.task_delegations[task_id] = delegation
 
         # Enviar mensagem de delegação
-        await self._send_message(
-            target_agent, f"Task delegated: {json.dumps(task_data)}"
-        )
+        await self._send_message(target_agent, f"Task delegated: {json.dumps(task_data)}")
 
         logger.info(f"Task {task_id} delegated to {target_agent}")
         return ToolResult(output=f"Task {task_id} delegated to {target_agent}")
@@ -445,19 +443,13 @@ class TaskRoutingTool(BaseTool):
             "task": task,
             "detected_requirements": detected_requirements,
             "complexity": (
-                "high"
-                if len(detected_requirements) > 2
-                else "medium"
-                if len(detected_requirements) > 1
-                else "low"
+                "high" if len(detected_requirements) > 2 else "medium" if len(detected_requirements) > 1 else "low"
             ),
         }
 
         return ToolResult(output=json.dumps(analysis))
 
-    async def _route_task(
-        self, task: str, requirements: list[str] = None
-    ) -> ToolResult:
+    async def _route_task(self, task: str, requirements: list[str] = None) -> ToolResult:
         """Roteia tarefa para o melhor agente"""
         if not task:
             return ToolResult(error="Task description is required")
@@ -505,9 +497,7 @@ class TaskRoutingTool(BaseTool):
 
         return ToolResult(output=json.dumps(result))
 
-    async def _get_recommendations(
-        self, task: str, requirements: list[str] = None
-    ) -> ToolResult:
+    async def _get_recommendations(self, task: str, requirements: list[str] = None) -> ToolResult:
         """Obtém recomendações detalhadas para roteamento"""
         routing_result = await self._route_task(task, requirements)
         routing_data = json.loads(routing_result.output)
@@ -517,9 +507,9 @@ class TaskRoutingTool(BaseTool):
         if recommended_agent in self.agent_capabilities:
             agent_info = self.agent_capabilities[recommended_agent]
             routing_data["agent_info"] = agent_info
-            routing_data[
-                "reasoning"
-            ] = f"Agent {recommended_agent} selected based on specializations: {agent_info['specializations']}"
+            routing_data["reasoning"] = (
+                f"Agent {recommended_agent} selected based on specializations: {agent_info['specializations']}"
+            )
 
         return ToolResult(output=json.dumps(routing_data))
 

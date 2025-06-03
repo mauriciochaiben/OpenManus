@@ -68,9 +68,7 @@ async def test_max_sandboxes_limit(manager):
             await manager.create_sandbox()
 
         # Verify error message
-        expected_message = (
-            f"Maximum number of sandboxes ({manager.max_sandboxes}) reached"
-        )
+        expected_message = f"Maximum number of sandboxes ({manager.max_sandboxes}) reached"
         assert str(exc_info.value) == expected_message
 
     finally:

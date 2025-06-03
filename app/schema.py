@@ -67,17 +67,13 @@ class Message(BaseModel):
             return [self] + other
         if isinstance(other, Message):
             return [self, other]
-        raise TypeError(
-            f"unsupported operand type(s) for +: '{type(self).__name__}' and '{type(other).__name__}'"
-        )
+        raise TypeError(f"unsupported operand type(s) for +: '{type(self).__name__}' and '{type(other).__name__}'")
 
     def __radd__(self, other) -> list["Message"]:
         """支持 list + Message 的操作"""
         if isinstance(other, list):
             return other + [self]
-        raise TypeError(
-            f"unsupported operand type(s) for +: '{type(other).__name__}' and '{type(self).__name__}'"
-        )
+        raise TypeError(f"unsupported operand type(s) for +: '{type(other).__name__}' and '{type(self).__name__}'")
 
     def to_dict(self) -> dict:
         """Convert message to dictionary format"""
@@ -105,16 +101,12 @@ class Message(BaseModel):
         return cls(role=Role.SYSTEM, content=content)
 
     @classmethod
-    def assistant_message(
-        cls, content: str | None = None, base64_image: str | None = None
-    ) -> "Message":
+    def assistant_message(cls, content: str | None = None, base64_image: str | None = None) -> "Message":
         """Create an assistant message"""
         return cls(role=Role.ASSISTANT, content=content, base64_image=base64_image)
 
     @classmethod
-    def tool_message(
-        cls, content: str, name, tool_call_id: str, base64_image: str | None = None
-    ) -> "Message":
+    def tool_message(cls, content: str, name, tool_call_id: str, base64_image: str | None = None) -> "Message":
         """Create a tool message"""
         return cls(
             role=Role.TOOL,
@@ -140,8 +132,7 @@ class Message(BaseModel):
             base64_image: Optional base64 encoded image
         """
         formatted_calls = [
-            {"id": call.id, "function": call.function.model_dump(), "type": "function"}
-            for call in tool_calls
+            {"id": call.id, "function": call.function.model_dump(), "type": "function"} for call in tool_calls
         ]
         return cls(
             role=Role.ASSISTANT,

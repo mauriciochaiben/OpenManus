@@ -23,9 +23,7 @@ class ToolCallAgent(ReActAgent):
     system_prompt: str = SYSTEM_PROMPT
     next_step_prompt: str = NEXT_STEP_PROMPT
 
-    available_tools: ToolCollection = ToolCollection(
-        CreateChatCompletion(), Terminate()
-    )
+    available_tools: ToolCollection = ToolCollection(CreateChatCompletion(), Terminate())
     tool_choices: TOOL_CHOICE_TYPE = ToolChoice.AUTO  # type: ignore
     special_tool_names: list[str] = Field(default_factory=lambda: [Terminate().name])
 
@@ -45,11 +43,7 @@ class ToolCallAgent(ReActAgent):
             # Get response with tool options
             response = await self.llm.ask_tool(
                 messages=self.messages,
-                system_msgs=(
-                    [Message.system_message(self.system_prompt)]
-                    if self.system_prompt
-                    else None
-                ),
+                system_msgs=([Message.system_message(self.system_prompt)] if self.system_prompt else None),
                 tools=self.available_tools.to_params(),
                 tool_choice=self.tool_choices,
             )
@@ -59,32 +53,24 @@ class ToolCallAgent(ReActAgent):
             # Check if this is a RetryError containing TokenLimitExceeded
             if hasattr(e, "__cause__") and isinstance(e.__cause__, TokenLimitExceeded):
                 token_limit_error = e.__cause__
-                logger.error(
-                    f"🚨 Token limit error (from RetryError): {token_limit_error}"
-                )
+                logger.error(f"🚨 Token limit error (from RetryError): {token_limit_error}")
                 self.memory.add_message(
                     Message.assistant_message(
-                        f"Maximum token limit reached, cannot continue execution: {str(token_limit_error)}"
+                        f"Maximum token limit reached, cannot continue execution: " f"{str(token_limit_error)}"
                     )
                 )
                 self.state = AgentState.FINISHED
                 return False
             raise
 
-        self.tool_calls = tool_calls = (
-            response.tool_calls if response and response.tool_calls else []
-        )
+        self.tool_calls = tool_calls = response.tool_calls if response and response.tool_calls else []
         content = response.content if response and response.content else ""
 
         # Log response info
         logger.info(f"✨ {self.name}'s thoughts: {content}")
-        logger.info(
-            f"🛠️ {self.name} selected {len(tool_calls) if tool_calls else 0} tools to use"
-        )
+        logger.info(f"🛠️ {self.name} selected {len(tool_calls) if tool_calls else 0} " f"tools to use")
         if tool_calls:
-            logger.info(
-                f"🧰 Tools being prepared: {[call.function.name for call in tool_calls]}"
-            )
+            logger.info(f"🧰 Tools being prepared: " f"{[call.function.name for call in tool_calls]}")
             logger.info(f"🔧 Tool arguments: {tool_calls[0].function.arguments}")
 
         try:
@@ -94,9 +80,7 @@ class ToolCallAgent(ReActAgent):
             # Handle different tool_choices modes
             if self.tool_choices == ToolChoice.NONE:
                 if tool_calls:
-                    logger.warning(
-                        f"🤔 Hmm, {self.name} tried to use tools when they weren't available!"
-                    )
+                    logger.warning(f"🤔 Hmm, {self.name} tried to use tools when they " f"weren't available!")
                 if content:
                     self.memory.add_message(Message.assistant_message(content))
                     return True
@@ -120,11 +104,7 @@ class ToolCallAgent(ReActAgent):
             return bool(self.tool_calls)
         except Exception as e:
             logger.error(f"🚨 Oops! The {self.name}'s thinking process hit a snag: {e}")
-            self.memory.add_message(
-                Message.assistant_message(
-                    f"Error encountered while processing: {str(e)}"
-                )
-            )
+            self.memory.add_message(Message.assistant_message(f"Error encountered while processing: {str(e)}"))
             return False
 
     async def act(self) -> str:
@@ -146,9 +126,7 @@ class ToolCallAgent(ReActAgent):
             if self.max_observe:
                 result = result[: self.max_observe]
 
-            logger.info(
-                f"🎯 Tool '{command.function.name}' completed its mission! Result: {result}"
-            )
+            logger.info(f"🎯 Tool '{command.function.name}' completed its mission! " f"Result: {result}")
 
             # Add tool response to memory
             tool_msg = Message.tool_message(
@@ -197,7 +175,8 @@ class ToolCallAgent(ReActAgent):
         except json.JSONDecodeError:
             error_msg = f"Error parsing arguments for {name}: Invalid JSON format"
             logger.error(
-                f"📝 Oops! The arguments for '{name}' don't make sense - invalid JSON, arguments:{command.function.arguments}"
+                f"📝 Oops! The arguments for '{name}' don't make sense - "
+                f"invalid JSON, arguments:{command.function.arguments}"
             )
             return f"Error: {error_msg}"
         except Exception as e:
@@ -228,16 +207,12 @@ class ToolCallAgent(ReActAgent):
         """Clean up resources used by the agent's tools."""
         logger.info(f"🧹 Cleaning up resources for agent '{self.name}'...")
         for tool_name, tool_instance in self.available_tools.tool_map.items():
-            if hasattr(tool_instance, "cleanup") and asyncio.iscoroutinefunction(
-                tool_instance.cleanup
-            ):
+            if hasattr(tool_instance, "cleanup") and asyncio.iscoroutinefunction(tool_instance.cleanup):
                 try:
                     logger.debug(f"🧼 Cleaning up tool: {tool_name}")
                     await tool_instance.cleanup()
                 except Exception as e:
-                    logger.error(
-                        f"🚨 Error cleaning up tool '{tool_name}': {e}", exc_info=True
-                    )
+                    logger.error(f"🚨 Error cleaning up tool '{tool_name}': {e}", exc_info=True)
         logger.info(f"✨ Cleanup complete for agent '{self.name}'.")
 
     async def run(self, request: str | None = None) -> str:

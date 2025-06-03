@@ -76,9 +76,7 @@ class SandboxManager:
         except ImageNotFound:
             try:
                 logger.info(f"Pulling image {image}...")
-                await asyncio.get_event_loop().run_in_executor(
-                    None, self._client.images.pull, image
-                )
+                await asyncio.get_event_loop().run_in_executor(None, self._client.images.pull, image)
                 return True
             except (APIError, Exception) as e:
                 logger.error(f"Failed to pull image {image}: {e}")
@@ -129,9 +127,7 @@ class SandboxManager:
         """
         async with self._global_lock:
             if len(self._sandboxes) >= self.max_sandboxes:
-                raise RuntimeError(
-                    f"Maximum number of sandboxes ({self.max_sandboxes}) reached"
-                )
+                raise RuntimeError(f"Maximum number of sandboxes ({self.max_sandboxes}) reached")
 
             config = config or SandboxSettings()
             if not await self.ensure_image(config.image):
@@ -190,10 +186,7 @@ class SandboxManager:
 
         async with self._global_lock:
             for sandbox_id, last_used in self._last_used.items():
-                if (
-                    sandbox_id not in self._active_operations
-                    and current_time - last_used > self.idle_timeout
-                ):
+                if sandbox_id not in self._active_operations and current_time - last_used > self.idle_timeout:
                     to_cleanup.append(sandbox_id)
 
         for sandbox_id in to_cleanup:
@@ -246,17 +239,13 @@ class SandboxManager:
         """
         try:
             if sandbox_id in self._active_operations:
-                logger.warning(
-                    f"Sandbox {sandbox_id} has active operations, waiting for completion"
-                )
+                logger.warning(f"Sandbox {sandbox_id} has active operations, waiting for completion")
                 for _ in range(10):  # Wait at most 10 times
                     await asyncio.sleep(0.5)
                     if sandbox_id not in self._active_operations:
                         break
                 else:
-                    logger.warning(
-                        f"Timeout waiting for sandbox {sandbox_id} operations to complete"
-                    )
+                    logger.warning(f"Timeout waiting for sandbox {sandbox_id} operations to complete")
 
             # Get reference to sandbox object
             sandbox = self._sandboxes.get(sandbox_id)

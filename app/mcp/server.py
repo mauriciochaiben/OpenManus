@@ -84,14 +84,10 @@ class MCPServer:
         if param_props:
             docstring += "\n\nParameters:\n"
             for param_name, param_details in param_props.items():
-                required_str = (
-                    "(required)" if param_name in required_params else "(optional)"
-                )
+                required_str = "(required)" if param_name in required_params else "(optional)"
                 param_type = param_details.get("type", "any")
                 param_desc = param_details.get("description", "")
-                docstring += (
-                    f"    {param_name} ({param_type}) {required_str}: {param_desc}\n"
-                )
+                docstring += f"    {param_name} ({param_type}) {required_str}: {param_desc}\n"
 
         return docstring
 

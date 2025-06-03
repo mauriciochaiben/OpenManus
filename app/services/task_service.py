@@ -50,8 +50,7 @@ class ComplexityAnalysisService:
                 ]
             ),
             "timeConsuming": any(
-                phrase in description_lower
-                for phrase in ["detailed", "thorough", "extensive", "complete", "full"]
+                phrase in description_lower for phrase in ["detailed", "thorough", "extensive", "complete", "full"]
             ),
         }
 
@@ -152,9 +151,7 @@ class TaskService:
         updated_task = await self.task_repository.update(task)
 
         # Publish event
-        await self.event_bus.publish(
-            TaskUpdatedEvent(task_id, updated_task, old_status, status)
-        )
+        await self.event_bus.publish(TaskUpdatedEvent(task_id, updated_task, old_status, status))
 
         return updated_task
 

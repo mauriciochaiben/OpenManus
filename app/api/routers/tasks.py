@@ -58,9 +58,7 @@ class UpdateTaskStatusRequest(BaseModel):
 
 
 @router.post("/", response_model=dict)
-async def create_task(
-    request: CreateTaskRequest, task_service: TaskService = Depends(get_task_service)
-):
+async def create_task(request: CreateTaskRequest, task_service: TaskService = Depends(get_task_service)):
     """Create a new task"""
     try:
         task = await task_service.create_task(
@@ -115,17 +113,13 @@ async def update_task_status(
             "message": "Task status updated successfully",
         }
     except ValueError as e:
-        raise HTTPException(
-            status_code=400, detail=f"Invalid status: {request.status}"
-        ) from e
+        raise HTTPException(status_code=400, detail=f"Invalid status: {request.status}") from e
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @router.delete("/{task_id}")
-async def delete_task(
-    task_id: str, task_service: TaskService = Depends(get_task_service)
-):
+async def delete_task(task_id: str, task_service: TaskService = Depends(get_task_service)):
     """Delete task"""
     success = await task_service.delete_task(task_id)
     if not success:

@@ -78,11 +78,7 @@ class MCPAgent(ToolCallAgent):
         tools_info = ", ".join(tool_names)
 
         # Add system prompt and available tools information
-        self.memory.add_message(
-            Message.system_message(
-                f"{self.system_prompt}\n\nAvailable MCP tools: {tools_info}"
-            )
-        )
+        self.memory.add_message(Message.system_message(f"{self.system_prompt}\n\nAvailable MCP tools: {tools_info}"))
 
     async def _refresh_tools(self) -> tuple[list[str], list[str]]:
         """Refresh the list of available tools from the MCP server.
@@ -116,16 +112,10 @@ class MCPAgent(ToolCallAgent):
         # Log and notify about changes
         if added_tools:
             logger.info(f"Added MCP tools: {added_tools}")
-            self.memory.add_message(
-                Message.system_message(f"New tools available: {', '.join(added_tools)}")
-            )
+            self.memory.add_message(Message.system_message(f"New tools available: {', '.join(added_tools)}"))
         if removed_tools:
             logger.info(f"Removed MCP tools: {removed_tools}")
-            self.memory.add_message(
-                Message.system_message(
-                    f"Tools no longer available: {', '.join(removed_tools)}"
-                )
-            )
+            self.memory.add_message(Message.system_message(f"Tools no longer available: {', '.join(removed_tools)}"))
         if changed_tools:
             logger.info(f"Changed MCP tools: {changed_tools}")
 
@@ -158,11 +148,7 @@ class MCPAgent(ToolCallAgent):
 
         # Handle multimedia responses
         if isinstance(result, ToolResult) and result.base64_image:
-            self.memory.add_message(
-                Message.system_message(
-                    MULTIMEDIA_RESPONSE_PROMPT.format(tool_name=name)
-                )
-            )
+            self.memory.add_message(Message.system_message(MULTIMEDIA_RESPONSE_PROMPT.format(tool_name=name)))
 
     def _should_finish_execution(self, name: str, **_kwargs) -> bool:
         """Determine if tool execution should finish the agent"""

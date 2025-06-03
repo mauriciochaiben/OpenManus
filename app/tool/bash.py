@@ -70,9 +70,7 @@ class _BashSession:
         assert self._process.stderr
 
         # send command to the process
-        self._process.stdin.write(
-            command.encode() + f"; echo '{self._sentinel}'\n".encode()
-        )
+        self._process.stdin.write(command.encode() + f"; echo '{self._sentinel}'\n".encode())
         await self._process.stdin.drain()
 
         # read output from the process, until the sentinel is found

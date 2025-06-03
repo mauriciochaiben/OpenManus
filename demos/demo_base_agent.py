@@ -123,9 +123,7 @@ async def demonstrate_base_agent():
     # Tarefa de média
     media_task = {"operation": "average", "numbers": [100, 200, 300]}
     resultado_media = await calc_agent.run(media_task)
-    print(
-        f"✅ Média: {resultado_media['result']} (sucesso: {resultado_media['success']})"
-    )
+    print(f"✅ Média: {resultado_media['result']} (sucesso: {resultado_media['success']})")
 
     # Tarefa com erro
     erro_task = {"operation": "division", "numbers": [10, 2]}  # operação não suportada

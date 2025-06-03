@@ -94,9 +94,7 @@ class ProgressBroadcaster:
         if self.connection_manager:
             try:
                 await self.connection_manager.broadcast(json.dumps(message))
-                logger.info(
-                    f"Broadcasted progress: {stage} ({progress:.1f}%) for task {task_id}"
-                )
+                logger.info(f"Broadcasted progress: {stage} ({progress:.1f}%) for task {task_id}")
             except Exception as e:
                 logger.error(f"Failed to broadcast progress update: {e}")
         else:

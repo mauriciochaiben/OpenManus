@@ -35,9 +35,7 @@ class FlowFactory:
             else:
                 agents_dict = agents
 
-            return MultiAgentFlow(
-                agents=agents_dict, mode=ExecutionMode.FORCE_MULTI, **kwargs
-            )
+            return MultiAgentFlow(agents=agents_dict, mode=ExecutionMode.FORCE_MULTI, **kwargs)
 
         if flow_type == FlowType.SINGLE_AGENT:
             # Create a MultiAgentFlow in force single mode
@@ -48,9 +46,7 @@ class FlowFactory:
             else:
                 agents_dict = {"primary": list(agents.values())[0]}
 
-            return MultiAgentFlow(
-                agents=agents_dict, mode=ExecutionMode.FORCE_SINGLE, **kwargs
-            )
+            return MultiAgentFlow(agents=agents_dict, mode=ExecutionMode.FORCE_SINGLE, **kwargs)
 
         if flow_type == FlowType.AUTO:
             # Create a MultiAgentFlow in auto mode

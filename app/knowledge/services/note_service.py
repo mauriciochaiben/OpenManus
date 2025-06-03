@@ -42,9 +42,7 @@ class NoteService:
         """
         self.db_session = db_session
 
-    async def create_note(
-        self, note_data: NoteCreate, author_id: str | None = None
-    ) -> NoteResponse:
+    async def create_note(self, note_data: NoteCreate, author_id: str | None = None) -> NoteResponse:
         """
         Create a new note.
 
@@ -90,9 +88,7 @@ class NoteService:
             logger.error(f"Error creating note: {str(e)}")
             raise ValidationError(f"Failed to create note: {str(e)}") from e
 
-    async def get_note(
-        self, note_id: str, author_id: str | None = None
-    ) -> NoteResponse:
+    async def get_note(self, note_id: str, author_id: str | None = None) -> NoteResponse:
         """
         Get a note by ID.
 
@@ -114,9 +110,7 @@ class NoteService:
 
             # Apply access control
             if author_id:
-                query = query.where(
-                    or_(NoteModel.author_id == author_id, NoteModel.is_public is True)
-                )
+                query = query.where(or_(NoteModel.author_id == author_id, NoteModel.is_public is True))
             else:
                 # Only public notes if no author specified
                 query = query.where(NoteModel.is_public is True)
@@ -136,9 +130,7 @@ class NoteService:
             logger.error(f"Error retrieving note {note_id}: {str(e)}")
             raise ValidationError(f"Failed to retrieve note: {str(e)}") from e
 
-    async def update_note(
-        self, note_id: str, note_data: NoteUpdate, author_id: str | None = None
-    ) -> NoteResponse:
+    async def update_note(self, note_id: str, note_data: NoteUpdate, author_id: str | None = None) -> NoteResponse:
         """
         Update an existing note.
 
@@ -166,9 +158,7 @@ class NoteService:
             note_model = result.scalar_one_or_none()
 
             if not note_model:
-                raise NotFoundError(
-                    f"Note with ID {note_id} not found or access denied"
-                )
+                raise NotFoundError(f"Note with ID {note_id} not found or access denied")
 
             # Update fields that are provided
             update_data = {}
@@ -233,9 +223,7 @@ class NoteService:
             result = await self.db_session.execute(query)
 
             if result.rowcount == 0:
-                raise NotFoundError(
-                    f"Note with ID {note_id} not found or access denied"
-                )
+                raise NotFoundError(f"Note with ID {note_id} not found or access denied")
 
             await self.db_session.commit()
             logger.info(f"Successfully deleted note: {note_id}")
@@ -320,10 +308,7 @@ class NoteService:
             total_count = count_result.scalar()
 
             # Convert to response models
-            notes = [
-                NoteResponse.from_note(self._model_to_pydantic(model))
-                for model in note_models
-            ]
+            notes = [NoteResponse.from_note(self._model_to_pydantic(model)) for model in note_models]
 
             logger.debug(f"Retrieved {len(notes)} notes out of {total_count} total")
             return notes, total_count
@@ -332,9 +317,7 @@ class NoteService:
             logger.error(f"Error listing notes: {str(e)}")
             raise ValidationError(f"Failed to list notes: {str(e)}") from e
 
-    async def search_notes(
-        self, search_query: NoteSearchQuery, author_id: str | None = None
-    ) -> NoteSearchResponse:
+    async def search_notes(self, search_query: NoteSearchQuery, author_id: str | None = None) -> NoteSearchResponse:
         """
         Search notes with advanced filtering.
 
@@ -381,9 +364,7 @@ class NoteService:
                 filters.append(NoteModel.author_id == search_query.author_id)
             elif author_id:
                 # Apply access control
-                filters.append(
-                    or_(NoteModel.author_id == author_id, NoteModel.is_public is True)
-                )
+                filters.append(or_(NoteModel.author_id == author_id, NoteModel.is_public is True))
 
             # Filter by public status
             if search_query.is_public is not None:
@@ -420,10 +401,7 @@ class NoteService:
             total_count = count_result.scalar()
 
             # Convert to response models
-            notes = [
-                NoteResponse.from_note(self._model_to_pydantic(model))
-                for model in note_models
-            ]
+            notes = [NoteResponse.from_note(self._model_to_pydantic(model)) for model in note_models]
 
             has_more = (search_query.offset + len(notes)) < total_count
 
@@ -465,15 +443,11 @@ class NoteService:
 
             # Build query for notes containing the source ID
             query = select(NoteModel).where(NoteModel.source_ids.contains([source_id]))
-            count_query = select(func.count(NoteModel.id)).where(
-                NoteModel.source_ids.contains([source_id])
-            )
+            count_query = select(func.count(NoteModel.id)).where(NoteModel.source_ids.contains([source_id]))
 
             # Apply access control
             if author_id:
-                access_filter = or_(
-                    NoteModel.author_id == author_id, NoteModel.is_public is True
-                )
+                access_filter = or_(NoteModel.author_id == author_id, NoteModel.is_public is True)
                 query = query.where(access_filter)
                 count_query = count_query.where(access_filter)
             else:
@@ -481,9 +455,7 @@ class NoteService:
                 count_query = count_query.where(NoteModel.is_public is True)
 
             # Apply pagination and sorting
-            query = (
-                query.order_by(NoteModel.updated_at.desc()).offset(offset).limit(limit)
-            )
+            query = query.order_by(NoteModel.updated_at.desc()).offset(offset).limit(limit)
 
             # Execute queries
             result = await self.db_session.execute(query)
@@ -493,10 +465,7 @@ class NoteService:
             total_count = count_result.scalar()
 
             # Convert to response models
-            notes = [
-                NoteResponse.from_note(self._model_to_pydantic(model))
-                for model in note_models
-            ]
+            notes = [NoteResponse.from_note(self._model_to_pydantic(model)) for model in note_models]
 
             return notes, total_count
 

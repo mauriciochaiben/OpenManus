@@ -8,7 +8,7 @@ class BaiduSearchEngine(WebSearchEngine):
         self,
         query: str,
         num_results: int = 10,
-        *args,
+        *args,  # noqa: ARG002
         **kwargs,  # noqa: ARG002
     ) -> list[SearchItem]:
         """
@@ -23,9 +23,7 @@ class BaiduSearchEngine(WebSearchEngine):
         for i, item in enumerate(raw_results):
             if isinstance(item, str):
                 # If it's just a URL
-                results.append(
-                    SearchItem(title=f"Baidu Result {i+1}", url=item, description=None)
-                )
+                results.append(SearchItem(title=f"Baidu Result {i+1}", url=item, description=None))
             elif isinstance(item, dict):
                 # If it's a dictionary with details
                 results.append(
@@ -47,10 +45,6 @@ class BaiduSearchEngine(WebSearchEngine):
                     )
                 except Exception:
                     # Fallback to a basic result
-                    results.append(
-                        SearchItem(
-                            title=f"Baidu Result {i+1}", url=str(item), description=None
-                        )
-                    )
+                    results.append(SearchItem(title=f"Baidu Result {i+1}", url=str(item), description=None))
 
         return results

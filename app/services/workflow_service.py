@@ -248,9 +248,7 @@ class WorkflowService:
 
         try:
             # Retrieve relevant context from knowledge base
-            logger.info(
-                f"Retrieving context from {len(source_ids)} sources for query: {original_prompt[:100]}..."
-            )
+            logger.info(f"Retrieving context from {len(source_ids)} sources for query: {original_prompt[:100]}...")
 
             context_chunks = await self.rag_service.retrieve_relevant_context(
                 query=original_prompt,
@@ -259,25 +257,22 @@ class WorkflowService:
             )
 
             if not context_chunks:
-                logger.warning(
-                    "No relevant context found for the given query and sources"
-                )
+                logger.warning("No relevant context found for the given query and sources")
                 return original_prompt
 
             # Format context for LLM prompt
-            context_text = "\n\n".join(
-                [f"Context {i+1}:\n{chunk}" for i, chunk in enumerate(context_chunks)]
+            context_text = "\n\n".join([f"Context {i+1}:\n{chunk}" for i, chunk in enumerate(context_chunks)])
+
+            enhanced_prompt = (
+                "Use the following context from the knowledge base to help answer the question or complete the task. "
+                "The context provides relevant information that should inform your response.\n\n"
+                f"CONTEXT:\n{context_text}\n\n"
+                f"QUESTION/TASK:\n{original_prompt}\n\n"
+                "Please provide a comprehensive response that incorporates relevant information "
+                "from the context above. If the context doesn't contain information relevant to the question, "
+                "you may still provide a general response but mention that the provided context doesn't "
+                "contain specific relevant information."
             )
-
-            enhanced_prompt = f"""Use the following context from the knowledge base to help answer the question or complete the task. The context provides relevant information that should inform your response.
-
-CONTEXT:
-{context_text}
-
-QUESTION/TASK:
-{original_prompt}
-
-Please provide a comprehensive response that incorporates relevant information from the context above. If the context doesn't contain information relevant to the question, you may still provide a general response but mention that the provided context doesn't contain specific relevant information."""
 
             logger.info(f"Enhanced prompt with {len(context_chunks)} context chunks")
             return enhanced_prompt
@@ -345,9 +340,7 @@ Please provide a comprehensive response that incorporates relevant information f
                     completed_steps += 1
 
                 # Stop execution if step failed and no error recovery
-                if step_result.get("status") == "failed" and not step_config.get(
-                    "continue_on_error", False
-                ):
+                if step_result.get("status") == "failed" and not step_config.get("continue_on_error", False):
                     workflow_data["status"] = "failed"
                     return {
                         "workflow_id": workflow_id,
@@ -462,9 +455,7 @@ Please provide a comprehensive response that incorporates relevant information f
 
             # For now, simulate successful step execution
             # In a real implementation, this would use agent selection and execution
-            logger.info(
-                f"Executing step '{step_name}' for workflow {workflow_data['id']}"
-            )
+            logger.info(f"Executing step '{step_name}' for workflow {workflow_data['id']}")
 
             # Simulate step execution
             step_result["status"] = "completed"
@@ -519,9 +510,7 @@ Please provide a comprehensive response that incorporates relevant information f
         """
         # Handle backward compatibility - convert string to WorkflowRequest
         if isinstance(request, str):
-            request = WorkflowRequest(
-                title="Simple Workflow", description=request, steps=[], source_ids=None
-            )
+            request = WorkflowRequest(title="Simple Workflow", description=request, steps=[], source_ids=None)
 
         # Convert simple workflow request to complex workflow format if needed
         if not hasattr(request, "source_ids"):
@@ -554,11 +543,7 @@ Please provide a comprehensive response that incorporates relevant information f
         try:
             # Publish workflow started event
             if self.event_bus:
-                await self.event_bus.publish(
-                    WorkflowStartedEvent(
-                        workflow_id=workflow_id, initial_task=initial_task
-                    )
-                )
+                await self.event_bus.publish(WorkflowStartedEvent(workflow_id=workflow_id, initial_task=initial_task))
 
             # Step 1: Use PlannerAgent to decompose the task
             decomposition_result = await self._decompose_task(initial_task)
@@ -622,11 +607,7 @@ Please provide a comprehensive response that incorporates relevant information f
                                 step_type=step_type,
                                 success=step_result.get("success", False),
                                 result=step_result.get("result"),
-                                error=(
-                                    step_result.get("message")
-                                    if not step_result.get("success")
-                                    else None
-                                ),
+                                error=(step_result.get("message") if not step_result.get("success") else None),
                             )
                         )
 
@@ -698,9 +679,7 @@ Please provide a comprehensive response that incorporates relevant information f
                     )
                 )
 
-            logger.info(
-                f"Workflow {workflow_id} completed: {completed_steps}/{total_steps} steps successful"
-            )
+            logger.info(f"Workflow {workflow_id} completed: {completed_steps}/{total_steps} steps successful")
 
             return result
 
@@ -839,17 +818,12 @@ Please provide a comprehensive response that incorporates relevant information f
         }
 
         # Try to identify specific tools based on keywords
-        if any(
-            keyword in step_lower
-            for keyword in ["search", "web_search", "google", "lookup"]
-        ):
+        if any(keyword in step_lower for keyword in ["search", "web_search", "google", "lookup"]):
             tool_info.update(
                 {
                     "tool_name": "web_search",
                     "arguments": {
-                        "query": step_description.replace("search for", "")
-                        .replace("lookup", "")
-                        .strip(),
+                        "query": step_description.replace("search for", "").replace("lookup", "").strip(),
                         "max_results": 5,
                     },
                 }
@@ -884,13 +858,9 @@ Please provide a comprehensive response that incorporates relevant information f
                 "total_steps": len(step_results),
                 "successful_steps": len(successful_steps),
                 "failed_steps": len(failed_steps),
-                "success_rate": (
-                    len(successful_steps) / len(step_results) if step_results else 0
-                ),
+                "success_rate": (len(successful_steps) / len(step_results) if step_results else 0),
             },
-            "successful_results": [
-                r["result"] for r in successful_steps if r.get("result")
-            ],
+            "successful_results": [r["result"] for r in successful_steps if r.get("result")],
             "failed_results": [r["message"] for r in failed_steps],
             "overall_status": "success" if not failed_steps else "partial_success",
         }
@@ -924,9 +894,7 @@ Please provide a comprehensive response that incorporates relevant information f
             "metadata": {"error_occurred": True, "error_message": error_message},
         }
 
-    def _should_enhance_with_context(
-        self, step_config: dict, source_ids: list[str] | None
-    ) -> bool:
+    def _should_enhance_with_context(self, step_config: dict, source_ids: list[str] | None) -> bool:
         """
         Determine if a workflow step should be enhanced with knowledge context.
 
@@ -967,9 +935,7 @@ Please provide a comprehensive response that incorporates relevant information f
         # Planner agents often benefit from context
         return agent_type == "planner"
 
-    async def _enhance_step_with_context(
-        self, step_input: dict, step_config: dict, source_ids: list[str]
-    ) -> dict:
+    async def _enhance_step_with_context(self, step_input: dict, step_config: dict, source_ids: list[str]) -> dict:
         """
         Enhance a workflow step's input with relevant knowledge context.
 
@@ -986,9 +952,7 @@ Please provide a comprehensive response that incorporates relevant information f
             query = self._extract_query_from_step_input(step_input, step_config)
 
             if not query:
-                logger.warning(
-                    "Could not extract query from step input for context enhancement"
-                )
+                logger.warning("Could not extract query from step input for context enhancement")
                 return {}
 
             # Enhance the query with context
@@ -1023,18 +987,14 @@ Please provide a comprehensive response that incorporates relevant information f
             enhanced_input["_context_enhanced"] = True
             enhanced_input["_source_ids_used"] = source_ids
 
-            logger.info(
-                f"Enhanced step '{step_config.get('name', 'unknown')}' with knowledge context"
-            )
+            logger.info(f"Enhanced step '{step_config.get('name', 'unknown')}' with knowledge context")
             return enhanced_input
 
         except Exception as e:
             logger.error(f"Error enhancing step with context: {str(e)}")
             return {}
 
-    def _extract_query_from_step_input(
-        self, step_input: dict, step_config: dict
-    ) -> str | None:
+    def _extract_query_from_step_input(self, step_input: dict, step_config: dict) -> str | None:
         """
         Extract the main query/prompt from step input for context enhancement.
 
@@ -1065,11 +1025,7 @@ Please provide a comprehensive response that incorporates relevant information f
             return step_name
 
         # Last resort: concatenate all string values
-        text_values = [
-            str(v)
-            for v in step_input.values()
-            if isinstance(v, str) and len(str(v)) > 10
-        ]
+        text_values = [str(v) for v in step_input.values() if isinstance(v, str) and len(str(v)) > 10]
         if text_values:
             return " ".join(text_values)
 

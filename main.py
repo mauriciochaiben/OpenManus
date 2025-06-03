@@ -26,17 +26,10 @@ def analyze_task_complexity(prompt: str) -> dict:
             ]
         ),
         "multiple_domains": len(
-            [
-                domain
-                for domain in ["code", "research", "analysis", "web", "system"]
-                if domain in prompt.lower()
-            ]
+            [domain for domain in ["code", "research", "analysis", "web", "system"] if domain in prompt.lower()]
         )
         > 1,
-        "time_consuming": any(
-            word in prompt.lower()
-            for word in ["detailed", "comprehensive", "thorough", "complete"]
-        ),
+        "time_consuming": any(word in prompt.lower() for word in ["detailed", "comprehensive", "thorough", "complete"]),
     }
 
     complexity_score = sum(complexity_indicators.values())

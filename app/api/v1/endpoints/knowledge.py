@@ -140,9 +140,7 @@ async def upload_source(
 
     except SourceServiceError as e:
         logger.error(f"Source service error: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        ) from e
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Unexpected error during upload: {str(e)}")
         raise HTTPException(
@@ -152,9 +150,7 @@ async def upload_source(
 
 
 @router.get("/sources/{source_id}/status", response_model=SourceStatusResponse)
-async def get_source_status(
-    source_id: str, service: Any = Depends(get_source_service)
-) -> SourceStatusResponse:
+async def get_source_status(source_id: str, service: Any = Depends(get_source_service)) -> SourceStatusResponse:
     """
     Get the processing status of a source document.
 
@@ -197,12 +193,8 @@ async def get_source_status(
             status=source_doc.status,
             processing_progress=progress,
             created_at=source_doc.created_at.isoformat(),
-            updated_at=(
-                source_doc.updated_at.isoformat() if source_doc.updated_at else None
-            ),
-            processed_at=(
-                source_doc.processed_at.isoformat() if source_doc.processed_at else None
-            ),
+            updated_at=(source_doc.updated_at.isoformat() if source_doc.updated_at else None),
+            processed_at=(source_doc.processed_at.isoformat() if source_doc.processed_at else None),
             chunk_count=source_doc.chunk_count or 0,
             embedding_count=source_doc.embedding_count or 0,
             error_message=source_doc.error_message,
@@ -253,9 +245,7 @@ async def list_sources(
             owner_id=owner_id,
         )
 
-        return SourceListResponse(
-            sources=sources, total=total, page=page, page_size=page_size
-        )
+        return SourceListResponse(sources=sources, total=total, page=page, page_size=page_size)
 
     except Exception as e:
         logger.error(f"Error listing sources: {str(e)}")
@@ -266,9 +256,7 @@ async def list_sources(
 
 
 @router.post("/sources/search", response_model=SearchResponse)
-async def search_documents(
-    request: SearchRequest, service: Any = Depends(get_source_service)
-) -> SearchResponse:
+async def search_documents(request: SearchRequest, service: Any = Depends(get_source_service)) -> SearchResponse:
     """
     Search documents using vector similarity.
 
@@ -298,9 +286,7 @@ async def search_documents(
 
     except SourceServiceError as e:
         logger.error(f"Search service error: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        ) from e
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Error during search: {str(e)}")
         raise HTTPException(
@@ -310,9 +296,7 @@ async def search_documents(
 
 
 @router.delete("/sources/{source_id}")
-async def delete_source(
-    source_id: str, service: Any = Depends(get_source_service)
-) -> JSONResponse:
+async def delete_source(source_id: str, service: Any = Depends(get_source_service)) -> JSONResponse:
     """
     Delete a source document and its associated data.
 
@@ -349,9 +333,7 @@ async def delete_source(
         raise
     except SourceServiceError as e:
         logger.error(f"Source service error: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        ) from e
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Error deleting source: {str(e)}")
         raise HTTPException(

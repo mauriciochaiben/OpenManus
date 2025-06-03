@@ -162,11 +162,7 @@ class AgentDecisionSystem:
             return AgentApproach.SINGLE_AGENT
 
         # Multi-agent paralelo se há potencial e não precisa de colaboração
-        if (
-            analysis.parallel_potential
-            and not analysis.collaboration_needed
-            and len(analysis.domains) > 1
-        ):
+        if analysis.parallel_potential and not analysis.collaboration_needed and len(analysis.domains) > 1:
             return AgentApproach.MULTI_AGENT_PARALLEL
 
         # Multi-agent colaborativo se precisa de colaboração
@@ -174,10 +170,7 @@ class AgentDecisionSystem:
             return AgentApproach.MULTI_AGENT_COLLABORATIVE
 
         # Multi-agent sequencial para outras tarefas complexas
-        if (
-            analysis.complexity in [TaskComplexity.COMPLEX, TaskComplexity.VERY_COMPLEX]
-            or len(analysis.domains) > 1
-        ):
+        if analysis.complexity in [TaskComplexity.COMPLEX, TaskComplexity.VERY_COMPLEX] or len(analysis.domains) > 1:
             return AgentApproach.MULTI_AGENT_SEQUENTIAL
 
         # Padrão: single agent
@@ -218,16 +211,12 @@ class AgentDecisionSystem:
 
         # Adicionar ferramentas baseado nos domínios
         for tool, tool_domains in self.tool_domain_map.items():
-            if tool_domains == ["all"] or any(
-                domain in domains for domain in tool_domains
-            ):
+            if tool_domains == ["all"] or any(domain in domains for domain in tool_domains):
                 tools.add(tool)
 
         return list(tools)
 
-    def _calculate_complexity(
-        self, task: str, domains: set[str], tools_needed: list[str]
-    ) -> TaskComplexity:
+    def _calculate_complexity(self, task: str, domains: set[str], tools_needed: list[str]) -> TaskComplexity:
         """Calcula a complexidade da tarefa"""
         complexity_score = 0
         task_lower = task.lower()
@@ -303,9 +292,7 @@ class AgentDecisionSystem:
             "after",
             "next",
         ]
-        additional_steps = sum(
-            1 for indicator in step_indicators if indicator in task.lower()
-        )
+        additional_steps = sum(1 for indicator in step_indicators if indicator in task.lower())
 
         return base_steps[complexity] + additional_steps
 
@@ -321,8 +308,7 @@ def analyze_task_complexity(task: str) -> dict:
         analysis = decision_system.analyze_task_complexity(task)
 
         return {
-            "is_complex": analysis.complexity
-            in [TaskComplexity.COMPLEX, TaskComplexity.VERY_COMPLEX],
+            "is_complex": analysis.complexity in [TaskComplexity.COMPLEX, TaskComplexity.VERY_COMPLEX],
             "complexity": analysis.complexity.value,
             "domains": list(analysis.domains),
             "estimated_steps": analysis.estimated_steps,

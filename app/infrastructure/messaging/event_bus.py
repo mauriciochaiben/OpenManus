@@ -85,9 +85,7 @@ class EventBus:
                     tasks.append(handler(event))
                 else:
                     # Wrap sync function in async
-                    tasks.append(
-                        asyncio.create_task(self._run_sync_handler(handler, event))
-                    )
+                    tasks.append(asyncio.create_task(self._run_sync_handler(handler, event)))
 
             if tasks:
                 await asyncio.gather(*tasks, return_exceptions=True)

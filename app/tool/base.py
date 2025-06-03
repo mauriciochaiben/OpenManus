@@ -47,9 +47,7 @@ class ToolResult(BaseModel):
         return any(getattr(self, field) for field in self.__fields__)
 
     def __add__(self, other: "ToolResult"):
-        def combine_fields(
-            field: str | None, other_field: str | None, concatenate: bool = True
-        ):
+        def combine_fields(field: str | None, other_field: str | None, concatenate: bool = True):
             if field and other_field:
                 if concatenate:
                     return field + other_field

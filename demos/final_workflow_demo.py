@@ -46,9 +46,7 @@ class DemoEventLogger:
         timestamp = datetime.now()
         self.events.append(("STEP_STARTED", timestamp, event))
         icon = "🔧" if event.step_type == "tool" else "📝"
-        print(
-            f"{icon} [{timestamp.strftime('%H:%M:%S')}] Step {event.step_number} Started"
-        )
+        print(f"{icon} [{timestamp.strftime('%H:%M:%S')}] Step {event.step_number} Started")
         print(f"   Type: {event.step_type}")
         print(f"   Description: {event.step_description}")
 
@@ -56,9 +54,7 @@ class DemoEventLogger:
         timestamp = datetime.now()
         self.events.append(("STEP_COMPLETED", timestamp, event))
         status = "✅" if event.success else "❌"
-        print(
-            f"{status} [{timestamp.strftime('%H:%M:%S')}] Step {event.step_number} Completed"
-        )
+        print(f"{status} [{timestamp.strftime('%H:%M:%S')}] Step {event.step_number} Completed")
         if event.error:
             print(f"   Error: {event.error}")
 
@@ -106,9 +102,7 @@ async def demo_comprehensive_workflow():
     print("🎯 DEMO 1: Basic Workflow Execution")
     print("-" * 50)
 
-    result1 = await service.start_simple_workflow(
-        "Create a comprehensive project documentation system"
-    )
+    result1 = await service.start_simple_workflow("Create a comprehensive project documentation system")
 
     print("\n📋 Results:")
     print(f"  Status: {result1['status']}")

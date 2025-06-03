@@ -19,9 +19,7 @@ class StartWorkflowRequest(BaseModel):
         max_length=1000,
         description="The initial task description to decompose and execute",
     )
-    metadata: dict | None = Field(
-        default_factory=dict, description="Optional metadata for the workflow"
-    )
+    metadata: dict | None = Field(default_factory=dict, description="Optional metadata for the workflow")
 
 
 class WorkflowResponse(BaseModel):
@@ -114,9 +112,7 @@ async def start_simple_workflow(
         )
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to start workflow: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=500, detail=f"Failed to start workflow: {str(e)}") from e
 
 
 @router.get("/simple/{workflow_id}", response_model=WorkflowResultResponse)
@@ -154,9 +150,7 @@ async def get_workflow_result(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to retrieve workflow: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve workflow: {str(e)}") from e
 
 
 @router.get("/", response_model=list[dict])
@@ -198,14 +192,10 @@ async def list_workflows(
         ]
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to list workflows: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=500, detail=f"Failed to list workflows: {str(e)}") from e
 
 
-async def _execute_workflow_async(
-    workflow_service: WorkflowService, initial_task: str, _metadata: dict
-) -> None:
+async def _execute_workflow_async(workflow_service: WorkflowService, initial_task: str, _metadata: dict) -> None:
     """
     Execute workflow asynchronously in the background.
 

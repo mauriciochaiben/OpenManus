@@ -14,7 +14,7 @@ if [ ! -d "tasks/store" ]; then
     mkdir -p tasks/store
 fi
 
-# Notes - adicionar hooks e store se necessário  
+# Notes - adicionar hooks e store se necessário
 echo "📁 Criando diretórios faltantes para notes..."
 if [ ! -d "notes/hooks" ]; then
     mkdir -p notes/hooks
@@ -41,7 +41,7 @@ for dir in hooks services store types utils; do
     fi
 done
 
-# Agents - estrutura completa  
+# Agents - estrutura completa
 echo "�� Criando estrutura completa para agents..."
 for dir in hooks services store types utils; do
     if [ ! -d "agents/$dir" ]; then
@@ -75,7 +75,7 @@ export * from './types';
 AGENTS_INDEX
 fi
 
-# Dashboard  
+# Dashboard
 if [ ! -f "dashboard/index.ts" ]; then
     cat > dashboard/index.ts << 'DASHBOARD_INDEX'
 /**

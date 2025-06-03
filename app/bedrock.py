@@ -20,10 +20,7 @@ class OpenAIResponse:
             if isinstance(value, dict):
                 value = OpenAIResponse(value)
             elif isinstance(value, list):
-                value = [
-                    OpenAIResponse(item) if isinstance(item, dict) else item
-                    for item in value
-                ]
+                value = [OpenAIResponse(item) if isinstance(item, dict) else item for item in value]
             setattr(self, key, value)
 
     def model_dump(self, *_args, **_kwargs):
@@ -69,12 +66,8 @@ class ChatCompletions:
                         "inputSchema": {
                             "json": {
                                 "type": "object",
-                                "properties": function.get("parameters", {}).get(
-                                    "properties", {}
-                                ),
-                                "required": function.get("parameters", {}).get(
-                                    "required", []
-                                ),
+                                "properties": function.get("parameters", {}).get("properties", {}),
+                                "required": function.get("parameters", {}).get("required", []),
                             }
                         },
                     }
@@ -105,9 +98,7 @@ class ChatCompletions:
                     bedrock_tool_use = {
                         "toolUseId": openai_tool_calls[0]["id"],
                         "name": openai_tool_calls[0]["function"]["name"],
-                        "input": json.loads(
-                            openai_tool_calls[0]["function"]["arguments"]
-                        ),
+                        "input": json.loads(openai_tool_calls[0]["function"]["arguments"]),
                     }
                     bedrock_message["content"].append({"toolUse": bedrock_tool_use})
                     global CURRENT_TOOLUSE_ID
@@ -169,23 +160,15 @@ class ChatCompletions:
                     "index": 0,
                     "message": {
                         "content": content,
-                        "role": bedrock_response.get("output", {})
-                        .get("message", {})
-                        .get("role", "assistant"),
-                        "tool_calls": (
-                            openai_tool_calls if openai_tool_calls != [] else None
-                        ),
+                        "role": bedrock_response.get("output", {}).get("message", {}).get("role", "assistant"),
+                        "tool_calls": (openai_tool_calls if openai_tool_calls != [] else None),
                         "function_call": None,
                     },
                 }
             ],
             "usage": {
-                "completion_tokens": bedrock_response.get("usage", {}).get(
-                    "outputTokens", 0
-                ),
-                "prompt_tokens": bedrock_response.get("usage", {}).get(
-                    "inputTokens", 0
-                ),
+                "completion_tokens": bedrock_response.get("usage", {}).get("outputTokens", 0),
+                "prompt_tokens": bedrock_response.get("usage", {}).get("inputTokens", 0),
                 "total_tokens": bedrock_response.get("usage", {}).get("totalTokens", 0),
             },
         }
@@ -253,42 +236,32 @@ class ChatCompletions:
         if stream:
             for event in stream:
                 if event.get("messageStart", {}).get("role"):
-                    bedrock_response["output"]["message"]["role"] = event[
-                        "messageStart"
-                    ]["role"]
+                    bedrock_response["output"]["message"]["role"] = event["messageStart"]["role"]
                 if event.get("contentBlockDelta", {}).get("delta", {}).get("text"):
                     bedrock_response_text += event["contentBlockDelta"]["delta"]["text"]
-                    print(
-                        event["contentBlockDelta"]["delta"]["text"], end="", flush=True
-                    )
+                    print(event["contentBlockDelta"]["delta"]["text"], end="", flush=True)
                 if event.get("contentBlockStop", {}).get("contentBlockIndex") == 0:
-                    bedrock_response["output"]["message"]["content"].append(
-                        {"text": bedrock_response_text}
-                    )
+                    bedrock_response["output"]["message"]["content"].append({"text": bedrock_response_text})
                 if event.get("contentBlockStart", {}).get("start", {}).get("toolUse"):
                     bedrock_tool_use = event["contentBlockStart"]["start"]["toolUse"]
                     tool_use = {
                         "toolUseId": bedrock_tool_use["toolUseId"],
                         "name": bedrock_tool_use["name"],
                     }
-                    bedrock_response["output"]["message"]["content"].append(
-                        {"toolUse": tool_use}
-                    )
+                    bedrock_response["output"]["message"]["content"].append({"toolUse": tool_use})
                     global CURRENT_TOOLUSE_ID
                     CURRENT_TOOLUSE_ID = bedrock_tool_use["toolUseId"]
                 if event.get("contentBlockDelta", {}).get("delta", {}).get("toolUse"):
-                    bedrock_response_tool_input += event["contentBlockDelta"]["delta"][
-                        "toolUse"
-                    ]["input"]
+                    bedrock_response_tool_input += event["contentBlockDelta"]["delta"]["toolUse"]["input"]
                     print(
                         event["contentBlockDelta"]["delta"]["toolUse"]["input"],
                         end="",
                         flush=True,
                     )
                 if event.get("contentBlockStop", {}).get("contentBlockIndex") == 1:
-                    bedrock_response["output"]["message"]["content"][1]["toolUse"][
-                        "input"
-                    ] = json.loads(bedrock_response_tool_input)
+                    bedrock_response["output"]["message"]["content"][1]["toolUse"]["input"] = json.loads(
+                        bedrock_response_tool_input
+                    )
         print()
         return self._convert_bedrock_response_to_openai_format(bedrock_response)
 

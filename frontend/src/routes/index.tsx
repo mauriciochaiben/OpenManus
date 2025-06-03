@@ -7,18 +7,18 @@ import { CoreRoutes, FeatureRoutes, ConfigRoutes } from './routeGroups';
  * Organizada em grupos lógicos para melhor performance e manutenibilidade
  */
 const AppRoutes: React.FC = () => {
-    return (
-        <Routes>
-            {/* Rotas principais - carregamento prioritário */}
-            {CoreRoutes()}
+  return (
+    <Routes>
+      {/* Rotas principais - carregamento prioritário */}
+      {CoreRoutes()}
 
-            {/* Rotas de funcionalidades - carregamento sob demanda */}
-            {FeatureRoutes()}
+      {/* Rotas de funcionalidades - carregamento sob demanda */}
+      {FeatureRoutes()}
 
-            {/* Rotas de configuração - carregamento diferido */}
-            {ConfigRoutes()}
-        </Routes>
-    );
+      {/* Rotas de configuração - carregamento diferido */}
+      {ConfigRoutes()}
+    </Routes>
+  );
 };
 
 export default AppRoutes;

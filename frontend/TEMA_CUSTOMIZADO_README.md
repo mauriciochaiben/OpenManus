@@ -2,7 +2,8 @@
 
 ## Visão Geral
 
-O OpenManus possui um sistema de tema customizado completo baseado no Ant Design ConfigProvider, oferecendo:
+O OpenManus possui um sistema de tema customizado completo baseado no Ant Design
+ConfigProvider, oferecendo:
 
 - ✅ **Tema claro e escuro** com troca dinâmica
 - ✅ **Cores primárias customizadas** para identidade visual
@@ -24,6 +25,7 @@ frontend/src/theme/
 ## 🎯 Configuração Principal
 
 ### `theme.ts`
+
 Define o objeto de configuração do Ant Design com:
 
 ```typescript
@@ -50,11 +52,12 @@ const openManusTheme: ThemeConfig = {
     Card: { borderRadius: 12 },
     Menu: { itemHeight: 40 },
     // ... mais componentes
-  }
+  },
 };
 ```
 
 ### `ThemeProvider.tsx`
+
 Gerencia o estado do tema com:
 
 - 🔄 **Troca dinâmica** entre claro/escuro
@@ -97,28 +100,29 @@ const MyComponent = () => {
 
 ```tsx
 // Usar classes utilitárias
-<Card className="openManus-card openManus-shadow">
-  <Button className="openManus-btn-primary">
-    Botão Customizado
-  </Button>
+<Card className='openManus-card openManus-shadow'>
+  <Button className='openManus-btn-primary'>Botão Customizado</Button>
 </Card>
 ```
 
 ## 🎨 Cores do Tema
 
 ### Cores Primárias
+
 - **Primary**: `#1890ff` - Azul principal
 - **Success**: `#52c41a` - Verde para sucesso
 - **Warning**: `#faad14` - Laranja para avisos
 - **Error**: `#ff4d4f` - Vermelho para erros
 
 ### Tema Claro
+
 - **Background**: `#f5f5f5`
 - **Container**: `#ffffff`
 - **Text**: `#262626`
 - **Border**: `#d9d9d9`
 
 ### Tema Escuro
+
 - **Background**: `#000000`
 - **Container**: `#141414`
 - **Text**: `#ffffff`
@@ -156,6 +160,7 @@ const MyComponent = () => {
 ## 📱 Classes Utilitárias
 
 ### Layout
+
 - `.openManus-card` - Card com estilo customizado
 - `.openManus-shadow` - Sombra padrão
 - `.openManus-shadow-lg` - Sombra grande
@@ -163,35 +168,41 @@ const MyComponent = () => {
 - `.openManus-rounded-lg` - Bordas arredondadas grandes
 
 ### Espaçamento
+
 - `.openManus-mb-sm/md/lg` - Margin bottom
 - `.openManus-mt-sm/md/lg` - Margin top
 - `.openManus-p-sm/md/lg` - Padding
 
 ### Animações
+
 - `.openManus-fade-in` - Fade in simples
 - `.openManus-fade-in-up` - Fade in com movimento para cima
 
 ### Texto
+
 - `.openManus-text-center` - Texto centralizado
 - `.openManus-text-right` - Texto à direita
 
 ## 🎯 Componentes Customizados
 
 ### Botões
+
 ```tsx
-<Button type="primary" className="openManus-btn-primary">
+<Button type='primary' className='openManus-btn-primary'>
   Botão Primary Customizado
 </Button>
 ```
 
 ### Inputs
+
 ```tsx
-<Input placeholder="Input customizado" className="openManus-input" />
+<Input placeholder='Input customizado' className='openManus-input' />
 ```
 
 ### Menu (no MainLayout)
+
 ```tsx
-<Menu className="openManus-menu" theme="dark">
+<Menu className='openManus-menu' theme='dark'>
   {/* Menu items */}
 </Menu>
 ```
@@ -199,6 +210,7 @@ const MyComponent = () => {
 ## 🔄 Troca de Tema
 
 ### Automática
+
 O tema detecta automaticamente a preferência do sistema:
 
 ```typescript
@@ -207,6 +219,7 @@ const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 ```
 
 ### Manual
+
 O usuário pode trocar manualmente:
 
 ```typescript
@@ -217,6 +230,7 @@ toggleTheme();
 ```
 
 ### Persistência
+
 A preferência é salva automaticamente:
 
 ```typescript
@@ -247,6 +261,7 @@ O tema inclui breakpoints responsivos:
 ## 🎨 Customização Avançada
 
 ### Adicionar Novas Cores
+
 ```typescript
 // theme.ts
 const customTheme = {
@@ -254,11 +269,12 @@ const customTheme = {
   token: {
     ...openManusTheme.token,
     colorCustom: '#purple',
-  }
+  },
 };
 ```
 
 ### Customizar Componentes
+
 ```typescript
 // theme.ts
 components: {
@@ -270,6 +286,7 @@ components: {
 ```
 
 ### Adicionar Variáveis CSS
+
 ```css
 /* theme.css */
 :root {
@@ -291,6 +308,7 @@ Acesse `/theme-demo` para ver todos os componentes com o tema aplicado:
 ## 🔍 Debug e Desenvolvimento
 
 ### Ver Tema Atual
+
 ```typescript
 const { currentTheme, isDarkMode } = useTheme();
 console.log('Tema atual:', currentTheme);
@@ -298,10 +316,13 @@ console.log('Modo escuro:', isDarkMode);
 ```
 
 ### Variáveis CSS no DevTools
+
 Inspecione o elemento `:root` para ver todas as variáveis CSS aplicadas.
 
 ### Classes Aplicadas
+
 O body recebe automaticamente as classes:
+
 - `.light-theme` - Tema claro
 - `.dark-theme` - Tema escuro
 

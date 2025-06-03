@@ -45,9 +45,7 @@ class PromptTemplate(BaseModel):
     name: str = Field(..., description="Unique name for the template")
     description: str = Field(..., description="Description of what this template does")
     template: str = Field(..., description="Jinja2 template string")
-    variables: list[str] = Field(
-        default_factory=list, description="List of required variables"
-    )
+    variables: list[str] = Field(default_factory=list, description="List of required variables")
     output_format: str = Field(default="text", description="Expected output format")
     category: str = Field(default="general", description="Template category")
     tags: list[str] = Field(default_factory=list, description="Tags for organization")
@@ -61,12 +59,8 @@ class TransformationRequest(BaseModel):
 
     source_id: str = Field(..., description="ID of the knowledge source")
     template_name: str = Field(..., description="Name of the prompt template to use")
-    variables: dict[str, Any] = Field(
-        default_factory=dict, description="Template variables"
-    )
-    use_rag: bool = Field(
-        default=True, description="Whether to use RAG for content retrieval"
-    )
+    variables: dict[str, Any] = Field(default_factory=dict, description="Template variables")
+    use_rag: bool = Field(default=True, description="Whether to use RAG for content retrieval")
     max_content_chunks: int = Field(default=10, description="Maximum chunks to include")
     include_metadata: bool = Field(default=True, description="Include source metadata")
 
@@ -116,9 +110,7 @@ class TransformationService:
         """Load all available prompt templates."""
         try:
             if not self.templates_dir.exists():
-                logger.warning(
-                    f"Templates directory does not exist: {self.templates_dir}"
-                )
+                logger.warning(f"Templates directory does not exist: {self.templates_dir}")
                 return
 
             # Load templates from JSON files
@@ -132,9 +124,7 @@ class TransformationService:
                     logger.debug(f"Loaded template: {template.name}")
 
                 except Exception as e:
-                    logger.error(
-                        f"Error loading template from {template_file}: {str(e)}"
-                    )
+                    logger.error(f"Error loading template from {template_file}: {str(e)}")
 
             logger.info(f"Loaded {len(self._template_cache)} prompt templates")
 
@@ -170,14 +160,10 @@ class TransformationService:
         transformation_id = str(uuid.uuid4())
 
         try:
-            logger.info(
-                f"Starting transformation {transformation_id} for source {source_id}"
-            )
+            logger.info(f"Starting transformation {transformation_id} for source {source_id}")
 
             # Load source content
-            source_content = await self._load_source_content(
-                source_id, use_rag, max_content_chunks
-            )
+            source_content = await self._load_source_content(source_id, use_rag, max_content_chunks)
 
             # Get or create template
             template = await self._get_template(prompt_template)
@@ -194,9 +180,7 @@ class TransformationService:
             rendered_prompt = await self._render_prompt(template, template_vars)
 
             # Generate transformation using LLM
-            transformed_content = await self._generate_transformation(
-                rendered_prompt, template.output_format
-            )
+            transformed_content = await self._generate_transformation(rendered_prompt, template.output_format)
 
             # Calculate processing time
             processing_time = (datetime.utcnow() - start_time).total_seconds()
@@ -226,9 +210,7 @@ class TransformationService:
             logger.error(f"Error in transformation {transformation_id}: {str(e)}")
             raise ValidationError(f"Transformation failed: {str(e)}") from e
 
-    async def _load_source_content(
-        self, source_id: str, use_rag: bool, max_chunks: int
-    ) -> dict[str, Any]:
+    async def _load_source_content(self, source_id: str, use_rag: bool, max_chunks: int) -> dict[str, Any]:
         """
         Load content from a knowledge source.
 
@@ -312,9 +294,7 @@ class TransformationService:
             category="inline",
         )
 
-    async def _render_prompt(
-        self, template: PromptTemplate, variables: dict[str, Any]
-    ) -> str:
+    async def _render_prompt(self, template: PromptTemplate, variables: dict[str, Any]) -> str:
         """
         Render a Jinja2 template with provided variables.
 
@@ -334,9 +314,7 @@ class TransformationService:
             logger.error(f"Error rendering template {template.name}: {str(e)}")
             raise ValidationError(f"Template rendering failed: {str(e)}") from e
 
-    async def _generate_transformation(
-        self, prompt: str, output_format: str = "text"
-    ) -> str:
+    async def _generate_transformation(self, prompt: str, output_format: str = "text") -> str:
         """
         Generate transformed content using LLM.
 
@@ -367,11 +345,16 @@ class TransformationService:
     def _get_system_prompt(self, output_format: str) -> str:
         """Get appropriate system prompt based on output format."""
         system_prompts = {
-            "text": "You are a helpful assistant that transforms content according to the given instructions. Provide clear, well-structured responses.",
-            "markdown": "You are a helpful assistant that transforms content into well-formatted Markdown. Use proper headings, lists, and formatting.",
-            "json": "You are a helpful assistant that transforms content into valid JSON format. Ensure proper structure and syntax.",
-            "summary": "You are a helpful assistant that creates concise, accurate summaries. Focus on key points and main ideas.",
-            "analysis": "You are a helpful assistant that provides detailed analysis. Be thorough, objective, and insightful.",
+            "text": "You are a helpful assistant that transforms content according to the given instructions. "
+            "Provide clear, well-structured responses.",
+            "markdown": "You are a helpful assistant that transforms content into well-formatted Markdown. "
+            "Use proper headings, lists, and formatting.",
+            "json": "You are a helpful assistant that transforms content into valid JSON format. "
+            "Ensure proper structure and syntax.",
+            "summary": "You are a helpful assistant that creates concise, accurate summaries. "
+            "Focus on key points and main ideas.",
+            "analysis": "You are a helpful assistant that provides detailed analysis. "
+            "Be thorough, objective, and insightful.",
         }
 
         return system_prompts.get(output_format, system_prompts["text"])
@@ -499,7 +482,8 @@ Format as a structured list.""",
 **Content:**
 {{ source_content }}
 
-Create relevant questions based on the content and provide clear, comprehensive answers. Focus on the most important information.""",
+Create relevant questions based on the content and provide clear, comprehensive answers. "
+        "Focus on the most important information.""",
         "variables": ["source_content", "source_metadata"],
         "output_format": "markdown",
         "category": "education",

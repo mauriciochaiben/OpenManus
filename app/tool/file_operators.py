@@ -32,9 +32,7 @@ class FileOperator(Protocol):
         """Check if path exists."""
         ...
 
-    async def run_command(
-        self, cmd: str, timeout: float | None = 120.0
-    ) -> tuple[int, str, str]:
+    async def run_command(self, cmd: str, timeout: float | None = 120.0) -> tuple[int, str, str]:
         """Run a shell command and return (return_code, stdout, stderr)."""
         ...
 
@@ -66,18 +64,14 @@ class LocalFileOperator(FileOperator):
         """Check if path exists."""
         return Path(path).exists()
 
-    async def run_command(
-        self, cmd: str, timeout: float | None = 120.0
-    ) -> tuple[int, str, str]:
+    async def run_command(self, cmd: str, timeout: float | None = 120.0) -> tuple[int, str, str]:
         """Run a shell command locally."""
         process = await asyncio.create_subprocess_shell(
             cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
 
         try:
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(), timeout=timeout
-            )
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
             return (
                 process.returncode or 0,
                 stdout.decode(),
@@ -86,9 +80,7 @@ class LocalFileOperator(FileOperator):
         except TimeoutError as exc:
             with contextlib.suppress(ProcessLookupError):
                 process.kill()
-            raise TimeoutError(
-                f"Command '{cmd}' timed out after {timeout} seconds"
-            ) from exc
+            raise TimeoutError(f"Command '{cmd}' timed out after {timeout} seconds") from exc
 
 
 class SandboxFileOperator(FileOperator):
@@ -121,36 +113,26 @@ class SandboxFileOperator(FileOperator):
     async def is_directory(self, path: PathLike) -> bool:
         """Check if path points to a directory in sandbox."""
         await self._ensure_sandbox_initialized()
-        result = await self.sandbox_client.run_command(
-            f"test -d {path} && echo 'true' || echo 'false'"
-        )
+        result = await self.sandbox_client.run_command(f"test -d {path} && echo 'true' || echo 'false'")
         return result.strip() == "true"
 
     async def exists(self, path: PathLike) -> bool:
         """Check if path exists in sandbox."""
         await self._ensure_sandbox_initialized()
-        result = await self.sandbox_client.run_command(
-            f"test -e {path} && echo 'true' || echo 'false'"
-        )
+        result = await self.sandbox_client.run_command(f"test -e {path} && echo 'true' || echo 'false'")
         return result.strip() == "true"
 
-    async def run_command(
-        self, cmd: str, timeout: float | None = 120.0
-    ) -> tuple[int, str, str]:
+    async def run_command(self, cmd: str, timeout: float | None = 120.0) -> tuple[int, str, str]:
         """Run a command in sandbox environment."""
         await self._ensure_sandbox_initialized()
         try:
-            stdout = await self.sandbox_client.run_command(
-                cmd, timeout=int(timeout) if timeout else None
-            )
+            stdout = await self.sandbox_client.run_command(cmd, timeout=int(timeout) if timeout else None)
             return (
                 0,  # Always return 0 since we don't have explicit return code from sandbox
                 stdout,
                 "",  # No stderr capture in the current sandbox implementation
             )
         except TimeoutError as exc:
-            raise TimeoutError(
-                f"Command '{cmd}' timed out after {timeout} seconds in sandbox"
-            ) from exc
+            raise TimeoutError(f"Command '{cmd}' timed out after {timeout} seconds in sandbox") from exc
         except Exception as exc:
             return 1, "", f"Error executing command in sandbox: {str(exc)}"

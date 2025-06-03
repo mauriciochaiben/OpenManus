@@ -82,9 +82,7 @@ class TestPlannerAgent:
             "Passo 5: Documentar a implementação",
         ]
 
-        with patch.object(
-            planner, "_simulate_llm_decomposition", new_callable=AsyncMock
-        ) as mock_llm:
+        with patch.object(planner, "_simulate_llm_decomposition", new_callable=AsyncMock) as mock_llm:
             mock_llm.return_value = expected_steps
 
             result = await planner.run(task_details)
@@ -125,9 +123,7 @@ class TestPlannerAgent:
             "Passo 5: Gerar relatório de conclusões",
         ]
 
-        with patch.object(
-            planner, "_simulate_llm_decomposition", new_callable=AsyncMock
-        ) as mock_llm:
+        with patch.object(planner, "_simulate_llm_decomposition", new_callable=AsyncMock) as mock_llm:
             mock_llm.return_value = expected_steps
 
             result = await planner.run(task_details)
@@ -171,9 +167,7 @@ class TestPlannerAgent:
 
         expected_steps = ["Passo 1: Executar tarefa"]
 
-        with patch.object(
-            planner, "_simulate_llm_decomposition", new_callable=AsyncMock
-        ) as mock_llm:
+        with patch.object(planner, "_simulate_llm_decomposition", new_callable=AsyncMock) as mock_llm:
             mock_llm.return_value = expected_steps
 
             result = await planner.run(task_details)
@@ -190,9 +184,7 @@ class TestPlannerAgent:
         task_details = {"input": "Tarefa que gera exceção"}
 
         # Simular exceção na função de decomposição
-        with patch.object(
-            planner, "_simulate_llm_decomposition", new_callable=AsyncMock
-        ) as mock_llm:
+        with patch.object(planner, "_simulate_llm_decomposition", new_callable=AsyncMock) as mock_llm:
             mock_llm.side_effect = Exception("Erro simulado na decomposição")
 
             result = await planner.run(task_details)

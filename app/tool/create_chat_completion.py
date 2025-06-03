@@ -7,9 +7,7 @@ from app.tool import BaseTool
 
 class CreateChatCompletion(BaseTool):
     name: str = "create_chat_completion"
-    description: str = (
-        "Creates a structured completion with specified output formatting."
-    )
+    description: str = "Creates a structured completion with specified output formatting."
 
     # Type mapping for JSON schema
     type_mapping: dict = {
@@ -43,9 +41,7 @@ class CreateChatCompletion(BaseTool):
                 "required": self.required,
             }
 
-        if isinstance(self.response_type, type) and issubclass(
-            self.response_type, BaseModel
-        ):
+        if isinstance(self.response_type, type) and issubclass(self.response_type, BaseModel):
             schema = self.response_type.model_json_schema()
             return {
                 "type": "object",
@@ -121,9 +117,7 @@ class CreateChatCompletion(BaseTool):
         """Create schema for Union types."""
         return {
             "type": "object",
-            "properties": {
-                "response": {"anyOf": [self._get_type_info(t) for t in types]}
-            },
+            "properties": {"response": {"anyOf": [self._get_type_info(t) for t in types]}},
             "required": self.required,
         }
 
@@ -155,9 +149,7 @@ class CreateChatCompletion(BaseTool):
         if self.response_type is str:
             return result
 
-        if isinstance(self.response_type, type) and issubclass(
-            self.response_type, BaseModel
-        ):
+        if isinstance(self.response_type, type) and issubclass(self.response_type, BaseModel):
             return self.response_type(**kwargs)
 
         if get_origin(self.response_type) in (list, dict):

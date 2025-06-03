@@ -212,40 +212,24 @@ async def handle_call_tool(
             if operation == "read":
                 with Path(path).open(encoding="utf-8") as f:
                     content = f.read()
-                return [
-                    types.TextContent(type="text", text=f"File content:\n{content}")
-                ]
+                return [types.TextContent(type="text", text=f"File content:\n{content}")]
 
             if operation == "write":
                 content = arguments.get("content", "")
                 with Path(path).open("w", encoding="utf-8") as f:
                     f.write(content)
-                return [
-                    types.TextContent(type="text", text=f"Successfully wrote to {path}")
-                ]
+                return [types.TextContent(type="text", text=f"Successfully wrote to {path}")]
 
             if operation == "list":
                 import os
 
                 files = os.listdir(path)
-                return [
-                    types.TextContent(
-                        type="text", text=f"Files in {path}:\n" + "\n".join(files)
-                    )
-                ]
+                return [types.TextContent(type="text", text=f"Files in {path}:\n" + "\n".join(files))]
 
-            return [
-                types.TextContent(
-                    type="text", text=f"Operation {operation} not yet implemented"
-                )
-            ]
+            return [types.TextContent(type="text", text=f"Operation {operation} not yet implemented")]
 
         except Exception as e:
-            return [
-                types.TextContent(
-                    type="text", text=f"Error in file operation: {str(e)}"
-                )
-            ]
+            return [types.TextContent(type="text", text=f"Error in file operation: {str(e)}")]
 
     elif name == "dev_code_execution":
         language = arguments.get("language")
@@ -264,20 +248,12 @@ async def handle_call_tool(
                     timeout=timeout,
                 )
                 output = result.stdout if result.returncode == 0 else result.stderr
-                return [
-                    types.TextContent(type="text", text=f"Execution result:\n{output}")
-                ]
+                return [types.TextContent(type="text", text=f"Execution result:\n{output}")]
 
-            return [
-                types.TextContent(
-                    type="text", text=f"Language {language} not yet supported"
-                )
-            ]
+            return [types.TextContent(type="text", text=f"Language {language} not yet supported")]
 
         except Exception as e:
-            return [
-                types.TextContent(type="text", text=f"Error executing code: {str(e)}")
-            ]
+            return [types.TextContent(type="text", text=f"Error executing code: {str(e)}")]
 
     elif name == "dev_git_operations":
         operation = arguments.get("operation")
@@ -291,35 +267,21 @@ async def handle_call_tool(
             os.chdir(repository)
 
             if operation == "status":
-                result = subprocess.run(
-                    ["git", "status"], capture_output=True, text=True
-                )
+                result = subprocess.run(["git", "status"], capture_output=True, text=True)
             elif operation == "add":
                 files = arguments.get("files", ["."])
-                result = subprocess.run(
-                    ["git", "add"] + files, capture_output=True, text=True
-                )
+                result = subprocess.run(["git", "add"] + files, capture_output=True, text=True)
             elif operation == "commit":
                 message = arguments.get("message", "Automated commit")
-                result = subprocess.run(
-                    ["git", "commit", "-m", message], capture_output=True, text=True
-                )
+                result = subprocess.run(["git", "commit", "-m", message], capture_output=True, text=True)
             else:
-                result = subprocess.run(
-                    ["git", operation], capture_output=True, text=True
-                )
+                result = subprocess.run(["git", operation], capture_output=True, text=True)
 
             output = result.stdout if result.returncode == 0 else result.stderr
-            return [
-                types.TextContent(
-                    type="text", text=f"Git {operation} result:\n{output}"
-                )
-            ]
+            return [types.TextContent(type="text", text=f"Git {operation} result:\n{output}")]
 
         except Exception as e:
-            return [
-                types.TextContent(type="text", text=f"Error in git operation: {str(e)}")
-            ]
+            return [types.TextContent(type="text", text=f"Error in git operation: {str(e)}")]
 
     elif name == "dev_testing":
         arguments.get("test_type")
@@ -340,14 +302,10 @@ async def handle_call_tool(
             result = subprocess.run(cmd, capture_output=True, text=True)
             output = result.stdout + result.stderr
 
-            return [
-                types.TextContent(type="text", text=f"Test execution result:\n{output}")
-            ]
+            return [types.TextContent(type="text", text=f"Test execution result:\n{output}")]
 
         except Exception as e:
-            return [
-                types.TextContent(type="text", text=f"Error running tests: {str(e)}")
-            ]
+            return [types.TextContent(type="text", text=f"Error running tests: {str(e)}")]
 
     else:
         return [types.TextContent(type="text", text=f"Unknown tool: {name}")]

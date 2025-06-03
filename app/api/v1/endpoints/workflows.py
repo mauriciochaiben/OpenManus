@@ -37,9 +37,7 @@ class WorkflowRequest(BaseModel):
     title: str
     description: str
     steps: list[dict]
-    source_ids: list[str] | None = Field(
-        default=None, description="Knowledge source IDs for context"
-    )
+    source_ids: list[str] | None = Field(default=None, description="Knowledge source IDs for context")
 
 
 class WorkflowResponse(BaseModel):

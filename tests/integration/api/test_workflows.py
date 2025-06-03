@@ -73,9 +73,7 @@ class TestWorkflowEndpoints:
         assert data["version"] == "1.0.0"
 
     @patch("app.api.dependencies.core.get_workflow_service")
-    def test_start_simple_workflow_success(
-        self, mock_get_service, client, mock_workflow_service
-    ):
+    def test_start_simple_workflow_success(self, mock_get_service, client, mock_workflow_service):
         """Test successful workflow start"""
         mock_get_service.return_value = mock_workflow_service
 
@@ -111,9 +109,7 @@ class TestWorkflowEndpoints:
 
         # Test task too long
         long_task = "x" * 1001
-        response = client.post(
-            "/api/v2/workflows/simple", json={"initial_task": long_task}
-        )
+        response = client.post("/api/v2/workflows/simple", json={"initial_task": long_task})
         assert response.status_code == 422
 
     @patch("app.api.dependencies.core.get_workflow_service")
@@ -134,9 +130,7 @@ class TestWorkflowEndpoints:
         assert data["status"] == "starting"
 
     @patch("app.api.dependencies.core.get_workflow_service")
-    def test_start_simple_workflow_background_task(
-        self, mock_get_service, client, mock_workflow_service
-    ):
+    def test_start_simple_workflow_background_task(self, mock_get_service, client, mock_workflow_service):
         """Test that workflow runs as background task"""
         mock_get_service.return_value = mock_workflow_service
 
@@ -184,9 +178,7 @@ class TestWorkflowModels:
         from app.api.routers.workflows import StartWorkflowRequest
 
         # Valid request
-        request = StartWorkflowRequest(
-            initial_task="Test task", metadata={"key": "value"}
-        )
+        request = StartWorkflowRequest(initial_task="Test task", metadata={"key": "value"})
         assert request.initial_task == "Test task"
         assert request.metadata == {"key": "value"}
 

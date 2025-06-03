@@ -218,9 +218,7 @@ class TestToolUserAgent:
             with patch("app.roles.tool_user_agent.logger"):
                 result = await agent.run(task_details)
 
-            assert (
-                result["success"] is True
-            )  # O MockTool retorna ToolResult, não levanta exceção
+            assert result["success"] is True  # O MockTool retorna ToolResult, não levanta exceção
             assert result["result"] is not None
             assert result["result"].error == "Mock tool execution failed"
 
@@ -468,9 +466,7 @@ class TestToolUserAgent:
             # Simula WebSearchTool
             mock_web_search = Mock()
             mock_web_search.execute = AsyncMock(
-                return_value=ToolResult(
-                    output="Search results for 'OpenManus': 1. OpenManus Documentation..."
-                )
+                return_value=ToolResult(output="Search results for 'OpenManus': 1. OpenManus Documentation...")
             )
             mock_registry.tools = {"web_search": mock_web_search}
             mock_registry_class.return_value = mock_registry

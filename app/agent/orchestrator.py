@@ -172,7 +172,8 @@ class MCPAgentOrchestrator:
                     self.specialized_agents[agent_id] = await Manus.create()
 
     async def route_task_to_agent(self, task: Task) -> str:
-        """Roteia tarefa para o agente mais adequado baseado nas ferramentas MCP necessárias"""
+        """Roteia tarefa para o agente mais adequado baseado nas ferramentas
+        MCP necessárias"""
         logger.info(f"Routing task: {task.description[:100]}...")
 
         # Analisar a tarefa
@@ -204,9 +205,7 @@ class MCPAgentOrchestrator:
 
         # Escolher o melhor agente baseado nos domínios
         agent_id = self._select_best_agent(analysis.domains)
-        agent = self.specialized_agents.get(
-            agent_id, self.specialized_agents["default"]
-        )
+        agent = self.specialized_agents.get(agent_id, self.specialized_agents["default"])
 
         task.assigned_agent = agent_id
         task.status = "running"
@@ -253,20 +252,14 @@ class MCPAgentOrchestrator:
                 description=f"Processando: {subtask.description[:50]}...",
             )
 
-            agent_id = subtask.assigned_agent or self._select_best_agent(
-                {subtask.description}
-            )
-            agent = self.specialized_agents.get(
-                agent_id, self.specialized_agents["default"]
-            )
+            agent_id = subtask.assigned_agent or self._select_best_agent({subtask.description})
+            agent = self.specialized_agents.get(agent_id, self.specialized_agents["default"])
 
             logger.info(f"Executing subtask {i+1}/{len(subtasks)} with {agent_id}")
 
             try:
                 # Incluir contexto dos resultados anteriores
-                context = (
-                    f"Previous results: {'; '.join(results[-2:])}\n" if results else ""
-                )
+                context = f"Previous results: {'; '.join(results[-2:])}\n" if results else ""
                 full_description = f"{context}Current task: {subtask.description}"
 
                 result = await agent.run(full_description)
@@ -313,12 +306,8 @@ class MCPAgentOrchestrator:
 
         # Executar subtarefas em paralelo
         async def execute_subtask(subtask: Task) -> str:
-            agent_id = subtask.assigned_agent or self._select_best_agent(
-                {subtask.description}
-            )
-            agent = self.specialized_agents.get(
-                agent_id, self.specialized_agents["default"]
-            )
+            agent_id = subtask.assigned_agent or self._select_best_agent({subtask.description})
+            agent = self.specialized_agents.get(agent_id, self.specialized_agents["default"])
 
             try:
                 result = await agent.run(subtask.description)
@@ -332,9 +321,7 @@ class MCPAgentOrchestrator:
                 return error_msg
 
         # Executar todas as subtarefas em paralelo
-        results = await asyncio.gather(
-            *[execute_subtask(st) for st in subtasks], return_exceptions=True
-        )
+        results = await asyncio.gather(*[execute_subtask(st) for st in subtasks], return_exceptions=True)
 
         # Combinar resultados
         final_result = "\n\n".join(str(result) for result in results)
@@ -367,9 +354,7 @@ class MCPAgentOrchestrator:
 
         return "default"
 
-    def _decompose_task(
-        self, task: Task, analysis: TaskAnalysis, parallel: bool = False
-    ) -> list[Task]:
+    def _decompose_task(self, task: Task, analysis: TaskAnalysis, parallel: bool = False) -> list[Task]:
         """Decompõe uma tarefa em subtarefas"""
         subtasks = []
 
@@ -400,16 +385,8 @@ class MCPAgentOrchestrator:
                 agent_status = {
                     "id": agent_id,
                     "type": type(agent).__name__,
-                    "active": (
-                        hasattr(agent, "state") and agent.state.value
-                        if hasattr(agent, "state")
-                        else "unknown"
-                    ),
-                    "tools": (
-                        len(agent.available_tools.tools)
-                        if hasattr(agent, "available_tools")
-                        else 0
-                    ),
+                    "active": (hasattr(agent, "state") and agent.state.value if hasattr(agent, "state") else "unknown"),
+                    "tools": (len(agent.available_tools.tools) if hasattr(agent, "available_tools") else 0),
                 }
                 status[agent_id] = agent_status
             except Exception as e:

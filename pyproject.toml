@@ -10,8 +10,8 @@ asyncio_default_fixture_loop_scope = "function"
 filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.ruff]
-# Same as Black.
-line-length = 88
+# Increased line length for modern development practices
+line-length = 120
 indent-width = 4
 
 # Assume Python 3.11+
@@ -96,6 +96,10 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 "__init__.py" = ["F401"]
 # FastAPI files can use function calls in default arguments (Depends, File, Query)
 "app/api/**/*.py" = ["B008"]
+# Prompt files can have longer lines for readability
+"app/prompt/**/*.py" = ["E501"]
+# Tool files can have longer description strings
+"app/tool/**/*.py" = ["E501"]
 
 [tool.ruff.format]
 # Like Black, use double quotes for strings.

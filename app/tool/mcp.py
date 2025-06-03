@@ -25,9 +25,7 @@ class MCPClientTool(BaseTool):
         try:
             logger.info(f"Executing tool: {self.original_name}")
             result = await self.session.call_tool(self.original_name, kwargs)
-            content_str = ", ".join(
-                item.text for item in result.content if isinstance(item, TextContent)
-            )
+            content_str = ", ".join(item.text for item in result.content if isinstance(item, TextContent))
             return ToolResult(output=content_str or "No output returned.")
         except Exception as e:
             return ToolResult(error=f"Error executing tool: {str(e)}")
@@ -67,9 +65,7 @@ class MCPClients(ToolCollection):
 
         await self._initialize_and_list_tools(server_id)
 
-    async def connect_stdio(
-        self, command: str, args: list[str], server_id: str = ""
-    ) -> None:
+    async def connect_stdio(self, command: str, args: list[str], server_id: str = "") -> None:
         """Connect to an MCP server using stdio transport."""
         if not command:
             raise ValueError("Server command is required.")
@@ -84,9 +80,7 @@ class MCPClients(ToolCollection):
         self.exit_stacks[server_id] = exit_stack
 
         server_params = StdioServerParameters(command=command, args=args)
-        stdio_transport = await exit_stack.enter_async_context(
-            stdio_client(server_params)
-        )
+        stdio_transport = await exit_stack.enter_async_context(stdio_client(server_params))
         read, write = stdio_transport
         session = await exit_stack.enter_async_context(ClientSession(read, write))
         self.sessions[server_id] = session
@@ -120,9 +114,7 @@ class MCPClients(ToolCollection):
 
         # Update tools tuple
         self.tools = tuple(self.tool_map.values())
-        logger.info(
-            f"Connected to server {server_id} with tools: {[tool.name for tool in response.tools]}"
-        )
+        logger.info(f"Connected to server {server_id} with tools: {[tool.name for tool in response.tools]}")
 
     async def list_tools(self) -> ListToolsResult:
         """List all available tools."""
@@ -156,11 +148,7 @@ class MCPClients(ToolCollection):
                     self.exit_stacks.pop(server_id, None)
 
                     # Remove tools associated with this server
-                    self.tool_map = {
-                        k: v
-                        for k, v in self.tool_map.items()
-                        if v.server_id != server_id
-                    }
+                    self.tool_map = {k: v for k, v in self.tool_map.items() if v.server_id != server_id}
                     self.tools = tuple(self.tool_map.values())
                     logger.info(f"Disconnected from MCP server {server_id}")
                 except Exception as e:

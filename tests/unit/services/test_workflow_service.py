@@ -67,9 +67,7 @@ class TestWorkflowService:
         return AsyncMock(spec=EventBus)
 
     @pytest.fixture
-    def workflow_service(
-        self, mock_planner_agent, mock_tool_user_agent, mock_event_bus
-    ):
+    def workflow_service(self, mock_planner_agent, mock_tool_user_agent, mock_event_bus):
         """Create a WorkflowService instance with mocked dependencies."""
         return WorkflowService(
             planner_agent=mock_planner_agent,
@@ -78,13 +76,9 @@ class TestWorkflowService:
         )
 
     @pytest.mark.asyncio
-    async def test_start_simple_workflow_success(
-        self, workflow_service, mock_event_bus
-    ):
+    async def test_start_simple_workflow_success(self, workflow_service, mock_event_bus):
         """Test successful workflow execution."""
-        result = await workflow_service.start_simple_workflow(
-            "Create a web application"
-        )
+        result = await workflow_service.start_simple_workflow("Create a web application")
 
         # Verify result structure
         assert result["status"] == "success"
@@ -112,9 +106,7 @@ class TestWorkflowService:
         assert completed_event.completed_steps == 5
 
     @pytest.mark.asyncio
-    async def test_start_simple_workflow_planner_failure(
-        self, workflow_service, mock_planner_agent
-    ):
+    async def test_start_simple_workflow_planner_failure(self, workflow_service, mock_planner_agent):
         """Test workflow execution when planner fails."""
         mock_planner_agent.run.return_value = {
             "status": "error",
@@ -130,9 +122,7 @@ class TestWorkflowService:
         assert "Planning failed" in result["error"]
 
     @pytest.mark.asyncio
-    async def test_start_simple_workflow_partial_success(
-        self, workflow_service, mock_tool_user_agent
-    ):
+    async def test_start_simple_workflow_partial_success(self, workflow_service, mock_tool_user_agent):
         """Test workflow execution with some failing steps."""
         # Make tool execution fail - only step 2 ("Search for documentation") will use the tool
         mock_tool_user_agent.run.return_value = {
@@ -217,9 +207,7 @@ class TestWorkflowService:
     @pytest.mark.asyncio
     async def test_execute_generic_step(self, workflow_service):
         """Test execution of generic steps."""
-        result = await workflow_service._execute_generic_step(
-            "Analyze the data patterns"
-        )
+        result = await workflow_service._execute_generic_step("Analyze the data patterns")
 
         assert result["success"] is True
         assert result["result"]["step_type"] == "generic"
@@ -227,9 +215,7 @@ class TestWorkflowService:
         assert result["message"] == "Generic step executed successfully"
 
     @pytest.mark.asyncio
-    async def test_execute_tool_step_success(
-        self, workflow_service, mock_tool_user_agent
-    ):
+    async def test_execute_tool_step_success(self, workflow_service, mock_tool_user_agent):
         """Test successful tool step execution."""
         result = await workflow_service._execute_tool_step("Search for documentation")
 
@@ -238,9 +224,7 @@ class TestWorkflowService:
         assert mock_tool_user_agent.run.called
 
     @pytest.mark.asyncio
-    async def test_execute_tool_step_failure(
-        self, workflow_service, mock_tool_user_agent
-    ):
+    async def test_execute_tool_step_failure(self, workflow_service, mock_tool_user_agent):
         """Test tool step execution failure."""
         mock_tool_user_agent.run.side_effect = Exception("Tool execution failed")
 
@@ -284,9 +268,7 @@ class TestWorkflowService:
 
     def test_create_error_result(self, workflow_service):
         """Test error result creation."""
-        error_result = workflow_service._create_error_result(
-            "test-workflow-id", "Test error message", 2, 5
-        )
+        error_result = workflow_service._create_error_result("test-workflow-id", "Test error message", 2, 5)
 
         assert error_result["workflow_id"] == "test-workflow-id"
         assert error_result["status"] == "error"
@@ -296,9 +278,7 @@ class TestWorkflowService:
         assert error_result["metadata"]["error_occurred"] is True
 
     @pytest.mark.asyncio
-    async def test_workflow_without_event_bus(
-        self, mock_planner_agent, mock_tool_user_agent
-    ):
+    async def test_workflow_without_event_bus(self, mock_planner_agent, mock_tool_user_agent):
         """Test workflow execution without event bus."""
         service = WorkflowService(
             planner_agent=mock_planner_agent,
@@ -338,9 +318,7 @@ class TestWorkflowService:
         await workflow_service.start_simple_workflow("Test event order")
 
         # Extract all published events
-        published_events = [
-            call[0][0] for call in mock_event_bus.publish.call_args_list
-        ]
+        published_events = [call[0][0] for call in mock_event_bus.publish.call_args_list]
 
         # Should start with WorkflowStartedEvent
         assert isinstance(published_events[0], WorkflowStartedEvent)
@@ -350,16 +328,12 @@ class TestWorkflowService:
 
         # Should have step events in between
         step_events = [
-            e
-            for e in published_events
-            if isinstance(e, WorkflowStepStartedEvent | WorkflowStepCompletedEvent)
+            e for e in published_events if isinstance(e, WorkflowStepStartedEvent | WorkflowStepCompletedEvent)
         ]
         assert len(step_events) > 0
 
     @pytest.mark.asyncio
-    async def test_decompose_task_error_handling(
-        self, workflow_service, mock_planner_agent
-    ):
+    async def test_decompose_task_error_handling(self, workflow_service, mock_planner_agent):
         """Test error handling in task decomposition."""
         mock_planner_agent.run.side_effect = Exception("Planner crashed")
 

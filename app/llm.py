@@ -104,9 +104,7 @@ class TokenCounter:
             width, height = image_item["dimensions"]
             return self._calculate_high_detail_tokens(width, height)
 
-        return (
-            self._calculate_high_detail_tokens(1024, 1024) if detail == "high" else 1024
-        )
+        return self._calculate_high_detail_tokens(1024, 1024) if detail == "high" else 1024
 
     def _calculate_high_detail_tokens(self, width: int, height: int) -> int:
         """Calculate tokens for high detail images based on dimensions"""
@@ -127,9 +125,7 @@ class TokenCounter:
         total_tiles = tiles_x * tiles_y
 
         # Step 4: Calculate final token count
-        return (
-            total_tiles * self.HIGH_DETAIL_TILE_TOKENS
-        ) + self.LOW_DETAIL_IMAGE_TOKENS
+        return (total_tiles * self.HIGH_DETAIL_TILE_TOKENS) + self.LOW_DETAIL_IMAGE_TOKENS
 
     def count_content(self, content: str | list[str | dict]) -> int:
         """Calculate tokens for message content"""
@@ -190,22 +186,16 @@ class TokenCounter:
 class LLM:
     _instances: dict[str, "LLM"] = {}
 
-    def __new__(
-        cls, config_name: str = "default", llm_config: LLMSettings | None = None
-    ):
+    def __new__(cls, config_name: str = "default", llm_config: LLMSettings | None = None):
         if config_name not in cls._instances:
             instance = super().__new__(cls)
             instance.__init__(config_name, llm_config)
             cls._instances[config_name] = instance
         return cls._instances[config_name]
 
-    def __init__(
-        self, config_name: str = "default", llm_config: LLMSettings | None = None
-    ):
+    def __init__(self, config_name: str = "default", llm_config: LLMSettings | None = None):
         if not hasattr(self, "client"):  # Only initialize if not already initialized
-            llm_config = llm_config or settings.llm_configs.get(
-                config_name, settings.llm_configs["default"]
-            )
+            llm_config = llm_config or settings.llm_configs.get(config_name, settings.llm_configs["default"])
             self.config_name = config_name
             self.model = llm_config.model
             self.max_tokens = llm_config.max_tokens
@@ -228,11 +218,7 @@ class LLM:
             # Add token counting related attributes
             self.total_input_tokens = 0
             self.total_completion_tokens = 0
-            self.max_input_tokens = (
-                llm_config.max_input_tokens
-                if hasattr(llm_config, "max_input_tokens")
-                else None
-            )
+            self.max_input_tokens = llm_config.max_input_tokens if hasattr(llm_config, "max_input_tokens") else None
 
             # Initialize tokenizer
             try:
@@ -286,28 +272,20 @@ class LLM:
             error_msg = str(e).lower()
             is_quota_error = "insufficient_quota" in error_msg or "quota" in error_msg
             is_rate_limit_error = (
-                isinstance(e, RateLimitError)
-                or "rate limit" in error_msg
-                or "too many requests" in error_msg
+                isinstance(e, RateLimitError) or "rate limit" in error_msg or "too many requests" in error_msg
             )
 
             if is_quota_error or is_rate_limit_error:
                 if is_quota_error:
-                    logger.warning(
-                        f"Quota exhausted on primary config ({self.model}): {e}"
-                    )
+                    logger.warning(f"Quota exhausted on primary config ({self.model}): {e}")
                 else:
-                    logger.warning(
-                        f"Rate limit hit on primary config ({self.model}): {e}"
-                    )
+                    logger.warning(f"Rate limit hit on primary config ({self.model}): {e}")
                     self.rate_limit_backoff = time.time() + 60  # 1 minute backoff
 
                 # Try fallback configurations
-                for fallback_name, fallback_config in self.fallback_configs:
+                for fallback_name, _ in self.fallback_configs:
                     try:
-                        logger.info(
-                            f"Trying fallback configuration: {fallback_name} ({fallback_config.model})"
-                        )
+                        logger.info("Trying fallback configuration: " "{fallback_name}")
 
                         # Create temporary fallback instance
                         fallback_llm = LLM(fallback_name)
@@ -315,44 +293,35 @@ class LLM:
                         if method_name == "ask_internal":
                             result = await fallback_llm._ask_internal(*args, **kwargs)
                         elif method_name == "ask_tool_internal":
-                            result = await fallback_llm._ask_tool_internal(
-                                *args, **kwargs
-                            )
+                            result = await fallback_llm._ask_tool_internal(*args, **kwargs)
                         else:
                             raise ValueError(f"Unknown method: {method_name}")
 
-                        logger.info(
-                            f"Successfully used fallback: {fallback_name} ({fallback_config.model})"
-                        )
+                        logger.info("Successfully used fallback: " "{fallback_name}")
                         return result
 
                     except (RateLimitError, Exception) as fe:
                         fallback_error_msg = str(fe).lower()
-                        if (
-                            "insufficient_quota" in fallback_error_msg
-                            or "quota" in fallback_error_msg
-                        ):
-                            logger.warning(
-                                f"Fallback {fallback_name} also has quota exhausted: {fe}"
-                            )
-                        elif (
-                            isinstance(fe, RateLimitError)
-                            or "rate limit" in fallback_error_msg
-                        ):
-                            logger.warning(
-                                f"Fallback {fallback_name} also rate limited: {fe}"
-                            )
+                        if "insufficient_quota" in fallback_error_msg or "quota" in fallback_error_msg:
+                            logger.warning(f"Fallback {fallback_name} " "also has quota exhausted: {fe}")
+                        elif isinstance(fe, RateLimitError) or "rate limit" in fallback_error_msg:
+                            logger.warning(f"Fallback {fallback_name} also rate limited: {fe}")
                         else:
                             logger.warning(f"Fallback {fallback_name} failed: {fe}")
                         continue
 
                 # If all fallbacks failed, raise an appropriate error in Portuguese
                 if is_quota_error:
-                    raise Exception(
-                        "❌ Erro: Saldo insuficiente nas APIs de IA. As chaves da OpenAI e Google Gemini não possuem créditos suficientes. Por favor, adicione créditos às contas ou configure uma chave válida."
-                    ) from e
+                    quota_msg = (
+                        "❌ Erro: Saldo insuficiente nas APIs de IA. "
+                        "As chaves da OpenAI e Google Gemini não possuem "
+                        "créditos suficientes. Por favor, adicione créditos "
+                        "às contas ou configure uma chave válida."
+                    )
+                    raise Exception(quota_msg) from e
                 raise Exception(
-                    "❌ Erro: Limite de taxa excedido em todas as APIs de IA configuradas. Tente novamente em alguns minutos."
+                    "❌ Erro: Limite de taxa excedido em todas as APIs de "
+                    "IA configuradas. Tente novamente em alguns minutos."
                 ) from e
             # For non-rate-limit errors, just raise the original error
             raise e
@@ -399,8 +368,10 @@ class LLM:
         self.total_completion_tokens += completion_tokens
         logger.info(
             f"Token usage: Input={input_tokens}, Completion={completion_tokens}, "
-            f"Cumulative Input={self.total_input_tokens}, Cumulative Completion={self.total_completion_tokens}, "
-            f"Total={input_tokens + completion_tokens}, Cumulative Total={self.total_input_tokens + self.total_completion_tokens}"
+            f"Cumulative Input={self.total_input_tokens}, "
+            f"Total={input_tokens +
+                completion_tokens}, Cumulative Total={self.total_input_tokens +
+                self.total_completion_tokens}"
         )
 
     def check_token_limit(self, input_tokens: int) -> bool:
@@ -412,18 +383,17 @@ class LLM:
 
     def get_limit_error_message(self, input_tokens: int) -> str:
         """Generate error message for token limit exceeded"""
-        if (
-            self.max_input_tokens is not None
-            and (self.total_input_tokens + input_tokens) > self.max_input_tokens
-        ):
-            return f"Request may exceed input token limit (Current: {self.total_input_tokens}, Needed: {input_tokens}, Max: {self.max_input_tokens})"
+        if self.max_input_tokens is not None and (self.total_input_tokens + input_tokens) > self.max_input_tokens:
+            return (
+                f"Request may exceed input token limit "
+                f"(Current: {self.total_input_tokens}, Needed: {input_tokens}, "
+                f"Max: {self.max_input_tokens})"
+            )
 
         return "Token limit exceeded"
 
     @staticmethod
-    def format_messages(
-        messages: list[dict | Message], supports_images: bool = False
-    ) -> list[dict]:
+    def format_messages(messages: list[dict | Message], supports_images: bool = False) -> list[dict]:
         """
         Format messages for LLM by converting them to OpenAI message format.
 
@@ -464,17 +434,11 @@ class LLM:
                     if not message.get("content"):
                         message["content"] = []
                     elif isinstance(message["content"], str):
-                        message["content"] = [
-                            {"type": "text", "text": message["content"]}
-                        ]
+                        message["content"] = [{"type": "text", "text": message["content"]}]
                     elif isinstance(message["content"], list):
                         # Convert string items to proper text objects
                         message["content"] = [
-                            (
-                                {"type": "text", "text": item}
-                                if isinstance(item, str)
-                                else item
-                            )
+                            ({"type": "text", "text": item} if isinstance(item, str) else item)
                             for item in message["content"]
                         ]
 
@@ -482,9 +446,7 @@ class LLM:
                     message["content"].append(
                         {
                             "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{message['base64_image']}"
-                            },
+                            "image_url": {"url": "data:image/jpeg;" "base64,{message['base64_image']}"},
                         }
                     )
 
@@ -516,9 +478,7 @@ class LLM:
         temperature: float | None = None,
     ) -> str:
         """Public ask method with fallback support"""
-        return await self._try_with_fallback(
-            "ask_internal", messages, system_msgs, stream, temperature
-        )
+        return await self._try_with_fallback("ask_internal", messages, system_msgs, stream, temperature)
 
     @retry(
         wait=wait_random_exponential(min=1, max=60),
@@ -582,25 +542,19 @@ class LLM:
                 params["max_completion_tokens"] = self.max_tokens
             else:
                 params["max_tokens"] = self.max_tokens
-                params["temperature"] = (
-                    temperature if temperature is not None else self.temperature
-                )
+                params["temperature"] = temperature if temperature is not None else self.temperature
 
             await self._throttle_requests()  # Throttle requests to prevent rate limits
 
             if not stream:
                 # Non-streaming request
-                response = await self.client.chat.completions.create(
-                    **params, stream=False
-                )
+                response = await self.client.chat.completions.create(**params, stream=False)
 
                 if not response.choices or not response.choices[0].message.content:
                     raise ValueError("Empty or invalid response from LLM")
 
                 # Update token counts
-                self.update_token_count(
-                    response.usage.prompt_tokens, response.usage.completion_tokens
-                )
+                self.update_token_count(response.usage.prompt_tokens, response.usage.completion_tokens)
 
                 return response.choices[0].message.content
 
@@ -624,9 +578,7 @@ class LLM:
 
             # estimate completion tokens for streaming response
             completion_tokens = self.count_tokens(completion_text)
-            logger.info(
-                f"Estimated completion tokens for streaming response: {completion_tokens}"
-            )
+            logger.info("Estimated completion tokens for " "streaming response: {completion_tokens}")
             self.total_completion_tokens += completion_tokens
 
             return full_response
@@ -686,18 +638,14 @@ class LLM:
             # For ask_with_images, we always set supports_images to True because
             # this method should only be called with models that support images
             if self.model not in MULTIMODAL_MODELS:
-                raise ValueError(
-                    f"Model {self.model} does not support images. Use a model from {MULTIMODAL_MODELS}"
-                )
+                raise ValueError(f"Model {self.model} does not support " "images. Use a model from {MULTIMODAL_MODELS}")
 
             # Format messages with image support
             formatted_messages = self.format_messages(messages, supports_images=True)
 
             # Ensure the last message is from the user to attach images
             if not formatted_messages or formatted_messages[-1]["role"] != "user":
-                raise ValueError(
-                    "The last message must be from the user to attach images"
-                )
+                raise ValueError("The last message must be from the user to attach images")
 
             # Process the last user message to include images
             last_message = formatted_messages[-1]
@@ -715,9 +663,7 @@ class LLM:
             # Add images to content
             for image in images:
                 if isinstance(image, str):
-                    multimodal_content.append(
-                        {"type": "image_url", "image_url": {"url": image}}
-                    )
+                    multimodal_content.append({"type": "image_url", "image_url": {"url": image}})
                 elif isinstance(image, dict) and "url" in image:
                     multimodal_content.append({"type": "image_url", "image_url": image})
                 elif isinstance(image, dict) and "image_url" in image:
@@ -730,10 +676,7 @@ class LLM:
 
             # Add system messages if provided
             if system_msgs:
-                all_messages = (
-                    self.format_messages(system_msgs, supports_images=True)
-                    + formatted_messages
-                )
+                all_messages = self.format_messages(system_msgs, supports_images=True) + formatted_messages
             else:
                 all_messages = formatted_messages
 
@@ -754,9 +697,7 @@ class LLM:
                 params["max_completion_tokens"] = self.max_tokens
             else:
                 params["max_tokens"] = self.max_tokens
-                params["temperature"] = (
-                    temperature if temperature is not None else self.temperature
-                )
+                params["temperature"] = temperature if temperature is not None else self.temperature
 
             await self._throttle_requests()  # Throttle requests to prevent rate limits
 
@@ -919,17 +860,13 @@ class LLM:
                 params["max_completion_tokens"] = self.max_tokens
             else:
                 params["max_tokens"] = self.max_tokens
-                params["temperature"] = (
-                    temperature if temperature is not None else self.temperature
-                )
+                params["temperature"] = temperature if temperature is not None else self.temperature
 
             params["stream"] = False  # Always use non-streaming for tool requests
 
             await self._throttle_requests()  # Throttle requests to prevent rate limits
 
-            response: ChatCompletion = await self.client.chat.completions.create(
-                **params
-            )
+            response: ChatCompletion = await self.client.chat.completions.create(**params)
 
             # Check if response is valid
             if not response.choices or not response.choices[0].message:
@@ -938,9 +875,7 @@ class LLM:
                 return None
 
             # Update token counts
-            self.update_token_count(
-                response.usage.prompt_tokens, response.usage.completion_tokens
-            )
+            self.update_token_count(response.usage.prompt_tokens, response.usage.completion_tokens)
 
             return response.choices[0].message
 

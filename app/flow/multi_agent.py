@@ -58,16 +58,12 @@ class MultiAgentFlow(BaseFlow):
     execution_history: list[dict] = Field(default_factory=list)
     current_task_id: str | None = None  # For progress tracking
 
-    def __init__(
-        self, agents: BaseAgent | list[BaseAgent] | dict[str, BaseAgent], **data
-    ):
+    def __init__(self, agents: BaseAgent | list[BaseAgent] | dict[str, BaseAgent], **data):
         super().__init__(agents, **data)
 
         # Configurar execution_mode se fornecido
         if "mode" in data:
-            self.execution_mode = ExecutionMode(
-                data.pop("mode", ExecutionMode.AUTO.value)
-            )
+            self.execution_mode = ExecutionMode(data.pop("mode", ExecutionMode.AUTO.value))
 
     async def initialize(self):
         """Inicializa o flow e todos os componentes"""
@@ -99,9 +95,7 @@ class MultiAgentFlow(BaseFlow):
                 stage="Inicializando",
                 progress=5,
                 execution_type="multi",
-                task_name=(
-                    input_text[:50] + "..." if len(input_text) > 50 else input_text
-                ),
+                task_name=(input_text[:50] + "..." if len(input_text) > 50 else input_text),
                 step_number=1,
                 total_steps=6,
                 description="Inicializando sistema multi-agente",
@@ -117,9 +111,7 @@ class MultiAgentFlow(BaseFlow):
                 stage="Analisando tarefa",
                 progress=15,
                 execution_type="multi",
-                task_name=(
-                    input_text[:50] + "..." if len(input_text) > 50 else input_text
-                ),
+                task_name=(input_text[:50] + "..." if len(input_text) > 50 else input_text),
                 step_number=2,
                 total_steps=6,
                 description="Analisando complexidade e requisitos da tarefa",
@@ -148,9 +140,7 @@ class MultiAgentFlow(BaseFlow):
                 stage="Selecionando abordagem",
                 progress=25,
                 execution_type="multi",
-                task_name=(
-                    input_text[:50] + "..." if len(input_text) > 50 else input_text
-                ),
+                task_name=(input_text[:50] + "..." if len(input_text) > 50 else input_text),
                 step_number=3,
                 total_steps=6,
                 description=f"Abordagem selecionada: {approach.value}",
@@ -168,9 +158,7 @@ class MultiAgentFlow(BaseFlow):
                 stage="Finalizando",
                 progress=95,
                 execution_type="multi",
-                task_name=(
-                    input_text[:50] + "..." if len(input_text) > 50 else input_text
-                ),
+                task_name=(input_text[:50] + "..." if len(input_text) > 50 else input_text),
                 step_number=6,
                 total_steps=6,
                 description="Consolidando resultados finais",
@@ -191,22 +179,16 @@ class MultiAgentFlow(BaseFlow):
                 self.execution_history = self.execution_history[-10:]
 
             # Broadcast final completion
-            await progress_broadcaster.broadcast_completion(
-                task_id=self.current_task_id, result=result
-            )
+            await progress_broadcaster.broadcast_completion(task_id=self.current_task_id, result=result)
 
-            logger.info(
-                f"MultiAgentFlow execution completed in {time.time() - start_time:.2f}s"
-            )
+            logger.info(f"MultiAgentFlow execution completed in {time.time() - start_time:.2f}s")
             return result
 
         except Exception as e:
             logger.error(f"Error in MultiAgentFlow execution: {e}")
 
             # Broadcast failure
-            await progress_broadcaster.broadcast_failure(
-                task_id=self.current_task_id, error=str(e)
-            )
+            await progress_broadcaster.broadcast_failure(task_id=self.current_task_id, error=str(e))
 
             return f"Execution failed: {str(e)}"
 
@@ -259,9 +241,7 @@ class MultiAgentFlow(BaseFlow):
                 progress=85,
                 execution_type="single",
                 agents=["manus"],
-                task_name=(
-                    input_text[:50] + "..." if len(input_text) > 50 else input_text
-                ),
+                task_name=(input_text[:50] + "..." if len(input_text) > 50 else input_text),
                 step_number=5,
                 total_steps=6,
                 description="Execução do agente único finalizada com sucesso",
@@ -280,17 +260,13 @@ class MultiAgentFlow(BaseFlow):
             logger.error(f"Single agent execution failed: {e}")
             return f"Single agent execution failed: {str(e)}"
 
-    async def _execute_multi_agent(
-        self, input_text: str, approach: AgentApproach
-    ) -> str:
+    async def _execute_multi_agent(self, input_text: str, approach: AgentApproach) -> str:
         """Executa com múltiplos agentes usando o orquestrador"""
         logger.info(f"Executing with multi-agent approach: {approach.value}")
 
         # Broadcast multi-agent start
         available_agents = (
-            list(self.orchestrator.specialized_agents.keys())
-            if self.orchestrator.specialized_agents
-            else ["manus"]
+            list(self.orchestrator.specialized_agents.keys()) if self.orchestrator.specialized_agents else ["manus"]
         )
         await progress_broadcaster.broadcast_progress(
             task_id=self.current_task_id,
@@ -316,9 +292,7 @@ class MultiAgentFlow(BaseFlow):
                     progress=50,
                     execution_type="multi",
                     agents=available_agents,
-                    task_name=(
-                        input_text[:50] + "..." if len(input_text) > 50 else input_text
-                    ),
+                    task_name=(input_text[:50] + "..." if len(input_text) > 50 else input_text),
                     description="Elaborando estratégia detalhada de execução",
                 )
                 await self._create_execution_plan(input_text)
@@ -330,9 +304,7 @@ class MultiAgentFlow(BaseFlow):
                 progress=65,
                 execution_type="multi",
                 agents=available_agents,
-                task_name=(
-                    input_text[:50] + "..." if len(input_text) > 50 else input_text
-                ),
+                task_name=(input_text[:50] + "..." if len(input_text) > 50 else input_text),
                 description="Orquestrando execução entre agentes especializados",
             )
 
@@ -346,9 +318,7 @@ class MultiAgentFlow(BaseFlow):
                 progress=85,
                 execution_type="multi",
                 agents=available_agents,
-                task_name=(
-                    input_text[:50] + "..." if len(input_text) > 50 else input_text
-                ),
+                task_name=(input_text[:50] + "..." if len(input_text) > 50 else input_text),
                 step_number=5,
                 total_steps=6,
                 description="Execução multi-agente finalizada com sucesso",
@@ -378,9 +348,7 @@ class MultiAgentFlow(BaseFlow):
                 "Create a detailed, actionable plan that can be executed by specialized agents."
             )
 
-            user_message = Message.user_message(
-                f"Create an execution plan for this task: {input_text}"
-            )
+            user_message = Message.user_message(f"Create an execution plan for this task: {input_text}")
 
             # Usar LLM com PlanningTool
             response = await self.llm.ask_tool(
@@ -430,9 +398,7 @@ class MultiAgentFlow(BaseFlow):
         return {
             "mode": self.execution_mode.value,
             "active_plan": self.active_plan_id,
-            "current_task": (
-                self.current_task.description if self.current_task else None
-            ),
+            "current_task": (self.current_task.description if self.current_task else None),
             "agents": await self.orchestrator.get_agent_status(),
             "execution_history": len(self.execution_history),
             "coordination_enabled": self.enable_coordination,

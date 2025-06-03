@@ -12,9 +12,7 @@ class DocumentChunkCreate(BaseModel):
     Pydantic model for creating document chunks.
     """
 
-    source_document_id: str = Field(
-        ..., description="ID of the source document this chunk belongs to"
-    )
+    source_document_id: str = Field(..., description="ID of the source document this chunk belongs to")
     content: str = Field(..., min_length=1, description="Text content of the chunk")
     chunk_index: int = Field(
         ...,
@@ -39,18 +37,10 @@ class DocumentChunk(DocumentChunkCreate):
         default_factory=lambda: str(uuid.uuid4()),
         description="Unique identifier for the chunk",
     )
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Chunk creation timestamp"
-    )
-    updated_at: datetime | None = Field(
-        default=None, description="Last update timestamp"
-    )
-    vector_id: str | None = Field(
-        default=None, description="ID of the chunk in the vector database"
-    )
-    embedding_id: str | None = Field(
-        default=None, description="ID of the embedding metadata for this chunk"
-    )
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Chunk creation timestamp")
+    updated_at: datetime | None = Field(default=None, description="Last update timestamp")
+    vector_id: str | None = Field(default=None, description="ID of the chunk in the vector database")
+    embedding_id: str | None = Field(default=None, description="ID of the embedding metadata for this chunk")
 
     class Config:
         """Configuration for the model."""

@@ -49,9 +49,7 @@ class ToolRegistry:
             raise TypeError("Tool instance must be an instance of BaseTool")
 
         if tool_name in self._tools:
-            logger.warning(
-                f"Tool '{tool_name}' is already registered. Overwriting existing registration."
-            )
+            logger.warning(f"Tool '{tool_name}' is already registered. Overwriting existing registration.")
 
         self._tools[tool_name] = tool_instance
         logger.info(f"Tool '{tool_name}' registered successfully")

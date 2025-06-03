@@ -60,9 +60,7 @@ class BingSearchEngine(WebSearchEngine):
         next_url = BING_SEARCH_URL + query
 
         while len(list_result) < num_results:
-            data, next_url = self._parse_html(
-                next_url, rank_start=len(list_result), first=first
-            )
+            data, next_url = self._parse_html(next_url, rank_start=len(list_result), first=first)
             if data:
                 list_result.extend(data)
             if not next_url:
@@ -137,7 +135,7 @@ class BingSearchEngine(WebSearchEngine):
         self,
         query: str,
         num_results: int = 10,
-        *args,
+        *args,  # noqa: ARG002
         **kwargs,  # noqa: ARG002
     ) -> list[SearchItem]:
         """

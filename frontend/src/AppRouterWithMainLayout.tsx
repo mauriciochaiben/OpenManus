@@ -11,16 +11,16 @@ import AppRoutes from './routes';
  * todos os componentes de layout (Sider, Header, Content) em um único lugar
  */
 const AppRouterWithMainLayout: React.FC = () => {
-    return (
-        <NotificationProvider>
-            <Router>
-                <LazyLoadIndicator />
-                <MainLayout>
-                    <AppRoutes />
-                </MainLayout>
-            </Router>
-        </NotificationProvider>
-    );
+  return (
+    <NotificationProvider>
+      <Router>
+        <LazyLoadIndicator />
+        <MainLayout>
+          <AppRoutes />
+        </MainLayout>
+      </Router>
+    </NotificationProvider>
+  );
 };
 
 export default AppRouterWithMainLayout;

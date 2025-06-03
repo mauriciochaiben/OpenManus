@@ -46,16 +46,10 @@ class MigrationAnalyzer:
         files = []
         for root, dirs, filenames in os.walk(directory):
             # Filter out ignored directories
-            dirs[:] = [
-                d
-                for d in dirs
-                if not any(fnmatch.fnmatch(d, pattern) for pattern in IGNORE_PATTERNS)
-            ]
+            dirs[:] = [d for d in dirs if not any(fnmatch.fnmatch(d, pattern) for pattern in IGNORE_PATTERNS)]
 
             for filename in filenames:
-                if any(
-                    fnmatch.fnmatch(filename, pattern) for pattern in IGNORE_PATTERNS
-                ):
+                if any(fnmatch.fnmatch(filename, pattern) for pattern in IGNORE_PATTERNS):
                     continue
 
                 file_path = Path(root) / filename
@@ -145,12 +139,8 @@ class MigrationAnalyzer:
                     app_content = f2.read()
 
                 # Extract function/class definitions
-                backend_defs = re.findall(
-                    r"^\s*(def|class)\s+([^\(:]+)", backend_content, re.MULTILINE
-                )
-                app_defs = re.findall(
-                    r"^\s*(def|class)\s+([^\(:]+)", app_content, re.MULTILINE
-                )
+                backend_defs = re.findall(r"^\s*(def|class)\s+([^\(:]+)", backend_content, re.MULTILINE)
+                app_defs = re.findall(r"^\s*(def|class)\s+([^\(:]+)", app_content, re.MULTILINE)
 
                 backend_defs_set = {name.strip() for _, name in backend_defs}
                 app_defs_set = {name.strip() for _, name in app_defs}
@@ -185,12 +175,8 @@ class MigrationAnalyzer:
 
         print("\nRECOMMENDATION:")
         print("-" * 80)
-        print(
-            "The above files should be manually inspected before removing the backend/ directory."
-        )
-        print(
-            "They may contain functionality that needs to be migrated to the app/ directory."
-        )
+        print("The above files should be manually inspected before removing the backend/ directory.")
+        print("They may contain functionality that needs to be migrated to the app/ directory.")
         print("=" * 80)
 
 

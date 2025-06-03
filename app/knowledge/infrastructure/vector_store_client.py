@@ -84,17 +84,13 @@ class VectorStoreClient:
                     settings=client_settings,
                 )
             else:
-                self._client = chromadb.HttpClient(
-                    host=self.host, port=self.port, settings=client_settings
-                )
+                self._client = chromadb.HttpClient(host=self.host, port=self.port, settings=client_settings)
 
             # Test connection
             await self._test_connection()
             self._is_connected = True
 
-            logger.info(
-                f"Successfully connected to ChromaDB at {self.host}:{self.port}"
-            )
+            logger.info(f"Successfully connected to ChromaDB at {self.host}:{self.port}")
 
         except Exception as e:
             logger.error(f"Failed to connect to ChromaDB: {str(e)}")
@@ -119,9 +115,7 @@ class VectorStoreClient:
     def _ensure_connected(self) -> None:
         """Ensure client is connected."""
         if not self._is_connected or not self._client:
-            raise ConnectionError(
-                "Not connected to vector store. Call connect() first."
-            )
+            raise ConnectionError("Not connected to vector store. Call connect() first.")
 
     async def create_collection(
         self,
@@ -147,18 +141,14 @@ class VectorStoreClient:
 
             # Check if collection exists
             try:
-                collection = await loop.run_in_executor(
-                    None, self._client.get_collection, name
-                )
+                collection = await loop.run_in_executor(None, self._client.get_collection, name)
                 logger.info(f"Collection '{name}' already exists")
                 self._collections_cache[name] = collection
                 return collection
 
             except (NotFoundError, ChromaError):
                 # Collection doesn't exist, create it
-                collection_metadata = (
-                    metadata or vector_db_config.get_collection_metadata("documents")
-                )
+                collection_metadata = metadata or vector_db_config.get_collection_metadata("documents")
 
                 collection = await loop.run_in_executor(
                     None,
@@ -169,9 +159,7 @@ class VectorStoreClient:
                     ),
                 )
 
-                logger.info(
-                    f"Created collection '{name}' with metadata: {collection_metadata}"
-                )
+                logger.info(f"Created collection '{name}' with metadata: {collection_metadata}")
                 self._collections_cache[name] = collection
                 return collection
 
@@ -196,9 +184,7 @@ class VectorStoreClient:
 
         try:
             loop = asyncio.get_event_loop()
-            collection = await loop.run_in_executor(
-                None, self._client.get_collection, name
-            )
+            collection = await loop.run_in_executor(None, self._client.get_collection, name)
             self._collections_cache[name] = collection
             return collection
 
@@ -243,9 +229,7 @@ class VectorStoreClient:
         if metadatas is None:
             metadatas = [{"source": "unknown"} for _ in documents]
         elif len(metadatas) != len(documents):
-            raise ValueError(
-                "Number of metadata entries must match number of documents"
-            )
+            raise ValueError("Number of metadata entries must match number of documents")
 
         try:
             collection = await self.get_collection(collection_name)
@@ -267,14 +251,10 @@ class VectorStoreClient:
                 # Let ChromaDB compute embeddings
                 await loop.run_in_executor(
                     None,
-                    lambda: collection.add(
-                        documents=documents, metadatas=metadatas, ids=ids
-                    ),
+                    lambda: collection.add(documents=documents, metadatas=metadatas, ids=ids),
                 )
 
-            logger.info(
-                f"Added {len(documents)} documents to collection '{collection_name}'"
-            )
+            logger.info(f"Added {len(documents)} documents to collection '{collection_name}'")
             return ids
 
         except Exception as e:
@@ -340,22 +320,16 @@ class VectorStoreClient:
 
             # Filter results by threshold if configured
             if rag_config.search_threshold > 0:
-                results = self._filter_by_threshold(
-                    results, rag_config.search_threshold
-                )
+                results = self._filter_by_threshold(results, rag_config.search_threshold)
 
-            logger.info(
-                f"Found {len(results.get('documents', [[]])[0])} similar documents in '{collection_name}'"
-            )
+            logger.info(f"Found {len(results.get('documents', [[]])[0])} similar documents in '{collection_name}'")
             return results
 
         except Exception as e:
             logger.error(f"Search failed in '{collection_name}': {str(e)}")
             raise VectorStoreError(f"Search failed: {str(e)}") from e
 
-    def _filter_by_threshold(
-        self, results: dict[str, Any], threshold: float
-    ) -> dict[str, Any]:
+    def _filter_by_threshold(self, results: dict[str, Any], threshold: float) -> dict[str, Any]:
         """Filter search results by distance threshold."""
         if "distances" not in results or not results["distances"]:
             return results
@@ -368,23 +342,13 @@ class VectorStoreClient:
         }
 
         for i, distances in enumerate(results["distances"]):
-            filtered_indices = [
-                j for j, dist in enumerate(distances) if dist <= threshold
-            ]
+            filtered_indices = [j for j, dist in enumerate(distances) if dist <= threshold]
 
             if filtered_indices:
-                filtered_results["ids"].append(
-                    [results["ids"][i][j] for j in filtered_indices]
-                )
-                filtered_results["documents"].append(
-                    [results["documents"][i][j] for j in filtered_indices]
-                )
-                filtered_results["metadatas"].append(
-                    [results["metadatas"][i][j] for j in filtered_indices]
-                )
-                filtered_results["distances"].append(
-                    [distances[j] for j in filtered_indices]
-                )
+                filtered_results["ids"].append([results["ids"][i][j] for j in filtered_indices])
+                filtered_results["documents"].append([results["documents"][i][j] for j in filtered_indices])
+                filtered_results["metadatas"].append([results["metadatas"][i][j] for j in filtered_indices])
+                filtered_results["distances"].append([distances[j] for j in filtered_indices])
             else:
                 # Keep empty lists for consistency
                 filtered_results["ids"].append([])
@@ -429,9 +393,7 @@ class VectorStoreClient:
                 ),
             )
 
-            logger.info(
-                f"Updated {len(ids)} documents in collection '{collection_name}'"
-            )
+            logger.info(f"Updated {len(ids)} documents in collection '{collection_name}'")
 
         except Exception as e:
             logger.error(f"Failed to update documents in '{collection_name}': {str(e)}")
@@ -461,16 +423,12 @@ class VectorStoreClient:
 
             loop = asyncio.get_event_loop()
 
-            await loop.run_in_executor(
-                None, lambda: collection.delete(ids=ids, where=where)
-            )
+            await loop.run_in_executor(None, lambda: collection.delete(ids=ids, where=where))
 
             logger.info(f"Deleted documents from collection '{collection_name}'")
 
         except Exception as e:
-            logger.error(
-                f"Failed to delete documents from '{collection_name}': {str(e)}"
-            )
+            logger.error(f"Failed to delete documents from '{collection_name}': {str(e)}")
             raise VectorStoreError(f"Failed to delete documents: {str(e)}") from e
 
     async def get_collection_info(self, collection_name: str) -> dict[str, Any]:
@@ -499,9 +457,7 @@ class VectorStoreClient:
             }
 
         except Exception as e:
-            logger.error(
-                f"Failed to get info for collection '{collection_name}': {str(e)}"
-            )
+            logger.error(f"Failed to get info for collection '{collection_name}': {str(e)}")
             raise CollectionError(f"Failed to get collection info: {str(e)}") from e
 
     async def list_collections(self) -> list[str]:
@@ -515,9 +471,7 @@ class VectorStoreClient:
 
         try:
             loop = asyncio.get_event_loop()
-            collections = await loop.run_in_executor(
-                None, self._client.list_collections
-            )
+            collections = await loop.run_in_executor(None, self._client.list_collections)
             return [col.name for col in collections]
 
         except Exception as e:

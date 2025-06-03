@@ -41,10 +41,7 @@ class DockerSession:
         startup_command = [
             "bash",
             "-c",
-            f"cd {working_dir} && "
-            "PROMPT_COMMAND='' "
-            "PS1='$ ' "
-            "exec bash --norc --noprofile",
+            f"cd {working_dir} && " "PROMPT_COMMAND='' " "PS1='$ ' " "exec bash --norc --noprofile",
         ]
 
         exec_data = self.api.exec_create(
@@ -60,9 +57,7 @@ class DockerSession:
         )
         self.exec_id = exec_data["Id"]
 
-        socket_data = self.api.exec_start(
-            self.exec_id, socket=True, tty=True, stream=True, demux=True
-        )
+        socket_data = self.api.exec_start(self.exec_id, socket=True, tty=True, stream=True, demux=True)
 
         if hasattr(socket_data, "_sock"):
             self.socket = socket_data._sock
@@ -207,9 +202,7 @@ class DockerSession:
             return result.strip()
 
         except TimeoutError as e:
-            raise TimeoutError(
-                f"Command execution timed out after {timeout} seconds"
-            ) from e
+            raise TimeoutError(f"Command execution timed out after {timeout} seconds") from e
         except Exception as e:
             raise RuntimeError(f"Failed to execute command: {e}") from e
 
@@ -239,9 +232,7 @@ class DockerSession:
 
         for risky in risky_commands:
             if risky in command.lower():
-                raise ValueError(
-                    f"Command contains potentially dangerous operation: {risky}"
-                )
+                raise ValueError(f"Command contains potentially dangerous operation: {risky}")
 
         return command
 
@@ -263,11 +254,7 @@ class AsyncDockerizedTerminal:
             default_timeout: Default command execution timeout in seconds.
         """
         self.client = docker.from_env()
-        self.container = (
-            container
-            if isinstance(container, Container)
-            else self.client.containers.get(container)
-        )
+        self.container = container if isinstance(container, Container) else self.client.containers.get(container)
         self.working_dir = working_dir
         self.env_vars = env_vars or {}
         self.default_timeout = default_timeout
@@ -306,9 +293,7 @@ class AsyncDockerizedTerminal:
         Returns:
             Tuple of (exit_code, output).
         """
-        result = await asyncio.to_thread(
-            self.container.exec_run, cmd, environment=self.env_vars
-        )
+        result = await asyncio.to_thread(self.container.exec_run, cmd, environment=self.env_vars)
         return result.exit_code, result.output.decode("utf-8")
 
     async def run_command(self, cmd: str, timeout: int | None = None) -> str:

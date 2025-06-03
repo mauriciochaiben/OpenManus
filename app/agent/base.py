@@ -21,19 +21,13 @@ class BaseAgent(BaseModel, ABC):
     description: str | None = Field(None, description="Optional agent description")
 
     # Prompts
-    system_prompt: str | None = Field(
-        None, description="System-level instruction prompt"
-    )
-    next_step_prompt: str | None = Field(
-        None, description="Prompt for determining next action"
-    )
+    system_prompt: str | None = Field(None, description="System-level instruction prompt")
+    next_step_prompt: str | None = Field(None, description="Prompt for determining next action")
 
     # Dependencies
     llm: LLM = Field(default_factory=LLM, description="Language model instance")
     memory: Memory = Field(default_factory=Memory, description="Agent's memory store")
-    state: AgentState = Field(
-        default=AgentState.IDLE, description="Current agent state"
-    )
+    state: AgentState = Field(default=AgentState.IDLE, description="Current agent state")
 
     # Execution control
     max_steps: int = Field(default=10, description="Maximum steps before termination")
@@ -132,9 +126,7 @@ class BaseAgent(BaseModel, ABC):
 
         results: list[str] = []
         async with self.state_context(AgentState.RUNNING):
-            while (
-                self.current_step < self.max_steps and self.state != AgentState.FINISHED
-            ):
+            while self.current_step < self.max_steps and self.state != AgentState.FINISHED:
                 self.current_step += 1
                 logger.info(f"Executing step {self.current_step}/{self.max_steps}")
                 step_result = await self.step()

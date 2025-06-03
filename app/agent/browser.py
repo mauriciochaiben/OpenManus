@@ -98,9 +98,7 @@ class BrowserAgent(ToolCallAgent):
     max_steps: int = 20
 
     # Configure the available tools
-    available_tools: ToolCollection = Field(
-        default_factory=lambda: ToolCollection(BrowserUseTool(), Terminate())
-    )
+    available_tools: ToolCollection = Field(default_factory=lambda: ToolCollection(BrowserUseTool(), Terminate()))
 
     # Use Auto for tool choice to allow both tool usage and free-form responses
     tool_choices: ToolChoice = ToolChoice.AUTO
@@ -118,9 +116,7 @@ class BrowserAgent(ToolCallAgent):
 
         Browser state info is added to the prompt.
         """
-        self.next_step_prompt = (
-            await self.browser_context_helper.format_next_step_prompt()
-        )
+        self.next_step_prompt = await self.browser_context_helper.format_next_step_prompt()
         return await super().think()
 
     async def cleanup(self):

@@ -16,45 +16,23 @@ from pydantic import BaseModel, Field, validator
 class ProcessingStatus(BaseModel):
     """Model for tracking processing status of knowledge sources."""
 
-    status: str = Field(
-        ..., description="Processing status: pending, processing, completed, failed"
-    )
-    progress: int | None = Field(
-        default=None, ge=0, le=100, description="Processing progress percentage"
-    )
-    processed_chunks: int | None = Field(
-        default=None, ge=0, description="Number of chunks processed"
-    )
-    total_chunks: int | None = Field(
-        default=None, ge=0, description="Total number of chunks to process"
-    )
-    error_message: str | None = Field(
-        default=None, description="Error message if processing failed"
-    )
-    last_updated: datetime = Field(
-        default_factory=datetime.utcnow, description="Last update timestamp"
-    )
+    status: str = Field(..., description="Processing status: pending, processing, completed, failed")
+    progress: int | None = Field(default=None, ge=0, le=100, description="Processing progress percentage")
+    processed_chunks: int | None = Field(default=None, ge=0, description="Number of chunks processed")
+    total_chunks: int | None = Field(default=None, ge=0, description="Total number of chunks to process")
+    error_message: str | None = Field(default=None, description="Error message if processing failed")
+    last_updated: datetime = Field(default_factory=datetime.utcnow, description="Last update timestamp")
 
 
 class ProcessingResult(BaseModel):
     """Model for processing results."""
 
     success: bool = Field(..., description="Whether processing was successful")
-    chunks_processed: int | None = Field(
-        default=None, ge=0, description="Number of chunks successfully processed"
-    )
-    total_chunks: int | None = Field(
-        default=None, ge=0, description="Total number of chunks"
-    )
-    processing_time: float | None = Field(
-        default=None, ge=0, description="Processing time in seconds"
-    )
-    error_message: str | None = Field(
-        default=None, description="Error message if processing failed"
-    )
-    metadata: dict[str, Any] | None = Field(
-        default=None, description="Additional processing metadata"
-    )
+    chunks_processed: int | None = Field(default=None, ge=0, description="Number of chunks successfully processed")
+    total_chunks: int | None = Field(default=None, ge=0, description="Total number of chunks")
+    processing_time: float | None = Field(default=None, ge=0, description="Processing time in seconds")
+    error_message: str | None = Field(default=None, description="Error message if processing failed")
+    metadata: dict[str, Any] | None = Field(default=None, description="Additional processing metadata")
 
 
 class KnowledgeSource(BaseModel):
@@ -64,27 +42,15 @@ class KnowledgeSource(BaseModel):
         default_factory=lambda: str(uuid.uuid4()),
         description="Unique identifier",
     )
-    filename: str = Field(
-        ..., min_length=1, max_length=255, description="Original filename"
-    )
+    filename: str = Field(..., min_length=1, max_length=255, description="Original filename")
     file_type: str = Field(..., description="MIME type of the file")
     file_size: int | None = Field(default=None, ge=0, description="File size in bytes")
-    upload_date: datetime = Field(
-        default_factory=datetime.utcnow, description="Upload timestamp"
-    )
+    upload_date: datetime = Field(default_factory=datetime.utcnow, description="Upload timestamp")
     status: str = Field(default="pending", description="Processing status")
-    content_hash: str | None = Field(
-        default=None, description="Content hash for deduplication"
-    )
-    chunk_count: int | None = Field(
-        default=None, ge=0, description="Number of chunks created"
-    )
-    metadata: dict[str, Any] | None = Field(
-        default=None, description="Additional metadata"
-    )
-    processing_status: ProcessingStatus | None = Field(
-        default=None, description="Detailed processing status"
-    )
+    content_hash: str | None = Field(default=None, description="Content hash for deduplication")
+    chunk_count: int | None = Field(default=None, ge=0, description="Number of chunks created")
+    metadata: dict[str, Any] | None = Field(default=None, description="Additional metadata")
+    processing_status: ProcessingStatus | None = Field(default=None, description="Detailed processing status")
 
 
 class Note(BaseModel):
@@ -99,9 +65,7 @@ class Note(BaseModel):
         description="Unique identifier for the note",
     )
 
-    title: str = Field(
-        ..., min_length=1, max_length=200, description="Title of the note"
-    )
+    title: str = Field(..., min_length=1, max_length=200, description="Title of the note")
 
     content: str = Field(..., description="Note content in Markdown format")
 
@@ -109,21 +73,13 @@ class Note(BaseModel):
         default=None, description="List of knowledge source IDs referenced by this note"
     )
 
-    tags: list[str] | None = Field(
-        default=None, description="Tags for categorizing and organizing notes"
-    )
+    tags: list[str] | None = Field(default=None, description="Tags for categorizing and organizing notes")
 
-    author_id: str | None = Field(
-        default=None, description="ID of the user who created the note"
-    )
+    author_id: str | None = Field(default=None, description="ID of the user who created the note")
 
-    is_public: bool = Field(
-        default=False, description="Whether the note is publicly visible"
-    )
+    is_public: bool = Field(default=False, description="Whether the note is publicly visible")
 
-    metadata: dict[str, Any] | None = Field(
-        default=None, description="Additional metadata for the note"
-    )
+    metadata: dict[str, Any] | None = Field(default=None, description="Additional metadata for the note")
 
     created_at: datetime = Field(
         default_factory=datetime.utcnow,
@@ -177,7 +133,14 @@ class Note(BaseModel):
             "example": {
                 "id": "note-123e4567-e89b-12d3-a456-426614174000",
                 "title": "AI Agent Architecture Notes",
-                "content": "# AI Agent Architecture\n\n## Key Components\n\n- **Planning Agent**: Responsible for task decomposition\n- **Tool User Agent**: Executes tasks using available tools\n\n## References\n\nSee the uploaded documentation for more details on implementation.",
+                "content": (
+                    "# AI Agent Architecture\n\n"
+                    "## Key Components\n\n"
+                    "- **Planning Agent**: Responsible for task decomposition\n"
+                    "- **Tool User Agent**: Executes tasks using available tools\n\n"
+                    "## References\n\n"
+                    "See the uploaded documentation for more details on implementation."
+                ),
                 "source_ids": ["source-456", "source-789"],
                 "tags": ["ai", "architecture", "agents"],
                 "author_id": "user-123",
@@ -192,9 +155,7 @@ class Note(BaseModel):
 class NoteCreate(BaseModel):
     """Model for creating a new note."""
 
-    title: str = Field(
-        ..., min_length=1, max_length=200, description="Title of the note"
-    )
+    title: str = Field(..., min_length=1, max_length=200, description="Title of the note")
 
     content: str = Field(..., description="Note content in Markdown format")
 
@@ -202,17 +163,11 @@ class NoteCreate(BaseModel):
         default=None, description="List of knowledge source IDs referenced by this note"
     )
 
-    tags: list[str] | None = Field(
-        default=None, description="Tags for categorizing the note"
-    )
+    tags: list[str] | None = Field(default=None, description="Tags for categorizing the note")
 
-    is_public: bool = Field(
-        default=False, description="Whether the note should be publicly visible"
-    )
+    is_public: bool = Field(default=False, description="Whether the note should be publicly visible")
 
-    metadata: dict[str, Any] | None = Field(
-        default=None, description="Additional metadata for the note"
-    )
+    metadata: dict[str, Any] | None = Field(default=None, description="Additional metadata for the note")
 
     @validator("source_ids")
     def validate_source_ids(cls, v):
@@ -243,25 +198,17 @@ class NoteCreate(BaseModel):
 class NoteUpdate(BaseModel):
     """Model for updating an existing note."""
 
-    title: str | None = Field(
-        None, min_length=1, max_length=200, description="Updated title of the note"
-    )
+    title: str | None = Field(None, min_length=1, max_length=200, description="Updated title of the note")
 
-    content: str | None = Field(
-        None, description="Updated note content in Markdown format"
-    )
+    content: str | None = Field(None, description="Updated note content in Markdown format")
 
-    source_ids: list[str] | None = Field(
-        None, description="Updated list of knowledge source IDs"
-    )
+    source_ids: list[str] | None = Field(None, description="Updated list of knowledge source IDs")
 
     tags: list[str] | None = Field(None, description="Updated tags for the note")
 
     is_public: bool | None = Field(None, description="Updated visibility setting")
 
-    metadata: dict[str, Any] | None = Field(
-        None, description="Updated metadata for the note"
-    )
+    metadata: dict[str, Any] | None = Field(None, description="Updated metadata for the note")
 
     @validator("source_ids")
     def validate_source_ids(cls, v):
@@ -304,17 +251,11 @@ class NoteResponse(BaseModel):
     updated_at: datetime
 
     # Additional computed fields
-    word_count: int | None = Field(
-        None, description="Computed word count of the note content"
-    )
+    word_count: int | None = Field(None, description="Computed word count of the note content")
 
-    reading_time: str | None = Field(
-        None, description="Estimated reading time for the note"
-    )
+    reading_time: str | None = Field(None, description="Estimated reading time for the note")
 
-    source_count: int | None = Field(
-        None, description="Number of referenced knowledge sources"
-    )
+    source_count: int | None = Field(None, description="Number of referenced knowledge sources")
 
     @classmethod
     def from_note(cls, note: Note) -> "NoteResponse":
@@ -324,9 +265,7 @@ class NoteResponse(BaseModel):
 
         # Estimate reading time (average 200 words per minute)
         reading_time_minutes = max(1, word_count // 200)
-        reading_time = (
-            f"{reading_time_minutes} minute{'s' if reading_time_minutes != 1 else ''}"
-        )
+        reading_time = f"{reading_time_minutes} minute{'s' if reading_time_minutes != 1 else ''}"
 
         # Count referenced sources
         source_count = len(note.source_ids) if note.source_ids else 0
@@ -356,39 +295,27 @@ class NoteResponse(BaseModel):
 class NoteSearchQuery(BaseModel):
     """Model for note search queries."""
 
-    query: str | None = Field(
-        None, description="Text query to search in note title and content"
-    )
+    query: str | None = Field(None, description="Text query to search in note title and content")
 
     tags: list[str] | None = Field(None, description="Filter by specific tags")
 
-    source_ids: list[str] | None = Field(
-        None, description="Filter by notes that reference specific sources"
-    )
+    source_ids: list[str] | None = Field(None, description="Filter by notes that reference specific sources")
 
     author_id: str | None = Field(None, description="Filter by author ID")
 
     is_public: bool | None = Field(None, description="Filter by public/private status")
 
-    created_after: datetime | None = Field(
-        None, description="Filter notes created after this date"
-    )
+    created_after: datetime | None = Field(None, description="Filter notes created after this date")
 
-    created_before: datetime | None = Field(
-        None, description="Filter notes created before this date"
-    )
+    created_before: datetime | None = Field(None, description="Filter notes created before this date")
 
-    limit: int = Field(
-        default=20, ge=1, le=100, description="Maximum number of results to return"
-    )
+    limit: int = Field(default=20, ge=1, le=100, description="Maximum number of results to return")
 
     offset: int = Field(default=0, ge=0, description="Number of results to skip")
 
     sort_by: str = Field(default="updated_at", description="Field to sort by")
 
-    sort_order: str = Field(
-        default="desc", pattern="^(asc|desc)$", description="Sort order: asc or desc"
-    )
+    sort_order: str = Field(default="desc", pattern="^(asc|desc)$", description="Sort order: asc or desc")
 
 
 class NoteSearchResponse(BaseModel):

@@ -7,6 +7,6 @@ export { ResponseNodeComponent as ResponseNode };
 
 // Node type registry for ReactFlow
 export const nodeTypes = {
-    promptNode: PromptNodeComponent,
-    responseNode: ResponseNodeComponent,
+  promptNode: PromptNodeComponent,
+  responseNode: ResponseNodeComponent,
 };

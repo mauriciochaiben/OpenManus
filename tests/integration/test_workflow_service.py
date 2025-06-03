@@ -88,9 +88,7 @@ class TestWorkflowServiceIntegration:
         return event_bus
 
     @pytest_asyncio.fixture
-    async def workflow_service(
-        self, mock_planner_agent, mock_tool_user_agent, mock_event_bus
-    ):
+    async def workflow_service(self, mock_planner_agent, mock_tool_user_agent, mock_event_bus):
         """Create WorkflowService with mocked dependencies"""
         return WorkflowService(
             planner_agent=mock_planner_agent,
@@ -140,9 +138,7 @@ class TestWorkflowServiceIntegration:
 
         # Verify event publishing sequence
         published_events = mock_event_bus.published_events
-        assert (
-            len(published_events) == 12
-        )  # 1 start + 5 step_start + 5 step_complete + 1 complete
+        assert len(published_events) == 12  # 1 start + 5 step_start + 5 step_complete + 1 complete
 
         # Verify WorkflowStartedEvent
         start_event = published_events[0]
@@ -214,14 +210,8 @@ class TestWorkflowServiceIntegration:
         assert "generate" in steps[4]["description"].lower()
 
         # Based on the TOOL_KEYWORDS in WorkflowService
-        assert any(
-            keyword in steps[0]["description"].lower()
-            for keyword in WorkflowService.TOOL_KEYWORDS
-        )
-        assert any(
-            keyword in steps[2]["description"].lower()
-            for keyword in WorkflowService.TOOL_KEYWORDS
-        )
+        assert any(keyword in steps[0]["description"].lower() for keyword in WorkflowService.TOOL_KEYWORDS)
+        assert any(keyword in steps[2]["description"].lower() for keyword in WorkflowService.TOOL_KEYWORDS)
         # Note: "generate" may not be properly classified as a tool if it's not in TOOL_KEYWORDS
 
         # Verify tool agent was called at least once
@@ -230,9 +220,7 @@ class TestWorkflowServiceIntegration:
 
         # Verify event types in published events
         published_events = mock_event_bus.published_events
-        step_start_events = [
-            e for e in published_events if isinstance(e, WorkflowStepStartedEvent)
-        ]
+        step_start_events = [e for e in published_events if isinstance(e, WorkflowStepStartedEvent)]
 
         # Verify that we have the right number of step events
         assert len(step_start_events) == 5
@@ -246,7 +234,11 @@ class TestWorkflowServiceIntegration:
 
     @pytest.mark.asyncio
     async def test_workflow_with_tool_failures(
-        self, workflow_service, mock_planner_agent, mock_tool_user_agent, mock_event_bus
+        self,
+        workflow_service,
+        mock_planner_agent,
+        mock_tool_user_agent,
+        mock_event_bus,  # noqa: ARG002
     ):
         """Test workflow handling when some tool executions fail"""
 
@@ -292,7 +284,11 @@ class TestWorkflowServiceIntegration:
 
     @pytest.mark.asyncio
     async def test_workflow_error_scenarios(
-        self, workflow_service, mock_planner_agent, mock_tool_user_agent, mock_event_bus
+        self,
+        workflow_service,
+        mock_planner_agent,
+        mock_tool_user_agent,  # noqa: ARG002
+        mock_event_bus,  # noqa: ARG002
     ):
         """Test various error scenarios in workflow execution"""
 
@@ -319,9 +315,7 @@ class TestWorkflowServiceIntegration:
         assert result["results"] == []
 
     @pytest.mark.asyncio
-    async def test_workflow_concurrent_execution(
-        self, mock_planner_agent, mock_tool_user_agent, mock_event_bus
-    ):
+    async def test_workflow_concurrent_execution(self, mock_planner_agent, mock_tool_user_agent, mock_event_bus):  # noqa: ARG002
         """Test multiple concurrent workflow executions"""
 
         # Create separate workflow service instances
@@ -387,8 +381,8 @@ class TestWorkflowServiceIntegration:
         self,
         workflow_service,
         mock_planner_agent,
-        mock_tool_user_agent,
-        mock_event_bus,
+        mock_tool_user_agent,  # noqa: ARG002
+        mock_event_bus,  # noqa: ARG002
     ):
         """Test that workflow results have the expected structure and data types"""
 

@@ -11,6 +11,6 @@ export { reprocessSource } from './knowledgeApi';
 
 // Add back the helper function for compatibility with existing tests
 export const retrySourceProcessing = async (sourceId: string) => {
-    const { reprocessSource } = require('./knowledgeApi');
-    return await reprocessSource(sourceId);
+  const { reprocessSource } = require('./knowledgeApi');
+  return await reprocessSource(sourceId);
 };

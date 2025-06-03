@@ -46,10 +46,7 @@ class MockLLM:
 
         if any(word in content_lower for word in ["olá", "oi", "hello", "hi"]):
             return "greeting"
-        if any(
-            word in content_lower
-            for word in ["criar", "fazer", "analisar", "pesquisar"]
-        ):
+        if any(word in content_lower for word in ["criar", "fazer", "analisar", "pesquisar"]):
             return "task"
         if any(word in content_lower for word in ["dados", "informação", "análise"]):
             return "analysis"
@@ -87,9 +84,20 @@ class MockLLM:
 
         # Add some context based on the request
         if len(user_message) > 50:
-            response = f"{base_response}\n\n**Sua solicitação:** {user_message[:100]}...\n\n**Resposta detalhada:** Com base na sua solicitação, vou processar as informações e fornecer uma resposta adequada. Este é um sistema de demonstração que mostra como as mensagens de progresso funcionam durante a execução de tarefas."
+            detailed_response = (
+                f"{base_response}\n\n"
+                f"**Sua solicitação:** {user_message[:100]}...\n\n"
+                f"**Resposta detalhada:** Com base na sua solicitação, "
+                f"vou processar as informações e fornecer uma resposta "
+                f"adequada. Este é um sistema de demonstração que mostra "
+                f"como as mensagens de progresso funcionam durante a "
+                f"execução de tarefas."
+            )
+            response = detailed_response
         else:
-            response = f"{base_response}\n\n**Resposta:** {user_message}\n\n**Status:** Processamento concluído com sucesso."
+            response = (
+                f"{base_response}\n\n**Resposta:** {user_message}\n\n**Status:** Processamento concluído com sucesso."
+            )
 
         return response
 

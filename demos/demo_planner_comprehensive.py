@@ -135,10 +135,7 @@ async def benchmark_planner_performance():
     planner = PlannerAgent({"max_steps": 5})
 
     # Múltiplas tarefas para benchmark
-    tasks = [
-        {"input": f"Tarefa {i}: Implementar funcionalidade {i}", "complexity": "medium"}
-        for i in range(1, 11)
-    ]
+    tasks = [{"input": f"Tarefa {i}: Implementar funcionalidade {i}", "complexity": "medium"} for i in range(1, 11)]
 
     import time
 

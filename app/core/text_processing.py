@@ -76,9 +76,7 @@ class TextProcessor:
             chunk_text = text[start:end].strip()
 
             if chunk_text:  # Only create chunk if it has content
-                chunk_id = (
-                    f"{source_metadata.get('source_id', 'unknown')}_{chunk_index}"
-                )
+                chunk_id = f"{source_metadata.get('source_id', 'unknown')}_{chunk_index}"
 
                 chunk_metadata = {
                     **source_metadata,
@@ -106,9 +104,7 @@ class TextProcessor:
 
             start = max(start + 1, end - chunk_overlap)
 
-        logger.info(
-            f"Split text into {len(chunks)} chunks (original length: {len(text)} chars)"
-        )
+        logger.info(f"Split text into {len(chunks)} chunks (original length: {len(text)} chars)")
         return chunks
 
     def _clean_text(self, text: str) -> str:
@@ -122,9 +118,7 @@ class TextProcessor:
         # Strip leading/trailing whitespace
         return text.strip()
 
-    def _find_sentence_boundary(
-        self, text: str, preferred_end: int, min_end: int
-    ) -> int:
+    def _find_sentence_boundary(self, text: str, preferred_end: int, min_end: int) -> int:
         """Find a good sentence boundary for splitting text.
 
         Args:
@@ -147,13 +141,7 @@ class TextProcessor:
                 char in ".!?"
                 and i + 1 < len(text)
                 and (text[i + 1].isspace() or text[i + 1] in "\n\r")
-                and not (
-                    char == "."
-                    and i > 0
-                    and text[i - 1].isupper()
-                    and i > 1
-                    and text[i - 2].isupper()
-                )
+                and not (char == "." and i > 0 and text[i - 1].isupper() and i > 1 and text[i - 2].isupper())
             ):
                 sentence_endings.append(i + 1)
 

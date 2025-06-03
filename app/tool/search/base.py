@@ -6,9 +6,7 @@ class SearchItem(BaseModel):
 
     title: str = Field(description="The title of the search result")
     url: str = Field(description="The URL of the search result")
-    description: str | None = Field(
-        default=None, description="A description or snippet of the search result"
-    )
+    description: str | None = Field(default=None, description="A description or snippet of the search result")
 
     def __str__(self) -> str:
         """String representation of a search result item."""
@@ -20,9 +18,7 @@ class WebSearchEngine(BaseModel):
 
     model_config = {"arbitrary_types_allowed": True}
 
-    def perform_search(
-        self, query: str, num_results: int = 10, *args, **kwargs
-    ) -> list[SearchItem]:
+    def perform_search(self, query: str, num_results: int = 10, *args, **kwargs) -> list[SearchItem]:
         """
         Perform a web search and return a list of search items.
 

@@ -1,100 +1,100 @@
 /* SourceList.css */
 .source-list-container {
-    padding: 16px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .source-list-filters {
-    margin-bottom: 16px;
-    padding: 16px;
-    background: #fafafa;
-    border-radius: 6px;
-    border: 1px solid #f0f0f0;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
 }
 
-.source-list-table .ant-table-thead>tr>th {
-    background: #fafafa;
-    font-weight: 600;
+.source-list-table .ant-table-thead > tr > th {
+  background: #fafafa;
+  font-weight: 600;
 }
 
-.source-list-table .ant-table-tbody>tr:hover>td {
-    background: #f5f5f5;
+.source-list-table .ant-table-tbody > tr:hover > td {
+  background: #f5f5f5;
 }
 
 .source-list-table .ant-badge {
-    font-size: 11px;
+  font-size: 11px;
 }
 
 .source-list-table .ant-progress {
-    margin: 0;
+  margin: 0;
 }
 
 .source-list-table .ant-btn-text {
-    padding: 4px;
-    height: auto;
-    min-height: 24px;
+  padding: 4px;
+  height: auto;
+  min-height: 24px;
 }
 
 .source-list-table .ant-btn-text:hover {
-    background: rgba(0, 0, 0, 0.04);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .source-list-table .ant-btn-dangerous.ant-btn-text:hover {
-    background: rgba(255, 77, 79, 0.1);
-    color: #ff4d4f;
+  background: rgba(255, 77, 79, 0.1);
+  color: #ff4d4f;
 }
 
 .source-list-table .ant-avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .source-list-table .ant-tag {
-    margin: 0;
-    border-radius: 4px;
-    font-weight: 500;
+  margin: 0;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 .source-list-table .ant-tooltip {
-    z-index: 1100;
+  z-index: 1100;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .source-list-filters {
-        padding: 12px;
-    }
+  .source-list-filters {
+    padding: 12px;
+  }
 
-    .source-list-filters .ant-space {
-        width: 100%;
-    }
+  .source-list-filters .ant-space {
+    width: 100%;
+  }
 
-    .source-list-filters .ant-input,
-    .source-list-filters .ant-select {
-        width: 100% !important;
-        margin-bottom: 8px;
-    }
+  .source-list-filters .ant-input,
+  .source-list-filters .ant-select {
+    width: 100% !important;
+    margin-bottom: 8px;
+  }
 }
 
 /* Dark theme support */
 .dark .source-list-container {
-    background: #141414;
-    border: 1px solid #303030;
+  background: #141414;
+  border: 1px solid #303030;
 }
 
 .dark .source-list-filters {
-    background: #1f1f1f;
-    border-color: #303030;
+  background: #1f1f1f;
+  border-color: #303030;
 }
 
-.dark .source-list-table .ant-table-thead>tr>th {
-    background: #1f1f1f;
-    border-color: #303030;
+.dark .source-list-table .ant-table-thead > tr > th {
+  background: #1f1f1f;
+  border-color: #303030;
 }
 
-.dark .source-list-table .ant-table-tbody>tr:hover>td {
-    background: #262626;
+.dark .source-list-table .ant-table-tbody > tr:hover > td {
+  background: #262626;
 }

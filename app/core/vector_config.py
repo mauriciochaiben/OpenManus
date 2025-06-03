@@ -25,7 +25,8 @@ from app.core.settings import settings
 
 # Issue deprecation warning when this module is imported
 warnings.warn(
-    "app.core.vector_config is deprecated. Use 'from app.core.settings import settings; settings.knowledge_config' instead.",
+    "app.core.vector_config is deprecated. Use 'from app.core.settings import "
+    "settings; settings.knowledge_config' instead.",
     DeprecationWarning,
     stacklevel=2,
 )
@@ -42,20 +43,12 @@ class VectorDBConfig(BaseModel):
     url: str = Field(default_factory=lambda: settings.knowledge_config.vector_db.url)
 
     # Collection settings
-    documents_collection: str = Field(
-        default_factory=lambda: settings.knowledge_config.vector_db.documents_collection
-    )
-    workflows_collection: str = Field(
-        default_factory=lambda: settings.knowledge_config.vector_db.workflows_collection
-    )
+    documents_collection: str = Field(default_factory=lambda: settings.knowledge_config.vector_db.documents_collection)
+    workflows_collection: str = Field(default_factory=lambda: settings.knowledge_config.vector_db.workflows_collection)
 
     # Authentication
-    auth_token: str | None = Field(
-        default_factory=lambda: settings.knowledge_config.vector_db.auth_token
-    )
-    auth_header: str = Field(
-        default_factory=lambda: settings.knowledge_config.vector_db.auth_header
-    )
+    auth_token: str | None = Field(default_factory=lambda: settings.knowledge_config.vector_db.auth_token)
+    auth_header: str = Field(default_factory=lambda: settings.knowledge_config.vector_db.auth_header)
 
     # Performance settings
     timeout: int = Field(default=30)
@@ -108,26 +101,14 @@ class EmbeddingConfig(BaseModel):
     DEPRECATED: Use settings.knowledge_config.embedding instead.
     """
 
-    model_name: str = Field(
-        default_factory=lambda: settings.knowledge_config.embedding.model_name
-    )
-    dimension: int = Field(
-        default_factory=lambda: settings.knowledge_config.embedding.dimension
-    )
-    normalize: bool = Field(
-        default_factory=lambda: settings.knowledge_config.embedding.normalize
-    )
-    batch_size: int = Field(
-        default_factory=lambda: settings.knowledge_config.embedding.batch_size
-    )
+    model_name: str = Field(default_factory=lambda: settings.knowledge_config.embedding.model_name)
+    dimension: int = Field(default_factory=lambda: settings.knowledge_config.embedding.dimension)
+    normalize: bool = Field(default_factory=lambda: settings.knowledge_config.embedding.normalize)
+    batch_size: int = Field(default_factory=lambda: settings.knowledge_config.embedding.batch_size)
 
     # Text processing
-    max_length: int = Field(
-        default_factory=lambda: settings.knowledge_config.embedding.max_length
-    )
-    truncate: bool = Field(
-        default_factory=lambda: settings.knowledge_config.embedding.truncate
-    )
+    max_length: int = Field(default_factory=lambda: settings.knowledge_config.embedding.max_length)
+    truncate: bool = Field(default_factory=lambda: settings.knowledge_config.embedding.truncate)
 
     @validator("dimension")
     def validate_dimension(cls, v):
@@ -143,28 +124,18 @@ class DocumentProcessingConfig(BaseModel):
     DEPRECATED: Use settings.knowledge_config.document_processing instead.
     """
 
-    chunk_size: int = Field(
-        default_factory=lambda: settings.knowledge_config.document_processing.chunk_size
-    )
-    chunk_overlap: int = Field(
-        default_factory=lambda: settings.knowledge_config.document_processing.chunk_overlap
-    )
+    chunk_size: int = Field(default_factory=lambda: settings.knowledge_config.document_processing.chunk_size)
+    chunk_overlap: int = Field(default_factory=lambda: settings.knowledge_config.document_processing.chunk_overlap)
 
     # File handling
-    max_file_size: int = Field(
-        default_factory=lambda: settings.knowledge_config.document_processing.max_size_bytes
-    )
+    max_file_size: int = Field(default_factory=lambda: settings.knowledge_config.document_processing.max_size_bytes)
     allowed_types: list[str] = Field(
         default_factory=lambda: settings.knowledge_config.document_processing.allowed_types_list
     )
-    storage_path: str = Field(
-        default_factory=lambda: settings.knowledge_config.document_processing.storage_path
-    )
+    storage_path: str = Field(default_factory=lambda: settings.knowledge_config.document_processing.storage_path)
 
     # Processing limits
-    timeout: int = Field(
-        default_factory=lambda: settings.knowledge_config.document_processing.processing_timeout
-    )
+    timeout: int = Field(default_factory=lambda: settings.knowledge_config.document_processing.processing_timeout)
     max_pages: int | None = Field(default=None)
 
     @validator("chunk_overlap")
@@ -181,26 +152,16 @@ class RAGConfig(BaseModel):
     DEPRECATED: Use settings.knowledge_config.rag instead.
     """
 
-    search_k: int = Field(
-        default_factory=lambda: settings.knowledge_config.document_processing.search_k
-    )
+    search_k: int = Field(default_factory=lambda: settings.knowledge_config.document_processing.search_k)
     search_threshold: float = Field(
         default_factory=lambda: settings.knowledge_config.document_processing.search_threshold
     )
 
     # Context management
-    max_context_length: int = Field(
-        default_factory=lambda: settings.knowledge_config.rag.max_context_length
-    )
-    overlap_ratio: float = Field(
-        default_factory=lambda: settings.knowledge_config.rag.overlap_ratio
-    )
-    min_score: float = Field(
-        default_factory=lambda: settings.knowledge_config.rag.min_score
-    )
-    max_documents: int = Field(
-        default_factory=lambda: settings.knowledge_config.rag.max_documents
-    )
+    max_context_length: int = Field(default_factory=lambda: settings.knowledge_config.rag.max_context_length)
+    overlap_ratio: float = Field(default_factory=lambda: settings.knowledge_config.rag.overlap_ratio)
+    min_score: float = Field(default_factory=lambda: settings.knowledge_config.rag.min_score)
+    max_documents: int = Field(default_factory=lambda: settings.knowledge_config.rag.max_documents)
 
     # Reranking
     enable_reranking: bool = Field(default=False)
@@ -219,7 +180,8 @@ class RAGConfig(BaseModel):
 def _warn_config_usage(config_name: str):
     """Issue deprecation warning for configuration usage."""
     warnings.warn(
-        f"Using {config_name} is deprecated. Use 'from app.core.settings import settings; settings.knowledge_config' instead.",
+        f"Using {config_name} is deprecated. Use 'from app.core.settings import "
+        f"settings; settings.knowledge_config' instead.",
         DeprecationWarning,
         stacklevel=3,
     )

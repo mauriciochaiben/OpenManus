@@ -118,11 +118,7 @@ class AdvancedDocumentReader(BaseTool):
 
     def _get_operator(self) -> FileOperator:
         """Get the appropriate file operator based on execution mode."""
-        return (
-            self._sandbox_operator
-            if config.sandbox.use_sandbox
-            else self._local_operator
-        )
+        return self._sandbox_operator if config.sandbox.use_sandbox else self._local_operator
 
     async def execute(
         self,
@@ -149,16 +145,12 @@ class AdvancedDocumentReader(BaseTool):
             file_extension = Path(file_path).suffix.lower()
             file_name = Path(file_path).name
 
-            logger.info(
-                f"📖 Processing document with Docling: {file_path} (format: {file_extension})"
-            )
+            logger.info(f"📖 Processing document with Docling: {file_path} (format: {file_extension})")
 
             # Check if Docling converter is available
             if not self._converter:
                 # Fallback to basic reading for simple formats
-                return await self._fallback_reading(
-                    file_path, file_extension, output_format, operator
-                )
+                return await self._fallback_reading(file_path, file_extension, output_format, operator)
 
             # Process document with Docling
             if config.sandbox.use_sandbox and file_extension not in [
@@ -186,12 +178,8 @@ class AdvancedDocumentReader(BaseTool):
                 )
 
             except Exception as e:
-                logger.warning(
-                    f"Docling processing failed, falling back to basic reading: {e}"
-                )
-                return await self._fallback_reading(
-                    file_path, file_extension, output_format, operator
-                )
+                logger.warning(f"Docling processing failed, falling back to basic reading: {e}")
+                return await self._fallback_reading(file_path, file_extension, output_format, operator)
 
             # Apply length limit
             if len(content) > max_length:
@@ -200,14 +188,10 @@ class AdvancedDocumentReader(BaseTool):
                     + f"\n\n[Content truncated - showing first {max_length} characters of {len(content)} total]"
                 )
 
-            result = ToolResult(
-                output=f"📖 Advanced document analysis of {file_name}:\n\n{content}"
-            )
+            result = ToolResult(output=f"📖 Advanced document analysis of {file_name}:\n\n{content}")
 
         except Exception as e:
-            result = ToolResult(
-                error=f"Failed to process document {file_path}: {str(e)}"
-            )
+            result = ToolResult(error=f"Failed to process document {file_path}: {str(e)}")
 
         return str(result)
 
@@ -225,9 +209,7 @@ class AdvancedDocumentReader(BaseTool):
 
         if output_format == "json":
             # Return structured JSON representation
-            return self._format_as_json(
-                doc, extract_tables, extract_figures, include_metadata
-            )
+            return self._format_as_json(doc, extract_tables, extract_figures, include_metadata)
 
         if output_format == "markdown":
             # Export as markdown with full formatting
@@ -239,9 +221,7 @@ class AdvancedDocumentReader(BaseTool):
 
         if output_format == "structured":
             # Detailed structural analysis
-            return self._format_structured_analysis(
-                doc, extract_tables, extract_figures, include_metadata
-            )
+            return self._format_structured_analysis(doc, extract_tables, extract_figures, include_metadata)
 
         if output_format == "summary":
             # Brief summary with key information
@@ -321,9 +301,7 @@ class AdvancedDocumentReader(BaseTool):
 
         return "\n".join(analysis)
 
-    def _format_summary(
-        self, doc: DoclingDocument, extract_tables: bool, extract_figures: bool
-    ) -> str:
+    def _format_summary(self, doc: DoclingDocument, extract_tables: bool, extract_figures: bool) -> str:
         """Format document as a brief summary."""
         text_content = doc.export_to_text()
         word_count = len(text_content.split())
@@ -378,13 +356,9 @@ class AdvancedDocumentReader(BaseTool):
         if file_extension == ".csv":
             return await self._read_csv_fallback(file_path, output_format, operator)
 
-        raise ToolError(
-            f"Docling unavailable and no fallback method for {file_extension} files"
-        )
+        raise ToolError(f"Docling unavailable and no fallback method for {file_extension} files")
 
-    async def _read_csv_fallback(
-        self, file_path: str, output_format: str, operator: FileOperator
-    ) -> str:
+    async def _read_csv_fallback(self, file_path: str, output_format: str, operator: FileOperator) -> str:
         """Fallback CSV reading using pandas."""
         try:
             if config.sandbox.use_sandbox:
@@ -395,9 +369,7 @@ class AdvancedDocumentReader(BaseTool):
 
             if output_format == "summary":
                 summary = []
-                summary.append(
-                    f"CSV file with {len(df)} rows and {len(df.columns)} columns"
-                )
+                summary.append(f"CSV file with {len(df)} rows and {len(df.columns)} columns")
                 summary.append(f"Columns: {', '.join(df.columns.tolist())}")
 
                 if len(df) > 0:

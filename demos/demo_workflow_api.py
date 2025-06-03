@@ -31,14 +31,10 @@ async def demo_direct_service():
     event_bus = EventBus()
 
     # Create workflow service
-    workflow_service = WorkflowService(
-        planner_agent=planner, tool_user_agent=tool_user, event_bus=event_bus
-    )
+    workflow_service = WorkflowService(planner_agent=planner, tool_user_agent=tool_user, event_bus=event_bus)
 
     # Define a test task
-    initial_task = (
-        "Search for information about Python web frameworks and create a comparison"
-    )
+    initial_task = "Search for information about Python web frameworks and create a comparison"
 
     print(f"Starting workflow with task: {initial_task}")
     print("-" * 60)

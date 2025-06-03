@@ -42,9 +42,7 @@ class PlannerAgent(BaseAgent):
         """
         self.llm_config = config.get("llm_config") if config else None
         self.max_steps = config.get("max_steps", 10) if config else 10
-        self.planning_strategy = (
-            config.get("planning_strategy", "sequential") if config else "sequential"
-        )
+        self.planning_strategy = config.get("planning_strategy", "sequential") if config else "sequential"
 
     async def run(self, task_details: dict) -> dict:
         """Executa a decomposição de uma tarefa em passos sequenciais.
@@ -113,9 +111,7 @@ class PlannerAgent(BaseAgent):
             # Log context usage for monitoring
             if context_enhanced:
                 source_ids = task_config.get("_source_ids_used", [])
-                logger.info(
-                    f"Planning with knowledge context from {len(source_ids)} sources"
-                )
+                logger.info(f"Planning with knowledge context from {len(source_ids)} sources")
 
             # Use the potentially enhanced objective for planning
             plan_result = await self._generate_plan(objective, task_config)
@@ -126,9 +122,7 @@ class PlannerAgent(BaseAgent):
                 "data": {
                     "plan": plan_result,
                     "context_enhanced": context_enhanced,
-                    "planning_approach": (
-                        "context-aware" if context_enhanced else "standard"
-                    ),
+                    "planning_approach": ("context-aware" if context_enhanced else "standard"),
                 },
             }
 
@@ -162,9 +156,7 @@ class PlannerAgent(BaseAgent):
         """
         return ["task_decomposition"]
 
-    def _create_decomposition_prompt(
-        self, task: str, context: str, complexity: str
-    ) -> str:
+    def _create_decomposition_prompt(self, task: str, context: str, complexity: str) -> str:
         """Cria o prompt para decomposição da tarefa pelo LLM.
 
         Args:

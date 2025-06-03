@@ -107,9 +107,7 @@ class OpenManusSetup:
     def run(self):
         """Executa todo o processo de setup e inicialização"""
         try:
-            print_colored(
-                "🚀 OpenManus - Setup e Inicialização Automática", Colors.WHITE
-            )
+            print_colored("🚀 OpenManus - Setup e Inicialização Automática", Colors.WHITE)
             print_colored("=" * 60, Colors.WHITE)
 
             # Verificações de sistema
@@ -154,8 +152,7 @@ class OpenManusSetup:
         # Verificar Python
         if sys.version_info < self.required_python_version:
             print_error(
-                f"Python {'.'.join(map(str, self.required_python_version))}+ necessário. "
-                f"Encontrado: {sys.version}"
+                f"Python {'.'.join(map(str, self.required_python_version))}+ necessário. " f"Encontrado: {sys.version}"
             )
             sys.exit(1)
 
@@ -186,9 +183,7 @@ class OpenManusSetup:
         # Verificar Docker (opcional)
         if shutil.which("docker"):
             try:
-                result = subprocess.run(
-                    ["docker", "--version"], capture_output=True, text=True, timeout=5
-                )
+                result = subprocess.run(["docker", "--version"], capture_output=True, text=True, timeout=5)
                 if result.returncode == 0:
                     print_success("Docker ✓")
                 else:
@@ -216,9 +211,7 @@ class OpenManusSetup:
 
             # Atualizar pip
             print_info("Atualizando pip...")
-            self.run_venv_command(
-                [self.python_executable, "-m", "pip", "install", "--upgrade", "pip"]
-            )
+            self.run_venv_command([self.python_executable, "-m", "pip", "install", "--upgrade", "pip"])
 
         print_success(f"Ambiente Python configurado: {self.python_executable}")
 
@@ -228,9 +221,7 @@ class OpenManusSetup:
             return str(self.venv_path / "Scripts" / "python.exe")
         return str(self.venv_path / "bin" / "python")
 
-    def run_venv_command(
-        self, command: list[str], **kwargs
-    ) -> subprocess.CompletedProcess:
+    def run_venv_command(self, command: list[str], **kwargs) -> subprocess.CompletedProcess:
         """Executa comando no ambiente virtual"""
         env = os.environ.copy()
         env["VIRTUAL_ENV"] = str(self.venv_path)
@@ -306,9 +297,7 @@ class OpenManusSetup:
 
             for package in missing_packages:
                 try:
-                    self.run_venv_command(
-                        [self.python_executable, "-m", "pip", "install", package]
-                    )
+                    self.run_venv_command([self.python_executable, "-m", "pip", "install", package])
                     print_success(f"Instalado: {package}")
                 except Exception as e:
                     print_warning(f"Não foi possível instalar {package}: {e}")
@@ -361,9 +350,7 @@ class OpenManusSetup:
         project_path = str(self.project_root)
 
         if project_path not in pythonpath:
-            new_pythonpath = (
-                f"{project_path}:{pythonpath}" if pythonpath else project_path
-            )
+            new_pythonpath = f"{project_path}:{pythonpath}" if pythonpath else project_path
             os.environ["PYTHONPATH"] = new_pythonpath
             print_success(f"PYTHONPATH configurado: {new_pythonpath}")
 
@@ -373,9 +360,7 @@ class OpenManusSetup:
 
         frontend_dir = self.project_root / "frontend"
         if not frontend_dir.exists():
-            print_warning(
-                "Diretório frontend/ não encontrado - pulando configuração frontend"
-            )
+            print_warning("Diretório frontend/ não encontrado - pulando configuração frontend")
             return
 
         # Verificar Node.js
@@ -409,9 +394,7 @@ class OpenManusSetup:
                 if result.returncode == 0:
                     print_success("Dependências do frontend instaladas")
                 else:
-                    print_warning(
-                        f"Erro ao instalar dependências do frontend:\n{result.stderr}"
-                    )
+                    print_warning(f"Erro ao instalar dependências do frontend:\n{result.stderr}")
 
             except subprocess.TimeoutExpired:
                 print_warning("Timeout ao instalar dependências do frontend")
@@ -431,16 +414,12 @@ class OpenManusSetup:
             urllib.request.urlopen("http://google.com", timeout=5)
             print_success("Conectividade de rede ✓")
         except Exception:
-            print_warning(
-                "Sem conectividade de rede - algumas funcionalidades podem não funcionar"
-            )
+            print_warning("Sem conectividade de rede - algumas funcionalidades podem não funcionar")
 
         # Verificar Docker daemon
         if shutil.which("docker"):
             try:
-                result = subprocess.run(
-                    ["docker", "ps"], capture_output=True, text=True, timeout=10
-                )
+                result = subprocess.run(["docker", "ps"], capture_output=True, text=True, timeout=10)
                 if result.returncode == 0:
                     print_success("Docker daemon ativo ✓")
                 else:
@@ -603,9 +582,7 @@ print('FastAPI app created successfully')
                     elif "start" in scripts:
                         cmd = ["npm", "start"]
                     else:
-                        print_warning(
-                            "Script de desenvolvimento não encontrado no package.json"
-                        )
+                        print_warning("Script de desenvolvimento não encontrado no package.json")
                         return
 
                     # Iniciar processo
@@ -630,9 +607,7 @@ print('FastAPI app created successfully')
 
             for _attempt in range(10):  # Tentar por 10 segundos
                 try:
-                    with urllib.request.urlopen(
-                        "http://localhost:8000/health", timeout=2
-                    ) as response:
+                    with urllib.request.urlopen("http://localhost:8000/health", timeout=2) as response:
                         if response.status == 200:
                             return True
                 except urllib.error.URLError:
@@ -747,9 +722,7 @@ Exemplos de uso:
         help="Executa apenas o backend (sem frontend)",
     )
 
-    parser.add_argument(
-        "--skip-tests", action="store_true", help="Pula os testes de verificação"
-    )
+    parser.add_argument("--skip-tests", action="store_true", help="Pula os testes de verificação")
 
     parser.add_argument(
         "--force-reinstall",

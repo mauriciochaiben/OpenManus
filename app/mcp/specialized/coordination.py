@@ -14,9 +14,7 @@ from mcp.types import InitializeResult, Resource, Tool
 
 # Configuração baseada em variáveis de ambiente
 ROLE = os.getenv("ROLE", "coordination")
-CAPABILITIES = os.getenv(
-    "CAPABILITIES", "task_routing,memory_sharing,inter_agent_communication"
-).split(",")
+CAPABILITIES = os.getenv("CAPABILITIES", "task_routing,memory_sharing,inter_agent_communication").split(",")
 
 # Criar servidor MCP
 server = Server("openmanus-coordination-hub")
@@ -85,9 +83,7 @@ async def handle_read_resource(uri: str) -> str:
         return json.dumps(coordination_state["shared_memory"], indent=2)
 
     if uri == "coordination://logs":
-        return json.dumps(
-            coordination_state["communication_logs"][-50:], indent=2
-        )  # Últimos 50 logs
+        return json.dumps(coordination_state["communication_logs"][-50:], indent=2)  # Últimos 50 logs
 
     raise ValueError(f"Unknown resource: {uri}")
 
@@ -245,9 +241,7 @@ async def handle_list_tools() -> list[Tool]:
 
 
 @server.call_tool()
-async def handle_call_tool(
-    name: str, arguments: dict[str, Any]
-) -> list[types.TextContent]:
+async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[types.TextContent]:
     """Executa ferramentas de coordenação"""
 
     if name == "coord_task_routing":
@@ -290,9 +284,7 @@ async def handle_call_tool(
             ]
 
         except Exception as e:
-            return [
-                types.TextContent(type="text", text=f"Error in task routing: {str(e)}")
-            ]
+            return [types.TextContent(type="text", text=f"Error in task routing: {str(e)}")]
 
     elif name == "coord_memory_operations":
         operation = arguments.get("operation")
@@ -309,9 +301,7 @@ async def handle_call_tool(
                 result = f"Stored {key} in namespace {namespace}"
 
             elif operation == "retrieve":
-                result = coordination_state["shared_memory"][namespace].get(
-                    key, "Key not found"
-                )
+                result = coordination_state["shared_memory"][namespace].get(key, "Key not found")
 
             elif operation == "list":
                 result = list(coordination_state["shared_memory"][namespace].keys())
@@ -329,16 +319,15 @@ async def handle_call_tool(
             return [
                 types.TextContent(
                     type="text",
-                    text=f"Memory operation result:\n{json.dumps(result, indent=2) if isinstance(result, dict | list) else result}",
+                    text=(
+                        f"Memory operation result:\n"
+                        f"{json.dumps(result, indent=2) if isinstance(result, dict | list) else result}"
+                    ),
                 )
             ]
 
         except Exception as e:
-            return [
-                types.TextContent(
-                    type="text", text=f"Error in memory operation: {str(e)}"
-                )
-            ]
+            return [types.TextContent(type="text", text=f"Error in memory operation: {str(e)}")]
 
     elif name == "coord_agent_communication":
         action = arguments.get("action")
@@ -368,11 +357,7 @@ async def handle_call_tool(
             return [types.TextContent(type="text", text=result)]
 
         except Exception as e:
-            return [
-                types.TextContent(
-                    type="text", text=f"Error in agent communication: {str(e)}"
-                )
-            ]
+            return [types.TextContent(type="text", text=f"Error in agent communication: {str(e)}")]
 
     elif name == "coord_agent_registry":
         action = arguments.get("action")
@@ -399,10 +384,7 @@ async def handle_call_tool(
                 result = list(coordination_state["active_agents"].keys())
 
             elif action == "get_status":
-                if agent_id in coordination_state["active_agents"]:
-                    result = coordination_state["active_agents"][agent_id]
-                else:
-                    result = f"Agent {agent_id} not found"
+                result = coordination_state["active_agents"].get(agent_id, f"Agent {agent_id} not found")
 
             else:
                 result = f"Action {action} not implemented"
@@ -410,16 +392,15 @@ async def handle_call_tool(
             return [
                 types.TextContent(
                     type="text",
-                    text=f"Agent registry result:\n{json.dumps(result, indent=2) if isinstance(result, dict | list) else result}",
+                    text=(
+                        f"Agent registry result:\n"
+                        f"{json.dumps(result, indent=2) if isinstance(result, dict | list) else result}"
+                    ),
                 )
             ]
 
         except Exception as e:
-            return [
-                types.TextContent(
-                    type="text", text=f"Error in agent registry: {str(e)}"
-                )
-            ]
+            return [types.TextContent(type="text", text=f"Error in agent registry: {str(e)}")]
 
     elif name == "coord_workload_analysis":
         analysis_type = arguments.get("analysis_type")
@@ -430,9 +411,7 @@ async def handle_call_tool(
                     "total_agents": len(coordination_state["active_agents"]),
                     "pending_tasks": len(coordination_state["task_queue"]),
                     "memory_usage": len(coordination_state["shared_memory"]),
-                    "communication_activity": len(
-                        coordination_state["communication_logs"]
-                    ),
+                    "communication_activity": len(coordination_state["communication_logs"]),
                     "load_level": "moderate",
                 }
 
@@ -460,11 +439,7 @@ async def handle_call_tool(
             ]
 
         except Exception as e:
-            return [
-                types.TextContent(
-                    type="text", text=f"Error in workload analysis: {str(e)}"
-                )
-            ]
+            return [types.TextContent(type="text", text=f"Error in workload analysis: {str(e)}")]
 
     else:
         return [types.TextContent(type="text", text=f"Unknown tool: {name}")]

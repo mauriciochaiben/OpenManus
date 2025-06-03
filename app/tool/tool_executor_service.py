@@ -23,9 +23,7 @@ try:
     DOCKER_AVAILABLE = True
 except ImportError:
     DOCKER_AVAILABLE = False
-    logging.warning(
-        "Docker SDK not available. Unsafe tools will use restricted execution."
-    )
+    logging.warning("Docker SDK not available. Unsafe tools will use restricted execution.")
 
 from app.core.exceptions import SecurityError, ValidationError
 from app.core.settings import settings
@@ -91,12 +89,8 @@ class ToolExecutorService:
         ToolCategory.DEVELOPMENT: SandboxConfig(
             image="python:3.11-alpine", timeout=60, memory_limit="256m", cpu_limit=1.0
         ),
-        ToolCategory.SYSTEM: SandboxConfig(
-            image="ubuntu:22.04", timeout=30, memory_limit="128m", cpu_limit=0.5
-        ),
-        ToolCategory.ANALYSIS: SandboxConfig(
-            image="python:3.11-slim", timeout=120, memory_limit="512m", cpu_limit=1.5
-        ),
+        ToolCategory.SYSTEM: SandboxConfig(image="ubuntu:22.04", timeout=30, memory_limit="128m", cpu_limit=0.5),
+        ToolCategory.ANALYSIS: SandboxConfig(image="python:3.11-slim", timeout=120, memory_limit="512m", cpu_limit=1.5),
     }
 
     def __init__(self):
@@ -108,9 +102,7 @@ class ToolExecutorService:
     def _setup_docker(self):
         """Set up Docker client if available."""
         if not DOCKER_AVAILABLE:
-            logger.warning(
-                "Docker not available. Unsafe tools will use restricted execution."
-            )
+            logger.warning("Docker not available. Unsafe tools will use restricted execution.")
             return
 
         try:
@@ -229,9 +221,7 @@ class ToolExecutorService:
             # Cleanup if needed
             await self._cleanup_execution(execution_id)
 
-    def _determine_execution_mode(
-        self, tool: BaseTool, force_sandbox: bool
-    ) -> ExecutionMode:
+    def _determine_execution_mode(self, tool: BaseTool, force_sandbox: bool) -> ExecutionMode:
         """
         Determine the appropriate execution mode for a tool.
 
@@ -243,18 +233,12 @@ class ToolExecutorService:
             Appropriate execution mode
         """
         if force_sandbox:
-            return (
-                ExecutionMode.SANDBOXED
-                if self.docker_client
-                else ExecutionMode.RESTRICTED
-            )
+            return ExecutionMode.SANDBOXED if self.docker_client else ExecutionMode.RESTRICTED
 
         if tool.name in self.UNSAFE_TOOLS:
             if self.docker_client:
                 return ExecutionMode.SANDBOXED
-            logger.warning(
-                f"Tool '{tool.name}' is unsafe but Docker unavailable. Using restricted mode."
-            )
+            logger.warning(f"Tool '{tool.name}' is unsafe but Docker unavailable. Using restricted mode.")
             return ExecutionMode.RESTRICTED
 
         return ExecutionMode.DIRECT
@@ -274,9 +258,7 @@ class ToolExecutorService:
             timeout = getattr(settings, "tool_execution_timeout", 30)
 
             # Execute with timeout
-            return await asyncio.wait_for(
-                context.tool.execute(**context.parameters), timeout=timeout
-            )
+            return await asyncio.wait_for(context.tool.execute(**context.parameters), timeout=timeout)
 
         except TimeoutError:
             return ToolResult(
@@ -297,18 +279,14 @@ class ToolExecutorService:
 
         try:
             # Get or create sandbox config
-            sandbox_config = context.sandbox_config or self._get_default_sandbox_config(
-                context.tool
-            )
+            sandbox_config = context.sandbox_config or self._get_default_sandbox_config(context.tool)
 
             # Prepare sandbox environment
             container_setup = await self._prepare_sandbox(context, sandbox_config)
             context.container_id = container_setup["container_id"]
 
             # Execute in container
-            return await self._execute_in_container(
-                context, container_setup, sandbox_config
-            )
+            return await self._execute_in_container(context, container_setup, sandbox_config)
 
         except Exception as e:
             logger.error(f"Sandbox execution failed: {str(e)}")
@@ -321,9 +299,7 @@ class ToolExecutorService:
             SandboxConfig(),  # Use default config
         )
 
-    async def _prepare_sandbox(
-        self, context: ExecutionContext, config: SandboxConfig
-    ) -> dict[str, Any]:
+    async def _prepare_sandbox(self, context: ExecutionContext, config: SandboxConfig) -> dict[str, Any]:
         """
         Prepare Docker sandbox environment.
 
@@ -379,9 +355,7 @@ class ToolExecutorService:
             logger.error(f"Failed to prepare sandbox: {str(e)}")
             raise SecurityError(f"Sandbox preparation failed: {str(e)}") from e
 
-    async def _prepare_execution_script(
-        self, context: ExecutionContext, temp_dir: str
-    ) -> str:
+    async def _prepare_execution_script(self, context: ExecutionContext, temp_dir: str) -> str:
         """
         Prepare execution script for the tool.
 
@@ -401,9 +375,7 @@ class ToolExecutorService:
         # Generic tool execution script
         return await self._prepare_generic_tool_script(context, temp_dir)
 
-    async def _prepare_code_execution_script(
-        self, parameters: dict[str, Any], temp_dir: str
-    ) -> str:
+    async def _prepare_code_execution_script(self, parameters: dict[str, Any], temp_dir: str) -> str:
         """Prepare script for code execution tool."""
         code = parameters.get("code", "")
         language = parameters.get("language", "python")
@@ -424,9 +396,7 @@ class ToolExecutorService:
 
         raise ValidationError(f"Unsupported language for sandbox: {language}")
 
-    async def _prepare_generic_tool_script(
-        self, context: ExecutionContext, temp_dir: str
-    ) -> str:
+    async def _prepare_generic_tool_script(self, context: ExecutionContext, temp_dir: str) -> str:
         """Prepare generic tool execution script."""
         # Create a Python wrapper script that imports and executes the tool
         script_content = f"""

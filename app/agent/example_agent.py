@@ -44,9 +44,7 @@ class ExampleAgent(BaseAgent):
             Dict: Resultado da execução com informações sobre o processamento.
         """
         try:
-            task_description = task_details.get(
-                "description", "No description provided"
-            )
+            task_description = task_details.get("description", "No description provided")
             task_params = task_details.get("parameters", {})
 
             logger.info(f"{self.name} executando tarefa: {task_description}")

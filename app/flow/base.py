@@ -15,9 +15,7 @@ class BaseFlow(BaseModel, ABC):
     class Config:
         arbitrary_types_allowed = True
 
-    def __init__(
-        self, agents: BaseAgent | list[BaseAgent] | dict[str, BaseAgent], **data
-    ):
+    def __init__(self, agents: BaseAgent | list[BaseAgent] | dict[str, BaseAgent], **data):
         # Handle different ways of providing agents
         if isinstance(agents, BaseAgent):
             agents_dict = {"default": agents}

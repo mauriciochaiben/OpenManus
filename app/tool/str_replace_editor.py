@@ -102,11 +102,7 @@ class StrReplaceEditor(BaseTool):
     # def _get_operator(self, use_sandbox: bool) -> FileOperator:
     def _get_operator(self) -> FileOperator:
         """Get the appropriate file operator based on execution mode."""
-        return (
-            self._sandbox_operator
-            if settings.sandbox_config.use_sandbox
-            else self._local_operator
-        )
+        return self._sandbox_operator if settings.sandbox_config.use_sandbox else self._local_operator
 
     async def execute(
         self,
@@ -138,15 +134,11 @@ class StrReplaceEditor(BaseTool):
             result = ToolResult(output=f"File created successfully at: {path}")
         elif command == "str_replace":
             if old_str is None:
-                raise ToolError(
-                    "Parameter `old_str` is required for command: str_replace"
-                )
+                raise ToolError("Parameter `old_str` is required for command: str_replace")
             result = await self.str_replace(path, old_str, new_str, operator)
         elif command == "insert":
             if insert_line is None:
-                raise ToolError(
-                    "Parameter `insert_line` is required for command: insert"
-                )
+                raise ToolError("Parameter `insert_line` is required for command: insert")
             if new_str is None:
                 raise ToolError("Parameter `new_str` is required for command: insert")
             result = await self.insert(path, insert_line, new_str, operator)
@@ -160,9 +152,7 @@ class StrReplaceEditor(BaseTool):
 
         return str(result)
 
-    async def validate_path(
-        self, command: str, path: Path, operator: FileOperator
-    ) -> None:
+    async def validate_path(self, command: str, path: Path, operator: FileOperator) -> None:
         """Validate path and command combination based on execution environment."""
         # Check if path is absolute
         if not path.is_absolute():
@@ -171,9 +161,7 @@ class StrReplaceEditor(BaseTool):
         # Only check if path exists for non-create commands
         if command != "create":
             if not await operator.exists(path):
-                raise ToolError(
-                    f"The path {path} does not exist. Please provide a valid path."
-                )
+                raise ToolError(f"The path {path} does not exist. Please provide a valid path.")
 
             # Check if path is a directory
             is_dir = await operator.is_directory(path)
@@ -186,9 +174,7 @@ class StrReplaceEditor(BaseTool):
         elif command == "create":
             exists = await operator.exists(path)
             if exists:
-                raise ToolError(
-                    f"File already exists at: {path}. Cannot overwrite files using command `create`."
-                )
+                raise ToolError(f"File already exists at: {path}. Cannot overwrite files using command `create`.")
 
     async def view(
         self,
@@ -203,9 +189,7 @@ class StrReplaceEditor(BaseTool):
         if is_dir:
             # Directory handling
             if view_range:
-                raise ToolError(
-                    "The `view_range` parameter is not allowed when `path` points to a directory."
-                )
+                raise ToolError("The `view_range` parameter is not allowed when `path` points to a directory.")
 
             return await self._view_directory(path, operator)
         # File handling
@@ -241,9 +225,7 @@ class StrReplaceEditor(BaseTool):
         # Apply view range if specified
         if view_range:
             if len(view_range) != 2 or not all(isinstance(i, int) for i in view_range):
-                raise ToolError(
-                    "Invalid `view_range`. It should be a list of two integers."
-                )
+                raise ToolError("Invalid `view_range`. It should be a list of two integers.")
 
             file_lines = file_content.split("\n")
             n_lines_file = len(file_lines)
@@ -273,9 +255,7 @@ class StrReplaceEditor(BaseTool):
                 file_content = "\n".join(file_lines[init_line - 1 : final_line])
 
         # Format and return result
-        return CLIResult(
-            output=self._make_output(file_content, str(path), init_line=init_line)
-        )
+        return CLIResult(output=self._make_output(file_content, str(path), init_line=init_line))
 
     async def str_replace(
         self,
@@ -293,17 +273,11 @@ class StrReplaceEditor(BaseTool):
         # Check if old_str is unique in the file
         occurrences = file_content.count(old_str)
         if occurrences == 0:
-            raise ToolError(
-                f"No replacement was performed, old_str `{old_str}` did not appear verbatim in {path}."
-            )
+            raise ToolError(f"No replacement was performed, old_str `{old_str}` did not appear verbatim in {path}.")
         if occurrences > 1:
             # Find line numbers of occurrences
             file_content_lines = file_content.split("\n")
-            lines = [
-                idx + 1
-                for idx, line in enumerate(file_content_lines)
-                if old_str in line
-            ]
+            lines = [idx + 1 for idx, line in enumerate(file_content_lines) if old_str in line]
             raise ToolError(
                 f"No replacement was performed. Multiple occurrences of old_str `{old_str}` "
                 f"in lines {lines}. Please ensure it is unique"
@@ -326,9 +300,7 @@ class StrReplaceEditor(BaseTool):
 
         # Prepare the success message
         success_msg = f"The file {path} has been edited. "
-        success_msg += self._make_output(
-            snippet, f"a snippet of {path}", start_line + 1
-        )
+        success_msg += self._make_output(snippet, f"a snippet of {path}", start_line + 1)
         success_msg += "Review the changes and make sure they are as expected. Edit the file again if necessary."
 
         return CLIResult(output=success_msg)
@@ -356,11 +328,7 @@ class StrReplaceEditor(BaseTool):
 
         # Perform insertion
         new_str_lines = new_str.split("\n")
-        new_file_text_lines = (
-            file_text_lines[:insert_line]
-            + new_str_lines
-            + file_text_lines[insert_line:]
-        )
+        new_file_text_lines = file_text_lines[:insert_line] + new_str_lines + file_text_lines[insert_line:]
 
         # Create a snippet for preview
         snippet_lines = (
@@ -387,9 +355,7 @@ class StrReplaceEditor(BaseTool):
 
         return CLIResult(output=success_msg)
 
-    async def undo_edit(
-        self, path: PathLike, operator: FileOperator = None
-    ) -> CLIResult:
+    async def undo_edit(self, path: PathLike, operator: FileOperator = None) -> CLIResult:
         """Revert the last edit made to a file."""
         if not self._file_history[path]:
             raise ToolError(f"No edit history found for {path}.")
@@ -397,9 +363,7 @@ class StrReplaceEditor(BaseTool):
         old_text = self._file_history[path].pop()
         await operator.write_file(path, old_text)
 
-        return CLIResult(
-            output=f"Last edit to {path} undone successfully. {self._make_output(old_text, str(path))}"
-        )
+        return CLIResult(output=f"Last edit to {path} undone successfully. {self._make_output(old_text, str(path))}")
 
     def _make_output(
         self,
@@ -414,15 +378,6 @@ class StrReplaceEditor(BaseTool):
             file_content = file_content.expandtabs()
 
         # Add line numbers to each line
-        file_content = "\n".join(
-            [
-                f"{i + init_line:6}\t{line}"
-                for i, line in enumerate(file_content.split("\n"))
-            ]
-        )
+        file_content = "\n".join([f"{i + init_line:6}\t{line}" for i, line in enumerate(file_content.split("\n"))])
 
-        return (
-            f"Here's the result of running `cat -n` on {file_descriptor}:\n"
-            + file_content
-            + "\n"
-        )
+        return f"Here's the result of running `cat -n` on {file_descriptor}:\n" + file_content + "\n"

@@ -44,9 +44,7 @@ class CodeExecutionTool(BaseTool):
     """
 
     name: str = "code_execution"
-    description: str = (
-        "Execute code in various programming languages (Python, JavaScript, etc.)"
-    )
+    description: str = "Execute code in various programming languages (Python, JavaScript, etc.)"
     category: ToolCategory = ToolCategory.DEVELOPMENT
 
     # Safety classification
@@ -152,9 +150,7 @@ class CodeExecutionTool(BaseTool):
                     )
                     if result.returncode == 0:
                         self.available_languages.append(lang)
-                        logger.debug(
-                            f"{lang} interpreter available: {result.stdout.strip()}"
-                        )
+                        logger.debug(f"{lang} interpreter available: {result.stdout.strip()}")
                 except (
                     subprocess.TimeoutExpired,
                     FileNotFoundError,
@@ -164,9 +160,7 @@ class CodeExecutionTool(BaseTool):
 
         logger.info(f"Available languages: {self.available_languages}")
 
-    async def execute(
-        self, code: str, language: str = "python", **kwargs
-    ) -> ToolResult:
+    async def execute(self, code: str, language: str = "python", **kwargs) -> ToolResult:
         """
         Execute code in the specified language.
 
@@ -211,13 +205,9 @@ class CodeExecutionTool(BaseTool):
                 if RESTRICTED_PYTHON_AVAILABLE:
                     result = await self._execute_python_restricted(code, timeout)
                 else:
-                    result = await self._execute_python_subprocess(
-                        code, timeout, memory_limit
-                    )
+                    result = await self._execute_python_subprocess(code, timeout, memory_limit)
             else:
-                result = await self._execute_subprocess(
-                    code, language, timeout, memory_limit
-                )
+                result = await self._execute_subprocess(code, language, timeout, memory_limit)
 
             return result
 
@@ -330,9 +320,7 @@ class CodeExecutionTool(BaseTool):
 
             # Limit output size
             if len(stdout_output) > self.MAX_OUTPUT_SIZE:
-                stdout_output = (
-                    stdout_output[: self.MAX_OUTPUT_SIZE] + "\n... (output truncated)"
-                )
+                stdout_output = stdout_output[: self.MAX_OUTPUT_SIZE] + "\n... (output truncated)"
 
             success = len(stderr_output) == 0
             result_output = stdout_output if success else stderr_output
@@ -358,9 +346,7 @@ class CodeExecutionTool(BaseTool):
                 metadata={"language": "python", "restricted": True},
             )
 
-    async def _execute_python_subprocess(
-        self, code: str, timeout: int, memory_limit: int
-    ) -> ToolResult:
+    async def _execute_python_subprocess(self, code: str, timeout: int, memory_limit: int) -> ToolResult:
         """
         Execute Python code using subprocess as fallback.
 
@@ -397,9 +383,7 @@ class CodeExecutionTool(BaseTool):
             config = self.SUPPORTED_LANGUAGES[language]
 
             # Create temporary file
-            temp_file = (
-                Path(self.temp_dir) / f"code_{int(time.time())}{config['extension']}"
-            )
+            temp_file = Path(self.temp_dir) / f"code_{int(time.time())}{config['extension']}"
 
             with temp_file.open("w", encoding="utf-8") as f:
                 f.write(code)
@@ -432,16 +416,10 @@ class CodeExecutionTool(BaseTool):
 
                 # Limit output size
                 if len(stdout_output) > self.MAX_OUTPUT_SIZE:
-                    stdout_output = (
-                        stdout_output[: self.MAX_OUTPUT_SIZE]
-                        + "\n... (output truncated)"
-                    )
+                    stdout_output = stdout_output[: self.MAX_OUTPUT_SIZE] + "\n... (output truncated)"
 
                 if len(stderr_output) > self.MAX_OUTPUT_SIZE:
-                    stderr_output = (
-                        stderr_output[: self.MAX_OUTPUT_SIZE]
-                        + "\n... (error output truncated)"
-                    )
+                    stderr_output = stderr_output[: self.MAX_OUTPUT_SIZE] + "\n... (error output truncated)"
 
                 success = result.returncode == 0
                 result_output = stdout_output if success else stderr_output

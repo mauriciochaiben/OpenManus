@@ -2,339 +2,340 @@
 
 /* === Variáveis CSS Globais === */
 :root {
-    /* Cores principais */
-    --color-primary: #1890ff;
-    --color-success: #52c41a;
-    --color-warning: #faad14;
-    --color-error: #ff4d4f;
-    --color-info: #1890ff;
+  /* Cores principais */
+  --color-primary: #1890ff;
+  --color-success: #52c41a;
+  --color-warning: #faad14;
+  --color-error: #ff4d4f;
+  --color-info: #1890ff;
 
-    /* Espaçamentos */
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
-    --spacing-xl: 32px;
-    --spacing-xxl: 48px;
+  /* Espaçamentos */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
 
-    /* Raios de borda */
-    --border-radius-sm: 6px;
-    --border-radius-md: 8px;
-    --border-radius-lg: 12px;
-    --border-radius-xl: 16px;
+  /* Raios de borda */
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
 
-    /* Sombras */
-    --box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
-    --box-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
-    --box-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
-    --box-shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
+  /* Sombras */
+  --box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --box-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --box-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --box-shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
 
-    /* Tipografia */
-    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --font-size-xs: 11px;
-    --font-size-sm: 12px;
-    --font-size-md: 14px;
-    --font-size-lg: 16px;
-    --font-size-xl: 18px;
-    --font-size-xxl: 20px;
+  /* Tipografia */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-xxl: 20px;
 
-    /* Line heights */
-    --line-height-sm: 1.4;
-    --line-height-md: 1.5714;
-    --line-height-lg: 1.6;
+  /* Line heights */
+  --line-height-sm: 1.4;
+  --line-height-md: 1.5714;
+  --line-height-lg: 1.6;
 
-    /* Z-index layers */
-    --z-index-dropdown: 1000;
-    --z-index-sticky: 1001;
-    --z-index-fixed: 1002;
-    --z-index-modal-backdrop: 1003;
-    --z-index-modal: 1004;
-    --z-index-popover: 1005;
-    --z-index-tooltip: 1006;
-    --z-index-notification: 1007;
+  /* Z-index layers */
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1001;
+  --z-index-fixed: 1002;
+  --z-index-modal-backdrop: 1003;
+  --z-index-modal: 1004;
+  --z-index-popover: 1005;
+  --z-index-tooltip: 1006;
+  --z-index-notification: 1007;
 }
 
 /* === Tema Claro === */
 .light-theme {
-    --ant-color-bg-container: #ffffff;
-    --ant-color-bg-layout: #f5f5f5;
-    --ant-color-text: #262626;
-    --ant-color-text-secondary: #8c8c8c;
-    --ant-color-border: #d9d9d9;
-    --color-bg-sidebar: #001529;
-    --color-text-sidebar: #ffffff;
+  --ant-color-bg-container: #ffffff;
+  --ant-color-bg-layout: #f5f5f5;
+  --ant-color-text: #262626;
+  --ant-color-text-secondary: #8c8c8c;
+  --ant-color-border: #d9d9d9;
+  --color-bg-sidebar: #001529;
+  --color-text-sidebar: #ffffff;
 }
 
 /* === Tema Escuro === */
 .dark-theme {
-    --ant-color-bg-container: #141414;
-    --ant-color-bg-layout: #000000;
-    --ant-color-text: #ffffff;
-    --ant-color-text-secondary: #a6a6a6;
-    --ant-color-border: #434343;
-    --color-bg-sidebar: #000000;
-    --color-text-sidebar: #ffffff;
+  --ant-color-bg-container: #141414;
+  --ant-color-bg-layout: #000000;
+  --ant-color-text: #ffffff;
+  --ant-color-text-secondary: #a6a6a6;
+  --ant-color-border: #434343;
+  --color-bg-sidebar: #000000;
+  --color-text-sidebar: #ffffff;
 }
 
 /* === Estilos do Layout === */
 .openManus-layout {
-    font-family: var(--font-family);
-    min-height: 100vh;
+  font-family: var(--font-family);
+  min-height: 100vh;
 }
 
 .openManus-layout .ant-layout-sider {
-    box-shadow: var(--box-shadow-lg);
-    border-right: 1px solid var(--ant-color-border);
+  box-shadow: var(--box-shadow-lg);
+  border-right: 1px solid var(--ant-color-border);
 }
 
 .openManus-layout .ant-layout-header {
-    box-shadow: var(--box-shadow-sm);
-    border-bottom: 1px solid var(--ant-color-border);
-    background: var(--ant-color-bg-container) !important;
+  box-shadow: var(--box-shadow-sm);
+  border-bottom: 1px solid var(--ant-color-border);
+  background: var(--ant-color-bg-container) !important;
 }
 
 .openManus-layout .ant-layout-content {
-    background: var(--ant-color-bg-layout) !important;
+  background: var(--ant-color-bg-layout) !important;
 }
 
 /* === Estilos do Menu === */
 .openManus-menu .ant-menu-item,
 .openManus-menu .ant-menu-submenu-title {
-    border-radius: var(--border-radius-sm) !important;
-    margin: 2px 0 !important;
-    height: 40px !important;
-    line-height: 40px !important;
-    transition: all 0.2s ease-in-out;
+  border-radius: var(--border-radius-sm) !important;
+  margin: 2px 0 !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  transition: all 0.2s ease-in-out;
 }
 
 .openManus-menu .ant-menu-item:hover,
 .openManus-menu .ant-menu-submenu-title:hover {
-    transform: translateX(2px);
+  transform: translateX(2px);
 }
 
 .openManus-menu .ant-menu-item-selected {
-    background: var(--color-primary) !important;
-    color: #ffffff !important;
+  background: var(--color-primary) !important;
+  color: #ffffff !important;
 }
 
 .openManus-menu .ant-menu-item-selected::after {
-    display: none;
+  display: none;
 }
 
 /* === Estilos do Header === */
 .openManus-header-title {
-    color: var(--ant-color-text);
-    margin: 0;
-    font-weight: 600;
-    font-size: 18px;
+  color: var(--ant-color-text);
+  margin: 0;
+  font-weight: 600;
+  font-size: 18px;
 }
 
 .openManus-header-actions .ant-btn {
-    border: none;
-    color: var(--ant-color-text);
-    transition: all 0.2s ease-in-out;
+  border: none;
+  color: var(--ant-color-text);
+  transition: all 0.2s ease-in-out;
 }
 
 .openManus-header-actions .ant-btn:hover {
-    background: var(--ant-color-bg-layout);
-    transform: translateY(-1px);
+  background: var(--ant-color-bg-layout);
+  transform: translateY(-1px);
 }
 
 /* === Estilos de Cards === */
 .openManus-card {
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--box-shadow-sm);
-    transition: all 0.3s ease-in-out;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-sm);
+  transition: all 0.3s ease-in-out;
 }
 
 .openManus-card:hover {
-    box-shadow: var(--box-shadow-md);
-    transform: translateY(-2px);
+  box-shadow: var(--box-shadow-md);
+  transform: translateY(-2px);
 }
 
 .openManus-card .ant-card-head {
-    border-bottom: 1px solid var(--ant-color-border);
-    background: var(--ant-color-bg-layout);
+  border-bottom: 1px solid var(--ant-color-border);
+  background: var(--ant-color-bg-layout);
 }
 
 /* === Estilos de Botões === */
 .openManus-btn-primary {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    border-radius: var(--border-radius-md);
-    font-weight: 500;
-    box-shadow: var(--box-shadow-sm);
-    transition: all 0.2s ease-in-out;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+  box-shadow: var(--box-shadow-sm);
+  transition: all 0.2s ease-in-out;
 }
 
 .openManus-btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--box-shadow-md);
+  transform: translateY(-1px);
+  box-shadow: var(--box-shadow-md);
 }
 
 /* === Estilos de Inputs === */
 .openManus-input {
-    border-radius: var(--border-radius-md);
-    border: 1px solid var(--ant-color-border);
-    transition: all 0.2s ease-in-out;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--ant-color-border);
+  transition: all 0.2s ease-in-out;
 }
 
 .openManus-input:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
 }
 
 /* === Animações === */
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
+  from {
+    opacity: 0;
+  }
 
-    to {
-        opacity: 1;
-    }
+  to {
+    opacity: 1;
+  }
 }
 
 .openManus-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .openManus-fade-in-up {
-    animation: fadeInUp 0.4s ease-in-out;
+  animation: fadeInUp 0.4s ease-in-out;
 }
 
 /* === Scrollbar Customizada === */
 .openManus-scroll::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  width: 6px;
+  height: 6px;
 }
 
 .openManus-scroll::-webkit-scrollbar-track {
-    background: var(--ant-color-bg-layout);
-    border-radius: 3px;
+  background: var(--ant-color-bg-layout);
+  border-radius: 3px;
 }
 
 .openManus-scroll::-webkit-scrollbar-thumb {
-    background: var(--ant-color-border);
-    border-radius: 3px;
-    transition: background 0.2s ease-in-out;
+  background: var(--ant-color-border);
+  border-radius: 3px;
+  transition: background 0.2s ease-in-out;
 }
 
 .openManus-scroll::-webkit-scrollbar-thumb:hover {
-    background: var(--color-primary);
+  background: var(--color-primary);
 }
 
 /* === Estilos de Loading === */
 .openManus-loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
 }
 
 .openManus-loading .ant-spin {
-    color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 /* === Responsividade === */
 @media (max-width: 768px) {
-    .openManus-layout .ant-layout-sider {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease-in-out;
-    }
+  .openManus-layout .ant-layout-sider {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
 
-    .openManus-layout .ant-layout-sider.ant-layout-sider-collapsed {
-        transform: translateX(0);
-    }
+  .openManus-layout .ant-layout-sider.ant-layout-sider-collapsed {
+    transform: translateX(0);
+  }
 
-    .openManus-layout .ant-layout {
-        margin-left: 0 !important;
-    }
+  .openManus-layout .ant-layout {
+    margin-left: 0 !important;
+  }
 }
 
 @media (max-width: 576px) {
-    .openManus-header-title {
-        font-size: 16px;
-    }
+  .openManus-header-title {
+    font-size: 16px;
+  }
 
-    .openManus-layout .ant-layout-header {
-        padding: 0 16px;
-    }
+  .openManus-layout .ant-layout-header {
+    padding: 0 16px;
+  }
 
-    .openManus-layout .ant-layout-content {
-        padding: 16px;
-    }
+  .openManus-layout .ant-layout-content {
+    padding: 16px;
+  }
 }
 
 /* === Utilidades === */
 .openManus-text-center {
-    text-align: center;
+  text-align: center;
 }
 
 .openManus-text-right {
-    text-align: right;
+  text-align: right;
 }
 
 .openManus-mb-sm {
-    margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
 }
 
 .openManus-mb-md {
-    margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }
 
 .openManus-mb-lg {
-    margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
 }
 
 .openManus-mt-sm {
-    margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
 }
 
 .openManus-mt-md {
-    margin-top: var(--spacing-md);
+  margin-top: var(--spacing-md);
 }
 
 .openManus-mt-lg {
-    margin-top: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
 }
 
 .openManus-p-sm {
-    padding: var(--spacing-sm);
+  padding: var(--spacing-sm);
 }
 
 .openManus-p-md {
-    padding: var(--spacing-md);
+  padding: var(--spacing-md);
 }
 
 .openManus-p-lg {
-    padding: var(--spacing-lg);
+  padding: var(--spacing-lg);
 }
 
 .openManus-shadow {
-    box-shadow: var(--box-shadow-md);
+  box-shadow: var(--box-shadow-md);
 }
 
 .openManus-shadow-lg {
-    box-shadow: var(--box-shadow-lg);
+  box-shadow: var(--box-shadow-lg);
 }
 
 .openManus-rounded {
-    border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-md);
 }
 
 .openManus-rounded-lg {
-    border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-lg);
 }
