@@ -1,0 +1,8 @@
+# Temporary files and test scripts
+# These files are kept for reference but not actively maintained
+# Can be safely removed when no longer needed
+
+*.py
+*.html
+*.txt
+*.log
