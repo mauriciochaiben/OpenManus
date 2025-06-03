@@ -1,14 +1,15 @@
 """File operation interfaces and implementations for local and sandbox environments."""
 
 import asyncio
+import contextlib
 from pathlib import Path
-from typing import Optional, Protocol, Tuple, Union, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from app.core.settings import settings
 from app.exceptions import ToolError
 from app.sandbox.client import SANDBOX_CLIENT
 
-PathLike = Union[str, Path]
+PathLike = str | Path
 
 
 @runtime_checkable
@@ -32,8 +33,8 @@ class FileOperator(Protocol):
         ...
 
     async def run_command(
-        self, cmd: str, timeout: Optional[float] = 120.0
-    ) -> Tuple[int, str, str]:
+        self, cmd: str, timeout: float | None = 120.0
+    ) -> tuple[int, str, str]:
         """Run a shell command and return (return_code, stdout, stderr)."""
         ...
 
@@ -66,8 +67,8 @@ class LocalFileOperator(FileOperator):
         return Path(path).exists()
 
     async def run_command(
-        self, cmd: str, timeout: Optional[float] = 120.0
-    ) -> Tuple[int, str, str]:
+        self, cmd: str, timeout: float | None = 120.0
+    ) -> tuple[int, str, str]:
         """Run a shell command locally."""
         process = await asyncio.create_subprocess_shell(
             cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
@@ -82,11 +83,9 @@ class LocalFileOperator(FileOperator):
                 stdout.decode(),
                 stderr.decode(),
             )
-        except asyncio.TimeoutError as exc:
-            try:
+        except TimeoutError as exc:
+            with contextlib.suppress(ProcessLookupError):
                 process.kill()
-            except ProcessLookupError:
-                pass
             raise TimeoutError(
                 f"Command '{cmd}' timed out after {timeout} seconds"
             ) from exc
@@ -136,8 +135,8 @@ class SandboxFileOperator(FileOperator):
         return result.strip() == "true"
 
     async def run_command(
-        self, cmd: str, timeout: Optional[float] = 120.0
-    ) -> Tuple[int, str, str]:
+        self, cmd: str, timeout: float | None = 120.0
+    ) -> tuple[int, str, str]:
         """Run a command in sandbox environment."""
         await self._ensure_sandbox_initialized()
         try:

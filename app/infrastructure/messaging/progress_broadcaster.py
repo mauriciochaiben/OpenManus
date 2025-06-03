@@ -8,7 +8,6 @@ via WebSocket during multi-agent execution.
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional
 
 from app.logger import logger
 
@@ -20,12 +19,12 @@ class ProgressUpdate:
     stage: str
     progress: float  # 0-100
     execution_type: str  # 'single', 'multi', 'mcp'
-    agents: List[str] = None
-    task_name: Optional[str] = None
-    step_number: Optional[int] = None
-    total_steps: Optional[int] = None
-    description: Optional[str] = None
-    timestamp: Optional[str] = None
+    agents: list[str] = None
+    task_name: str | None = None
+    step_number: int | None = None
+    total_steps: int | None = None
+    description: str | None = None
+    timestamp: str | None = None
 
     def __post_init__(self):
         if self.agents is None:
@@ -39,7 +38,7 @@ class ProgressBroadcaster:
 
     def __init__(self, connection_manager=None):
         self.connection_manager = connection_manager
-        self.active_tasks: Dict[str, ProgressUpdate] = {}
+        self.active_tasks: dict[str, ProgressUpdate] = {}
 
     def set_connection_manager(self, manager):
         """Set the WebSocket connection manager"""
@@ -51,7 +50,7 @@ class ProgressBroadcaster:
         stage: str,
         progress: float,
         execution_type: str,
-        agents: List[str] = None,
+        agents: list[str] = None,
         task_name: str = None,
         step_number: int = None,
         total_steps: int = None,
@@ -147,11 +146,11 @@ class ProgressBroadcaster:
         if task_id in self.active_tasks:
             del self.active_tasks[task_id]
 
-    def get_current_progress(self, task_id: str) -> Optional[ProgressUpdate]:
+    def get_current_progress(self, task_id: str) -> ProgressUpdate | None:
         """Get current progress for a task"""
         return self.active_tasks.get(task_id)
 
-    def get_all_active_tasks(self) -> Dict[str, ProgressUpdate]:
+    def get_all_active_tasks(self) -> dict[str, ProgressUpdate]:
         """Get all active tasks and their progress"""
         return self.active_tasks.copy()
 

@@ -1,19 +1,18 @@
 """Enhanced document analysis tool with specialized Docling capabilities."""
 
-import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 from docling.chunking import HierarchicalChunker  # Changed import
-from docling.datamodel.document import ConversionResult
 from docling.document_converter import DocumentConverter
 from docling_core.types.doc import DoclingDocument
 
-from app.core.settings import settings
 from app.exceptions import ToolError
 from app.logger import logger
 from app.tool.base import BaseTool, ToolResult
-from app.tool.file_operators import FileOperator, LocalFileOperator, SandboxFileOperator
+
+if TYPE_CHECKING:
+    from docling.datamodel.document import ConversionResult
 
 
 class DocumentAnalyzer(BaseTool):
@@ -116,7 +115,7 @@ class DocumentAnalyzer(BaseTool):
         overlap_size: int = 200,
         extract_metadata: bool = True,
         identify_key_entities: bool = True,
-        **kwargs: Any,
+        **kwargs: Any,  # noqa: ARG002
     ) -> str:
         """Execute advanced document analysis."""
 
@@ -268,7 +267,7 @@ class DocumentAnalyzer(BaseTool):
 
         try:
             # Try to get structured document data
-            doc_dict = doc.model_dump()
+            doc.model_dump()
 
             # Look for mathematical content in the document
             text_content = doc.export_to_text()
@@ -317,7 +316,7 @@ class DocumentAnalyzer(BaseTool):
             else:
                 result.append("No mathematical formulas detected")
 
-            result.append(f"\n=== DOCUMENT CONTENT (checking for formulas) ===\n")
+            result.append("\n=== DOCUMENT CONTENT (checking for formulas) ===\n")
             result.append(markdown_content)
 
         except Exception as e:
@@ -349,7 +348,7 @@ class DocumentAnalyzer(BaseTool):
 
             if headers:
                 result.append("Document hierarchy detected:")
-                for level, title, line_num in headers:
+                for level, title, _line_num in headers:
                     indent = "  " * (level - 1)
                     result.append(f"{indent}• {title} (H{level})")
 
@@ -363,12 +362,12 @@ class DocumentAnalyzer(BaseTool):
             word_count = len(text_content.split())
             paragraph_count = len([p for p in text_content.split("\n\n") if p.strip()])
 
-            result.append(f"\nDocument statistics:")
+            result.append("\nDocument statistics:")
             result.append(f"- Word count: {word_count:,}")
             result.append(f"- Paragraph count: {paragraph_count}")
             result.append(f"- Character count: {len(text_content):,}")
 
-            result.append(f"\n=== STRUCTURED CONTENT ===\n")
+            result.append("\n=== STRUCTURED CONTENT ===\n")
             result.append(markdown_content)
 
         except Exception as e:
@@ -392,12 +391,12 @@ class DocumentAnalyzer(BaseTool):
             # Basic summary
             paragraphs = [p.strip() for p in text_content.split("\n\n") if p.strip()]
 
-            result.append(f"Document Overview:")
+            result.append("Document Overview:")
             result.append(f"- {word_count:,} words")
             result.append(f"- {len(paragraphs)} paragraphs")
 
             if paragraphs:
-                result.append(f"\nKey sections (first 3 paragraphs):")
+                result.append("\nKey sections (first 3 paragraphs):")
                 for i, para in enumerate(paragraphs[:3], 1):
                     summary_para = para[:300] + "..." if len(para) > 300 else para
                     result.append(f"{i}. {summary_para}")
@@ -408,7 +407,7 @@ class DocumentAnalyzer(BaseTool):
                     )
 
             if identify_entities:
-                result.append(f"\n=== KEY ENTITY ANALYSIS ===")
+                result.append("\n=== KEY ENTITY ANALYSIS ===")
 
                 # Simple keyword extraction (frequency-based)
                 words = text_content.lower().split()
@@ -465,7 +464,7 @@ class DocumentAnalyzer(BaseTool):
                     for term, count in top_keywords:
                         result.append(f"- {term}: {count} occurrences")
 
-            result.append(f"\n=== FULL CONTENT ===\n")
+            result.append("\n=== FULL CONTENT ===\n")
             result.append(doc.export_to_markdown())
 
         except Exception as e:
@@ -523,7 +522,7 @@ class DocumentAnalyzer(BaseTool):
             if ref_sections:
                 result.append(f"\nReference sections found: {', '.join(ref_sections)}")
 
-            result.append(f"\n=== DOCUMENT CONTENT (with citations) ===\n")
+            result.append("\n=== DOCUMENT CONTENT (with citations) ===\n")
             result.append(doc.export_to_markdown())
 
         except Exception as e:
@@ -538,8 +537,8 @@ class DocumentAnalyzer(BaseTool):
         doc: DoclingDocument,
         chunk_size: int,
         overlap_size: int,
-        extract_metadata: bool,
-        identify_entities: bool,
+        extract_metadata: bool,  # noqa: ARG002
+        identify_entities: bool,  # noqa: ARG002
     ) -> str:
         """Perform comprehensive analysis combining all methods."""
         result = []
@@ -551,7 +550,7 @@ class DocumentAnalyzer(BaseTool):
             markdown_content = doc.export_to_markdown()
             word_count = len(text_content.split())
 
-            result.append(f"Document Statistics:")
+            result.append("Document Statistics:")
             result.append(f"- Words: {word_count:,}")
             result.append(f"- Characters: {len(text_content):,}")
             result.append(
@@ -569,12 +568,12 @@ class DocumentAnalyzer(BaseTool):
 
             # Quick table detection
             if "|" in markdown_content and markdown_content.count("|") > 10:
-                result.append(f"- Tables: Detected")
+                result.append("- Tables: Detected")
 
             # Mathematical content
             math_indicators = ["∑", "∫", "∂", "≈", "≤", "≥", "±", "√", "π"]
             if any(indicator in text_content for indicator in math_indicators):
-                result.append(f"- Mathematical content: Detected")
+                result.append("- Mathematical content: Detected")
 
             result.append("\\n" + "=" * 50)
             result.append("DETAILED ANALYSIS:")

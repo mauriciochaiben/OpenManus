@@ -6,7 +6,6 @@ import json
 import time
 import uuid
 from enum import Enum
-from typing import Dict, List, Optional, Union
 
 from pydantic import Field
 
@@ -54,13 +53,13 @@ class MultiAgentFlow(BaseFlow):
     enable_coordination: bool = True
 
     # Estado interno
-    active_plan_id: Optional[str] = None
-    current_task: Optional[Task] = None
-    execution_history: List[Dict] = Field(default_factory=list)
-    current_task_id: Optional[str] = None  # For progress tracking
+    active_plan_id: str | None = None
+    current_task: Task | None = None
+    execution_history: list[dict] = Field(default_factory=list)
+    current_task_id: str | None = None  # For progress tracking
 
     def __init__(
-        self, agents: Union[BaseAgent, List[BaseAgent], Dict[str, BaseAgent]], **data
+        self, agents: BaseAgent | list[BaseAgent] | dict[str, BaseAgent], **data
     ):
         super().__init__(agents, **data)
 
@@ -216,7 +215,7 @@ class MultiAgentFlow(BaseFlow):
 
         if self.execution_mode == ExecutionMode.FORCE_SINGLE:
             return AgentApproach.SINGLE_AGENT
-        elif self.execution_mode == ExecutionMode.FORCE_MULTI:
+        if self.execution_mode == ExecutionMode.FORCE_MULTI:
             return AgentApproach.MULTI_AGENT_SEQUENTIAL
 
         # Modo AUTO - usar sistema de decisão
@@ -426,9 +425,9 @@ class MultiAgentFlow(BaseFlow):
             logger.warning(f"Failed to create execution plan: {e}")
             # Continuar sem plano
 
-    async def get_status(self) -> Dict:
+    async def get_status(self) -> dict:
         """Retorna status detalhado do flow"""
-        status = {
+        return {
             "mode": self.execution_mode.value,
             "active_plan": self.active_plan_id,
             "current_task": (
@@ -440,9 +439,7 @@ class MultiAgentFlow(BaseFlow):
             "planning_enabled": self.enable_planning,
         }
 
-        return status
-
-    async def get_execution_history(self) -> List[Dict]:
+    async def get_execution_history(self) -> list[dict]:
         """Retorna histórico de execuções"""
         return self.execution_history.copy()
 
@@ -493,5 +490,5 @@ class MultiAgentFlow(BaseFlow):
                 loop.create_task(self.cleanup())
             else:
                 loop.run_until_complete(self.cleanup())
-        except:
+        except Exception:
             pass  # Ignore cleanup errors during destruction

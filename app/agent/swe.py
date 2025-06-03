@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import Field
 
 from app.agent.toolcall import ToolCallAgent
@@ -19,6 +17,6 @@ class SWEAgent(ToolCallAgent):
     available_tools: ToolCollection = ToolCollection(
         Bash(), StrReplaceEditor(), Terminate()
     )
-    special_tool_names: List[str] = Field(default_factory=lambda: [Terminate().name])
+    special_tool_names: list[str] = Field(default_factory=lambda: [Terminate().name])
 
     max_steps: int = 20

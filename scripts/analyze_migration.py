@@ -1,4 +1,3 @@
-import difflib
 import fnmatch
 import os
 import re
@@ -34,12 +33,12 @@ class MigrationAnalyzer:
         # Extract module names from file paths
         for file_path in self.app_files:
             rel_path = os.path.relpath(file_path, APP_DIR)
-            module_path = os.path.splitext(rel_path)[0].replace("/", ".")
+            module_path = Path(rel_path).with_suffix("").as_posix().replace("/", ".")
             self.app_modules.add(module_path)
 
         for file_path in self.backend_files:
             rel_path = os.path.relpath(file_path, BACKEND_DIR)
-            module_path = os.path.splitext(rel_path)[0].replace("/", ".")
+            module_path = Path(rel_path).with_suffix("").as_posix().replace("/", ".")
             self.backend_modules.add(module_path)
 
     def _collect_dir_files(self, directory):
@@ -59,10 +58,10 @@ class MigrationAnalyzer:
                 ):
                     continue
 
-                file_path = os.path.join(root, filename)
-                ext = os.path.splitext(filename)[1]
+                file_path = Path(root) / filename
+                ext = Path(filename).suffix
                 if ext in CODE_EXTENSIONS:
-                    files.append(file_path)
+                    files.append(str(file_path))
         return files
 
     def find_unique_backend_files(self):
@@ -87,7 +86,7 @@ class MigrationAnalyzer:
 
         # Extract imports from backend files
         for file_path in self.backend_files:
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            with Path(file_path).open(encoding="utf-8", errors="ignore") as f:
                 try:
                     content = f.read()
                     # Find import statements
@@ -117,13 +116,14 @@ class MigrationAnalyzer:
                     continue
 
                 # Check if this is a project-specific import
-                if any(imp.startswith(mod) for mod in self.backend_modules):
-                    if not any(imp.startswith(mod) for mod in self.app_modules):
-                        missing_modules.add(imp)
+                if any(imp.startswith(mod) for mod in self.backend_modules) and not any(
+                    imp.startswith(mod) for mod in self.app_modules
+                ):
+                    missing_modules.add(imp)
 
             if missing_modules:
-                backend_file = os.path.join(BACKEND_DIR, file_path)
-                self.potential_migrations.append((backend_file, missing_modules))
+                backend_file = BACKEND_DIR / file_path
+                self.potential_migrations.append((str(backend_file), missing_modules))
 
     def analyze_content(self):
         """Analyze file content to find functional differences"""
@@ -131,17 +131,17 @@ class MigrationAnalyzer:
 
         for backend_file in self.backend_files:
             rel_path = os.path.relpath(backend_file, BACKEND_DIR)
-            app_file = os.path.join(APP_DIR, rel_path)
+            app_file = APP_DIR / rel_path
 
             # Skip if file doesn't exist in app directory
-            if not os.path.exists(app_file):
+            if not Path(app_file).exists():
                 continue
 
             try:
                 # Compare file content
-                with open(backend_file, "r", encoding="utf-8", errors="ignore") as f1:
+                with Path(backend_file).open(encoding="utf-8", errors="ignore") as f1:
                     backend_content = f1.read()
-                with open(app_file, "r", encoding="utf-8", errors="ignore") as f2:
+                with Path(app_file).open(encoding="utf-8", errors="ignore") as f2:
                     app_content = f2.read()
 
                 # Extract function/class definitions

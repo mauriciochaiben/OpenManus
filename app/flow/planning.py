@@ -1,7 +1,6 @@
 import json
 import time
 from enum import Enum
-from typing import Dict, List, Optional, Union
 
 from pydantic import Field
 
@@ -32,7 +31,7 @@ class PlanStepStatus(str, Enum):
         return [cls.NOT_STARTED.value, cls.IN_PROGRESS.value]
 
     @classmethod
-    def get_status_marks(cls) -> Dict[str, str]:
+    def get_status_marks(cls) -> dict[str, str]:
         """Return a mapping of statuses to their marker symbols"""
         return {
             cls.COMPLETED.value: "[✓]",
@@ -47,12 +46,12 @@ class PlanningFlow(BaseFlow):
 
     llm: LLM = Field(default_factory=lambda: LLM())
     planning_tool: PlanningTool = Field(default_factory=PlanningTool)
-    executor_keys: List[str] = Field(default_factory=list)
+    executor_keys: list[str] = Field(default_factory=list)
     active_plan_id: str = Field(default_factory=lambda: f"plan_{int(time.time())}")
-    current_step_index: Optional[int] = None
+    current_step_index: int | None = None
 
     def __init__(
-        self, agents: Union[BaseAgent, List[BaseAgent], Dict[str, BaseAgent]], **data
+        self, agents: BaseAgent | list[BaseAgent] | dict[str, BaseAgent], **data
     ):
         # Set executor keys before super().__init__
         if "executors" in data:
@@ -74,7 +73,7 @@ class PlanningFlow(BaseFlow):
         if not self.executor_keys:
             self.executor_keys = list(self.agents.keys())
 
-    def get_executor(self, step_type: Optional[str] = None) -> BaseAgent:
+    def get_executor(self, step_type: str | None = None) -> BaseAgent:
         """
         Get an appropriate executor agent for the current step.
         Can be extended to select agents based on step type/requirements.
@@ -192,7 +191,7 @@ class PlanningFlow(BaseFlow):
             }
         )
 
-    async def _get_current_step_info(self) -> tuple[Optional[int], Optional[dict]]:
+    async def _get_current_step_info(self) -> tuple[int | None, dict | None]:
         """
         Parse the current plan to identify the first non-completed step's index and info.
         Returns (None, None) if no active step is found.
@@ -369,7 +368,7 @@ class PlanningFlow(BaseFlow):
             status_marks = PlanStepStatus.get_status_marks()
 
             for i, (step, status, notes) in enumerate(
-                zip(steps, step_statuses, step_notes)
+                zip(steps, step_statuses, step_notes, strict=False)
             ):
                 # Use status marks to indicate step status
                 status_mark = status_marks.get(

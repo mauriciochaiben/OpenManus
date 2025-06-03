@@ -3,7 +3,7 @@
 import asyncio
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 
@@ -17,7 +17,7 @@ class EmbeddingProvider(ABC):
     """Abstract base class for embedding providers."""
 
     @abstractmethod
-    async def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
+    async def generate_embeddings(self, texts: list[str]) -> list[list[float]]:
         """Generate embeddings for a list of texts."""
         pass
 
@@ -44,19 +44,20 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
                 import openai
 
                 self._client = openai.AsyncOpenAI(api_key=self.api_key)
-            except ImportError:
-                raise ImportError("openai package is required for OpenAI embeddings")
+            except ImportError as e:
+                raise ImportError(
+                    "openai package is required for OpenAI embeddings"
+                ) from e
         return self._client
 
-    async def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
+    async def generate_embeddings(self, texts: list[str]) -> list[list[float]]:
         """Generate embeddings using OpenAI API."""
         try:
             client = await self._get_client()
 
             response = await client.embeddings.create(model=self.model, input=texts)
 
-            embeddings = [data.embedding for data in response.data]
-            return embeddings
+            return [data.embedding for data in response.data]
 
         except Exception as e:
             logger.error(f"OpenAI embedding generation failed: {str(e)}")
@@ -91,14 +92,14 @@ class SentenceTransformersProvider(EmbeddingProvider):
                 # Get dimension from model
                 self._dimension = self._model.get_sentence_embedding_dimension()
 
-            except ImportError:
+            except ImportError as e:
                 raise ImportError(
                     "sentence-transformers package is required for local embeddings"
-                )
+                ) from e
 
         return self._model
 
-    async def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
+    async def generate_embeddings(self, texts: list[str]) -> list[list[float]]:
         """Generate embeddings using Sentence Transformers."""
         try:
             model = await self._get_model()
@@ -139,11 +140,13 @@ class OllamaEmbeddingProvider(EmbeddingProvider):
                 import httpx
 
                 self._client = httpx.AsyncClient(base_url=self.base_url)
-            except ImportError:
-                raise ImportError("httpx package is required for Ollama embeddings")
+            except ImportError as e:
+                raise ImportError(
+                    "httpx package is required for Ollama embeddings"
+                ) from e
         return self._client
 
-    async def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
+    async def generate_embeddings(self, texts: list[str]) -> list[list[float]]:
         """Generate embeddings using Ollama API."""
         try:
             client = await self._get_client()
@@ -214,17 +217,16 @@ class EmbeddingService:
             return OpenAIEmbeddingProvider(api_key, self.model_name)
 
         # Ollama provider
-        elif "ollama" in model_name or hasattr(settings, "ollama_base_url"):
+        if "ollama" in model_name or hasattr(settings, "ollama_base_url"):
             ollama_url = getattr(settings, "ollama_base_url", "http://localhost:11434")
             # Extract model name (remove 'ollama/' prefix if present)
             model = model_name.replace("ollama/", "")
             return OllamaEmbeddingProvider(model, ollama_url)
 
         # Default to Sentence Transformers
-        else:
-            return SentenceTransformersProvider(self.model_name)
+        return SentenceTransformersProvider(self.model_name)
 
-    async def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
+    async def generate_embeddings(self, texts: list[str]) -> list[list[float]]:
         """
         Generate embeddings for a list of texts.
 
@@ -274,7 +276,7 @@ class EmbeddingService:
             # Return dummy embeddings as fallback
             return [[0.0] * embedding_config.dimension for _ in texts]
 
-    async def generate_embedding(self, text: str) -> List[float]:
+    async def generate_embedding(self, text: str) -> list[float]:
         """
         Generate embedding for a single text.
 
@@ -307,7 +309,7 @@ class EmbeddingService:
 
         return text
 
-    def _normalize_embedding(self, embedding: List[float]) -> List[float]:
+    def _normalize_embedding(self, embedding: list[float]) -> list[float]:
         """
         Normalize embedding vector to unit length.
 
@@ -347,7 +349,7 @@ class EmbeddingService:
             logger.warning(f"Failed to get embedding dimension: {str(e)}")
             return embedding_config.dimension
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """
         Perform health check on the embedding service.
 

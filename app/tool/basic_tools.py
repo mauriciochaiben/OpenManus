@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from app.tool.base import BaseTool, ToolResult
 
@@ -10,7 +10,7 @@ class WebSearchTool(BaseTool):
     description: str = (
         "Performs a web search for the given query and returns simulated search results"
     )
-    parameters: Dict[str, Any] = {
+    parameters: dict[str, Any] = {
         "type": "object",
         "properties": {
             "query": {"type": "string", "description": "The search query to execute"}
@@ -29,7 +29,7 @@ class WebSearchTool(BaseTool):
             str: A simulated search result string containing mock search results
         """
         # Simulate search results based on the query
-        simulated_results = f"""Search results for "{query}":
+        return f"""Search results for "{query}":
 
 1. Example Article - Best Practices for {query}
    URL: https://example.com/article1
@@ -53,8 +53,6 @@ class WebSearchTool(BaseTool):
 
 Total results found: 5
 Search completed successfully."""
-
-        return simulated_results
 
     async def execute(self, **kwargs) -> ToolResult:
         """

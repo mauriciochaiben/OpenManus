@@ -1,9 +1,8 @@
 # tool/planning.py
-from typing import Dict, List, Literal, Optional
+from typing import Literal
 
 from app.exceptions import ToolError
 from app.tool.base import BaseTool, ToolResult
-
 
 _PLANNING_TOOL_DESCRIPTION = """
 A planning tool that allows the agent to create and manage plans for solving complex tasks.
@@ -67,7 +66,7 @@ class PlanningTool(BaseTool):
     }
 
     plans: dict = {}  # Dictionary to store plans by plan_id
-    _current_plan_id: Optional[str] = None  # Track the current active plan
+    _current_plan_id: str | None = None  # Track the current active plan
 
     async def execute(
         self,
@@ -75,15 +74,15 @@ class PlanningTool(BaseTool):
         command: Literal[
             "create", "update", "list", "get", "set_active", "mark_step", "delete"
         ],
-        plan_id: Optional[str] = None,
-        title: Optional[str] = None,
-        steps: Optional[List[str]] = None,
-        step_index: Optional[int] = None,
-        step_status: Optional[
-            Literal["not_started", "in_progress", "completed", "blocked"]
-        ] = None,
-        step_notes: Optional[str] = None,
-        **kwargs,
+        plan_id: str | None = None,
+        title: str | None = None,
+        steps: list[str] | None = None,
+        step_index: int | None = None,
+        step_status: (
+            Literal["not_started", "in_progress", "completed", "blocked"] | None
+        ) = None,
+        step_notes: str | None = None,
+        **kwargs,  # noqa: ARG002
     ):
         """
         Execute the planning tool with the given command and parameters.
@@ -100,25 +99,24 @@ class PlanningTool(BaseTool):
 
         if command == "create":
             return self._create_plan(plan_id, title, steps)
-        elif command == "update":
+        if command == "update":
             return self._update_plan(plan_id, title, steps)
-        elif command == "list":
+        if command == "list":
             return self._list_plans()
-        elif command == "get":
+        if command == "get":
             return self._get_plan(plan_id)
-        elif command == "set_active":
+        if command == "set_active":
             return self._set_active_plan(plan_id)
-        elif command == "mark_step":
+        if command == "mark_step":
             return self._mark_step(plan_id, step_index, step_status, step_notes)
-        elif command == "delete":
+        if command == "delete":
             return self._delete_plan(plan_id)
-        else:
-            raise ToolError(
-                f"Unrecognized command: {command}. Allowed commands are: create, update, list, get, set_active, mark_step, delete"
-            )
+        raise ToolError(
+            f"Unrecognized command: {command}. Allowed commands are: create, update, list, get, set_active, mark_step, delete"
+        )
 
     def _create_plan(
-        self, plan_id: Optional[str], title: Optional[str], steps: Optional[List[str]]
+        self, plan_id: str | None, title: str | None, steps: list[str] | None
     ) -> ToolResult:
         """Create a new plan with the given ID, title, and steps."""
         if not plan_id:
@@ -158,7 +156,7 @@ class PlanningTool(BaseTool):
         )
 
     def _update_plan(
-        self, plan_id: Optional[str], title: Optional[str], steps: Optional[List[str]]
+        self, plan_id: str | None, title: str | None, steps: list[str] | None
     ) -> ToolResult:
         """Update an existing plan with new title or steps."""
         if not plan_id:
@@ -225,7 +223,7 @@ class PlanningTool(BaseTool):
 
         return ToolResult(output=output)
 
-    def _get_plan(self, plan_id: Optional[str]) -> ToolResult:
+    def _get_plan(self, plan_id: str | None) -> ToolResult:
         """Get details of a specific plan."""
         if not plan_id:
             # If no plan_id is provided, use the current active plan
@@ -241,7 +239,7 @@ class PlanningTool(BaseTool):
         plan = self.plans[plan_id]
         return ToolResult(output=self._format_plan(plan))
 
-    def _set_active_plan(self, plan_id: Optional[str]) -> ToolResult:
+    def _set_active_plan(self, plan_id: str | None) -> ToolResult:
         """Set a plan as the active plan."""
         if not plan_id:
             raise ToolError("Parameter `plan_id` is required for command: set_active")
@@ -256,10 +254,10 @@ class PlanningTool(BaseTool):
 
     def _mark_step(
         self,
-        plan_id: Optional[str],
-        step_index: Optional[int],
-        step_status: Optional[str],
-        step_notes: Optional[str],
+        plan_id: str | None,
+        step_index: int | None,
+        step_status: str | None,
+        step_notes: str | None,
     ) -> ToolResult:
         """Mark a step with a specific status and optional notes."""
         if not plan_id:
@@ -303,7 +301,7 @@ class PlanningTool(BaseTool):
             output=f"Step {step_index} updated in plan '{plan_id}'.\n\n{self._format_plan(plan)}"
         )
 
-    def _delete_plan(self, plan_id: Optional[str]) -> ToolResult:
+    def _delete_plan(self, plan_id: str | None) -> ToolResult:
         """Delete a plan."""
         if not plan_id:
             raise ToolError("Parameter `plan_id` is required for command: delete")
@@ -319,7 +317,7 @@ class PlanningTool(BaseTool):
 
         return ToolResult(output=f"Plan '{plan_id}' has been deleted.")
 
-    def _format_plan(self, plan: Dict) -> str:
+    def _format_plan(self, plan: dict) -> str:
         """Format a plan for display."""
         output = f"Plan: {plan['title']} (ID: {plan['plan_id']})\n"
         output += "=" * len(output) + "\n\n"
@@ -347,7 +345,7 @@ class PlanningTool(BaseTool):
 
         # Add each step with its status and notes
         for i, (step, status, notes) in enumerate(
-            zip(plan["steps"], plan["step_statuses"], plan["step_notes"])
+            zip(plan["steps"], plan["step_statuses"], plan["step_notes"], strict=False)
         ):
             status_symbol = {
                 "not_started": "[ ]",

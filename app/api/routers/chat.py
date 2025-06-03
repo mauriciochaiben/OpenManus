@@ -3,9 +3,9 @@
 import json
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 
 from app.infrastructure.messaging.progress_broadcaster import progress_broadcaster
@@ -15,7 +15,7 @@ from app.logger import logger
 # WebSocket connection manager
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = {}
+        self.active_connections: dict[str, WebSocket] = {}
 
     async def connect(self, websocket: WebSocket, client_id: str):
         await websocket.accept()
@@ -50,19 +50,19 @@ class ChatMessage(BaseModel):
     role: str  # 'user' or 'assistant'
     content: str
     timestamp: str
-    task_id: Optional[str] = None
+    task_id: str | None = None
 
 
 class ChatRequest(BaseModel):
     message: str
-    context: Optional[Dict[str, Any]] = {}
+    context: dict[str, Any] | None = {}
 
 
 class ChatResponse(BaseModel):
     id: str
     message: str
     timestamp: str
-    suggestions: Optional[List[str]] = []
+    suggestions: list[str] | None = []
 
 
 # Global instances
@@ -73,7 +73,7 @@ manager = ConnectionManager()
 progress_broadcaster.set_connection_manager(manager)
 
 # In-memory chat history storage (replace with database in production)
-chat_history: Dict[str, List[ChatMessage]] = {}
+chat_history: dict[str, list[ChatMessage]] = {}
 
 
 @router.websocket("/ws/{client_id}")

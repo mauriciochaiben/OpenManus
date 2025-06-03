@@ -9,6 +9,7 @@ a funcionalidade do PlannerAgent usando mocks e pytest.
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 
 def run_tests():
@@ -46,17 +47,17 @@ def run_tests():
             timeout=60,
         )
 
-        print(f"📊 Resultado dos Testes:")
+        print("📊 Resultado dos Testes:")
         print(f"   • Código de retorno: {result.returncode}")
 
         if result.returncode == 0:
-            print(f"   • Status: ✅ SUCESSO")
+            print("   • Status: ✅ SUCESSO")
         else:
-            print(f"   • Status: ❌ FALHA")
+            print("   • Status: ❌ FALHA")
 
         # Mostrar saída dos testes
         if result.stdout:
-            print(f"\n📝 Saída dos Testes:")
+            print("\n📝 Saída dos Testes:")
             print("-" * 30)
             lines = result.stdout.split("\n")
             for line in lines:
@@ -68,7 +69,7 @@ def run_tests():
                     print(f"   🎉 {line.strip()}")
 
         if result.stderr and result.returncode != 0:
-            print(f"\n⚠️ Erros:")
+            print("\n⚠️ Erros:")
             print(result.stderr)
 
     except subprocess.TimeoutExpired:
@@ -80,7 +81,7 @@ def run_tests():
 def show_test_structure():
     """Mostra a estrutura dos testes implementados."""
 
-    print(f"\n🏗️ Estrutura dos Testes Implementados:")
+    print("\n🏗️ Estrutura dos Testes Implementados:")
     print("-" * 40)
 
     test_categories = {
@@ -120,7 +121,7 @@ def show_test_structure():
 def show_mock_example():
     """Mostra exemplo de como os mocks são usados nos testes."""
 
-    print(f"\n🎭 Exemplo de Mock Implementation:")
+    print("\n🎭 Exemplo de Mock Implementation:")
     print("-" * 40)
 
     mock_example = """
@@ -159,7 +160,7 @@ async def test_run_success_with_development_task(self):
 def show_benefits():
     """Mostra os benefícios da implementação de testes."""
 
-    print(f"\n🌟 Benefícios dos Testes Implementados:")
+    print("\n🌟 Benefícios dos Testes Implementados:")
     print("-" * 40)
 
     benefits = [
@@ -181,7 +182,7 @@ def main():
     """Função principal da demonstração."""
 
     # Verificar se estamos no diretório correto
-    if not os.path.exists("app/roles/planner_agent.py"):
+    if not Path("app/roles/planner_agent.py").exists():
         print("❌ Execute este script no diretório raiz do OpenManus")
         return
 
@@ -191,7 +192,7 @@ def main():
     show_mock_example()
     show_benefits()
 
-    print(f"\n🎉 Demonstração Concluída!")
+    print("\n🎉 Demonstração Concluída!")
     print("📋 Para executar os testes manualmente:")
     print("   cd /Users/mauriciochaiben/OpenManus")
     print("   PYTHONPATH=. python -m pytest tests/unit/roles/test_planner_agent.py -v")

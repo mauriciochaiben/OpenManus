@@ -5,9 +5,6 @@ This module implements the ToolUserAgent, responsible for executing tools
 registered in the system's ToolRegistry based on task details provided.
 """
 
-import json
-from typing import Any, Dict, List, Optional
-
 from app.agent.base_agent import BaseAgent
 from app.logger import logger
 from app.tool.registry import ToolRegistry
@@ -24,7 +21,7 @@ class ToolUserAgent(BaseAgent):
         tool_registry: The ToolRegistry instance for tool management and execution.
     """
 
-    def __init__(self, config: Optional[Dict] = None) -> None:
+    def __init__(self, config: dict | None = None) -> None:
         """Initialize the ToolUserAgent with a ToolRegistry instance.
 
         Args:
@@ -39,7 +36,7 @@ class ToolUserAgent(BaseAgent):
         self.config = config or {}
         logger.info("ToolUserAgent initialized with tool registry")
 
-    async def run(self, task_details: Dict) -> Dict:
+    async def run(self, task_details: dict) -> dict:
         """Execute a tool based on the provided task details.
 
         Args:
@@ -146,7 +143,7 @@ class ToolUserAgent(BaseAgent):
                 "metadata": {"error_type": type(e).__name__, "execution_time": 0},
             }
 
-    def get_capabilities(self) -> List[str]:
+    def get_capabilities(self) -> list[str]:
         """Return the capabilities of the ToolUserAgent.
 
         Returns:
@@ -160,7 +157,7 @@ class ToolUserAgent(BaseAgent):
         """
         return ["tool_execution"]
 
-    def get_available_tools(self) -> List[str]:
+    def get_available_tools(self) -> list[str]:
         """Get a list of all available tools in the registry.
 
         Returns:

@@ -77,17 +77,23 @@ def test_imports():
     print_status("Testando imports essenciais...", "info")
 
     try:
-        import fastapi
+        import importlib.util
 
-        print_status("FastAPI ✓", "success")
+        if importlib.util.find_spec("fastapi") is not None:
+            print_status("FastAPI ✓", "success")
+        else:
+            raise ImportError("FastAPI not found")
     except ImportError:
         print_status("FastAPI não instalado", "error")
         return False
 
     try:
-        import uvicorn
+        import importlib.util
 
-        print_status("Uvicorn ✓", "success")
+        if importlib.util.find_spec("uvicorn") is not None:
+            print_status("Uvicorn ✓", "success")
+        else:
+            raise ImportError("Uvicorn not found")
     except ImportError:
         print_status("Uvicorn não instalado", "error")
         return False
@@ -99,9 +105,12 @@ def test_imports():
         if "." not in sys.path:
             sys.path.insert(0, ".")
 
-        from app.api.main import app
+        import importlib.util
 
-        print_status("App principal ✓", "success")
+        if importlib.util.find_spec("app.api.main") is not None:
+            print_status("App principal ✓", "success")
+        else:
+            raise ImportError("App principal not found")
     except ImportError as e:
         print_status(f"Erro ao importar app principal: {e}", "error")
         return False

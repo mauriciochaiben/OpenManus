@@ -1,12 +1,13 @@
 import tempfile
+from collections.abc import AsyncGenerator, Generator
 from pathlib import Path
-from typing import AsyncGenerator, Generator
 
 import pytest
 import pytest_asyncio
 
-from app.core.settings import SandboxSettings, settings
+from app.core.settings import SandboxSettings
 from app.sandbox.client import LocalSandboxClient, create_sandbox_client
+from app.sandbox.core.exceptions import SandboxTimeoutError
 
 
 @pytest_asyncio.fixture(scope="function")
@@ -49,7 +50,7 @@ async def test_local_command_execution(local_client: LocalSandboxClient):
     result = await local_client.run_command("echo 'test'")
     assert result.strip() == "test"
 
-    with pytest.raises(Exception):
+    with pytest.raises((SandboxTimeoutError, TimeoutError, RuntimeError)):
         await local_client.run_command("sleep 10", timeout=1)
 
 

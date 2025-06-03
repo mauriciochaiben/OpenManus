@@ -1,6 +1,8 @@
+from pathlib import Path
+
 from setuptools import find_packages, setup
 
-with open("README.md", "r", encoding="utf-8") as fh:
+with Path("README.md").open(encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(

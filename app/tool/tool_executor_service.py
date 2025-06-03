@@ -14,11 +14,11 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 try:
     import docker
-    from docker.errors import APIError, ContainerError, DockerException
+    from docker.errors import APIError, DockerException
 
     DOCKER_AVAILABLE = True
 except ImportError:
@@ -62,12 +62,12 @@ class ExecutionContext:
     """Context for tool execution."""
 
     tool: BaseTool
-    parameters: Dict[str, Any]
+    parameters: dict[str, Any]
     mode: ExecutionMode
-    sandbox_config: Optional[SandboxConfig] = None
+    sandbox_config: SandboxConfig | None = None
     execution_id: str = ""
     start_time: float = 0
-    container_id: Optional[str] = None
+    container_id: str | None = None
 
 
 class ToolExecutorService:
@@ -102,7 +102,7 @@ class ToolExecutorService:
     def __init__(self):
         """Initialize the tool executor service."""
         self.docker_client = None
-        self.active_containers: Dict[str, str] = {}  # execution_id -> container_id
+        self.active_containers: dict[str, str] = {}  # execution_id -> container_id
         self._setup_docker()
 
     def _setup_docker(self):
@@ -147,9 +147,9 @@ class ToolExecutorService:
     async def execute_tool(
         self,
         tool_name: str,
-        parameters: Dict[str, Any],
+        parameters: dict[str, Any],
         force_sandbox: bool = False,
-        sandbox_config: Optional[SandboxConfig] = None,
+        sandbox_config: SandboxConfig | None = None,
     ) -> ToolResult:
         """
         Execute a tool with appropriate security measures.
@@ -252,11 +252,10 @@ class ToolExecutorService:
         if tool.name in self.UNSAFE_TOOLS:
             if self.docker_client:
                 return ExecutionMode.SANDBOXED
-            else:
-                logger.warning(
-                    f"Tool '{tool.name}' is unsafe but Docker unavailable. Using restricted mode."
-                )
-                return ExecutionMode.RESTRICTED
+            logger.warning(
+                f"Tool '{tool.name}' is unsafe but Docker unavailable. Using restricted mode."
+            )
+            return ExecutionMode.RESTRICTED
 
         return ExecutionMode.DIRECT
 
@@ -275,13 +274,11 @@ class ToolExecutorService:
             timeout = getattr(settings, "tool_execution_timeout", 30)
 
             # Execute with timeout
-            result = await asyncio.wait_for(
+            return await asyncio.wait_for(
                 context.tool.execute(**context.parameters), timeout=timeout
             )
 
-            return result
-
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return ToolResult(
                 success=False,
                 result="",
@@ -309,25 +306,24 @@ class ToolExecutorService:
             context.container_id = container_setup["container_id"]
 
             # Execute in container
-            result = await self._execute_in_container(
+            return await self._execute_in_container(
                 context, container_setup, sandbox_config
             )
 
-            return result
-
         except Exception as e:
             logger.error(f"Sandbox execution failed: {str(e)}")
-            raise SecurityError(f"Sandbox execution failed: {str(e)}")
+            raise SecurityError(f"Sandbox execution failed: {str(e)}") from e
 
     def _get_default_sandbox_config(self, tool: BaseTool) -> SandboxConfig:
         """Get default sandbox configuration for a tool."""
         return self.DEFAULT_SANDBOX_CONFIGS.get(
-            tool.category, SandboxConfig()  # Use default config
+            tool.category,
+            SandboxConfig(),  # Use default config
         )
 
     async def _prepare_sandbox(
         self, context: ExecutionContext, config: SandboxConfig
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Prepare Docker sandbox environment.
 
@@ -381,7 +377,7 @@ class ToolExecutorService:
 
         except Exception as e:
             logger.error(f"Failed to prepare sandbox: {str(e)}")
-            raise SecurityError(f"Sandbox preparation failed: {str(e)}")
+            raise SecurityError(f"Sandbox preparation failed: {str(e)}") from e
 
     async def _prepare_execution_script(
         self, context: ExecutionContext, temp_dir: str
@@ -402,12 +398,11 @@ class ToolExecutorService:
         if tool_name == "code_execution":
             # Special handling for code execution
             return await self._prepare_code_execution_script(parameters, temp_dir)
-        else:
-            # Generic tool execution script
-            return await self._prepare_generic_tool_script(context, temp_dir)
+        # Generic tool execution script
+        return await self._prepare_generic_tool_script(context, temp_dir)
 
     async def _prepare_code_execution_script(
-        self, parameters: Dict[str, Any], temp_dir: str
+        self, parameters: dict[str, Any], temp_dir: str
     ) -> str:
         """Prepare script for code execution tool."""
         code = parameters.get("code", "")
@@ -416,19 +411,18 @@ class ToolExecutorService:
         if language == "python":
             # Create Python script
             script_path = Path(temp_dir) / "execute.py"
-            with open(script_path, "w", encoding="utf-8") as f:
+            with script_path.open("w", encoding="utf-8") as f:
                 f.write(code)
             return "/workspace/execute.py"
 
-        elif language == "javascript":
+        if language == "javascript":
             # Create JavaScript file
             script_path = Path(temp_dir) / "execute.js"
-            with open(script_path, "w", encoding="utf-8") as f:
+            with script_path.open("w", encoding="utf-8") as f:
                 f.write(code)
             return "/workspace/execute.js"
 
-        else:
-            raise ValidationError(f"Unsupported language for sandbox: {language}")
+        raise ValidationError(f"Unsupported language for sandbox: {language}")
 
     async def _prepare_generic_tool_script(
         self, context: ExecutionContext, temp_dir: str
@@ -476,17 +470,17 @@ if __name__ == "__main__":
 """
 
         script_path = Path(temp_dir) / "tool_wrapper.py"
-        with open(script_path, "w", encoding="utf-8") as f:
+        with script_path.open("w", encoding="utf-8") as f:
             f.write(script_content)
 
         return "/workspace/tool_wrapper.py"
 
-    def _get_container_command(self, tool: BaseTool, script_path: str) -> List[str]:
+    def _get_container_command(self, tool: BaseTool, script_path: str) -> list[str]:
         """Get container execution command."""
         if tool.name == "code_execution":
             if script_path.endswith(".py"):
                 return ["python", script_path]
-            elif script_path.endswith(".js"):
+            if script_path.endswith(".js"):
                 return ["node", script_path]
 
         return ["python", script_path]
@@ -494,7 +488,7 @@ if __name__ == "__main__":
     async def _execute_in_container(
         self,
         context: ExecutionContext,
-        container_setup: Dict[str, Any],
+        container_setup: dict[str, Any],
         config: SandboxConfig,
     ) -> ToolResult:
         """
@@ -537,18 +531,17 @@ if __name__ == "__main__":
                                 "exit_code": exit_code["StatusCode"],
                             },
                         )
-                    else:
-                        # For other tools, try to parse JSON output
-                        try:
-                            result_data = json.loads(logs.strip())
-                            return ToolResult(**result_data)
-                        except json.JSONDecodeError:
-                            return ToolResult(
-                                success=True,
-                                result=logs.strip(),
-                                error=None,
-                                metadata={"container_id": container.id},
-                            )
+                    # For other tools, try to parse JSON output
+                    try:
+                        result_data = json.loads(logs.strip())
+                        return ToolResult(**result_data)
+                    except json.JSONDecodeError:
+                        return ToolResult(
+                            success=True,
+                            result=logs.strip(),
+                            error=None,
+                            metadata={"container_id": container.id},
+                        )
                 else:
                     # Execution failed
                     return ToolResult(
@@ -598,7 +591,7 @@ if __name__ == "__main__":
             except Exception as e:
                 logger.warning(f"Failed to cleanup container {container_id}: {str(e)}")
 
-    async def list_active_executions(self) -> List[Dict[str, Any]]:
+    async def list_active_executions(self) -> list[dict[str, Any]]:
         """List currently active executions."""
         active = []
         for execution_id, container_id in self.active_containers.items():

@@ -4,19 +4,13 @@ Servidor MCP especializado em desenvolvimento de software
 
 import asyncio
 import os
-from typing import Any, Sequence
+from pathlib import Path
+from typing import Any
 
 import mcp.server.stdio
 import mcp.types as types
 from mcp.server import NotificationOptions, Server
-from mcp.types import (
-    EmbeddedResource,
-    ImageContent,
-    InitializeResult,
-    Resource,
-    TextContent,
-    Tool,
-)
+from mcp.types import InitializeResult, Resource, Tool
 
 # Configuração baseada em variáveis de ambiente
 SPECIALIZATION = os.getenv("SPECIALIZATION", "development")
@@ -29,7 +23,7 @@ server = Server("openmanus-development-agent")
 @server.list_resources()
 async def handle_list_resources() -> list[Resource]:
     """Lista recursos disponíveis para desenvolvimento"""
-    resources = [
+    return [
         Resource(
             uri="development://capabilities",
             name="Development Capabilities",
@@ -43,7 +37,6 @@ async def handle_list_resources() -> list[Resource]:
             mimeType="application/json",
         ),
     ]
-    return resources
 
 
 @server.read_resource()
@@ -69,7 +62,7 @@ async def handle_read_resource(uri: str) -> str:
             ]
         }
         """
-    elif uri == "development://tools":
+    if uri == "development://tools":
         return f"""
         {{
             "available_tools": {TOOLS},
@@ -77,8 +70,7 @@ async def handle_read_resource(uri: str) -> str:
             "last_updated": "{asyncio.get_event_loop().time()}"
         }}
         """
-    else:
-        raise ValueError(f"Unknown resource: {uri}")
+    raise ValueError(f"Unknown resource: {uri}")
 
 
 @server.list_tools()
@@ -218,21 +210,21 @@ async def handle_call_tool(
         # Implementação básica de operações de arquivo
         try:
             if operation == "read":
-                with open(path, "r", encoding="utf-8") as f:
+                with Path(path).open(encoding="utf-8") as f:
                     content = f.read()
                 return [
                     types.TextContent(type="text", text=f"File content:\n{content}")
                 ]
 
-            elif operation == "write":
+            if operation == "write":
                 content = arguments.get("content", "")
-                with open(path, "w", encoding="utf-8") as f:
+                with Path(path).open("w", encoding="utf-8") as f:
                     f.write(content)
                 return [
                     types.TextContent(type="text", text=f"Successfully wrote to {path}")
                 ]
 
-            elif operation == "list":
+            if operation == "list":
                 import os
 
                 files = os.listdir(path)
@@ -242,12 +234,11 @@ async def handle_call_tool(
                     )
                 ]
 
-            else:
-                return [
-                    types.TextContent(
-                        type="text", text=f"Operation {operation} not yet implemented"
-                    )
-                ]
+            return [
+                types.TextContent(
+                    type="text", text=f"Operation {operation} not yet implemented"
+                )
+            ]
 
         except Exception as e:
             return [
@@ -277,12 +268,11 @@ async def handle_call_tool(
                     types.TextContent(type="text", text=f"Execution result:\n{output}")
                 ]
 
-            else:
-                return [
-                    types.TextContent(
-                        type="text", text=f"Language {language} not yet supported"
-                    )
-                ]
+            return [
+                types.TextContent(
+                    type="text", text=f"Language {language} not yet supported"
+                )
+            ]
 
         except Exception as e:
             return [
@@ -332,7 +322,7 @@ async def handle_call_tool(
             ]
 
     elif name == "dev_testing":
-        test_type = arguments.get("test_type")
+        arguments.get("test_type")
         test_path = arguments.get("test_path")
         framework = arguments.get("framework", "pytest")
 

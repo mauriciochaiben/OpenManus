@@ -60,7 +60,7 @@ class TestAsyncDockerizedTerminal:
     async def test_working_directory(self, terminal):
         """Test working directory setup."""
         result = await terminal.run_command("pwd")
-        assert "/workspace" == result
+        assert result == "/workspace"
 
     @pytest.mark.asyncio
     async def test_command_timeout(self, docker_container):

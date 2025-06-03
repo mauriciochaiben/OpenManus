@@ -2,9 +2,8 @@
 
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 
 class EmbeddingMetadataCreate(BaseModel):
@@ -13,7 +12,7 @@ class EmbeddingMetadataCreate(BaseModel):
     """
 
     source_document_id: str = Field(..., description="ID of the source document")
-    chunk_id: Optional[str] = Field(
+    chunk_id: str | None = Field(
         default=None, description="ID of the document chunk this embedding represents"
     )
     vector_id: str = Field(
@@ -39,7 +38,7 @@ class EmbeddingMetadata(EmbeddingMetadataCreate):
     created_at: datetime = Field(
         default_factory=datetime.utcnow, description="Creation timestamp"
     )
-    updated_at: Optional[datetime] = Field(
+    updated_at: datetime | None = Field(
         default=None, description="Last update timestamp"
     )
 

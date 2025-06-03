@@ -6,7 +6,6 @@ para criar agentes especializados seguindo a arquitetura do projeto.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
 
 
 # Nossa implementação da BaseAgent (copiada para demonstração)
@@ -14,17 +13,17 @@ class BaseAgent(ABC):
     """Classe abstrata base para todos os agentes do OpenManus."""
 
     @abstractmethod
-    def __init__(self, config: Optional[Dict] = None) -> None:
+    def __init__(self, config: dict | None = None) -> None:
         """Inicializa o agente com configurações opcionais."""
         pass
 
     @abstractmethod
-    async def run(self, task_details: Dict) -> Dict:
+    async def run(self, task_details: dict) -> dict:
         """Executa uma tarefa específica de forma assíncrona."""
         pass
 
     @abstractmethod
-    def get_capabilities(self) -> List[str]:
+    def get_capabilities(self) -> list[str]:
         """Retorna uma lista das capacidades do agente."""
         pass
 
@@ -33,14 +32,14 @@ class BaseAgent(ABC):
 class CalculatorAgent(BaseAgent):
     """Agente especializado em cálculos matemáticos."""
 
-    def __init__(self, config: Optional[Dict] = None) -> None:
+    def __init__(self, config: dict | None = None) -> None:
         """Inicializa o agente calculadora."""
         self.config = config or {}
         self.name = self.config.get("name", "CalculatorAgent")
         self.precision = self.config.get("precision", 10)
         print(f"🧮 {self.name} inicializado com precisão {self.precision}")
 
-    async def run(self, task_details: Dict) -> Dict:
+    async def run(self, task_details: dict) -> dict:
         """Executa cálculos matemáticos."""
         try:
             operation = task_details.get("operation", "")
@@ -76,7 +75,7 @@ class CalculatorAgent(BaseAgent):
                 "metadata": {"error_type": type(e).__name__, "agent": self.name},
             }
 
-    def get_capabilities(self) -> List[str]:
+    def get_capabilities(self) -> list[str]:
         """Retorna as capacidades do agente calculadora."""
         return [
             "mathematical_operations",

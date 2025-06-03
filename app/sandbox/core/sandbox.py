@@ -4,15 +4,18 @@ import os
 import tarfile
 import tempfile
 import uuid
-from typing import Dict, Optional
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 import docker
 from docker.errors import NotFound
-from docker.models.containers import Container
 
-from app.core.settings import SandboxSettings, settings
+from app.core.settings import SandboxSettings
 from app.sandbox.core.exceptions import SandboxTimeoutError
 from app.sandbox.core.terminal import AsyncDockerizedTerminal
+
+if TYPE_CHECKING:
+    from docker.models.containers import Container
 
 
 class DockerSandbox:
@@ -31,8 +34,8 @@ class DockerSandbox:
 
     def __init__(
         self,
-        config: Optional[SandboxSettings] = None,
-        volume_bindings: Optional[Dict[str, str]] = None,
+        config: SandboxSettings | None = None,
+        volume_bindings: dict[str, str] | None = None,
     ):
         """Initializes a sandbox instance.
 
@@ -43,8 +46,8 @@ class DockerSandbox:
         self.config = config or SandboxSettings()
         self.volume_bindings = volume_bindings or {}
         self.client = docker.from_env()
-        self.container: Optional[Container] = None
-        self.terminal: Optional[AsyncDockerizedTerminal] = None
+        self.container: Container | None = None
+        self.terminal: AsyncDockerizedTerminal | None = None
 
     async def create(self) -> "DockerSandbox":
         """Creates and starts the sandbox container.
@@ -102,7 +105,7 @@ class DockerSandbox:
             await self.cleanup()  # Ensure resources are cleaned up
             raise RuntimeError(f"Failed to create sandbox: {e}") from e
 
-    def _prepare_volume_bindings(self) -> Dict[str, Dict[str, str]]:
+    def _prepare_volume_bindings(self) -> dict[str, dict[str, str]]:
         """Prepares volume binding configuration.
 
         Returns:
@@ -130,14 +133,14 @@ class DockerSandbox:
         Returns:
             Actual path on the host.
         """
-        host_path = os.path.join(
-            tempfile.gettempdir(),
-            f"sandbox_{os.path.basename(path)}_{os.urandom(4).hex()}",
+        host_path = (
+            Path(tempfile.gettempdir())
+            / f"sandbox_{Path(path).name}_{os.urandom(4).hex()}"
         )
-        os.makedirs(host_path, exist_ok=True)
-        return host_path
+        host_path.mkdir(parents=True, exist_ok=True)
+        return str(host_path)
 
-    async def run_command(self, cmd: str, timeout: Optional[int] = None) -> str:
+    async def run_command(self, cmd: str, timeout: int | None = None) -> str:
         """Runs a command in the sandbox.
 
         Args:
@@ -158,10 +161,10 @@ class DockerSandbox:
             return await self.terminal.run_command(
                 cmd, timeout=timeout or self.config.timeout
             )
-        except TimeoutError:
+        except TimeoutError as e:
             raise SandboxTimeoutError(
                 f"Command execution timed out after {timeout or self.config.timeout} seconds"
-            )
+            ) from e
 
     async def read_file(self, path: str) -> str:
         """Reads a file from the container.
@@ -190,10 +193,10 @@ class DockerSandbox:
             content = await self._read_from_tar(tar_stream)
             return content.decode("utf-8")
 
-        except NotFound:
-            raise FileNotFoundError(f"File not found: {path}")
+        except NotFound as e:
+            raise FileNotFoundError(f"File not found: {path}") from e
         except Exception as e:
-            raise RuntimeError(f"Failed to read file: {e}")
+            raise RuntimeError(f"Failed to read file: {e}") from e
 
     async def write_file(self, path: str, content: str) -> None:
         """Writes content to a file in the container.
@@ -210,15 +213,15 @@ class DockerSandbox:
 
         try:
             resolved_path = self._safe_resolve_path(path)
-            parent_dir = os.path.dirname(resolved_path)
+            parent_dir = Path(resolved_path).parent
 
             # Create parent directory
-            if parent_dir:
+            if parent_dir != Path(resolved_path).root:
                 await self.run_command(f"mkdir -p {parent_dir}")
 
             # Prepare file data
             tar_stream = await self._create_tar_stream(
-                os.path.basename(path), content.encode("utf-8")
+                Path(path).name, content.encode("utf-8")
             )
 
             # Write file
@@ -227,7 +230,7 @@ class DockerSandbox:
             )
 
         except Exception as e:
-            raise RuntimeError(f"Failed to write file: {e}")
+            raise RuntimeError(f"Failed to write file: {e}") from e
 
     def _safe_resolve_path(self, path: str) -> str:
         """Safely resolves container path, preventing path traversal.
@@ -245,12 +248,11 @@ class DockerSandbox:
         if ".." in path.split("/"):
             raise ValueError("Path contains potentially unsafe patterns")
 
-        resolved = (
-            os.path.join(self.config.work_dir, path)
-            if not os.path.isabs(path)
+        return (
+            str(Path(self.config.work_dir) / path)
+            if not Path(path).is_absolute()
             else path
         )
-        return resolved
 
     async def copy_from(self, src_path: str, dst_path: str) -> None:
         """Copies a file from the container.
@@ -265,9 +267,9 @@ class DockerSandbox:
         """
         try:
             # Ensure destination file's parent directory exists
-            parent_dir = os.path.dirname(dst_path)
-            if parent_dir:
-                os.makedirs(parent_dir, exist_ok=True)
+            parent_dir = Path(dst_path).parent
+            if parent_dir != Path(dst_path).root:
+                parent_dir.mkdir(parents=True, exist_ok=True)
 
             # Get file stream
             resolved_src = self._safe_resolve_path(src_path)
@@ -278,8 +280,8 @@ class DockerSandbox:
             # Create temporary directory to extract file
             with tempfile.TemporaryDirectory() as tmp_dir:
                 # Write stream to temporary file
-                tar_path = os.path.join(tmp_dir, "temp.tar")
-                with open(tar_path, "wb") as f:
+                tar_path = Path(tmp_dir) / "temp.tar"
+                with tar_path.open("wb") as f:
                     for chunk in stream:
                         f.write(chunk)
 
@@ -290,7 +292,7 @@ class DockerSandbox:
                         raise FileNotFoundError(f"Source file is empty: {src_path}")
 
                     # If destination is a directory, we should preserve relative path structure
-                    if os.path.isdir(dst_path):
+                    if Path(dst_path).is_dir():
                         tar.extractall(dst_path)
                     else:
                         # If destination is a file, we only extract the source file's content
@@ -299,7 +301,7 @@ class DockerSandbox:
                                 f"Source path is a directory but destination is a file: {src_path}"
                             )
 
-                        with open(dst_path, "wb") as dst:
+                        with Path(dst_path).open("wb") as dst:
                             src_file = tar.extractfile(members[0])
                             if src_file is None:
                                 raise RuntimeError(
@@ -307,10 +309,10 @@ class DockerSandbox:
                                 )
                             dst.write(src_file.read())
 
-        except docker.errors.NotFound:
-            raise FileNotFoundError(f"Source file not found: {src_path}")
+        except docker.errors.NotFound as e:
+            raise FileNotFoundError(f"Source file not found: {src_path}") from e
         except Exception as e:
-            raise RuntimeError(f"Failed to copy file: {e}")
+            raise RuntimeError(f"Failed to copy file: {e}") from e
 
     async def copy_to(self, src_path: str, dst_path: str) -> None:
         """Copies a file to the container.
@@ -324,55 +326,56 @@ class DockerSandbox:
             RuntimeError: If copy operation fails.
         """
         try:
-            if not os.path.exists(src_path):
+            if not Path(src_path).exists():
                 raise FileNotFoundError(f"Source file not found: {src_path}")
 
             # Create destination directory in container
             resolved_dst = self._safe_resolve_path(dst_path)
-            container_dir = os.path.dirname(resolved_dst)
-            if container_dir:
+            container_dir = Path(resolved_dst).parent
+            if container_dir != Path(resolved_dst).root:
                 await self.run_command(f"mkdir -p {container_dir}")
 
             # Create tar file to upload
             with tempfile.TemporaryDirectory() as tmp_dir:
-                tar_path = os.path.join(tmp_dir, "temp.tar")
+                tar_path = Path(tmp_dir) / "temp.tar"
                 with tarfile.open(tar_path, "w") as tar:
                     # Handle directory source path
-                    if os.path.isdir(src_path):
-                        os.path.basename(src_path.rstrip("/"))
+                    if Path(src_path).is_dir():
+                        # Get the directory name for archiving
                         for root, _, files in os.walk(src_path):
                             for file in files:
-                                file_path = os.path.join(root, file)
-                                arcname = os.path.join(
-                                    os.path.basename(dst_path),
-                                    os.path.relpath(file_path, src_path),
-                                )
+                                file_path = Path(root) / file
+                                arcname = Path(dst_path).name / Path(
+                                    file_path
+                                ).relative_to(src_path)
                                 tar.add(file_path, arcname=arcname)
                     else:
                         # Add single file to tar
-                        tar.add(src_path, arcname=os.path.basename(dst_path))
+                        tar.add(src_path, arcname=Path(dst_path).name)
 
                 # Read tar file content
-                with open(tar_path, "rb") as f:
+                with tar_path.open("rb") as f:
                     data = f.read()
 
                 # Upload to container
                 await asyncio.to_thread(
                     self.container.put_archive,
-                    os.path.dirname(resolved_dst) or "/",
+                    str(Path(resolved_dst).parent) or "/",
                     data,
                 )
 
                 # Verify file was created successfully
                 try:
                     await self.run_command(f"test -e {resolved_dst}")
-                except Exception:
-                    raise RuntimeError(f"Failed to verify file creation: {dst_path}")
+                except Exception as e:
+                    raise RuntimeError(
+                        f"Failed to verify file creation: {dst_path}"
+                    ) from e
 
         except FileNotFoundError:
             raise
         except Exception as e:
-            raise RuntimeError(f"Failed to copy file: {e}")
+            raise RuntimeError(f"Failed to copy file: {e}") from e
 
     @staticmethod
     async def _create_tar_stream(name: str, content: bytes) -> io.BytesIO:

@@ -1,7 +1,6 @@
 import multiprocessing
 import sys
 from io import StringIO
-from typing import Dict
 
 from app.tool.base import BaseTool
 
@@ -40,7 +39,7 @@ class PythonExecute(BaseTool):
         self,
         code: str,
         timeout: int = 5,
-    ) -> Dict:
+    ) -> dict:
         """
         Executes the provided Python code with a timeout.
 

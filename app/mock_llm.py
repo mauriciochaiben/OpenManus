@@ -1,9 +1,7 @@
 """Mock LLM implementation for testing when external APIs are unavailable"""
 
 import asyncio
-import json
 import random
-from typing import Dict, List, Optional, Union
 
 from openai.types.chat import ChatCompletionMessage
 
@@ -48,22 +46,21 @@ class MockLLM:
 
         if any(word in content_lower for word in ["olá", "oi", "hello", "hi"]):
             return "greeting"
-        elif any(
+        if any(
             word in content_lower
             for word in ["criar", "fazer", "analisar", "pesquisar"]
         ):
             return "task"
-        elif any(word in content_lower for word in ["dados", "informação", "análise"]):
+        if any(word in content_lower for word in ["dados", "informação", "análise"]):
             return "analysis"
-        else:
-            return "default"
+        return "default"
 
     async def ask(
         self,
-        messages: List[Union[dict, Message]],
-        system_msgs: Optional[List[Union[dict, Message]]] = None,
-        stream: bool = True,
-        temperature: Optional[float] = None,
+        messages: list[dict | Message],
+        system_msgs: list[dict | Message] | None = None,  # noqa: ARG002
+        stream: bool = True,  # noqa: ARG002
+        temperature: float | None = None,  # noqa: ARG002
     ) -> str:
         """Mock ask method that provides realistic responses"""
 
@@ -98,13 +95,13 @@ class MockLLM:
 
     async def ask_tool(
         self,
-        messages: List[Union[dict, Message]],
-        system_msgs: Optional[List[Union[dict, Message]]] = None,
-        timeout: int = 300,
-        tools: Optional[List[dict]] = None,
-        tool_choice=None,
-        temperature: Optional[float] = None,
-        **kwargs,
+        messages: list[dict | Message],
+        system_msgs: list[dict | Message] | None = None,
+        timeout: int = 300,  # noqa: ARG002
+        tools: list[dict] | None = None,  # noqa: ARG002
+        tool_choice=None,  # noqa: ARG002
+        temperature: float | None = None,
+        **kwargs,  # noqa: ARG002
     ) -> ChatCompletionMessage:
         """Mock ask_tool method"""
 

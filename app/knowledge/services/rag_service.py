@@ -6,7 +6,6 @@ using semantic similarity search with embeddings.
 """
 
 import logging
-from typing import List, Optional
 
 from app.knowledge.infrastructure.vector_store_client import VectorStoreClient
 from app.knowledge.services.embedding_service import EmbeddingService
@@ -38,8 +37,8 @@ class RagService:
         self.vector_store_client = vector_store_client
 
     async def retrieve_relevant_context(
-        self, query: str, source_ids: Optional[List[str]] = None, k: int = 5
-    ) -> List[str]:
+        self, query: str, source_ids: list[str] | None = None, k: int = 5
+    ) -> list[str]:
         """
         Retrieve relevant context chunks for a given query.
 
@@ -103,10 +102,10 @@ class RagService:
     async def retrieve_relevant_context_with_scores(
         self,
         query: str,
-        source_ids: Optional[List[str]] = None,
+        source_ids: list[str] | None = None,
         k: int = 5,
         min_score: float = 0.0,
-    ) -> List[dict]:
+    ) -> list[dict]:
         """
         Retrieve relevant context chunks with similarity scores.
 

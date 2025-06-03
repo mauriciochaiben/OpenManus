@@ -10,14 +10,14 @@ import asyncio
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from app.infrastructure.messaging.event_bus import Event, EventBus
 from app.knowledge.services.rag_service import RagService
 from app.roles.planner_agent import PlannerAgent
 from app.roles.tool_user_agent import ToolUserAgent
 from app.services.role_manager import RoleManager
-from app.workflows.podcast_generator import PodcastGenerator, PodcastWorkflow
+from app.workflows.podcast_generator import PodcastGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,10 @@ class WorkflowStartedEvent(Event):
     workflow_id: str
     initial_task: str
 
+    def get_event_type(self) -> str:
+        """Return the type of event"""
+        return "workflow_started"
+
 
 @dataclass
 class WorkflowStepStartedEvent(Event):
@@ -38,6 +42,10 @@ class WorkflowStepStartedEvent(Event):
     step_number: int
     step_description: str
     step_type: str  # 'tool' or 'generic'
+
+    def get_event_type(self) -> str:
+        """Return the type of event"""
+        return "workflow_step_started"
 
 
 @dataclass
@@ -49,8 +57,12 @@ class WorkflowStepCompletedEvent(Event):
     step_description: str
     step_type: str
     success: bool
-    result: Optional[Dict] = None
-    error: Optional[str] = None
+    result: dict | None = None
+    error: str | None = None
+
+    def get_event_type(self) -> str:
+        """Return the type of event"""
+        return "workflow_step_completed"
 
 
 @dataclass
@@ -64,8 +76,12 @@ class WorkflowCompletedEvent(Event):
     successful_steps: int
     failed_steps: int
     final_status: str
-    final_result: Optional[Dict] = None
-    error: Optional[str] = None
+    final_result: dict | None = None
+    error: str | None = None
+
+    def get_event_type(self) -> str:
+        """Return the type of event"""
+        return "workflow_completed"
 
 
 class WorkflowRequest:
@@ -74,7 +90,7 @@ class WorkflowRequest:
         title: str,
         description: str,
         steps: list,
-        source_ids: Optional[List[str]] = None,
+        source_ids: list[str] | None = None,
     ):
         self.title = title
         self.description = description
@@ -87,10 +103,10 @@ class WorkflowContext:
 
     def __init__(self, workflow_id: str):
         self.workflow_id = workflow_id
-        self.shared_data: Dict[str, Any] = {}
-        self.step_outputs: Dict[str, Any] = {}
-        self.metadata: Dict[str, Any] = {}
-        self.source_ids: Optional[List[str]] = None
+        self.shared_data: dict[str, Any] = {}
+        self.step_outputs: dict[str, Any] = {}
+        self.metadata: dict[str, Any] = {}
+        self.source_ids: list[str] | None = None
 
     def set_shared_data(self, key: str, value: Any):
         """Set shared data that persists across steps."""
@@ -114,7 +130,7 @@ class WorkflowContext:
             return list(self.step_outputs.values())[-1]
         return None
 
-    def update_metadata(self, metadata: Dict[str, Any]):
+    def update_metadata(self, metadata: dict[str, Any]):
         """Update workflow metadata."""
         self.metadata.update(metadata)
 
@@ -156,7 +172,6 @@ class WorkflowService:
         "load",
         "database",
         "sql",
-        "query",
         "insert",
         "update",
         "delete",
@@ -174,9 +189,9 @@ class WorkflowService:
 
     def __init__(
         self,
-        planner_agent: Optional[PlannerAgent] = None,
-        tool_user_agent: Optional[ToolUserAgent] = None,
-        event_bus: Optional[EventBus] = None,
+        planner_agent: PlannerAgent | None = None,
+        tool_user_agent: ToolUserAgent | None = None,
+        event_bus: EventBus | None = None,
     ) -> None:
         """Initialize the WorkflowService with required dependencies.
 
@@ -190,13 +205,12 @@ class WorkflowService:
         self.event_bus = event_bus
 
         # Generate unique workflow ID
-        import uuid
 
         self._current_workflow_id = None
 
         self.rag_service = None  # Will be injected via dependency injection
-        self.role_manager: Optional[RoleManager] = None
-        self.podcast_generator: Optional[PodcastGenerator] = None
+        self.role_manager: RoleManager | None = None
+        self.podcast_generator: PodcastGenerator | None = None
 
         logger.info("WorkflowService initialized")
 
@@ -215,7 +229,7 @@ class WorkflowService:
     async def enhance_prompt_with_context(
         self,
         original_prompt: str,
-        source_ids: Optional[List[str]] = None,
+        source_ids: list[str] | None = None,
         max_context_chunks: int = 5,
     ) -> str:
         """
@@ -273,7 +287,7 @@ Please provide a comprehensive response that incorporates relevant information f
             # Return original prompt if context retrieval fails
             return original_prompt
 
-    async def start_complex_workflow(self, request: WorkflowRequest) -> Dict:
+    async def start_complex_workflow(self, request: WorkflowRequest) -> dict:
         """
         Start a complex workflow with dynamic agent selection and state management.
 
@@ -283,30 +297,6 @@ Please provide a comprehensive response that incorporates relevant information f
         - Context enhancement from knowledge sources
         - Error recovery and step dependencies
         """
-        import uuid
-
-        workflow_id = self._generate_workflow_id()
-        workflow = {
-            "id": workflow_id,
-            "title": request.title,
-            "description": request.description,
-            "status": "running",
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow(),
-            "steps": [],
-        }
-
-    async def start_complex_workflow(self, request: WorkflowRequest) -> Dict:
-        """
-        Start a complex workflow with dynamic agent selection and state management.
-
-        This method provides enhanced workflow execution with:
-        - Dynamic agent role determination
-        - Shared state management between steps
-        - Context enhancement from knowledge sources
-        - Error recovery and step dependencies
-        """
-        import uuid
 
         workflow_id = self._generate_workflow_id()
 
@@ -359,7 +349,7 @@ Please provide a comprehensive response that incorporates relevant information f
                     "continue_on_error", False
                 ):
                     workflow_data["status"] = "failed"
-                    result = {
+                    return {
                         "workflow_id": workflow_id,
                         "status": "failed",
                         "steps_executed": completed_steps,
@@ -371,7 +361,6 @@ Please provide a comprehensive response that incorporates relevant information f
                             "execution_summary": f"{completed_steps}/{total_steps} steps completed before failure",
                         },
                     }
-                    return result
 
             # All steps completed successfully
             workflow_data["status"] = "completed"
@@ -413,7 +402,7 @@ Please provide a comprehensive response that incorporates relevant information f
             logger.error(f"Complex workflow execution failed: {str(e)}")
             workflow_data["status"] = "failed"
 
-            result = {
+            return {
                 "workflow_id": workflow_id,
                 "status": "failed",
                 "steps_executed": 0,
@@ -426,15 +415,13 @@ Please provide a comprehensive response that incorporates relevant information f
                 },
             }
 
-            return result
-
     async def _execute_complex_step_dict(
         self,
-        workflow_data: Dict,
-        step_config: Dict[str, Any],
+        workflow_data: dict,
+        step_config: dict[str, Any],
         step_index: int,
-        context: WorkflowContext,
-    ) -> Dict:
+        context: WorkflowContext,  # noqa: ARG002
+    ) -> dict:
         """
         Execute a single workflow step with enhanced agent selection (dictionary version).
 
@@ -520,7 +507,7 @@ Please provide a comprehensive response that incorporates relevant information f
 
             return step_result
 
-    async def start_simple_workflow(self, request) -> Dict:
+    async def start_simple_workflow(self, request) -> dict:
         """
         Start a simple workflow (legacy method, now uses complex workflow internally).
 
@@ -547,7 +534,7 @@ Please provide a comprehensive response that incorporates relevant information f
         # Fallback to original implementation if role manager not available
         return await self._start_simple_workflow_legacy(request)
 
-    async def _start_simple_workflow_legacy(self, request) -> Dict:
+    async def _start_simple_workflow_legacy(self, request) -> dict:
         """Legacy simple workflow implementation for backward compatibility."""
         import uuid
 
@@ -738,7 +725,7 @@ Please provide a comprehensive response that incorporates relevant information f
 
             return self._create_error_result(workflow_id, error_msg, 0, 0)
 
-    async def _decompose_task(self, task: str) -> Dict:
+    async def _decompose_task(self, task: str) -> dict:
         """Decompose a task using the PlannerAgent.
 
         Args:
@@ -781,7 +768,7 @@ Please provide a comprehensive response that incorporates relevant information f
 
         return "generic"
 
-    async def _execute_tool_step(self, step_description: str) -> Dict:
+    async def _execute_tool_step(self, step_description: str) -> dict:
         """Execute a tool-based step using ToolUserAgent.
 
         Args:
@@ -802,7 +789,7 @@ Please provide a comprehensive response that incorporates relevant information f
             logger.error(error_msg)
             return {"success": False, "result": None, "message": error_msg}
 
-    async def _execute_generic_step(self, step_description: str) -> Dict:
+    async def _execute_generic_step(self, step_description: str) -> dict:
         """Execute a generic step that doesn't require specific tools.
 
         Args:
@@ -831,7 +818,7 @@ Please provide a comprehensive response that incorporates relevant information f
             logger.error(error_msg)
             return {"success": False, "result": None, "message": error_msg}
 
-    def _extract_tool_info(self, step_description: str) -> Dict:
+    def _extract_tool_info(self, step_description: str) -> dict:
         """Extract tool name and arguments from step description.
 
         Args:
@@ -880,7 +867,7 @@ Please provide a comprehensive response that incorporates relevant information f
 
         return tool_info
 
-    def _aggregate_results(self, step_results: List[Dict]) -> Dict:
+    def _aggregate_results(self, step_results: list[dict]) -> dict:
         """Aggregate step results into a final workflow result.
 
         Args:
@@ -914,7 +901,7 @@ Please provide a comprehensive response that incorporates relevant information f
         error_message: str,
         completed_steps: int,
         total_steps: int,
-    ) -> Dict:
+    ) -> dict:
         """Create a standardized error result.
 
         Args:
@@ -938,7 +925,7 @@ Please provide a comprehensive response that incorporates relevant information f
         }
 
     def _should_enhance_with_context(
-        self, step_config: dict, source_ids: Optional[List[str]]
+        self, step_config: dict, source_ids: list[str] | None
     ) -> bool:
         """
         Determine if a workflow step should be enhanced with knowledge context.
@@ -978,13 +965,10 @@ Please provide a comprehensive response that incorporates relevant information f
             return True
 
         # Planner agents often benefit from context
-        if agent_type == "planner":
-            return True
-
-        return False
+        return agent_type == "planner"
 
     async def _enhance_step_with_context(
-        self, step_input: dict, step_config: dict, source_ids: List[str]
+        self, step_input: dict, step_config: dict, source_ids: list[str]
     ) -> dict:
         """
         Enhance a workflow step's input with relevant knowledge context.
@@ -1050,7 +1034,7 @@ Please provide a comprehensive response that incorporates relevant information f
 
     def _extract_query_from_step_input(
         self, step_input: dict, step_config: dict
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Extract the main query/prompt from step input for context enhancement.
 

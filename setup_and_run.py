@@ -23,11 +23,9 @@ import shutil
 import signal
 import subprocess
 import sys
-import tempfile
 import time
 import venv
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 
 # Cores para output
@@ -165,9 +163,12 @@ class OpenManusSetup:
 
         # Verificar pip
         try:
-            import pip
+            import importlib.util
 
-            print_success("pip ✓")
+            if importlib.util.find_spec("pip") is not None:
+                print_success("pip ✓")
+            else:
+                raise ImportError("pip not found")
         except ImportError:
             print_error("pip não encontrado. Instale pip primeiro.")
             sys.exit(1)
@@ -225,11 +226,10 @@ class OpenManusSetup:
         """Retorna o caminho do executável Python no venv"""
         if platform.system() == "Windows":
             return str(self.venv_path / "Scripts" / "python.exe")
-        else:
-            return str(self.venv_path / "bin" / "python")
+        return str(self.venv_path / "bin" / "python")
 
     def run_venv_command(
-        self, command: List[str], **kwargs
+        self, command: list[str], **kwargs
     ) -> subprocess.CompletedProcess:
         """Executa comando no ambiente virtual"""
         env = os.environ.copy()
@@ -594,7 +594,7 @@ print('FastAPI app created successfully')
             # Verificar se há script dev
             package_json = frontend_dir / "package.json"
             if package_json.exists():
-                with open(package_json) as f:
+                with package_json.open() as f:
                     package_data = json.load(f)
                     scripts = package_data.get("scripts", {})
 
@@ -628,7 +628,7 @@ print('FastAPI app created successfully')
             import urllib.error
             import urllib.request
 
-            for attempt in range(10):  # Tentar por 10 segundos
+            for _attempt in range(10):  # Tentar por 10 segundos
                 try:
                     with urllib.request.urlopen(
                         "http://localhost:8000/health", timeout=2
@@ -645,7 +645,7 @@ print('FastAPI app created successfully')
         except Exception:
             return False
 
-    def get_env_with_pythonpath(self) -> Dict[str, str]:
+    def get_env_with_pythonpath(self) -> dict[str, str]:
         """Retorna ambiente com PYTHONPATH configurado"""
         env = os.environ.copy()
         env["PYTHONPATH"] = str(self.project_root)
@@ -695,7 +695,7 @@ print('FastAPI app created successfully')
         except KeyboardInterrupt:
             pass
 
-    def signal_handler(self, signum, frame):
+    def signal_handler(self, _signum, _frame):
         """Handler para sinais do sistema"""
         print_warning("\nRecebido sinal de interrupção")
         self.cleanup()

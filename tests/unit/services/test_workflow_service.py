@@ -5,9 +5,7 @@ This module contains comprehensive unit tests for the WorkflowService class,
 testing workflow orchestration, step classification, tool execution, and event publishing.
 """
 
-import asyncio
-from typing import Dict, List
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -66,8 +64,7 @@ class TestWorkflowService:
     @pytest.fixture
     def mock_event_bus(self):
         """Create a mock EventBus for testing."""
-        mock_bus = AsyncMock(spec=EventBus)
-        return mock_bus
+        return AsyncMock(spec=EventBus)
 
     @pytest.fixture
     def workflow_service(
@@ -355,7 +352,7 @@ class TestWorkflowService:
         step_events = [
             e
             for e in published_events
-            if isinstance(e, (WorkflowStepStartedEvent, WorkflowStepCompletedEvent))
+            if isinstance(e, WorkflowStepStartedEvent | WorkflowStepCompletedEvent)
         ]
         assert len(step_events) > 0
 

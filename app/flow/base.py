@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -9,15 +8,15 @@ from app.agent.base import BaseAgent
 class BaseFlow(BaseModel, ABC):
     """Base class for execution flows supporting multiple agents"""
 
-    agents: Dict[str, BaseAgent]
-    tools: Optional[List] = None
-    primary_agent_key: Optional[str] = None
+    agents: dict[str, BaseAgent]
+    tools: list | None = None
+    primary_agent_key: str | None = None
 
     class Config:
         arbitrary_types_allowed = True
 
     def __init__(
-        self, agents: Union[BaseAgent, List[BaseAgent], Dict[str, BaseAgent]], **data
+        self, agents: BaseAgent | list[BaseAgent] | dict[str, BaseAgent], **data
     ):
         # Handle different ways of providing agents
         if isinstance(agents, BaseAgent):
@@ -40,11 +39,11 @@ class BaseFlow(BaseModel, ABC):
         super().__init__(**data)
 
     @property
-    def primary_agent(self) -> Optional[BaseAgent]:
+    def primary_agent(self) -> BaseAgent | None:
         """Get the primary agent for the flow"""
         return self.agents.get(self.primary_agent_key)
 
-    def get_agent(self, key: str) -> Optional[BaseAgent]:
+    def get_agent(self, key: str) -> BaseAgent | None:
         """Get a specific agent by key"""
         return self.agents.get(key)
 

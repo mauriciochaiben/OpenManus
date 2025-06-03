@@ -1,7 +1,5 @@
 """Task management API router"""
 
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
@@ -18,8 +16,8 @@ class CreateTaskRequest(BaseModel):
     description: str
     mode: str = "auto"
     priority: str = "medium"
-    tags: List[str] = []
-    document_ids: List[str] = []
+    tags: list[str] = []
+    document_ids: list[str] = []
     config: dict = {}
 
 
@@ -34,8 +32,8 @@ class TaskResponse(BaseModel):
     created_at: str
     updated_at: str
     priority: str
-    tags: List[str]
-    document_ids: List[str]
+    tags: list[str]
+    document_ids: list[str]
 
     @classmethod
     def from_entity(cls, task: Task):
@@ -80,10 +78,10 @@ async def create_task(
             "message": "Task created successfully",
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
-@router.get("/", response_model=List[TaskResponse])
+@router.get("/", response_model=list[TaskResponse])
 async def get_tasks(task_service: TaskService = Depends(get_task_service)):
     """Get all tasks"""
     tasks = await task_service.get_all_tasks()
@@ -117,9 +115,11 @@ async def update_task_status(
             "message": "Task status updated successfully",
         }
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid status: {request.status}")
+        raise HTTPException(
+            status_code=400, detail=f"Invalid status: {request.status}"
+        ) from e
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @router.delete("/{task_id}")

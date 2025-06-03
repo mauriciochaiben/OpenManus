@@ -1,16 +1,15 @@
 import logging
-from typing import List, Optional
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from app.api.dependencies.core import get_workflow_service
+from app.api.routers.workflows import WorkflowStepResponse
 from app.knowledge.infrastructure.vector_store_client import VectorStoreClient
 from app.knowledge.services.embedding_service import EmbeddingService
 from app.knowledge.services.rag_service import RagService
 from app.services.role_manager import RoleManager, create_yaml_role_manager
 from app.services.workflow_service import WorkflowService
-from app.workflows.podcast_generator import PodcastGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +36,8 @@ def get_role_manager() -> RoleManager:
 class WorkflowRequest(BaseModel):
     title: str
     description: str
-    steps: List[dict]
-    source_ids: Optional[List[str]] = Field(
+    steps: list[dict]
+    source_ids: list[str] | None = Field(
         default=None, description="Knowledge source IDs for context"
     )
 
@@ -48,7 +47,7 @@ class WorkflowResponse(BaseModel):
     title: str
     description: str
     status: str
-    steps: List[dict]
+    steps: list[dict]
     created_at: str
     updated_at: str
     context_enhanced: bool
@@ -102,7 +101,7 @@ async def create_complex_workflow(
 
     except Exception as e:
         logger.error(f"Error creating complex workflow: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/simple", response_model=WorkflowResponse)
@@ -152,7 +151,7 @@ async def create_simple_workflow(
 
     except Exception as e:
         logger.error(f"Error creating workflow: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # @router.post("/podcast", response_model=WorkflowResponse)

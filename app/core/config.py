@@ -8,7 +8,6 @@ This module will be removed in a future version.
 """
 
 import warnings
-from typing import List, Optional
 
 # Import the new settings system
 from app.core.settings import settings as new_settings

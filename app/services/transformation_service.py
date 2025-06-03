@@ -11,7 +11,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
 from pydantic import BaseModel, Field
@@ -33,10 +33,10 @@ class TransformationResult:
     template_name: str
     transformed_content: str
     prompt_used: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
     created_at: datetime
     processing_time: float
-    token_usage: Optional[Dict[str, int]] = None
+    token_usage: dict[str, int] | None = None
 
 
 class PromptTemplate(BaseModel):
@@ -45,12 +45,12 @@ class PromptTemplate(BaseModel):
     name: str = Field(..., description="Unique name for the template")
     description: str = Field(..., description="Description of what this template does")
     template: str = Field(..., description="Jinja2 template string")
-    variables: List[str] = Field(
+    variables: list[str] = Field(
         default_factory=list, description="List of required variables"
     )
     output_format: str = Field(default="text", description="Expected output format")
     category: str = Field(default="general", description="Template category")
-    tags: List[str] = Field(default_factory=list, description="Tags for organization")
+    tags: list[str] = Field(default_factory=list, description="Tags for organization")
     version: str = Field(default="1.0", description="Template version")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -61,7 +61,7 @@ class TransformationRequest(BaseModel):
 
     source_id: str = Field(..., description="ID of the knowledge source")
     template_name: str = Field(..., description="Name of the prompt template to use")
-    variables: Dict[str, Any] = Field(
+    variables: dict[str, Any] = Field(
         default_factory=dict, description="Template variables"
     )
     use_rag: bool = Field(
@@ -84,7 +84,7 @@ class TransformationService:
         rag_service: RagService,
         source_service: SourceService,
         llm_client: LLMClient,
-        templates_dir: Union[str, Path] = "app/templates/transformations",
+        templates_dir: str | Path = "app/templates/transformations",
     ):
         """
         Initialize the transformation service.
@@ -109,7 +109,7 @@ class TransformationService:
         )
 
         # Cache for loaded templates
-        self._template_cache: Dict[str, PromptTemplate] = {}
+        self._template_cache: dict[str, PromptTemplate] = {}
         self._load_templates()
 
     def _load_templates(self):
@@ -124,7 +124,7 @@ class TransformationService:
             # Load templates from JSON files
             for template_file in self.templates_dir.glob("*.json"):
                 try:
-                    with open(template_file, "r", encoding="utf-8") as f:
+                    with template_file.open(encoding="utf-8") as f:
                         template_data = json.load(f)
 
                     template = PromptTemplate(**template_data)
@@ -145,7 +145,7 @@ class TransformationService:
         self,
         source_id: str,
         prompt_template: str,
-        variables: Optional[Dict[str, Any]] = None,
+        variables: dict[str, Any] | None = None,
         use_rag: bool = True,
         max_content_chunks: int = 10,
     ) -> TransformationResult:
@@ -224,11 +224,11 @@ class TransformationService:
 
         except Exception as e:
             logger.error(f"Error in transformation {transformation_id}: {str(e)}")
-            raise ValidationError(f"Transformation failed: {str(e)}")
+            raise ValidationError(f"Transformation failed: {str(e)}") from e
 
     async def _load_source_content(
         self, source_id: str, use_rag: bool, max_chunks: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Load content from a knowledge source.
 
@@ -294,7 +294,7 @@ class TransformationService:
         template_file = self.templates_dir / f"{template_identifier}.json"
         if template_file.exists():
             try:
-                with open(template_file, "r", encoding="utf-8") as f:
+                with Path(template_file).open(encoding="utf-8") as f:
                     template_data = json.load(f)
                 template = PromptTemplate(**template_data)
                 self._template_cache[template.name] = template
@@ -313,7 +313,7 @@ class TransformationService:
         )
 
     async def _render_prompt(
-        self, template: PromptTemplate, variables: Dict[str, Any]
+        self, template: PromptTemplate, variables: dict[str, Any]
     ) -> str:
         """
         Render a Jinja2 template with provided variables.
@@ -332,7 +332,7 @@ class TransformationService:
 
         except Exception as e:
             logger.error(f"Error rendering template {template.name}: {str(e)}")
-            raise ValidationError(f"Template rendering failed: {str(e)}")
+            raise ValidationError(f"Template rendering failed: {str(e)}") from e
 
     async def _generate_transformation(
         self, prompt: str, output_format: str = "text"
@@ -362,7 +362,7 @@ class TransformationService:
 
         except Exception as e:
             logger.error(f"Error generating transformation: {str(e)}")
-            raise ValidationError(f"LLM generation failed: {str(e)}")
+            raise ValidationError(f"LLM generation failed: {str(e)}") from e
 
     def _get_system_prompt(self, output_format: str) -> str:
         """Get appropriate system prompt based on output format."""
@@ -376,7 +376,7 @@ class TransformationService:
 
         return system_prompts.get(output_format, system_prompts["text"])
 
-    async def get_available_templates(self) -> List[PromptTemplate]:
+    async def get_available_templates(self) -> list[PromptTemplate]:
         """Get list of all available prompt templates."""
         return list(self._template_cache.values())
 
@@ -398,7 +398,7 @@ class TransformationService:
             template_file = self.templates_dir / f"{template.name}.json"
             self.templates_dir.mkdir(parents=True, exist_ok=True)
 
-            with open(template_file, "w", encoding="utf-8") as f:
+            with template_file.open("w", encoding="utf-8") as f:
                 json.dump(template.dict(), f, indent=2, default=str)
 
             logger.info(f"Created template: {template.name}")
@@ -409,8 +409,8 @@ class TransformationService:
             return False
 
     async def batch_transform(
-        self, request: TransformationRequest, source_ids: List[str]
-    ) -> List[TransformationResult]:
+        self, request: TransformationRequest, source_ids: list[str]
+    ) -> list[TransformationResult]:
         """
         Apply transformation to multiple sources.
 

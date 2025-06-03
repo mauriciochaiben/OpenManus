@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Dict, List, Union
 
 from app.agent.base import BaseAgent
 from app.flow.base import BaseFlow
@@ -20,15 +19,14 @@ class FlowFactory:
     @staticmethod
     def create_flow(
         flow_type: FlowType,
-        agents: Union[BaseAgent, List[BaseAgent], Dict[str, BaseAgent]],
+        agents: BaseAgent | list[BaseAgent] | dict[str, BaseAgent],
         **kwargs,
     ) -> BaseFlow:
-
         # Handle different flow types
         if flow_type == FlowType.PLANNING:
             return PlanningFlow(agents, **kwargs)
 
-        elif flow_type == FlowType.MULTI_AGENT:
+        if flow_type == FlowType.MULTI_AGENT:
             # Ensure agents is in the right format for MultiAgentFlow
             if isinstance(agents, BaseAgent):
                 agents_dict = {"primary": agents, "manus": agents}
@@ -41,7 +39,7 @@ class FlowFactory:
                 agents=agents_dict, mode=ExecutionMode.FORCE_MULTI, **kwargs
             )
 
-        elif flow_type == FlowType.SINGLE_AGENT:
+        if flow_type == FlowType.SINGLE_AGENT:
             # Create a MultiAgentFlow in force single mode
             if isinstance(agents, BaseAgent):
                 agents_dict = {"primary": agents}
@@ -54,7 +52,7 @@ class FlowFactory:
                 agents=agents_dict, mode=ExecutionMode.FORCE_SINGLE, **kwargs
             )
 
-        elif flow_type == FlowType.AUTO:
+        if flow_type == FlowType.AUTO:
             # Create a MultiAgentFlow in auto mode
             if isinstance(agents, BaseAgent):
                 agents_dict = {"primary": agents, "manus": agents}
@@ -71,5 +69,4 @@ class FlowFactory:
                 **kwargs,
             )
 
-        else:
-            raise ValueError(f"Unknown flow type: {flow_type}")
+        raise ValueError(f"Unknown flow type: {flow_type}")

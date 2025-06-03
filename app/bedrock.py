@@ -3,10 +3,9 @@ import sys
 import time
 import uuid
 from datetime import datetime
-from typing import Dict, List, Literal, Optional
+from typing import Literal
 
 import boto3
-
 
 # Global variables to track the current tool use ID across function calls
 # Tmp solution
@@ -27,7 +26,7 @@ class OpenAIResponse:
                 ]
             setattr(self, key, value)
 
-    def model_dump(self, *args, **kwargs):
+    def model_dump(self, *_args, **_kwargs):
         # Convert object to dict and add timestamp
         data = self.__dict__
         data["created_at"] = datetime.now().isoformat()
@@ -173,9 +172,9 @@ class ChatCompletions:
                         "role": bedrock_response.get("output", {})
                         .get("message", {})
                         .get("role", "assistant"),
-                        "tool_calls": openai_tool_calls
-                        if openai_tool_calls != []
-                        else None,
+                        "tool_calls": (
+                            openai_tool_calls if openai_tool_calls != [] else None
+                        ),
                         "function_call": None,
                     },
                 }
@@ -195,12 +194,12 @@ class ChatCompletions:
     async def _invoke_bedrock(
         self,
         model: str,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         max_tokens: int,
         temperature: float,
-        tools: Optional[List[dict]] = None,
-        tool_choice: Literal["none", "auto", "required"] = "auto",
-        **kwargs,
+        tools: list[dict] | None = None,
+        tool_choice: Literal["none", "auto", "required"] = "auto",  # noqa: ARG002
+        **kwargs,  # noqa: ARG002
     ) -> OpenAIResponse:
         # Non-streaming invocation of Bedrock model
         (
@@ -214,18 +213,17 @@ class ChatCompletions:
             inferenceConfig={"temperature": temperature, "maxTokens": max_tokens},
             toolConfig={"tools": tools} if tools else None,
         )
-        openai_response = self._convert_bedrock_response_to_openai_format(response)
-        return openai_response
+        return self._convert_bedrock_response_to_openai_format(response)
 
     async def _invoke_bedrock_stream(
         self,
         model: str,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         max_tokens: int,
         temperature: float,
-        tools: Optional[List[dict]] = None,
-        tool_choice: Literal["none", "auto", "required"] = "auto",
-        **kwargs,
+        tools: list[dict] | None = None,
+        tool_choice: Literal["none", "auto", "required"] = "auto",  # noqa: ARG002
+        **kwargs,  # noqa: ARG002
     ) -> OpenAIResponse:
         # Streaming invocation of Bedrock model
         (
@@ -292,19 +290,16 @@ class ChatCompletions:
                         "input"
                     ] = json.loads(bedrock_response_tool_input)
         print()
-        openai_response = self._convert_bedrock_response_to_openai_format(
-            bedrock_response
-        )
-        return openai_response
+        return self._convert_bedrock_response_to_openai_format(bedrock_response)
 
     def create(
         self,
         model: str,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         max_tokens: int,
         temperature: float,
-        stream: Optional[bool] = True,
-        tools: Optional[List[dict]] = None,
+        stream: bool | None = True,
+        tools: list[dict] | None = None,
         tool_choice: Literal["none", "auto", "required"] = "auto",
         **kwargs,
     ) -> OpenAIResponse:
@@ -322,13 +317,12 @@ class ChatCompletions:
                 tool_choice,
                 **kwargs,
             )
-        else:
-            return self._invoke_bedrock(
-                model,
-                messages,
-                max_tokens,
-                temperature,
-                bedrock_tools,
-                tool_choice,
-                **kwargs,
-            )
+        return self._invoke_bedrock(
+            model,
+            messages,
+            max_tokens,
+            temperature,
+            bedrock_tools,
+            tool_choice,
+            **kwargs,
+        )

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 class BaseTool(ABC, BaseModel):
     name: str
     description: str
-    parameters: Optional[dict] = None
+    parameters: dict | None = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -20,7 +20,7 @@ class BaseTool(ABC, BaseModel):
     async def execute(self, **kwargs) -> Any:
         """Execute the tool with given parameters."""
 
-    def to_param(self) -> Dict:
+    def to_param(self) -> dict:
         """Convert tool to function call format."""
         return {
             "type": "function",
@@ -36,9 +36,9 @@ class ToolResult(BaseModel):
     """Represents the result of a tool execution."""
 
     output: Any = Field(default=None)
-    error: Optional[str] = Field(default=None)
-    base64_image: Optional[str] = Field(default=None)
-    system: Optional[str] = Field(default=None)
+    error: str | None = Field(default=None)
+    base64_image: str | None = Field(default=None)
+    system: str | None = Field(default=None)
 
     class Config:
         arbitrary_types_allowed = True
@@ -48,7 +48,7 @@ class ToolResult(BaseModel):
 
     def __add__(self, other: "ToolResult"):
         def combine_fields(
-            field: Optional[str], other_field: Optional[str], concatenate: bool = True
+            field: str | None, other_field: str | None, concatenate: bool = True
         ):
             if field and other_field:
                 if concatenate:

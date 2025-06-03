@@ -1,8 +1,7 @@
 """Task service - Business logic layer"""
 
-import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from app.domain.entities import Task, TaskComplexity, TaskMode, TaskStatus
 from app.infrastructure.messaging.event_bus import (
@@ -16,7 +15,7 @@ from app.repositories.interfaces import TaskRepository
 class ComplexityAnalysisService:
     """Service for analyzing task complexity"""
 
-    def analyze(self, description: str) -> Dict[str, Any]:
+    def analyze(self, description: str) -> dict[str, Any]:
         """Analyze task complexity based on description"""
         description_lower = description.lower()
 
@@ -90,11 +89,11 @@ class TaskService:
         self,
         title: str,
         description: str,
-        mode: Optional[str] = None,
+        mode: str | None = None,
         priority: str = "medium",
-        tags: List[str] = None,
-        document_ids: List[str] = None,
-        config: Dict = None,
+        tags: list[str] = None,
+        document_ids: list[str] = None,
+        config: dict = None,
     ) -> Task:
         """Create a new task with complexity analysis"""
 
@@ -103,10 +102,7 @@ class TaskService:
         complexity = analysis["complexity"]
 
         # Determine mode
-        if mode:
-            task_mode = TaskMode(mode)
-        else:
-            task_mode = analysis["recommendation"]
+        task_mode = TaskMode(mode) if mode else analysis["recommendation"]
 
         # Create task entity
         task = Task.create(
@@ -128,17 +124,15 @@ class TaskService:
 
         return created_task
 
-    async def get_task(self, task_id: str) -> Optional[Task]:
+    async def get_task(self, task_id: str) -> Task | None:
         """Get task by ID"""
         return await self.task_repository.find_by_id(task_id)
 
-    async def get_all_tasks(self) -> List[Task]:
+    async def get_all_tasks(self) -> list[Task]:
         """Get all tasks"""
         return await self.task_repository.find_all()
 
-    async def update_task_status(
-        self, task_id: str, status: TaskStatus
-    ) -> Optional[Task]:
+    async def update_task_status(self, task_id: str, status: TaskStatus) -> Task | None:
         """Update task status"""
         task = await self.task_repository.find_by_id(task_id)
         if not task:
@@ -164,9 +158,7 @@ class TaskService:
 
         return updated_task
 
-    async def update_task_progress(
-        self, task_id: str, progress: float
-    ) -> Optional[Task]:
+    async def update_task_progress(self, task_id: str, progress: float) -> Task | None:
         """Update task progress"""
         task = await self.task_repository.find_by_id(task_id)
         if not task:
@@ -183,7 +175,7 @@ class TaskService:
 
         return await self.task_repository.delete(task_id)
 
-    async def get_dashboard_stats(self) -> Dict[str, Any]:
+    async def get_dashboard_stats(self) -> dict[str, Any]:
         """Get dashboard statistics"""
         tasks = await self.task_repository.find_all()
 

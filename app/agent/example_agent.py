@@ -5,8 +5,6 @@ Este arquivo serve como exemplo de como implementar um agente seguindo
 a interface definida em base_agent.py.
 """
 
-from typing import Dict, List, Optional
-
 from app.agent.base_agent import BaseAgent
 from app.logger import logger
 
@@ -19,7 +17,7 @@ class ExampleAgent(BaseAgent):
     do projeto OpenManus.
     """
 
-    def __init__(self, config: Optional[Dict] = None) -> None:
+    def __init__(self, config: dict | None = None) -> None:
         """Inicializa o agente de exemplo.
 
         Args:
@@ -36,7 +34,7 @@ class ExampleAgent(BaseAgent):
 
         logger.info(f"Inicializando {self.name} com configurações: {self.config}")
 
-    async def run(self, task_details: Dict) -> Dict:
+    async def run(self, task_details: dict) -> dict:
         """Executa uma tarefa de demonstração.
 
         Args:
@@ -85,7 +83,7 @@ class ExampleAgent(BaseAgent):
                 "metadata": {"error_type": type(e).__name__, "agent_name": self.name},
             }
 
-    def get_capabilities(self) -> List[str]:
+    def get_capabilities(self) -> list[str]:
         """Retorna as capacidades do agente de exemplo.
 
         Returns:

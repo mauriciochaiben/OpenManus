@@ -6,7 +6,6 @@ SQLAlchemy models for database persistence.
 
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
 
 from sqlalchemy import JSON, Boolean, Column, DateTime, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base

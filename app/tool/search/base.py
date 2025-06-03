@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -8,7 +6,7 @@ class SearchItem(BaseModel):
 
     title: str = Field(description="The title of the search result")
     url: str = Field(description="The URL of the search result")
-    description: Optional[str] = Field(
+    description: str | None = Field(
         default=None, description="A description or snippet of the search result"
     )
 
@@ -24,7 +22,7 @@ class WebSearchEngine(BaseModel):
 
     def perform_search(
         self, query: str, num_results: int = 10, *args, **kwargs
-    ) -> List[SearchItem]:
+    ) -> list[SearchItem]:
         """
         Perform a web search and return a list of search items.
 

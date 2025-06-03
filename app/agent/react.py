@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from pydantic import Field
 
@@ -10,12 +9,12 @@ from app.schema import AgentState, Memory
 
 class ReActAgent(BaseAgent, ABC):
     name: str
-    description: Optional[str] = None
+    description: str | None = None
 
-    system_prompt: Optional[str] = None
-    next_step_prompt: Optional[str] = None
+    system_prompt: str | None = None
+    next_step_prompt: str | None = None
 
-    llm: Optional[LLM] = Field(default_factory=LLM)
+    llm: LLM | None = Field(default_factory=LLM)
     memory: Memory = Field(default_factory=Memory)
     state: AgentState = AgentState.IDLE
 

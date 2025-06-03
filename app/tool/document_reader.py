@@ -2,22 +2,22 @@
 """Advanced document reader tool using Docling for comprehensive document processing."""
 
 import json
-import os
 from io import StringIO
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
-from docling.datamodel.base_models import InputFormat
-from docling.datamodel.document import ConversionResult
 from docling.document_converter import DocumentConverter
 from docling_core.types.doc import DoclingDocument
 
-from app.core.settings import settings
+from app.core.settings import config
 from app.exceptions import ToolError
 from app.logger import logger
 from app.tool.base import BaseTool, ToolResult
 from app.tool.file_operators import FileOperator, LocalFileOperator, SandboxFileOperator
+
+if TYPE_CHECKING:
+    from docling.datamodel.document import ConversionResult
 
 
 class AdvancedDocumentReader(BaseTool):
@@ -134,7 +134,7 @@ class AdvancedDocumentReader(BaseTool):
         chunk_document: bool = False,
         max_length: int = 50000,
         include_metadata: bool = False,
-        **kwargs: Any,
+        **kwargs: Any,  # noqa: ARG002
     ) -> str:
         """Execute advanced document reading operation."""
 
@@ -217,8 +217,8 @@ class AdvancedDocumentReader(BaseTool):
         output_format: str,
         extract_tables: bool,
         extract_figures: bool,
-        preserve_structure: bool,
-        chunk_document: bool,
+        preserve_structure: bool,  # noqa: ARG002
+        chunk_document: bool,  # noqa: ARG002
         include_metadata: bool,
     ) -> str:
         """Format the Docling document output according to specified format."""
@@ -229,27 +229,26 @@ class AdvancedDocumentReader(BaseTool):
                 doc, extract_tables, extract_figures, include_metadata
             )
 
-        elif output_format == "markdown":
+        if output_format == "markdown":
             # Export as markdown with full formatting
             return doc.export_to_markdown()
 
-        elif output_format == "text":
+        if output_format == "text":
             # Export as plain text
             return doc.export_to_text()
 
-        elif output_format == "structured":
+        if output_format == "structured":
             # Detailed structural analysis
             return self._format_structured_analysis(
                 doc, extract_tables, extract_figures, include_metadata
             )
 
-        elif output_format == "summary":
+        if output_format == "summary":
             # Brief summary with key information
             return self._format_summary(doc, extract_tables, extract_figures)
 
-        else:
-            # Default to markdown
-            return doc.export_to_markdown()
+        # Default to markdown
+        return doc.export_to_markdown()
 
     def _format_as_json(
         self,
@@ -285,7 +284,7 @@ class AdvancedDocumentReader(BaseTool):
         doc: DoclingDocument,
         extract_tables: bool,
         extract_figures: bool,
-        include_metadata: bool,
+        include_metadata: bool,  # noqa: ARG002
     ) -> str:
         """Format document with detailed structural analysis."""
         analysis = []
@@ -296,7 +295,7 @@ class AdvancedDocumentReader(BaseTool):
         char_count = len(text_content)
 
         analysis.append("=== DOCUMENT STRUCTURE ANALYSIS ===\n")
-        analysis.append(f"Document Statistics:")
+        analysis.append("Document Statistics:")
         analysis.append(f"- Word count: {word_count:,}")
         analysis.append(f"- Character count: {char_count:,}")
 
@@ -304,13 +303,13 @@ class AdvancedDocumentReader(BaseTool):
         try:
             # This depends on Docling's internal structure
             if hasattr(doc, "elements") or hasattr(doc, "body"):
-                analysis.append(f"- Structural elements detected")
+                analysis.append("- Structural elements detected")
 
             if hasattr(doc, "tables") and extract_tables:
-                analysis.append(f"- Tables detected and extracted")
+                analysis.append("- Tables detected and extracted")
 
             if hasattr(doc, "figures") and extract_figures:
-                analysis.append(f"- Figures/images detected and processed")
+                analysis.append("- Figures/images detected and processed")
 
         except Exception as e:
             logger.debug(f"Error analyzing structure: {e}")
@@ -376,13 +375,12 @@ class AdvancedDocumentReader(BaseTool):
                 return f"Text file summary:\n- {len(lines)} lines\n- {word_count} words\n\nFirst 500 characters:\n{content[:500]}{'...' if len(content) > 500 else ''}"
             return content
 
-        elif file_extension == ".csv":
+        if file_extension == ".csv":
             return await self._read_csv_fallback(file_path, output_format, operator)
 
-        else:
-            raise ToolError(
-                f"Docling unavailable and no fallback method for {file_extension} files"
-            )
+        raise ToolError(
+            f"Docling unavailable and no fallback method for {file_extension} files"
+        )
 
     async def _read_csv_fallback(
         self, file_path: str, output_format: str, operator: FileOperator
@@ -403,24 +401,23 @@ class AdvancedDocumentReader(BaseTool):
                 summary.append(f"Columns: {', '.join(df.columns.tolist())}")
 
                 if len(df) > 0:
-                    summary.append(f"\nFirst few rows:")
+                    summary.append("\nFirst few rows:")
                     summary.append(df.head().to_string(index=False))
 
                     numeric_cols = df.select_dtypes(include=["number"]).columns
                     if len(numeric_cols) > 0:
-                        summary.append(f"\nNumeric statistics:")
+                        summary.append("\nNumeric statistics:")
                         summary.append(df[numeric_cols].describe().to_string())
 
                 return "\n".join(summary)
 
-            elif output_format == "json":
+            if output_format == "json":
                 return df.to_json(orient="records", indent=2)
 
-            else:
-                return df.to_string(index=False)
+            return df.to_string(index=False)
 
         except Exception as e:
-            raise ToolError(f"Failed to read CSV file: {str(e)}")
+            raise ToolError(f"Failed to read CSV file: {str(e)}") from e
 
 
 # Keep the original DocumentReader for backward compatibility

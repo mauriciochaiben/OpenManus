@@ -1,5 +1,3 @@
-from typing import List
-
 from baidusearch.baidusearch import search
 
 from app.tool.search.base import SearchItem, WebSearchEngine
@@ -7,8 +5,12 @@ from app.tool.search.base import SearchItem, WebSearchEngine
 
 class BaiduSearchEngine(WebSearchEngine):
     def perform_search(
-        self, query: str, num_results: int = 10, *args, **kwargs
-    ) -> List[SearchItem]:
+        self,
+        query: str,
+        num_results: int = 10,
+        *args,
+        **kwargs,  # noqa: ARG002
+    ) -> list[SearchItem]:
         """
         Baidu search engine.
 

@@ -7,9 +7,12 @@ por outros agentes especializados.
 """
 
 import asyncio
-from typing import Any, Dict, List, Optional
+import logging
+from typing import Any
 
 from app.agent.base_agent import BaseAgent
+
+logger = logging.getLogger(__name__)
 
 
 class PlannerAgent(BaseAgent):
@@ -23,7 +26,7 @@ class PlannerAgent(BaseAgent):
         llm_config: Configuração opcional para o cliente LLM usado na decomposição.
     """
 
-    def __init__(self, config: Optional[Dict] = None) -> None:
+    def __init__(self, config: dict | None = None) -> None:
         """Inicializa o PlannerAgent com configurações opcionais.
 
         Args:
@@ -43,7 +46,7 @@ class PlannerAgent(BaseAgent):
             config.get("planning_strategy", "sequential") if config else "sequential"
         )
 
-    async def run(self, task_details: Dict) -> Dict:
+    async def run(self, task_details: dict) -> dict:
         """Executa a decomposição de uma tarefa em passos sequenciais.
 
         Args:
@@ -101,7 +104,7 @@ class PlannerAgent(BaseAgent):
                 "steps": [],
             }
 
-    async def execute(self, task_config: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, task_config: dict[str, Any]) -> dict[str, Any]:
         """Execute planning task with optional knowledge context enhancement."""
         try:
             objective = task_config.get("objective", "")
@@ -137,7 +140,7 @@ class PlannerAgent(BaseAgent):
                 "error": str(e),
             }
 
-    async def _generate_plan(self, objective: str, config: Dict[str, Any]) -> str:
+    async def _generate_plan(self, objective: str, config: dict[str, Any]) -> str:
         """Generate a plan based on the objective and configuration."""
         # ...existing planning logic...
         # The objective might now include enhanced context
@@ -150,7 +153,7 @@ class PlannerAgent(BaseAgent):
         # ...existing code...
         pass
 
-    def get_capabilities(self) -> List[str]:
+    def get_capabilities(self) -> list[str]:
         """Retorna as capacidades do agente planejador.
 
         Returns:
@@ -191,7 +194,7 @@ class PlannerAgent(BaseAgent):
 
         return base_prompt
 
-    async def _simulate_llm_decomposition(self, task: str, prompt: str) -> List[str]:
+    async def _simulate_llm_decomposition(self, task: str, prompt: str) -> list[str]:  # noqa: ARG002
         """Simula a chamada ao LLM para decomposição da tarefa.
 
         Args:
@@ -217,7 +220,7 @@ class PlannerAgent(BaseAgent):
                 "Passo 4: Criar testes para validação",
                 "Passo 5: Documentar a implementação",
             ]
-        elif "análise" in task.lower() or "analyze" in task.lower():
+        if "análise" in task.lower() or "analyze" in task.lower():
             return [
                 "Passo 1: Coletar os dados necessários",
                 "Passo 2: Processar e limpar os dados",
@@ -225,7 +228,7 @@ class PlannerAgent(BaseAgent):
                 "Passo 4: Interpretar os resultados",
                 "Passo 5: Gerar relatório de conclusões",
             ]
-        elif "integrar" in task.lower() or "integrate" in task.lower():
+        if "integrar" in task.lower() or "integrate" in task.lower():
             return [
                 "Passo 1: Mapear as interfaces existentes",
                 "Passo 2: Definir protocolo de comunicação",
@@ -233,12 +236,11 @@ class PlannerAgent(BaseAgent):
                 "Passo 4: Testar a integração",
                 "Passo 5: Validar o funcionamento completo",
             ]
-        else:
-            # Decomposição genérica
-            return [
-                "Passo 1: Entender os requisitos da tarefa",
-                "Passo 2: Planejar a abordagem de execução",
-                "Passo 3: Executar a tarefa principal",
-                "Passo 4: Verificar e validar resultados",
-                "Passo 5: Finalizar e documentar",
-            ]
+        # Decomposição genérica
+        return [
+            "Passo 1: Entender os requisitos da tarefa",
+            "Passo 2: Planejar a abordagem de execução",
+            "Passo 3: Executar a tarefa principal",
+            "Passo 4: Verificar e validar resultados",
+            "Passo 5: Finalizar e documentar",
+        ]

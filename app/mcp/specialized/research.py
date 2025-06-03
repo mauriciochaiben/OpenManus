@@ -4,17 +4,14 @@ Servidor MCP especializado em pesquisa e análise de informações
 
 import asyncio
 import os
-from typing import Any, Sequence
+from typing import Any
 
 import mcp.server.stdio
 import mcp.types as types
 from mcp.server import NotificationOptions, Server
 from mcp.types import (
-    EmbeddedResource,
-    ImageContent,
     InitializeResult,
     Resource,
-    TextContent,
     Tool,
 )
 
@@ -29,7 +26,7 @@ server = Server("openmanus-research-agent")
 @server.list_resources()
 async def handle_list_resources() -> list[Resource]:
     """Lista recursos disponíveis para pesquisa"""
-    resources = [
+    return [
         Resource(
             uri="research://capabilities",
             name="Research Capabilities",
@@ -49,7 +46,6 @@ async def handle_list_resources() -> list[Resource]:
             mimeType="application/json",
         ),
     ]
-    return resources
 
 
 @server.read_resource()
@@ -75,7 +71,7 @@ async def handle_read_resource(uri: str) -> str:
             ]
         }
         """
-    elif uri == "research://sources":
+    if uri == "research://sources":
         return """
         {
             "web_sources": [
@@ -92,7 +88,7 @@ async def handle_read_resource(uri: str) -> str:
             ]
         }
         """
-    elif uri == "research://methodologies":
+    if uri == "research://methodologies":
         return """
         {
             "research_types": [
@@ -110,8 +106,7 @@ async def handle_read_resource(uri: str) -> str:
             ]
         }
         """
-    else:
-        raise ValueError(f"Unknown resource: {uri}")
+    raise ValueError(f"Unknown resource: {uri}")
 
 
 @server.list_tools()
@@ -353,16 +348,15 @@ async def handle_call_tool(
                 extracted_text = f"Extracted text from {document_path}:\n[Document content would be here]"
                 return [types.TextContent(type="text", text=extracted_text)]
 
-            elif operation == "summarize":
+            if operation == "summarize":
                 summary = f"Summary of {document_path}:\nThis document discusses key topics and provides insights on the subject matter."
                 return [types.TextContent(type="text", text=summary)]
 
-            else:
-                return [
-                    types.TextContent(
-                        type="text", text=f"Operation {operation} not yet implemented"
-                    )
-                ]
+            return [
+                types.TextContent(
+                    type="text", text=f"Operation {operation} not yet implemented"
+                )
+            ]
 
         except Exception as e:
             return [

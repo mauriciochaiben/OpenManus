@@ -3,7 +3,7 @@
 import logging
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -14,9 +14,9 @@ class TextChunk:
 
     id: str
     content: str
-    metadata: Dict[str, Any]
-    start_position: Optional[int] = None
-    end_position: Optional[int] = None
+    metadata: dict[str, Any]
+    start_position: int | None = None
+    end_position: int | None = None
 
 
 class TextProcessor:
@@ -35,10 +35,10 @@ class TextProcessor:
     async def split_text(
         self,
         text: str,
-        chunk_size: Optional[int] = None,
-        chunk_overlap: Optional[int] = None,
-        source_metadata: Optional[Dict[str, Any]] = None,
-    ) -> List[TextChunk]:
+        chunk_size: int | None = None,
+        chunk_overlap: int | None = None,
+        source_metadata: dict[str, Any] | None = None,
+    ) -> list[TextChunk]:
         """Split text into overlapping chunks.
 
         Args:
@@ -120,9 +120,7 @@ class TextProcessor:
         text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)
 
         # Strip leading/trailing whitespace
-        text = text.strip()
-
-        return text
+        return text.strip()
 
     def _find_sentence_boundary(
         self, text: str, preferred_end: int, min_end: int
@@ -145,24 +143,23 @@ class TextProcessor:
         sentence_endings = []
         for i in range(search_start, search_end):
             char = text[i]
-            if char in ".!?" and i + 1 < len(text):
-                # Check if this is likely a sentence ending
-                next_char = text[i + 1]
-                if next_char.isspace() or next_char in "\n\r":
-                    # Check if it's not an abbreviation (simple heuristic)
-                    if not (
-                        char == "."
-                        and i > 0
-                        and text[i - 1].isupper()
-                        and i > 1
-                        and text[i - 2].isupper()
-                    ):
-                        sentence_endings.append(i + 1)
+            if (
+                char in ".!?"
+                and i + 1 < len(text)
+                and (text[i + 1].isspace() or text[i + 1] in "\n\r")
+                and not (
+                    char == "."
+                    and i > 0
+                    and text[i - 1].isupper()
+                    and i > 1
+                    and text[i - 2].isupper()
+                )
+            ):
+                sentence_endings.append(i + 1)
 
         if sentence_endings:
             # Find the sentence ending closest to our preferred position
-            closest = min(sentence_endings, key=lambda x: abs(x - preferred_end))
-            return closest
+            return min(sentence_endings, key=lambda x: abs(x - preferred_end))
 
         # Look for paragraph breaks
         for i in range(search_start, search_end):
@@ -177,7 +174,7 @@ class TextProcessor:
         # If no good boundary found, use preferred end
         return preferred_end
 
-    def extract_key_phrases(self, text: str, max_phrases: int = 10) -> List[str]:
+    def extract_key_phrases(self, text: str, max_phrases: int = 10) -> list[str]:
         """Extract key phrases from text.
 
         Args:
@@ -206,7 +203,7 @@ class TextProcessor:
         phrases.sort(key=len, reverse=True)
         return phrases[:max_phrases]
 
-    def calculate_readability(self, text: str) -> Dict[str, float]:
+    def calculate_readability(self, text: str) -> dict[str, float]:
         """Calculate basic readability metrics.
 
         Args:

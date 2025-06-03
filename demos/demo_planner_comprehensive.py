@@ -7,14 +7,13 @@ mostrando como ele decompõe diversos tipos de tarefas em passos executáveis.
 """
 
 import asyncio
-import json
-import os
 import sys
-
-# Adicionar o diretório raiz ao path para importações
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pathlib import Path
 
 from app.roles.planner_agent import PlannerAgent
+
+# Adicionar o diretório raiz ao path para importações
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 
 async def demonstrate_planner_agent():
@@ -86,7 +85,7 @@ async def demonstrate_planner_agent():
             for j, step in enumerate(result["steps"], 1):
                 print(f"   {j:2d}. {step}")
 
-            print(f"\n📊 Metadados:")
+            print("\n📊 Metadados:")
             metadata = result["metadata"]
             print(f"   • Estratégia: {metadata['planning_strategy']}")
             print(f"   • Passos: {metadata['num_steps']}")
@@ -95,7 +94,7 @@ async def demonstrate_planner_agent():
             print(f"💬 Mensagem: {result['message']}")
 
     # Teste de tratamento de erro
-    print(f"\n5️⃣ Teste de Tratamento de Erro")
+    print("\n5️⃣ Teste de Tratamento de Erro")
     print("-" * 40)
 
     error_task = {
@@ -110,7 +109,7 @@ async def demonstrate_planner_agent():
     print(f"Passos: {len(result['steps'])}")
 
     # Teste de configuração mínima
-    print(f"\n6️⃣ Teste com Configuração Mínima")
+    print("\n6️⃣ Teste com Configuração Mínima")
     print("-" * 40)
 
     minimal_planner = PlannerAgent()  # Sem configuração
@@ -123,14 +122,14 @@ async def demonstrate_planner_agent():
     for i, step in enumerate(result["steps"][:3], 1):
         print(f"   {i}. {step}")
 
-    print(f"\n🎉 Demonstração Concluída!")
+    print("\n🎉 Demonstração Concluída!")
     print("✅ PlannerAgent funcionando perfeitamente")
     print("✅ Todos os cenários testados com sucesso")
 
 
 async def benchmark_planner_performance():
     """Testa a performance do PlannerAgent com múltiplas tarefas."""
-    print(f"\n⚡ Teste de Performance")
+    print("\n⚡ Teste de Performance")
     print("=" * 40)
 
     planner = PlannerAgent({"max_steps": 5})
@@ -155,7 +154,7 @@ async def benchmark_planner_performance():
     successful = sum(1 for r in results if r["status"] == "success")
     total_steps = sum(len(r["steps"]) for r in results)
 
-    print(f"📊 Resultados do Benchmark:")
+    print("📊 Resultados do Benchmark:")
     print(f"   • Tarefas processadas: {len(tasks)}")
     print(f"   • Sucessos: {successful}/{len(tasks)}")
     print(f"   • Total de passos gerados: {total_steps}")

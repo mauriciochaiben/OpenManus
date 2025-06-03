@@ -1,7 +1,7 @@
 import asyncio
-import os
 import tempfile
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+from pathlib import Path
 
 import pytest
 import pytest_asyncio
@@ -32,8 +32,8 @@ def temp_file():
     try:
         yield path
     finally:
-        if os.path.exists(path):
-            os.unlink(path)
+        if Path(path).exists():
+            Path(path).unlink()
 
 
 @pytest.mark.asyncio

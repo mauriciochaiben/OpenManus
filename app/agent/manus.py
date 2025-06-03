@@ -1,5 +1,3 @@
-from typing import Dict, List, Optional
-
 from pydantic import Field, model_validator
 
 from app.agent.browser import BrowserContextHelper
@@ -22,7 +20,8 @@ class Manus(ToolCallAgent):
 
     name: str = "Manus"
     description: str = (
-        "A versatile agent that can solve various tasks using multiple tools including MCP-based tools"
+        "A versatile agent that can solve various tasks using multiple tools "
+        "including MCP-based tools"
     )
 
     system_prompt: str = SYSTEM_PROMPT.format(directory=settings.workspace_root)
@@ -48,10 +47,10 @@ class Manus(ToolCallAgent):
     )
 
     special_tool_names: list[str] = Field(default_factory=lambda: [Terminate().name])
-    browser_context_helper: Optional[BrowserContextHelper] = None
+    browser_context_helper: BrowserContextHelper | None = None
 
     # Track connected MCP servers
-    connected_servers: Dict[str, str] = Field(
+    connected_servers: dict[str, str] = Field(
         default_factory=dict
     )  # server_id -> url/command
     _initialized: bool = False
@@ -78,19 +77,19 @@ class Manus(ToolCallAgent):
                     if server_config.url:
                         await self.connect_mcp_server(server_config.url, server_id)
                         logger.info(
-                            f"Connected to MCP server {server_id} at {server_config.url}"
+                            f"Connected to MCP server {server_id} at "
+                            f"{server_config.url}"
                         )
-                elif server_config.type == "stdio":
-                    if server_config.command:
-                        await self.connect_mcp_server(
-                            server_config.command,
-                            server_id,
-                            use_stdio=True,
-                            stdio_args=server_config.args,
-                        )
-                        logger.info(
-                            f"Connected to MCP server {server_id} using command {server_config.command}"
-                        )
+                elif server_config.type == "stdio" and server_config.command:
+                    await self.connect_mcp_server(
+                        server_config.command,
+                        server_id,
+                        use_stdio=True,
+                        stdio_args=server_config.args,
+                    )
+                    logger.info(
+                        f"Connected to MCP server {server_id} using command {server_config.command}"
+                    )
             except Exception as e:
                 logger.error(f"Failed to connect to MCP server {server_id}: {e}")
 
@@ -99,7 +98,7 @@ class Manus(ToolCallAgent):
         server_url: str,
         server_id: str = "",
         use_stdio: bool = False,
-        stdio_args: List[str] = None,
+        stdio_args: list[str] = None,
     ) -> None:
         """Connect to an MCP server and add its tools."""
         if use_stdio:

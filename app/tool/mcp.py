@@ -1,6 +1,6 @@
 from contextlib import AsyncExitStack
-from typing import Dict, List, Optional
 
+from mcp import ClientSession, StdioServerParameters
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 from mcp.types import ListToolsResult, TextContent
@@ -8,13 +8,12 @@ from mcp.types import ListToolsResult, TextContent
 from app.logger import logger
 from app.tool.base import BaseTool, ToolResult
 from app.tool.tool_collection import ToolCollection
-from mcp import ClientSession, StdioServerParameters
 
 
 class MCPClientTool(BaseTool):
     """Represents a tool proxy that can be called on the MCP server from the client side."""
 
-    session: Optional[ClientSession] = None
+    session: ClientSession | None = None
     server_id: str = ""  # Add server identifier
     original_name: str = ""
 
@@ -39,8 +38,8 @@ class MCPClients(ToolCollection):
     A collection of tools that connects to multiple MCP servers and manages available tools through the Model Context Protocol.
     """
 
-    sessions: Dict[str, ClientSession] = {}
-    exit_stacks: Dict[str, AsyncExitStack] = {}
+    sessions: dict[str, ClientSession] = {}
+    exit_stacks: dict[str, AsyncExitStack] = {}
     description: str = "MCP client tools for server interaction"
 
     def __init__(self):
@@ -69,7 +68,7 @@ class MCPClients(ToolCollection):
         await self._initialize_and_list_tools(server_id)
 
     async def connect_stdio(
-        self, command: str, args: List[str], server_id: str = ""
+        self, command: str, args: list[str], server_id: str = ""
     ) -> None:
         """Connect to an MCP server using stdio transport."""
         if not command:
@@ -168,8 +167,8 @@ class MCPClients(ToolCollection):
                     logger.error(f"Error disconnecting from server {server_id}: {e}")
         else:
             # Disconnect from all servers in a deterministic order
-            for sid in sorted(list(self.sessions.keys())):
+            for sid in sorted(self.sessions.keys()):
                 await self.disconnect(sid)
             self.tool_map = {}
-            self.tools = tuple()
+            self.tools = ()
             logger.info("Disconnected from all MCP servers")

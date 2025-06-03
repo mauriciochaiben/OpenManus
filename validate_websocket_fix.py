@@ -3,6 +3,7 @@
 Final WebSocket Validation Script
 Confirms that all WebSocket fixes are working correctly
 """
+
 import asyncio
 import json
 import random
@@ -53,7 +54,7 @@ async def validate_websocket_fix():
             try:
                 response = await asyncio.wait_for(websocket.recv(), timeout=3)
                 print(f"✅ Response Received: {response[:100]}...")
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 print("ℹ️  No immediate response (expected for chat WebSocket)")
 
             print("✅ WebSocket Validation: COMPLETE")

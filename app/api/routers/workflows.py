@@ -1,8 +1,5 @@
 """Workflow management API router"""
 
-import asyncio
-from typing import Dict, List, Optional
-
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel, Field
 
@@ -22,7 +19,7 @@ class StartWorkflowRequest(BaseModel):
         max_length=1000,
         description="The initial task description to decompose and execute",
     )
-    metadata: Optional[Dict] = Field(
+    metadata: dict | None = Field(
         default_factory=dict, description="Optional metadata for the workflow"
     )
 
@@ -34,7 +31,7 @@ class WorkflowResponse(BaseModel):
     workflow_id: str
     status: str
     initial_task: str
-    metadata: Optional[Dict] = None
+    metadata: dict | None = None
 
 
 class WorkflowStepResponse(BaseModel):
@@ -44,8 +41,8 @@ class WorkflowStepResponse(BaseModel):
     description: str
     type: str  # 'tool' or 'generic'
     success: bool
-    result: Optional[Dict] = None
-    message: Optional[str] = None
+    result: dict | None = None
+    message: str | None = None
 
 
 class WorkflowResultResponse(BaseModel):
@@ -55,10 +52,10 @@ class WorkflowResultResponse(BaseModel):
     status: str
     steps_executed: int
     total_steps: int
-    results: List[WorkflowStepResponse]
-    final_result: Optional[Dict] = None
-    error: Optional[str] = None
-    metadata: Optional[Dict] = None
+    results: list[WorkflowStepResponse]
+    final_result: dict | None = None
+    error: str | None = None
+    metadata: dict | None = None
 
 
 @router.post("/simple", response_model=WorkflowResponse, status_code=202)
@@ -119,12 +116,13 @@ async def start_simple_workflow(
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to start workflow: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/simple/{workflow_id}", response_model=WorkflowResultResponse)
 async def get_workflow_result(
-    workflow_id: str, workflow_service: WorkflowService = Depends(get_workflow_service)
+    _workflow_id: str,
+    _workflow_service: WorkflowService = Depends(get_workflow_service),
 ) -> WorkflowResultResponse:
     """
     Get the results of a completed workflow.
@@ -158,15 +156,15 @@ async def get_workflow_result(
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to retrieve workflow: {str(e)}"
-        )
+        ) from e
 
 
-@router.get("/", response_model=List[Dict])
+@router.get("/", response_model=list[dict])
 async def list_workflows(
-    limit: int = 10,
-    offset: int = 0,
-    workflow_service: WorkflowService = Depends(get_workflow_service),
-) -> List[Dict]:
+    _limit: int = 10,
+    _offset: int = 0,
+    _workflow_service: WorkflowService = Depends(get_workflow_service),
+) -> list[dict]:
     """
     List recent workflows.
 
@@ -202,11 +200,11 @@ async def list_workflows(
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to list workflows: {str(e)}"
-        )
+        ) from e
 
 
 async def _execute_workflow_async(
-    workflow_service: WorkflowService, initial_task: str, metadata: Dict
+    workflow_service: WorkflowService, initial_task: str, _metadata: dict
 ) -> None:
     """
     Execute workflow asynchronously in the background.
@@ -250,7 +248,7 @@ async def _execute_workflow_async(
 
 
 @router.get("/health")
-async def workflow_health() -> Dict[str, str]:
+async def workflow_health() -> dict[str, str]:
     """
     Health check endpoint for workflow service.
 

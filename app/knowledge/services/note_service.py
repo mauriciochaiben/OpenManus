@@ -7,11 +7,9 @@ Handles database interactions for note management with SQLAlchemy ORM.
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
 
-from sqlalchemy import and_, delete, func, or_, select, update
+from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.core.exceptions import NotFoundError, ValidationError
 from app.database.models import NoteModel  # Assuming SQLAlchemy model exists
@@ -45,7 +43,7 @@ class NoteService:
         self.db_session = db_session
 
     async def create_note(
-        self, note_data: NoteCreate, author_id: Optional[str] = None
+        self, note_data: NoteCreate, author_id: str | None = None
     ) -> NoteResponse:
         """
         Create a new note.
@@ -90,10 +88,10 @@ class NoteService:
         except Exception as e:
             await self.db_session.rollback()
             logger.error(f"Error creating note: {str(e)}")
-            raise ValidationError(f"Failed to create note: {str(e)}")
+            raise ValidationError(f"Failed to create note: {str(e)}") from e
 
     async def get_note(
-        self, note_id: str, author_id: Optional[str] = None
+        self, note_id: str, author_id: str | None = None
     ) -> NoteResponse:
         """
         Get a note by ID.
@@ -117,11 +115,11 @@ class NoteService:
             # Apply access control
             if author_id:
                 query = query.where(
-                    or_(NoteModel.author_id == author_id, NoteModel.is_public == True)
+                    or_(NoteModel.author_id == author_id, NoteModel.is_public is True)
                 )
             else:
                 # Only public notes if no author specified
-                query = query.where(NoteModel.is_public == True)
+                query = query.where(NoteModel.is_public is True)
 
             result = await self.db_session.execute(query)
             note_model = result.scalar_one_or_none()
@@ -136,10 +134,10 @@ class NoteService:
             raise
         except Exception as e:
             logger.error(f"Error retrieving note {note_id}: {str(e)}")
-            raise ValidationError(f"Failed to retrieve note: {str(e)}")
+            raise ValidationError(f"Failed to retrieve note: {str(e)}") from e
 
     async def update_note(
-        self, note_id: str, note_data: NoteUpdate, author_id: Optional[str] = None
+        self, note_id: str, note_data: NoteUpdate, author_id: str | None = None
     ) -> NoteResponse:
         """
         Update an existing note.
@@ -207,9 +205,9 @@ class NoteService:
         except Exception as e:
             await self.db_session.rollback()
             logger.error(f"Error updating note {note_id}: {str(e)}")
-            raise ValidationError(f"Failed to update note: {str(e)}")
+            raise ValidationError(f"Failed to update note: {str(e)}") from e
 
-    async def delete_note(self, note_id: str, author_id: Optional[str] = None) -> bool:
+    async def delete_note(self, note_id: str, author_id: str | None = None) -> bool:
         """
         Delete a note.
 
@@ -249,17 +247,17 @@ class NoteService:
         except Exception as e:
             await self.db_session.rollback()
             logger.error(f"Error deleting note {note_id}: {str(e)}")
-            raise ValidationError(f"Failed to delete note: {str(e)}")
+            raise ValidationError(f"Failed to delete note: {str(e)}") from e
 
     async def list_notes(
         self,
-        author_id: Optional[str] = None,
+        author_id: str | None = None,
         include_public: bool = True,
         limit: int = 20,
         offset: int = 0,
         sort_by: str = "updated_at",
         sort_order: str = "desc",
-    ) -> Tuple[List[NoteResponse], int]:
+    ) -> tuple[list[NoteResponse], int]:
         """
         List notes with pagination and filtering.
 
@@ -289,7 +287,7 @@ class NoteService:
                     filters.append(
                         or_(
                             NoteModel.author_id == author_id,
-                            NoteModel.is_public == True,
+                            NoteModel.is_public is True,
                         )
                     )
                 else:
@@ -297,7 +295,7 @@ class NoteService:
                     filters.append(NoteModel.author_id == author_id)
             elif include_public:
                 # Only public notes
-                filters.append(NoteModel.is_public == True)
+                filters.append(NoteModel.is_public is True)
 
             if filters:
                 filter_condition = and_(*filters) if len(filters) > 1 else filters[0]
@@ -332,10 +330,10 @@ class NoteService:
 
         except Exception as e:
             logger.error(f"Error listing notes: {str(e)}")
-            raise ValidationError(f"Failed to list notes: {str(e)}")
+            raise ValidationError(f"Failed to list notes: {str(e)}") from e
 
     async def search_notes(
-        self, search_query: NoteSearchQuery, author_id: Optional[str] = None
+        self, search_query: NoteSearchQuery, author_id: str | None = None
     ) -> NoteSearchResponse:
         """
         Search notes with advanced filtering.
@@ -384,7 +382,7 @@ class NoteService:
             elif author_id:
                 # Apply access control
                 filters.append(
-                    or_(NoteModel.author_id == author_id, NoteModel.is_public == True)
+                    or_(NoteModel.author_id == author_id, NoteModel.is_public is True)
                 )
 
             # Filter by public status
@@ -441,15 +439,15 @@ class NoteService:
 
         except Exception as e:
             logger.error(f"Error searching notes: {str(e)}")
-            raise ValidationError(f"Failed to search notes: {str(e)}")
+            raise ValidationError(f"Failed to search notes: {str(e)}") from e
 
     async def get_notes_by_source(
         self,
         source_id: str,
-        author_id: Optional[str] = None,
+        author_id: str | None = None,
         limit: int = 20,
         offset: int = 0,
-    ) -> Tuple[List[NoteResponse], int]:
+    ) -> tuple[list[NoteResponse], int]:
         """
         Get notes that reference a specific knowledge source.
 
@@ -474,13 +472,13 @@ class NoteService:
             # Apply access control
             if author_id:
                 access_filter = or_(
-                    NoteModel.author_id == author_id, NoteModel.is_public == True
+                    NoteModel.author_id == author_id, NoteModel.is_public is True
                 )
                 query = query.where(access_filter)
                 count_query = count_query.where(access_filter)
             else:
-                query = query.where(NoteModel.is_public == True)
-                count_query = count_query.where(NoteModel.is_public == True)
+                query = query.where(NoteModel.is_public is True)
+                count_query = count_query.where(NoteModel.is_public is True)
 
             # Apply pagination and sorting
             query = (
@@ -504,7 +502,7 @@ class NoteService:
 
         except Exception as e:
             logger.error(f"Error getting notes by source {source_id}: {str(e)}")
-            raise ValidationError(f"Failed to get notes by source: {str(e)}")
+            raise ValidationError(f"Failed to get notes by source: {str(e)}") from e
 
     def _model_to_pydantic(self, note_model: NoteModel) -> Note:
         """

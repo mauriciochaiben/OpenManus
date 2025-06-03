@@ -1,5 +1,5 @@
-from abc import ABC
-from enum import Enum, auto
+from abc import ABC, abstractmethod
+from enum import Enum
 
 
 class ToolCategory(str, Enum):
@@ -26,4 +26,7 @@ class BaseTool(ABC):
     )
     category = ToolCategory.SYSTEM  # Default category, should be overridden
 
-    # ...existing code...
+    @abstractmethod
+    async def execute(self, **kwargs):
+        """Execute the tool with given parameters."""
+        pass

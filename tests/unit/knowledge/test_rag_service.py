@@ -1,6 +1,6 @@
 import sys
-from typing import Any, Dict, List
-from unittest.mock import AsyncMock, Mock, patch
+from typing import Any
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 
@@ -83,15 +83,15 @@ class TestRagService:
         rag_service: RagService,
         mock_embedding_service: Mock,
         mock_vector_store_client: Mock,
-        sample_embedding: List[float],
-        sample_search_results: List[Dict[str, Any]],
+        sample_embedding: list[float],
+        sample_search_results: list[dict[str, Any]],
     ):
         """Test successful context retrieval without filtering."""
         # Setup mocks
         mock_embedding_service.generate_embedding.return_value = sample_embedding
 
         # Mock should respect the k parameter and return only k results
-        def mock_search(*args, **kwargs):
+        def mock_search(*_args, **kwargs):
             k = kwargs.get("k", 5)
             return sample_search_results[:k]
 
@@ -123,15 +123,15 @@ class TestRagService:
         rag_service: RagService,
         mock_embedding_service: Mock,
         mock_vector_store_client: Mock,
-        sample_embedding: List[float],
-        sample_search_results: List[Dict[str, Any]],
+        sample_embedding: list[float],
+        sample_search_results: list[dict[str, Any]],
     ):
         """Test context retrieval with source ID filtering."""
         # Setup mocks
         mock_embedding_service.generate_embedding.return_value = sample_embedding
 
         # Mock should respect the k parameter and return only k results
-        def mock_search(*args, **kwargs):
+        def mock_search(*_args, **kwargs):
             k = kwargs.get("k", 5)
             return sample_search_results[:k]
 
@@ -196,7 +196,7 @@ class TestRagService:
         rag_service: RagService,
         mock_embedding_service: Mock,
         mock_vector_store_client: Mock,
-        sample_embedding: List[float],
+        sample_embedding: list[float],
     ):
         """Test error handling when vector store search fails."""
         # Setup mocks
@@ -216,7 +216,7 @@ class TestRagService:
         rag_service: RagService,
         mock_embedding_service: Mock,
         mock_vector_store_client: Mock,
-        sample_embedding: List[float],
+        sample_embedding: list[float],
     ):
         """Test handling of empty search results."""
         # Setup mocks
@@ -235,15 +235,15 @@ class TestRagService:
         rag_service: RagService,
         mock_embedding_service: Mock,
         mock_vector_store_client: Mock,
-        sample_embedding: List[float],
-        sample_search_results: List[Dict[str, Any]],
+        sample_embedding: list[float],
+        sample_search_results: list[dict[str, Any]],
     ):
         """Test that empty source_ids list doesn't add filter."""
         # Setup mocks
         mock_embedding_service.generate_embedding.return_value = sample_embedding
 
         # Mock should respect the k parameter and return only k results
-        def mock_search(*args, **kwargs):
+        def mock_search(*_args, **kwargs):
             k = kwargs.get("k", 5)
             return sample_search_results[:k]
 
@@ -268,15 +268,15 @@ class TestRagService:
         rag_service: RagService,
         mock_embedding_service: Mock,
         mock_vector_store_client: Mock,
-        sample_embedding: List[float],
-        sample_search_results: List[Dict[str, Any]],
+        sample_embedding: list[float],
+        sample_search_results: list[dict[str, Any]],
     ):
         """Test successful context retrieval with scores."""
         # Setup mocks
         mock_embedding_service.generate_embedding.return_value = sample_embedding
 
         # Mock should respect the k parameter and return only k results
-        def mock_search(*args, **kwargs):
+        def mock_search(*_args, **kwargs):
             k = kwargs.get("k", 5)
             return sample_search_results[:k]
 
@@ -311,8 +311,8 @@ class TestRagService:
         rag_service: RagService,
         mock_embedding_service: Mock,
         mock_vector_store_client: Mock,
-        sample_embedding: List[float],
-        sample_search_results: List[Dict[str, Any]],
+        sample_embedding: list[float],
+        sample_search_results: list[dict[str, Any]],
     ):
         """Test context retrieval with minimum score threshold."""
         # Setup mocks
@@ -350,8 +350,8 @@ class TestRagService:
         rag_service: RagService,
         mock_embedding_service: Mock,
         mock_vector_store_client: Mock,
-        sample_embedding: List[float],
-        sample_search_results: List[Dict[str, Any]],
+        sample_embedding: list[float],
+        sample_search_results: list[dict[str, Any]],
     ):
         """Test context retrieval with scores and source filtering."""
         # Setup mocks
@@ -360,7 +360,7 @@ class TestRagService:
 
         # Execute with both filtering and score threshold
         source_ids = ["doc1", "doc2"]
-        result = await rag_service.retrieve_relevant_context_with_scores(
+        await rag_service.retrieve_relevant_context_with_scores(
             "test query", source_ids=source_ids, k=5, min_score=0.8
         )
 
@@ -378,7 +378,7 @@ class TestRagService:
         rag_service: RagService,
         mock_embedding_service: Mock,
         mock_vector_store_client: Mock,
-        sample_embedding: List[float],
+        sample_embedding: list[float],
     ):
         """Test handling of malformed search results."""
         # Setup mocks with malformed results
@@ -406,7 +406,7 @@ class TestRagService:
         rag_service: RagService,
         mock_embedding_service: Mock,
         mock_vector_store_client: Mock,
-        sample_embedding: List[float],
+        sample_embedding: list[float],
     ):
         """Test handling of malformed results in scores method."""
         # Setup mocks with malformed results

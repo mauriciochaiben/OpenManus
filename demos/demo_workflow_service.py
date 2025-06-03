@@ -4,17 +4,17 @@ Demo script to showcase WorkflowService functionality with both tool and generic
 """
 
 import asyncio
-import sys
 import json
+import sys
 
-sys.path.append(".")
-
+from app.infrastructure.messaging.event_bus import event_bus
 from app.services.workflow_service import (
+    WorkflowCompletedEvent,
     WorkflowService,
     WorkflowStartedEvent,
-    WorkflowCompletedEvent,
 )
-from app.infrastructure.messaging.event_bus import event_bus
+
+sys.path.append(".")
 
 
 class WorkflowEventSubscriber:
@@ -114,7 +114,7 @@ async def test_comprehensive_workflow():
 
     if result1.get("final_result"):
         summary = result1["final_result"]["workflow_summary"]
-        print(f"Workflow 1 Summary:")
+        print("Workflow 1 Summary:")
         print(f"  - Total Steps: {summary['total_steps']}")
         print(f"  - Success Rate: {summary['success_rate']:.2%}")
         print(f"  - Status: {summary['overall_status']}")

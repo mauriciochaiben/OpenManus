@@ -6,7 +6,6 @@ for transitioning from the old configuration system to the new centralized one.
 """
 
 import warnings
-from typing import Any, Dict, Optional
 
 from app.core.settings import (
     BrowserSettings,
@@ -37,7 +36,7 @@ class ConfigurationMigration:
             self._warned_deprecations.add(old_path)
 
     @property
-    def llm(self) -> Dict[str, LLMSettings]:
+    def llm(self) -> dict[str, LLMSettings]:
         """Backward compatibility for config.llm access."""
         self._warn_deprecation(
             "from app.config import config; config.llm",
@@ -55,7 +54,7 @@ class ConfigurationMigration:
         return new_settings.sandbox_config
 
     @property
-    def browser_config(self) -> Optional[BrowserSettings]:
+    def browser_config(self) -> BrowserSettings | None:
         """Backward compatibility for config.browser_config access."""
         self._warn_deprecation(
             "from app.config import config; config.browser_config",
@@ -64,7 +63,7 @@ class ConfigurationMigration:
         return new_settings.browser_config
 
     @property
-    def search_config(self) -> Optional[SearchSettings]:
+    def search_config(self) -> SearchSettings | None:
         """Backward compatibility for config.search_config access."""
         self._warn_deprecation(
             "from app.config import config; config.search_config",

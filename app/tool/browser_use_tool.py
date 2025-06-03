@@ -1,7 +1,7 @@
 import asyncio
 import base64
 import json
-from typing import Generic, Optional, TypeVar
+from typing import Generic, TypeVar
 
 from browser_use import Browser as BrowserUseBrowser
 from browser_use import BrowserConfig
@@ -121,18 +121,18 @@ class BrowserUseTool(BaseTool, Generic[Context]):
     }
 
     lock: asyncio.Lock = Field(default_factory=asyncio.Lock)
-    browser: Optional[BrowserUseBrowser] = Field(default=None, exclude=True)
-    context: Optional[BrowserContext] = Field(default=None, exclude=True)
-    dom_service: Optional[DomService] = Field(default=None, exclude=True)
+    browser: BrowserUseBrowser | None = Field(default=None, exclude=True)
+    context: BrowserContext | None = Field(default=None, exclude=True)
+    dom_service: DomService | None = Field(default=None, exclude=True)
     web_search_tool: WebSearch = Field(default_factory=WebSearch, exclude=True)
 
     # Context for generic functionality
-    tool_context: Optional[Context] = Field(default=None, exclude=True)
+    tool_context: Context | None = Field(default=None, exclude=True)
 
-    llm: Optional[LLM] = Field(default_factory=LLM)
+    llm: LLM | None = Field(default_factory=LLM)
 
     @field_validator("parameters", mode="before")
-    def validate_parameters(cls, v: dict, info: ValidationInfo) -> dict:
+    def validate_parameters(cls, v: dict, info: ValidationInfo) -> dict:  # noqa: ARG002
         if not v:
             raise ValueError("Parameters cannot be empty")
         return v
@@ -167,9 +167,8 @@ class BrowserUseTool(BaseTool, Generic[Context]):
 
                 for attr in browser_attrs:
                     value = getattr(settings.browser_config, attr, None)
-                    if value is not None:
-                        if not isinstance(value, list) or value:
-                            browser_config_kwargs[attr] = value
+                    if value is not None and (not isinstance(value, list) or value):
+                        browser_config_kwargs[attr] = value
 
             self.browser = BrowserUseBrowser(BrowserConfig(**browser_config_kwargs))
 
@@ -192,16 +191,16 @@ class BrowserUseTool(BaseTool, Generic[Context]):
     async def execute(
         self,
         action: str,
-        url: Optional[str] = None,
-        index: Optional[int] = None,
-        text: Optional[str] = None,
-        scroll_amount: Optional[int] = None,
-        tab_id: Optional[int] = None,
-        query: Optional[str] = None,
-        goal: Optional[str] = None,
-        keys: Optional[str] = None,
-        seconds: Optional[int] = None,
-        **kwargs,
+        url: str | None = None,
+        index: int | None = None,
+        text: str | None = None,
+        scroll_amount: int | None = None,
+        tab_id: int | None = None,
+        query: str | None = None,
+        goal: str | None = None,
+        keys: str | None = None,
+        seconds: int | None = None,
+        **kwargs,  # noqa: ARG002
     ) -> ToolResult:
         """
         Execute a specified browser action.
@@ -240,15 +239,15 @@ class BrowserUseTool(BaseTool, Generic[Context]):
                     await page.wait_for_load_state()
                     return ToolResult(output=f"Navigated to {url}")
 
-                elif action == "go_back":
+                if action == "go_back":
                     await context.go_back()
                     return ToolResult(output="Navigated back")
 
-                elif action == "refresh":
+                if action == "refresh":
                     await context.refresh_page()
                     return ToolResult(output="Refreshed current page")
 
-                elif action == "web_search":
+                if action == "web_search":
                     if not query:
                         return ToolResult(
                             error="Query is required for 'web_search' action"
@@ -268,7 +267,7 @@ class BrowserUseTool(BaseTool, Generic[Context]):
                     return search_response
 
                 # Element interaction actions
-                elif action == "click_element":
+                if action == "click_element":
                     if index is None:
                         return ToolResult(
                             error="Index is required for 'click_element' action"
@@ -282,7 +281,7 @@ class BrowserUseTool(BaseTool, Generic[Context]):
                         output += f" - Downloaded file to {download_path}"
                     return ToolResult(output=output)
 
-                elif action == "input_text":
+                if action == "input_text":
                     if index is None or not text:
                         return ToolResult(
                             error="Index and text are required for 'input_text' action"
@@ -295,7 +294,7 @@ class BrowserUseTool(BaseTool, Generic[Context]):
                         output=f"Input '{text}' into element at index {index}"
                     )
 
-                elif action == "scroll_down" or action == "scroll_up":
+                if action == "scroll_down" or action == "scroll_up":
                     direction = 1 if action == "scroll_down" else -1
                     amount = (
                         scroll_amount
@@ -309,7 +308,7 @@ class BrowserUseTool(BaseTool, Generic[Context]):
                         output=f"Scrolled {'down' if direction > 0 else 'up'} by {amount} pixels"
                     )
 
-                elif action == "scroll_to_text":
+                if action == "scroll_to_text":
                     if not text:
                         return ToolResult(
                             error="Text is required for 'scroll_to_text' action"
@@ -477,7 +476,7 @@ Page content:
                 return ToolResult(error=f"Browser action '{action}' failed: {str(e)}")
 
     async def get_current_state(
-        self, context: Optional[BrowserContext] = None
+        self, context: BrowserContext | None = None
     ) -> ToolResult:
         """
         Get the current browser state as a ToolResult.

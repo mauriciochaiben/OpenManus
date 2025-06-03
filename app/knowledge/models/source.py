@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, validator
 
@@ -53,16 +53,16 @@ class SourceDocumentCreate(BaseModel):
     )
     mime_type: str = Field(..., description="MIME type of the document")
     file_size: int = Field(..., ge=0, description="Size of the document in bytes")
-    owner_id: Optional[str] = Field(
+    owner_id: str | None = Field(
         default=None, description="ID of the user who uploaded the document"
     )
-    category: Optional[str] = Field(
+    category: str | None = Field(
         default=None, description="Category or topic of the document"
     )
-    tags: Optional[List[str]] = Field(
+    tags: list[str] | None = Field(
         default_factory=list, description="Tags associated with the document"
     )
-    metadata: Optional[Dict[str, Any]] = Field(
+    metadata: dict[str, Any] | None = Field(
         default_factory=dict, description="Additional metadata for the document"
     )
 
@@ -82,16 +82,16 @@ class SourceDocument(SourceDocumentCreate):
     status: DocumentStatus = Field(
         default=DocumentStatus.PENDING, description="Processing status of the document"
     )
-    file_path: Optional[Path] = Field(
+    file_path: Path | None = Field(
         default=None, description="Path to the document file on disk"
     )
     created_at: datetime = Field(
         default_factory=datetime.utcnow, description="Document creation timestamp"
     )
-    updated_at: Optional[datetime] = Field(
+    updated_at: datetime | None = Field(
         default=None, description="Last update timestamp"
     )
-    processed_at: Optional[datetime] = Field(
+    processed_at: datetime | None = Field(
         default=None, description="Processing completion timestamp"
     )
     chunk_count: int = Field(
@@ -100,7 +100,7 @@ class SourceDocument(SourceDocumentCreate):
     embedding_count: int = Field(
         default=0, description="Number of embeddings created for the document"
     )
-    error_message: Optional[str] = Field(
+    error_message: str | None = Field(
         default=None, description="Error message if processing failed"
     )
 
@@ -121,10 +121,10 @@ class SourceDocumentSummary(BaseModel):
     filename: str
     file_type: str
     status: DocumentStatus
-    category: Optional[str] = None
-    tags: Optional[List[str]] = None
+    category: str | None = None
+    tags: list[str] | None = None
     created_at: datetime
-    updated_at: Optional[datetime] = None
+    updated_at: datetime | None = None
     chunk_count: int
     file_size: int
 
@@ -143,19 +143,19 @@ class SourceStatusResponse(BaseModel):
     source_id: str
     filename: str
     status: DocumentStatus
-    processing_progress: Optional[Dict[str, Any]] = None
+    processing_progress: dict[str, Any] | None = None
     created_at: str
-    updated_at: Optional[str] = None
-    processed_at: Optional[str] = None
+    updated_at: str | None = None
+    processed_at: str | None = None
     chunk_count: int = 0
     embedding_count: int = 0
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 class SourceListResponse(BaseModel):
     """Response model for source list."""
 
-    sources: List[SourceDocumentSummary]
+    sources: list[SourceDocumentSummary]
     total: int
     page: int
     page_size: int
@@ -165,7 +165,7 @@ class SearchRequest(BaseModel):
     """Request model for document search."""
 
     query: str = Field(..., min_length=1, description="Search query text")
-    source_ids: Optional[List[str]] = Field(
+    source_ids: list[str] | None = Field(
         default=None, description="Filter by specific source IDs"
     )
     k: int = Field(default=5, ge=1, le=100, description="Number of results to return")
@@ -179,12 +179,12 @@ class SearchResultItem(BaseModel):
 
     text: str
     score: float
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
 
 
 class SearchResponse(BaseModel):
     """Response model for search results."""
 
-    results: List[SearchResultItem]
+    results: list[SearchResultItem]
     query: str
     total_results: int

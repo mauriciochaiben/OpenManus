@@ -1,12 +1,11 @@
 import asyncio
 import uuid
-from contextlib import asynccontextmanager
-from typing import Dict, Optional, Set
+from contextlib import asynccontextmanager, suppress
 
 import docker
 from docker.errors import APIError, ImageNotFound
 
-from app.core.settings import SandboxSettings, settings
+from app.core.settings import SandboxSettings
 from app.logger import logger
 from app.sandbox.core.sandbox import DockerSandbox
 
@@ -47,16 +46,16 @@ class SandboxManager:
         self._client = docker.from_env()
 
         # Resource mappings
-        self._sandboxes: Dict[str, DockerSandbox] = {}
-        self._last_used: Dict[str, float] = {}
+        self._sandboxes: dict[str, DockerSandbox] = {}
+        self._last_used: dict[str, float] = {}
 
         # Concurrency control
-        self._locks: Dict[str, asyncio.Lock] = {}
+        self._locks: dict[str, asyncio.Lock] = {}
         self._global_lock = asyncio.Lock()
-        self._active_operations: Set[str] = set()
+        self._active_operations: set[str] = set()
 
         # Cleanup task
-        self._cleanup_task: Optional[asyncio.Task] = None
+        self._cleanup_task: asyncio.Task | None = None
         self._is_shutting_down = False
 
         # Start automatic cleanup
@@ -113,8 +112,8 @@ class SandboxManager:
 
     async def create_sandbox(
         self,
-        config: Optional[SandboxSettings] = None,
-        volume_bindings: Optional[Dict[str, str]] = None,
+        config: SandboxSettings | None = None,
+        volume_bindings: dict[str, str] | None = None,
     ) -> str:
         """Creates a new sandbox instance.
 
@@ -154,7 +153,7 @@ class SandboxManager:
                 logger.error(f"Failed to create sandbox: {e}")
                 if sandbox_id in self._sandboxes:
                     await self.delete_sandbox(sandbox_id)
-                raise RuntimeError(f"Failed to create sandbox: {e}")
+                raise RuntimeError(f"Failed to create sandbox: {e}") from e
 
     async def get_sandbox(self, sandbox_id: str) -> DockerSandbox:
         """Gets a sandbox instance.
@@ -211,10 +210,8 @@ class SandboxManager:
         # Cancel cleanup task
         if self._cleanup_task:
             self._cleanup_task.cancel()
-            try:
+            with suppress(TimeoutError, asyncio.CancelledError):
                 await asyncio.wait_for(self._cleanup_task, timeout=1.0)
-            except (asyncio.CancelledError, asyncio.TimeoutError):
-                pass
 
         # Get all sandbox IDs to clean up
         async with self._global_lock:
@@ -230,7 +227,7 @@ class SandboxManager:
             # Wait for all cleanup tasks to complete, with timeout to avoid infinite waiting
             try:
                 await asyncio.wait(cleanup_tasks, timeout=30.0)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 logger.error("Sandbox cleanup timed out")
 
         # Clean up remaining references
@@ -297,7 +294,7 @@ class SandboxManager:
         """Async context manager exit."""
         await self.cleanup()
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Gets manager statistics.
 
         Returns:

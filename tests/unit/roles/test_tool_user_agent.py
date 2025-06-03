@@ -5,21 +5,20 @@ Este módulo contém testes abrangentes para o ToolUserAgent, incluindo
 mock do ToolRegistry e das ferramentas, além de validação de todas as funcionalidades.
 """
 
-import os
 import sys
-from typing import Dict, List
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
-
-import pytest
-import pytest_asyncio
+from pathlib import Path
 
 # Adicionar o diretório raiz ao path para importações
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
-if root_dir not in sys.path:
-    sys.path.insert(0, root_dir)
+root_dir = Path(__file__).resolve().parent.parent.parent.parent
+if str(root_dir) not in sys.path:
+    sys.path.insert(0, str(root_dir))
 
-from app.roles.tool_user_agent import ToolUserAgent
-from app.tool.base import ToolResult
+from unittest.mock import AsyncMock, Mock, patch  # noqa: E402
+
+import pytest  # noqa: E402
+
+from app.roles.tool_user_agent import ToolUserAgent  # noqa: E402
+from app.tool.base import ToolResult  # noqa: E402
 
 
 class MockTool:
@@ -34,8 +33,7 @@ class MockTool:
         """Mock execute method."""
         if self.should_succeed:
             return ToolResult(output=f"Mock result for {self.name} with args: {kwargs}")
-        else:
-            return ToolResult(error="Mock tool execution failed")
+        return ToolResult(error="Mock tool execution failed")
 
 
 class MockToolRegistry:
@@ -48,7 +46,7 @@ class MockToolRegistry:
         """Mock get_tool method."""
         return self.tools.get(tool_name)
 
-    def list_tools(self) -> List[str]:
+    def list_tools(self) -> list[str]:
         """Mock list_tools method."""
         return list(self.tools.keys())
 
@@ -217,7 +215,7 @@ class TestToolUserAgent:
 
             task_details = {"tool_name": "failing_tool", "arguments": {"query": "test"}}
 
-            with patch("app.roles.tool_user_agent.logger") as mock_logger:
+            with patch("app.roles.tool_user_agent.logger"):
                 result = await agent.run(task_details)
 
             assert (
@@ -293,7 +291,7 @@ class TestToolUserAgent:
                 # tool_name ausente
             }
 
-            with patch("app.roles.tool_user_agent.logger") as mock_logger:
+            with patch("app.roles.tool_user_agent.logger"):
                 result = await agent.run(task_details)
 
             assert result["success"] is False
@@ -313,7 +311,7 @@ class TestToolUserAgent:
 
             task_details = {"tool_name": "", "arguments": {"query": "test"}}
 
-            with patch("app.roles.tool_user_agent.logger") as mock_logger:
+            with patch("app.roles.tool_user_agent.logger"):
                 result = await agent.run(task_details)
 
             assert result["success"] is False
@@ -331,7 +329,7 @@ class TestToolUserAgent:
 
             task_details = {"tool_name": "web_search", "arguments": "invalid_arguments"}
 
-            with patch("app.roles.tool_user_agent.logger") as mock_logger:
+            with patch("app.roles.tool_user_agent.logger"):
                 result = await agent.run(task_details)
 
             assert result["success"] is False
@@ -356,7 +354,7 @@ class TestToolUserAgent:
                 # arguments ausente, deve usar {}
             }
 
-            with patch("app.roles.tool_user_agent.logger") as mock_logger:
+            with patch("app.roles.tool_user_agent.logger"):
                 result = await agent.run(task_details)
 
             assert result["success"] is True
@@ -458,8 +456,8 @@ class TestToolUserAgent:
             # Verifica se tem os métodos abstratos implementados
             assert hasattr(agent, "run")
             assert hasattr(agent, "get_capabilities")
-            assert callable(getattr(agent, "run"))
-            assert callable(getattr(agent, "get_capabilities"))
+            assert callable(agent.run)
+            assert callable(agent.get_capabilities)
 
     @pytest.mark.asyncio
     async def test_integration_with_web_search_tool_simulation(self):

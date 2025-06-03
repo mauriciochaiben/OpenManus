@@ -1,13 +1,13 @@
 """Knowledge management API endpoints."""
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from app.knowledge.models.source import DocumentStatus, DocumentType, SourceDocument
+from app.knowledge.models.source import DocumentStatus
 from app.knowledge.services.source_service import (
     SourceServiceError,
     get_or_create_source_service,
@@ -35,13 +35,13 @@ class SourceStatusResponse(BaseModel):
     source_id: str
     filename: str
     status: DocumentStatus
-    processing_progress: Optional[Dict[str, Any]] = None
+    processing_progress: dict[str, Any] | None = None
     created_at: str
-    updated_at: Optional[str] = None
-    processed_at: Optional[str] = None
+    updated_at: str | None = None
+    processed_at: str | None = None
     chunk_count: int = 0
     embedding_count: int = 0
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 class SourceDocumentSummary(BaseModel):
@@ -52,7 +52,7 @@ class SourceDocumentSummary(BaseModel):
     file_type: str
     status: DocumentStatus
     created_at: str
-    updated_at: Optional[str] = None
+    updated_at: str | None = None
     chunk_count: int = 0
     file_size: int = 0
 
@@ -60,7 +60,7 @@ class SourceDocumentSummary(BaseModel):
 class SourceListResponse(BaseModel):
     """Response model for source list."""
 
-    sources: List[SourceDocumentSummary]
+    sources: list[SourceDocumentSummary]
     total: int
     page: int
     page_size: int
@@ -71,17 +71,17 @@ class SearchRequest(BaseModel):
 
     query: str
     n_results: int = Field(default=5, ge=1, le=20)
-    source_ids: Optional[List[str]] = None
-    category: Optional[str] = None
-    tags: Optional[List[str]] = None
-    owner_id: Optional[str] = None
+    source_ids: list[str] | None = None
+    category: str | None = None
+    tags: list[str] | None = None
+    owner_id: str | None = None
 
 
 class SearchResponse(BaseModel):
     """Response model for search results."""
 
     query: str
-    results: List[Dict[str, Any]]
+    results: list[dict[str, Any]]
     total_found: int
 
 
@@ -94,9 +94,9 @@ async def get_source_service():
 @router.post("/sources/upload", response_model=SourceUploadResponse)
 async def upload_source(
     file: UploadFile = File(...),
-    category: Optional[str] = None,
-    tags: Optional[str] = None,
-    owner_id: Optional[str] = None,
+    category: str | None = None,
+    tags: str | None = None,
+    owner_id: str | None = None,
     service: Any = Depends(get_source_service),
 ) -> SourceUploadResponse:
     """
@@ -140,13 +140,15 @@ async def upload_source(
 
     except SourceServiceError as e:
         logger.error(f"Source service error: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        ) from e
     except Exception as e:
         logger.error(f"Unexpected error during upload: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during file upload",
-        )
+        ) from e
 
 
 @router.get("/sources/{source_id}/status", response_model=SourceStatusResponse)
@@ -213,18 +215,16 @@ async def get_source_status(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error",
-        )
+        ) from e
 
 
 @router.get("/sources", response_model=SourceListResponse)
 async def list_sources(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
-    status_filter: Optional[DocumentStatus] = Query(
-        None, description="Filter by status"
-    ),
-    category: Optional[str] = Query(None, description="Filter by category"),
-    owner_id: Optional[str] = Query(None, description="Filter by owner"),
+    status_filter: DocumentStatus | None = Query(None, description="Filter by status"),
+    category: str | None = Query(None, description="Filter by category"),
+    owner_id: str | None = Query(None, description="Filter by owner"),
     service: Any = Depends(get_source_service),
 ) -> SourceListResponse:
     """
@@ -262,7 +262,7 @@ async def list_sources(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error",
-        )
+        ) from e
 
 
 @router.post("/sources/search", response_model=SearchResponse)
@@ -298,13 +298,15 @@ async def search_documents(
 
     except SourceServiceError as e:
         logger.error(f"Search service error: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        ) from e
     except Exception as e:
         logger.error(f"Error during search: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during search",
-        )
+        ) from e
 
 
 @router.delete("/sources/{source_id}")
@@ -347,13 +349,15 @@ async def delete_source(
         raise
     except SourceServiceError as e:
         logger.error(f"Source service error: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        ) from e
     except Exception as e:
         logger.error(f"Error deleting source: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during deletion",
-        )
+        ) from e
 
 
 @router.get("/health")
@@ -366,7 +370,7 @@ async def health_check() -> JSONResponse:
     """
     try:
         # Check if source service is available
-        source_service = await get_or_create_source_service()
+        await get_or_create_source_service()
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,

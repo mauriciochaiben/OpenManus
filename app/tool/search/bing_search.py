@@ -1,11 +1,8 @@
-from typing import List, Optional, Tuple
-
 import requests
 from bs4 import BeautifulSoup
 
 from app.logger import logger
 from app.tool.search.base import SearchItem, WebSearchEngine
-
 
 ABSTRACT_MAX_LENGTH = 300
 
@@ -36,7 +33,7 @@ BING_SEARCH_URL = "https://www.bing.com/search?q="
 
 
 class BingSearchEngine(WebSearchEngine):
-    session: Optional[requests.Session] = None
+    session: requests.Session | None = None
 
     def __init__(self, **data):
         """Initialize the BingSearch tool with a requests session."""
@@ -44,7 +41,7 @@ class BingSearchEngine(WebSearchEngine):
         self.session = requests.Session()
         self.session.headers.update(HEADERS)
 
-    def _search_sync(self, query: str, num_results: int = 10) -> List[SearchItem]:
+    def _search_sync(self, query: str, num_results: int = 10) -> list[SearchItem]:
         """
         Synchronous Bing search implementation to retrieve search results.
 
@@ -75,8 +72,11 @@ class BingSearchEngine(WebSearchEngine):
         return list_result[:num_results]
 
     def _parse_html(
-        self, url: str, rank_start: int = 0, first: int = 1
-    ) -> Tuple[List[SearchItem], str]:
+        self,
+        url: str,
+        rank_start: int = 0,
+        first: int = 1,  # noqa: ARG002
+    ) -> tuple[list[SearchItem], str]:
         """
         Parse Bing search result HTML to extract search results and the next page URL.
 
@@ -134,8 +134,12 @@ class BingSearchEngine(WebSearchEngine):
             return [], None
 
     def perform_search(
-        self, query: str, num_results: int = 10, *args, **kwargs
-    ) -> List[SearchItem]:
+        self,
+        query: str,
+        num_results: int = 10,
+        *args,
+        **kwargs,  # noqa: ARG002
+    ) -> list[SearchItem]:
         """
         Bing search engine.
 

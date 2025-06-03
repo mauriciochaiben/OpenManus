@@ -1,10 +1,8 @@
 import asyncio
 import os
-from typing import Optional
 
 from app.exceptions import ToolError
 from app.tool.base import BaseTool, CLIResult
-
 
 _BASH_DESCRIPTION = """Execute a bash command in the terminal.
 * Long running commands: For commands that may run indefinitely, it should be run in the background and the output should be redirected to a file, e.g. command = `python3 app.py > server.log 2>&1 &`.
@@ -84,14 +82,12 @@ class _BashSession:
                     await asyncio.sleep(self._output_delay)
                     # if we read directly from stdout/stderr, it will wait forever for
                     # EOF. use the StreamReader buffer directly instead.
-                    output = (
-                        self._process.stdout._buffer.decode()
-                    )  # pyright: ignore[reportAttributeAccessIssue]
+                    output = self._process.stdout._buffer.decode()  # pyright: ignore[reportAttributeAccessIssue]
                     if self._sentinel in output:
                         # strip the sentinel and break
                         output = output[: output.index(self._sentinel)]
                         break
-        except asyncio.TimeoutError:
+        except TimeoutError:
             self._timed_out = True
             raise ToolError(
                 f"timed out: bash has not returned in {self._timeout} seconds and must be restarted",
@@ -100,9 +96,7 @@ class _BashSession:
         if output.endswith("\n"):
             output = output[:-1]
 
-        error = (
-            self._process.stderr._buffer.decode()
-        )  # pyright: ignore[reportAttributeAccessIssue]
+        error = self._process.stderr._buffer.decode()  # pyright: ignore[reportAttributeAccessIssue]
         if error.endswith("\n"):
             error = error[:-1]
 
@@ -129,10 +123,13 @@ class Bash(BaseTool):
         "required": ["command"],
     }
 
-    _session: Optional[_BashSession] = None
+    _session: _BashSession | None = None
 
     async def execute(
-        self, command: str | None = None, restart: bool = False, **kwargs
+        self,
+        command: str | None = None,
+        restart: bool = False,
+        **kwargs,  # noqa: ARG002
     ) -> CLIResult:
         if restart:
             if self._session:

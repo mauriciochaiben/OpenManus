@@ -8,7 +8,7 @@ Supports loading configurations from YAML files or database sources.
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any
 
 import yaml
 
@@ -23,12 +23,12 @@ class RoleConfigLoader(ABC):
     """Abstract base class for role configuration loaders."""
 
     @abstractmethod
-    async def load_role_config(self, role_name: str) -> Optional[Dict[str, Any]]:
+    async def load_role_config(self, role_name: str) -> dict[str, Any] | None:
         """Load configuration for a specific role."""
         pass
 
     @abstractmethod
-    async def load_all_roles(self) -> Dict[str, Dict[str, Any]]:
+    async def load_all_roles(self) -> dict[str, dict[str, Any]]:
         """Load all available role configurations."""
         pass
 
@@ -36,7 +36,7 @@ class RoleConfigLoader(ABC):
 class YamlRoleConfigLoader(RoleConfigLoader):
     """Loads role configurations from YAML files."""
 
-    def __init__(self, config_dir: Union[str, Path] = "app/config/roles"):
+    def __init__(self, config_dir: str | Path = "app/config/roles"):
         """
         Initialize the YAML config loader.
 
@@ -44,10 +44,10 @@ class YamlRoleConfigLoader(RoleConfigLoader):
             config_dir: Directory containing role configuration YAML files
         """
         self.config_dir = Path(config_dir)
-        self._role_cache: Dict[str, Dict[str, Any]] = {}
+        self._role_cache: dict[str, dict[str, Any]] = {}
         self._cache_loaded = False
 
-    async def load_role_config(self, role_name: str) -> Optional[Dict[str, Any]]:
+    async def load_role_config(self, role_name: str) -> dict[str, Any] | None:
         """
         Load configuration for a specific role from YAML file.
 
@@ -62,7 +62,7 @@ class YamlRoleConfigLoader(RoleConfigLoader):
 
         return self._role_cache.get(role_name)
 
-    async def load_all_roles(self) -> Dict[str, Dict[str, Any]]:
+    async def load_all_roles(self) -> dict[str, dict[str, Any]]:
         """
         Load all available role configurations from YAML files.
 
@@ -89,7 +89,7 @@ class YamlRoleConfigLoader(RoleConfigLoader):
             # Load individual role files
             for yaml_file in self.config_dir.glob("*.yaml"):
                 try:
-                    with open(yaml_file, "r", encoding="utf-8") as f:
+                    with yaml_file.open(encoding="utf-8") as f:
                         config = yaml.safe_load(f)
 
                     if config and isinstance(config, dict):
@@ -106,7 +106,7 @@ class YamlRoleConfigLoader(RoleConfigLoader):
             roles_file = self.config_dir / "roles.yaml"
             if roles_file.exists():
                 try:
-                    with open(roles_file, "r", encoding="utf-8") as f:
+                    with roles_file.open(encoding="utf-8") as f:
                         all_roles = yaml.safe_load(f)
 
                     if all_roles and isinstance(all_roles, dict):
@@ -138,7 +138,7 @@ class DatabaseRoleConfigLoader(RoleConfigLoader):
         """
         self.db_session = db_session
 
-    async def load_role_config(self, role_name: str) -> Optional[Dict[str, Any]]:
+    async def load_role_config(self, role_name: str) -> dict[str, Any] | None:  # noqa: ARG002
         """
         Load configuration for a specific role from database.
 
@@ -152,7 +152,7 @@ class DatabaseRoleConfigLoader(RoleConfigLoader):
         logger.warning("Database role loading not yet implemented")
         return None
 
-    async def load_all_roles(self) -> Dict[str, Dict[str, Any]]:
+    async def load_all_roles(self) -> dict[str, dict[str, Any]]:
         """
         Load all available role configurations from database.
 
@@ -173,7 +173,7 @@ class RoleManager:
     """
 
     # Registry of available agent classes
-    AGENT_REGISTRY: Dict[str, Type] = {
+    AGENT_REGISTRY: dict[str, type] = {
         "planner": PlannerAgent,
         "tool_user": ToolUserAgent,
         "planner_agent": PlannerAgent,
@@ -181,7 +181,7 @@ class RoleManager:
     }
 
     def __init__(
-        self, config_loader: RoleConfigLoader, event_bus: Optional[EventBus] = None
+        self, config_loader: RoleConfigLoader, event_bus: EventBus | None = None
     ):
         """
         Initialize the role manager.
@@ -192,10 +192,10 @@ class RoleManager:
         """
         self.config_loader = config_loader
         self.event_bus = event_bus
-        self._role_instances: Dict[str, Any] = {}
-        self._role_configs: Dict[str, Dict[str, Any]] = {}
+        self._role_instances: dict[str, Any] = {}
+        self._role_configs: dict[str, dict[str, Any]] = {}
 
-    async def get_agent(self, role_name: str, **kwargs) -> Optional[Any]:
+    async def get_agent(self, role_name: str, **kwargs) -> Any | None:
         """
         Get an agent instance for the specified role.
 
@@ -230,7 +230,7 @@ class RoleManager:
             logger.error(f"Error getting agent for role '{role_name}': {str(e)}")
             return None
 
-    async def get_available_roles(self) -> Dict[str, Dict[str, Any]]:
+    async def get_available_roles(self) -> dict[str, dict[str, Any]]:
         """
         Get all available role configurations.
 
@@ -243,7 +243,7 @@ class RoleManager:
             logger.error(f"Error loading available roles: {str(e)}")
             return {}
 
-    async def register_agent_class(self, agent_type: str, agent_class: Type):
+    async def register_agent_class(self, agent_type: str, agent_class: type):
         """
         Register a new agent class in the registry.
 
@@ -279,7 +279,7 @@ class RoleManager:
         except Exception as e:
             logger.error(f"Error reloading role config for '{role_name}': {str(e)}")
 
-    async def _get_role_config(self, role_name: str) -> Optional[Dict[str, Any]]:
+    async def _get_role_config(self, role_name: str) -> dict[str, Any] | None:
         """Get role configuration with caching."""
         if role_name not in self._role_configs:
             config = await self.config_loader.load_role_config(role_name)
@@ -289,8 +289,8 @@ class RoleManager:
         return self._role_configs.get(role_name)
 
     async def _create_agent_instance(
-        self, role_name: str, role_config: Dict[str, Any], **kwargs
-    ) -> Optional[Any]:
+        self, role_name: str, role_config: dict[str, Any], **kwargs
+    ) -> Any | None:
         """
         Create an agent instance based on role configuration.
 
@@ -327,7 +327,7 @@ class RoleManager:
             agent = agent_class(**constructor_args)
 
             # Initialize if the agent has an init method
-            if hasattr(agent, "initialize") and callable(getattr(agent, "initialize")):
+            if hasattr(agent, "initialize") and callable(agent.initialize):
                 await agent.initialize()
 
             return agent
@@ -349,8 +349,8 @@ class RoleManager:
 
 
 def create_yaml_role_manager(
-    config_dir: Union[str, Path] = "app/config/roles",
-    event_bus: Optional[EventBus] = None,
+    config_dir: str | Path = "app/config/roles",
+    event_bus: EventBus | None = None,
 ) -> RoleManager:
     """
     Create a role manager with YAML configuration loader.
@@ -367,7 +367,7 @@ def create_yaml_role_manager(
 
 
 def create_database_role_manager(
-    db_session=None, event_bus: Optional[EventBus] = None
+    db_session=None, event_bus: EventBus | None = None
 ) -> RoleManager:
     """
     Create a role manager with database configuration loader.

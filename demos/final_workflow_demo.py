@@ -16,9 +16,9 @@ import json
 import sys
 from datetime import datetime
 
-sys.path.append(".")
-
 from app.infrastructure.messaging.event_bus import event_bus
+
+sys.path.append(".")
 from app.services.workflow_service import (
     WorkflowCompletedEvent,
     WorkflowService,
@@ -110,7 +110,7 @@ async def demo_comprehensive_workflow():
         "Create a comprehensive project documentation system"
     )
 
-    print(f"\n📋 Results:")
+    print("\n📋 Results:")
     print(f"  Status: {result1['status']}")
     print(f"  Success Rate: {result1['steps_executed']}/{result1['total_steps']}")
     print(f"  Workflow ID: {result1['workflow_id']}")

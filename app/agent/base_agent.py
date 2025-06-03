@@ -6,9 +6,6 @@ seguindo os padrões de Clean Architecture e convenções do projeto OpenManus.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
-
-from pydantic import BaseModel, Field
 
 
 class BaseAgent(ABC):
@@ -22,7 +19,7 @@ class BaseAgent(ABC):
     """
 
     @abstractmethod
-    def __init__(self, config: Optional[Dict] = None) -> None:
+    def __init__(self, config: dict | None = None) -> None:
         """Inicializa o agente com configurações opcionais.
 
         Args:
@@ -36,7 +33,7 @@ class BaseAgent(ABC):
         pass
 
     @abstractmethod
-    async def run(self, task_details: Dict) -> Dict:
+    async def run(self, task_details: dict) -> dict:
         """Executa uma tarefa específica de forma assíncrona.
 
         Args:
@@ -64,7 +61,7 @@ class BaseAgent(ABC):
         pass
 
     @abstractmethod
-    def get_capabilities(self) -> List[str]:
+    def get_capabilities(self) -> list[str]:
         """Retorna uma lista das capacidades do agente.
 
         Returns:

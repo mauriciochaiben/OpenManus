@@ -1,7 +1,6 @@
 """In-memory document repository implementation"""
 
 import uuid
-from typing import Dict, List, Optional
 
 from app.domain.entities import Document
 from app.repositories.interfaces import DocumentRepository
@@ -11,7 +10,7 @@ class InMemoryDocumentRepository(DocumentRepository):
     """In-memory implementation of document repository"""
 
     def __init__(self):
-        self._documents: Dict[str, Document] = {}
+        self._documents: dict[str, Document] = {}
 
     async def create(self, document: Document) -> Document:
         """Create a new document"""
@@ -20,11 +19,11 @@ class InMemoryDocumentRepository(DocumentRepository):
         self._documents[document.id] = document
         return document
 
-    async def find_by_id(self, document_id: str) -> Optional[Document]:
+    async def find_by_id(self, document_id: str) -> Document | None:
         """Find document by ID"""
         return self._documents.get(document_id)
 
-    async def find_all(self) -> List[Document]:
+    async def find_all(self) -> list[Document]:
         """Get all documents"""
         return list(self._documents.values())
 

@@ -1,5 +1,9 @@
 # ...existing code...
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class ToolRegistry:
     # ...existing code...

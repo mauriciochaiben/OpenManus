@@ -4,7 +4,6 @@ Testes específicos para leitura de documentos
 """
 
 import asyncio
-import os
 import sys
 import tempfile
 from pathlib import Path
@@ -14,7 +13,8 @@ import pytest
 # Adicionar o diretório raiz ao path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.core.settings import settings
+import contextlib
+
 from app.logger import logger
 from app.tool.document_analyzer import DocumentAnalyzer
 from app.tool.document_reader import AdvancedDocumentReader, DocumentReader
@@ -35,10 +35,8 @@ class TestDocumentReading:
         yield temp_file
 
         # Cleanup
-        try:
-            os.unlink(temp_file)
-        except:
-            pass
+        with contextlib.suppress(Exception):
+            Path(temp_file).unlink()
 
     @pytest.fixture
     def sample_csv_file(self):
@@ -53,10 +51,8 @@ class TestDocumentReading:
         yield temp_file
 
         # Cleanup
-        try:
-            os.unlink(temp_file)
-        except:
-            pass
+        with contextlib.suppress(Exception):
+            Path(temp_file).unlink()
 
     def test_document_reader_creation(self):
         """Testa a criação do DocumentReader"""
@@ -173,9 +169,14 @@ class TestDocumentReading:
 
 def test_document_reader_imports():
     """Testa se as importações do document reader funcionam"""
+    import importlib.util
+
+    modules_to_test = ["app.tool.document_analyzer", "app.tool.document_reader"]
+
     try:
-        from app.tool.document_analyzer import DocumentAnalyzer
-        from app.tool.document_reader import DocumentReader
+        for module_name in modules_to_test:
+            if importlib.util.find_spec(module_name) is None:
+                pytest.fail(f"Módulo não encontrado: {module_name}")
 
         logger.info("✅ Importações do document reader funcionam")
     except ImportError as e:
@@ -206,10 +207,8 @@ async def run_document_tests():
     except Exception as e:
         logger.warning(f"Teste de arquivo de texto falhou: {e}")
     finally:
-        try:
-            os.unlink(temp_txt)
-        except:
-            pass
+        with contextlib.suppress(Exception):
+            Path(temp_txt).unlink()
 
     # Teste com arquivos do workspace
     await test_class.test_read_workspace_files()

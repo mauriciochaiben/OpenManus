@@ -3,7 +3,6 @@
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class DocumentStatus(Enum):
@@ -24,8 +23,8 @@ class Document:
     status: DocumentStatus
     uploaded_at: datetime
     file_path: str
-    extracted_text: Optional[str] = None
-    error_message: Optional[str] = None
+    extracted_text: str | None = None
+    error_message: str | None = None
 
     @classmethod
     def create(
@@ -35,7 +34,7 @@ class Document:
         file_size: int,
         file_type: str,
         file_path: str,
-        **kwargs
+        **kwargs,
     ):
         """Factory method to create a new document"""
         return cls(
@@ -47,7 +46,7 @@ class Document:
             status=DocumentStatus.UPLOADED,
             uploaded_at=datetime.utcnow(),
             file_path=file_path,
-            **kwargs
+            **kwargs,
         )
 
     def start_processing(self):

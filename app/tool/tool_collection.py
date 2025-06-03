@@ -1,5 +1,6 @@
 """Collection classes for managing multiple tools."""
-from typing import Any, Dict, List
+
+from typing import Any
 
 from app.exceptions import ToolError
 from app.logger import logger
@@ -19,22 +20,21 @@ class ToolCollection:
     def __iter__(self):
         return iter(self.tools)
 
-    def to_params(self) -> List[Dict[str, Any]]:
+    def to_params(self) -> list[dict[str, Any]]:
         return [tool.to_param() for tool in self.tools]
 
     async def execute(
-        self, *, name: str, tool_input: Dict[str, Any] = None
+        self, *, name: str, tool_input: dict[str, Any] = None
     ) -> ToolResult:
         tool = self.tool_map.get(name)
         if not tool:
             return ToolFailure(error=f"Tool {name} is invalid")
         try:
-            result = await tool(**tool_input)
-            return result
+            return await tool(**tool_input)
         except ToolError as e:
             return ToolFailure(error=e.message)
 
-    async def execute_all(self) -> List[ToolResult]:
+    async def execute_all(self) -> list[ToolResult]:
         """Execute all tools in the collection sequentially."""
         results = []
         for tool in self.tools:

@@ -15,8 +15,8 @@ try:
     try:
         BaseAgent()
         print("❌ ERRO: BaseAgent deveria ser abstrata!")
-    except TypeError as e:
-        print(f"✅ BaseAgent é corretamente abstrata")
+    except TypeError:
+        print("✅ BaseAgent é corretamente abstrata")
 
     print("🎉 Validação da BaseAgent concluída com sucesso!")
     print("\n📋 Resumo da implementação:")

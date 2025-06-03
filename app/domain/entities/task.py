@@ -3,7 +3,6 @@
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
 
 
 class TaskStatus(Enum):
@@ -31,13 +30,13 @@ class TaskStep:
     id: str
     step_number: int
     title: str
-    description: Optional[str] = None
+    description: str | None = None
     status: TaskStatus = TaskStatus.PENDING
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    agent_name: Optional[str] = None
-    output: Optional[str] = None
-    error_message: Optional[str] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    agent_name: str | None = None
+    output: str | None = None
+    error_message: str | None = None
 
 
 @dataclass
@@ -51,12 +50,12 @@ class Task:
     created_at: datetime
     updated_at: datetime
     progress: float = 0.0
-    completed_at: Optional[datetime] = None
+    completed_at: datetime | None = None
     priority: str = "medium"
-    tags: List[str] = None
-    document_ids: List[str] = None
-    steps: List[TaskStep] = None
-    config: Dict = None
+    tags: list[str] = None
+    document_ids: list[str] = None
+    steps: list[TaskStep] = None
+    config: dict = None
 
     def __post_init__(self):
         if self.tags is None:
@@ -75,7 +74,7 @@ class Task:
         description: str,
         complexity: TaskComplexity,
         mode: TaskMode = TaskMode.AUTO,
-        **kwargs
+        **kwargs,
     ):
         """Factory method to create a new task"""
         now = datetime.utcnow()
@@ -88,7 +87,7 @@ class Task:
             status=TaskStatus.PENDING,
             created_at=now,
             updated_at=now,
-            **kwargs
+            **kwargs,
         )
 
     def start_execution(self):
@@ -103,7 +102,7 @@ class Task:
         self.completed_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
 
-    def fail(self, error_message: str = None):
+    def fail(self, error_message: str = None):  # noqa: ARG002
         """Mark task as failed"""
         self.status = TaskStatus.ERROR
         self.updated_at = datetime.utcnow()

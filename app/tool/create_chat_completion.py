@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Type, Union, get_args, get_origin
+from typing import Any, Union, get_args, get_origin
 
 from pydantic import BaseModel, Field
 
@@ -20,10 +20,10 @@ class CreateChatCompletion(BaseTool):
         dict: "object",
         list: "array",
     }
-    response_type: Optional[Type] = None
-    required: List[str] = Field(default_factory=lambda: ["response"])
+    response_type: type | None = None
+    required: list[str] = Field(default_factory=lambda: ["response"])
 
-    def __init__(self, response_type: Optional[Type] = str):
+    def __init__(self, response_type: type | None = str):
         """Initialize with a specific response type."""
         super().__init__()
         self.response_type = response_type
@@ -31,7 +31,7 @@ class CreateChatCompletion(BaseTool):
 
     def _build_parameters(self) -> dict:
         """Build parameters schema based on response type."""
-        if self.response_type == str:
+        if self.response_type is str:
             return {
                 "type": "object",
                 "properties": {
@@ -55,7 +55,7 @@ class CreateChatCompletion(BaseTool):
 
         return self._create_type_schema(self.response_type)
 
-    def _create_type_schema(self, type_hint: Type) -> dict:
+    def _create_type_schema(self, type_hint: type) -> dict:
         """Create a JSON schema for the given type."""
         origin = get_origin(type_hint)
         args = get_args(type_hint)
@@ -107,7 +107,7 @@ class CreateChatCompletion(BaseTool):
 
         return self._build_parameters()
 
-    def _get_type_info(self, type_hint: Type) -> dict:
+    def _get_type_info(self, type_hint: type) -> dict:
         """Get type information for a single type."""
         if isinstance(type_hint, type) and issubclass(type_hint, BaseModel):
             return type_hint.model_json_schema()
@@ -152,7 +152,7 @@ class CreateChatCompletion(BaseTool):
             result = kwargs.get(required_field, "")
 
         # Type conversion logic
-        if self.response_type == str:
+        if self.response_type is str:
             return result
 
         if isinstance(self.response_type, type) and issubclass(

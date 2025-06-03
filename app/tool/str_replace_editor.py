@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, DefaultDict, List, Literal, Optional, get_args
+from typing import Any, Literal, get_args
 
 from app.core.settings import settings
 from app.exceptions import ToolError
@@ -47,9 +47,7 @@ Notes for using the `str_replace` command:
 """
 
 
-def maybe_truncate(
-    content: str, truncate_after: Optional[int] = MAX_RESPONSE_LEN
-) -> str:
+def maybe_truncate(content: str, truncate_after: int | None = MAX_RESPONSE_LEN) -> str:
     """Truncate content and append a notice if content exceeds the specified length."""
     if not truncate_after or len(content) <= truncate_after:
         return content
@@ -97,7 +95,7 @@ class StrReplaceEditor(BaseTool):
         },
         "required": ["command", "path"],
     }
-    _file_history: DefaultDict[PathLike, List[str]] = defaultdict(list)
+    _file_history: defaultdict[PathLike, list[str]] = defaultdict(list)
     _local_operator: LocalFileOperator = LocalFileOperator()
     _sandbox_operator: SandboxFileOperator = SandboxFileOperator()
 
@@ -120,7 +118,7 @@ class StrReplaceEditor(BaseTool):
         old_str: str | None = None,
         new_str: str | None = None,
         insert_line: int | None = None,
-        **kwargs: Any,
+        **_kwargs: Any,
     ) -> str:
         """Execute a file operation command."""
         # Get the appropriate file operator
@@ -195,7 +193,7 @@ class StrReplaceEditor(BaseTool):
     async def view(
         self,
         path: PathLike,
-        view_range: Optional[List[int]] = None,
+        view_range: list[int] | None = None,
         operator: FileOperator = None,
     ) -> CLIResult:
         """Display file or directory content."""
@@ -210,9 +208,8 @@ class StrReplaceEditor(BaseTool):
                 )
 
             return await self._view_directory(path, operator)
-        else:
-            # File handling
-            return await self._view_file(path, operator, view_range)
+        # File handling
+        return await self._view_file(path, operator, view_range)
 
     @staticmethod
     async def _view_directory(path: PathLike, operator: FileOperator) -> CLIResult:
@@ -234,7 +231,7 @@ class StrReplaceEditor(BaseTool):
         self,
         path: PathLike,
         operator: FileOperator,
-        view_range: Optional[List[int]] = None,
+        view_range: list[int] | None = None,
     ) -> CLIResult:
         """Display file content, optionally within a specified line range."""
         # Read file content
@@ -284,7 +281,7 @@ class StrReplaceEditor(BaseTool):
         self,
         path: PathLike,
         old_str: str,
-        new_str: Optional[str] = None,
+        new_str: str | None = None,
         operator: FileOperator = None,
     ) -> CLIResult:
         """Replace a unique string in a file with a new string."""
@@ -299,7 +296,7 @@ class StrReplaceEditor(BaseTool):
             raise ToolError(
                 f"No replacement was performed, old_str `{old_str}` did not appear verbatim in {path}."
             )
-        elif occurrences > 1:
+        if occurrences > 1:
             # Find line numbers of occurrences
             file_content_lines = file_content.split("\n")
             lines = [

@@ -5,14 +5,13 @@ Specialized workflow for generating podcasts from knowledge content.
 Aggregates content from notes/sources, generates scripts, and converts to audio.
 """
 
-import asyncio
 import json
 import logging
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from app.core.config import settings
 from app.core.exceptions import ValidationError
@@ -24,7 +23,6 @@ from app.knowledge.services.source_service import SourceService
 # TTS imports (assuming ElevenLabs integration)
 try:
     import elevenlabs
-    from elevenlabs import Voice, VoiceSettings
 
     ELEVENLABS_AVAILABLE = True
 except ImportError:
@@ -53,10 +51,10 @@ class PodcastScript:
     id: str
     title: str
     description: str
-    hosts: List[PodcastHost]
-    segments: List[Dict[str, Any]]
+    hosts: list[PodcastHost]
+    segments: list[dict[str, Any]]
     total_duration_estimate: int  # in seconds
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
     created_at: datetime
 
 
@@ -70,7 +68,7 @@ class PodcastAudio:
     file_size: int
     duration: int
     format: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
     created_at: datetime
 
 
@@ -88,7 +86,7 @@ class PodcastGenerator:
         source_service: SourceService,
         note_service: NoteService,
         rag_service: RagService,
-        output_dir: Union[str, Path] = "output/podcasts",
+        output_dir: str | Path = "output/podcasts",
     ):
         """
         Initialize the podcast generator.
@@ -130,15 +128,15 @@ class PodcastGenerator:
 
     async def generate_podcast(
         self,
-        source_ids: Optional[List[str]] = None,
-        note_ids: Optional[List[str]] = None,
-        topic: Optional[str] = None,
+        source_ids: list[str] | None = None,
+        note_ids: list[str] | None = None,
+        topic: str | None = None,
         style: str = "conversational",
         duration_target: int = 300,  # 5 minutes default
-        hosts: Optional[List[PodcastHost]] = None,
+        hosts: list[PodcastHost] | None = None,
         include_intro: bool = True,
         include_outro: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate a complete podcast from content sources.
 
@@ -192,13 +190,13 @@ class PodcastGenerator:
 
         except Exception as e:
             logger.error(f"Error generating podcast: {str(e)}")
-            raise ValidationError(f"Podcast generation failed: {str(e)}")
+            raise ValidationError(f"Podcast generation failed: {str(e)}") from e
 
     async def _aggregate_content(
         self,
-        source_ids: Optional[List[str]],
-        note_ids: Optional[List[str]],
-        topic: Optional[str],
+        source_ids: list[str] | None,
+        note_ids: list[str] | None,
+        topic: str | None,
     ) -> str:
         """
         Aggregate content from various sources.
@@ -278,10 +276,10 @@ class PodcastGenerator:
     async def _generate_script(
         self,
         content: str,
-        topic: Optional[str],
+        topic: str | None,
         style: str,
         duration_target: int,
-        hosts: List[PodcastHost],
+        hosts: list[PodcastHost],
         include_intro: bool,
         include_outro: bool,
     ) -> PodcastScript:
@@ -352,7 +350,7 @@ The script should feel natural and conversational, not like reading from notes."
             script = PodcastScript(
                 id=script_id,
                 title=topic or "Generated Podcast",
-                description=f"Podcast generated from knowledge content",
+                description="Podcast generated from knowledge content",
                 hosts=hosts,
                 segments=segments,
                 total_duration_estimate=duration_target,
@@ -374,7 +372,7 @@ The script should feel natural and conversational, not like reading from notes."
             logger.error(f"Error generating script: {str(e)}")
             raise
 
-    def _parse_script_segments(self, script_text: str) -> List[Dict[str, Any]]:
+    def _parse_script_segments(self, script_text: str) -> list[dict[str, Any]]:
         """Parse script text into structured segments."""
         segments = []
         lines = script_text.split("\n")
@@ -414,7 +412,7 @@ The script should feel natural and conversational, not like reading from notes."
         text_file = self.output_dir / f"script_{script.id}.txt"
 
         # Save structured script
-        with open(script_file, "w", encoding="utf-8") as f:
+        with script_file.open("w", encoding="utf-8") as f:
             json.dump(
                 {
                     "id": script.id,
@@ -433,10 +431,10 @@ The script should feel natural and conversational, not like reading from notes."
             )
 
         # Save plain text script
-        with open(text_file, "w", encoding="utf-8") as f:
+        with text_file.open("w", encoding="utf-8") as f:
             f.write(script_text)
 
-    async def _generate_audio(self, script: PodcastScript) -> Optional[PodcastAudio]:
+    async def _generate_audio(self, script: PodcastScript) -> PodcastAudio | None:
         """
         Generate audio from script using TTS.
 
@@ -496,7 +494,7 @@ The script should feel natural and conversational, not like reading from notes."
             audio_id = str(uuid.uuid4())
             audio_file = self.output_dir / f"podcast_{audio_id}.mp3"
 
-            with open(audio_file, "wb") as f:
+            with audio_file.open("wb") as f:
                 f.write(combined_audio)
 
             # Create audio object
@@ -534,7 +532,7 @@ class PodcastWorkflow:
         """Initialize with podcast generator."""
         self.podcast_generator = podcast_generator
 
-    async def execute(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, config: dict[str, Any]) -> dict[str, Any]:
         """
         Execute podcast generation workflow.
 

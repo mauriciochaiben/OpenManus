@@ -6,7 +6,6 @@ e que implementações concretas seguem a interface definida.
 """
 
 import asyncio
-from typing import Dict, List
 
 import pytest
 
@@ -30,14 +29,14 @@ class TestBaseAgent:
         agent = ExampleAgent()
         assert agent.name == "ExampleAgent"
         assert agent.timeout == 30
-        assert agent.debug == False
+        assert agent.debug is False
 
         # Teste com configuração personalizada
         config = {"name": "TestAgent", "timeout": 60, "debug": True}
         agent_with_config = ExampleAgent(config)
         assert agent_with_config.name == "TestAgent"
         assert agent_with_config.timeout == 60
-        assert agent_with_config.debug == True
+        assert agent_with_config.debug is True
 
     @pytest.mark.asyncio
     async def test_example_agent_run_success(self):
@@ -52,7 +51,7 @@ class TestBaseAgent:
         result = await agent.run(task_details)
 
         # Validações do resultado
-        assert result["success"] == True
+        assert result["success"] is True
         assert "result" in result
         assert "message" in result
         assert "metadata" in result
@@ -77,7 +76,7 @@ class TestBaseAgent:
         result = await agent.run(task_details)
 
         # Deve executar com sucesso mesmo com tarefa vazia
-        assert result["success"] == True
+        assert result["success"] is True
         assert result["result"]["processed_description"] == "No description provided"
 
     def test_example_agent_capabilities(self):
@@ -107,9 +106,9 @@ class TestBaseAgent:
 
         # Verifica se os métodos abstratos estão implementados
         assert hasattr(agent, "run")
-        assert callable(getattr(agent, "run"))
+        assert callable(agent.run)
         assert hasattr(agent, "get_capabilities")
-        assert callable(getattr(agent, "get_capabilities"))
+        assert callable(agent.get_capabilities)
 
         # Verifica se __init__ foi implementado (implicitamente testado na criação)
         assert agent is not None

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Protocol
+from typing import Protocol
 
-from app.core.settings import SandboxSettings, settings
+from app.core.settings import SandboxSettings
 from app.sandbox.core.sandbox import DockerSandbox
 
 
@@ -53,13 +53,13 @@ class BaseSandboxClient(ABC):
     @abstractmethod
     async def create(
         self,
-        config: Optional[SandboxSettings] = None,
-        volume_bindings: Optional[Dict[str, str]] = None,
+        config: SandboxSettings | None = None,
+        volume_bindings: dict[str, str] | None = None,
     ) -> None:
         """Creates sandbox."""
 
     @abstractmethod
-    async def run_command(self, command: str, timeout: Optional[int] = None) -> str:
+    async def run_command(self, command: str, timeout: int | None = None) -> str:
         """Executes command."""
 
     @abstractmethod
@@ -88,12 +88,12 @@ class LocalSandboxClient(BaseSandboxClient):
 
     def __init__(self):
         """Initializes local sandbox client."""
-        self.sandbox: Optional[DockerSandbox] = None
+        self.sandbox: DockerSandbox | None = None
 
     async def create(
         self,
-        config: Optional[SandboxSettings] = None,
-        volume_bindings: Optional[Dict[str, str]] = None,
+        config: SandboxSettings | None = None,
+        volume_bindings: dict[str, str] | None = None,
     ) -> None:
         """Creates a sandbox.
 
@@ -107,7 +107,7 @@ class LocalSandboxClient(BaseSandboxClient):
         self.sandbox = DockerSandbox(config, volume_bindings)
         await self.sandbox.create()
 
-    async def run_command(self, command: str, timeout: Optional[int] = None) -> str:
+    async def run_command(self, command: str, timeout: int | None = None) -> str:
         """Runs command in sandbox.
 
         Args:

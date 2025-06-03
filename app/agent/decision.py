@@ -5,7 +5,6 @@ Sistema de decisão inteligente para escolha entre single agent e multi-agent
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Set
 
 from app.logger import logger
 
@@ -33,16 +32,19 @@ class TaskAnalysis:
     """Resultado da análise de uma tarefa"""
 
     complexity: TaskComplexity
-    domains: Set[str]
+    domains: set[str]
     estimated_steps: int
     requires_specialization: bool
     parallel_potential: bool
     collaboration_needed: bool
-    tools_needed: List[str]
+    tools_needed: list[str]
 
 
 class AgentDecisionSystem:
-    """Sistema que decide entre single agent ou multi-agent baseado na complexidade da tarefa"""
+    """Sistema que decide entre single agent ou multi-agent baseado na complexidade.
+
+    Baseado na complexidade da tarefa.
+    """
 
     def __init__(self):
         # Padrões que indicam diferentes domínios
@@ -181,7 +183,7 @@ class AgentDecisionSystem:
         # Padrão: single agent
         return AgentApproach.SINGLE_AGENT
 
-    def _detect_domains(self, task: str) -> Set[str]:
+    def _detect_domains(self, task: str) -> set[str]:
         """Detecta os domínios envolvidos na tarefa"""
         domains = set()
         task_lower = task.lower()
@@ -194,7 +196,7 @@ class AgentDecisionSystem:
 
         return domains
 
-    def _detect_tools_needed(self, task: str, domains: Set[str]) -> List[str]:
+    def _detect_tools_needed(self, task: str, domains: set[str]) -> list[str]:
         """Detecta as ferramentas necessárias baseado na tarefa e domínios"""
         tools = set()
         task_lower = task.lower()
@@ -224,7 +226,7 @@ class AgentDecisionSystem:
         return list(tools)
 
     def _calculate_complexity(
-        self, task: str, domains: Set[str], tools_needed: List[str]
+        self, task: str, domains: set[str], tools_needed: list[str]
     ) -> TaskComplexity:
         """Calcula a complexidade da tarefa"""
         complexity_score = 0
@@ -253,12 +255,11 @@ class AgentDecisionSystem:
         # Determinar nível de complexidade
         if complexity_score <= 3:
             return TaskComplexity.SIMPLE
-        elif complexity_score <= 7:
+        if complexity_score <= 7:
             return TaskComplexity.MODERATE
-        elif complexity_score <= 12:
+        if complexity_score <= 12:
             return TaskComplexity.COMPLEX
-        else:
-            return TaskComplexity.VERY_COMPLEX
+        return TaskComplexity.VERY_COMPLEX
 
     def _detect_parallel_potential(self, task: str) -> bool:
         """Detecta se a tarefa tem potencial para execução paralela"""
@@ -353,9 +354,8 @@ def _get_recommended_approach(analysis: TaskAnalysis) -> AgentApproach:
 
     if analysis.collaboration_needed:
         return AgentApproach.MULTI_AGENT_COLLABORATIVE
-    elif analysis.parallel_potential:
+    if analysis.parallel_potential:
         return AgentApproach.MULTI_AGENT_PARALLEL
-    elif analysis.requires_specialization or len(analysis.domains) > 1:
+    if analysis.requires_specialization or len(analysis.domains) > 1:
         return AgentApproach.MULTI_AGENT_SEQUENTIAL
-    else:
-        return AgentApproach.SINGLE_AGENT
+    return AgentApproach.SINGLE_AGENT

@@ -4,15 +4,16 @@ Orquestrador de agentes MCP especializados
 
 import asyncio
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
-from app.agent.base import BaseAgent
 from app.agent.decision import AgentApproach, AgentDecisionSystem, TaskAnalysis
 from app.agent.manus import Manus
 from app.agent.mcp import MCPAgent
 from app.infrastructure.messaging.progress_broadcaster import progress_broadcaster
 from app.logger import logger
-from app.tool.mcp import MCPClients
+
+if TYPE_CHECKING:
+    from app.agent.base import BaseAgent
 
 
 @dataclass
@@ -21,10 +22,10 @@ class Task:
 
     description: str
     priority: int = 1
-    dependencies: List[str] = None
-    assigned_agent: Optional[str] = None
+    dependencies: list[str] = None
+    assigned_agent: str | None = None
     status: str = "pending"  # pending, running, completed, failed
-    result: Optional[str] = None
+    result: str | None = None
 
     def __post_init__(self):
         if self.dependencies is None:
@@ -55,7 +56,7 @@ class MCPToolRouter:
             "document_processing": "analysis",
         }
 
-    def get_optimal_agent_for_tool(self, tool_name: str) -> List[str]:
+    def get_optimal_agent_for_tool(self, tool_name: str) -> list[str]:
         """Retorna agentes especializados para a ferramenta"""
         specializations = self.tool_specializations.get(tool_name, [])
 
@@ -73,7 +74,7 @@ class MCPToolRouter:
         """Retorna o agente ótimo para um domínio"""
         return self.specialization_agents.get(domain, "default")
 
-    def distribute_mcp_connections(self) -> Dict[str, List[str]]:
+    def distribute_mcp_connections(self) -> dict[str, list[str]]:
         """Distribui conexões MCP baseado na especialização"""
         distribution = {}
 
@@ -99,10 +100,10 @@ class MCPAgentOrchestrator:
     """Orquestrador que gerencia múltiplos agentes MCP especializados"""
 
     def __init__(self):
-        self.specialized_agents: Dict[str, BaseAgent] = {}
+        self.specialized_agents: dict[str, BaseAgent] = {}
         self.mcp_tool_router = MCPToolRouter()
         self.decision_system = AgentDecisionSystem()
-        self.active_tasks: Dict[str, Task] = {}
+        self.active_tasks: dict[str, Task] = {}
         self.task_counter = 0
 
         # Configuração padrão de agentes especializados
@@ -181,12 +182,12 @@ class MCPAgentOrchestrator:
         # Escolher estratégia baseada na abordagem recomendada
         if approach == AgentApproach.SINGLE_AGENT:
             return await self._execute_single_agent(task, analysis)
-        elif approach == AgentApproach.MULTI_AGENT_SEQUENTIAL:
+        if approach == AgentApproach.MULTI_AGENT_SEQUENTIAL:
             return await self._execute_sequential(task, analysis)
-        elif approach == AgentApproach.MULTI_AGENT_PARALLEL:
+        if approach == AgentApproach.MULTI_AGENT_PARALLEL:
             return await self._execute_parallel(task, analysis)
-        else:  # MULTI_AGENT_COLLABORATIVE
-            return await self._execute_collaborative(task, analysis)
+        # MULTI_AGENT_COLLABORATIVE
+        return await self._execute_collaborative(task, analysis)
 
     async def _execute_single_agent(self, task: Task, analysis: TaskAnalysis) -> str:
         """Executa tarefa com um único agente"""
@@ -368,7 +369,7 @@ class MCPAgentOrchestrator:
 
     def _decompose_task(
         self, task: Task, analysis: TaskAnalysis, parallel: bool = False
-    ) -> List[Task]:
+    ) -> list[Task]:
         """Decompõe uma tarefa em subtarefas"""
         subtasks = []
 
@@ -391,7 +392,7 @@ class MCPAgentOrchestrator:
 
         return subtasks
 
-    async def get_agent_status(self) -> Dict[str, Any]:
+    async def get_agent_status(self) -> dict[str, Any]:
         """Retorna status de todos os agentes"""
         status = {}
         for agent_id, agent in self.specialized_agents.items():

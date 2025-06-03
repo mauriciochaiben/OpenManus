@@ -1,9 +1,10 @@
 """Event system for decoupled communication"""
 
 import asyncio
+import contextlib
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List
 
 from app.domain.entities import Task, TaskStatus
 
@@ -11,7 +12,10 @@ from app.domain.entities import Task, TaskStatus
 class Event(ABC):
     """Base event class"""
 
-    pass
+    @abstractmethod
+    def get_event_type(self) -> str:
+        """Return the type of event"""
+        pass
 
 
 @dataclass
@@ -20,6 +24,10 @@ class TaskCreatedEvent(Event):
 
     task_id: str
     task: Task
+
+    def get_event_type(self) -> str:
+        """Return the type of event"""
+        return "task_created"
 
 
 @dataclass
@@ -31,6 +39,10 @@ class TaskUpdatedEvent(Event):
     old_status: TaskStatus
     new_status: TaskStatus
 
+    def get_event_type(self) -> str:
+        """Return the type of event"""
+        return "task_updated"
+
 
 @dataclass
 class TaskProgressEvent(Event):
@@ -39,12 +51,16 @@ class TaskProgressEvent(Event):
     task_id: str
     progress: float
 
+    def get_event_type(self) -> str:
+        """Return the type of event"""
+        return "task_progress"
+
 
 class EventBus:
     """Event bus for publishing and subscribing to events"""
 
     def __init__(self):
-        self._handlers: Dict[type, List[Callable]] = {}
+        self._handlers: dict[type, list[Callable]] = {}
 
     def subscribe(self, event_type: type, handler: Callable):
         """Subscribe to an event type"""
@@ -55,10 +71,8 @@ class EventBus:
     def unsubscribe(self, event_type: type, handler: Callable):
         """Unsubscribe from an event type"""
         if event_type in self._handlers:
-            try:
+            with contextlib.suppress(ValueError):
                 self._handlers[event_type].remove(handler)
-            except ValueError:
-                pass
 
     async def publish(self, event: Event):
         """Publish an event to all subscribers"""

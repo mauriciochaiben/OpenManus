@@ -1,6 +1,6 @@
 import asyncio
 import json
-from typing import Any, List, Optional, Union
+from typing import Any
 
 from pydantic import Field
 
@@ -10,7 +10,6 @@ from app.logger import logger
 from app.prompt.toolcall import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.schema import TOOL_CHOICE_TYPE, AgentState, Message, ToolCall, ToolChoice
 from app.tool import CreateChatCompletion, Terminate, ToolCollection
-
 
 TOOL_CALL_REQUIRED = "Tool calls required but none provided"
 
@@ -28,13 +27,13 @@ class ToolCallAgent(ReActAgent):
         CreateChatCompletion(), Terminate()
     )
     tool_choices: TOOL_CHOICE_TYPE = ToolChoice.AUTO  # type: ignore
-    special_tool_names: List[str] = Field(default_factory=lambda: [Terminate().name])
+    special_tool_names: list[str] = Field(default_factory=lambda: [Terminate().name])
 
-    tool_calls: List[ToolCall] = Field(default_factory=list)
-    _current_base64_image: Optional[str] = None
+    tool_calls: list[ToolCall] = Field(default_factory=list)
+    _current_base64_image: str | None = None
 
     max_steps: int = 30
-    max_observe: Optional[Union[int, bool]] = None
+    max_observe: int | bool | None = None
 
     async def think(self) -> bool:
         """Process current state and decide next actions using tools"""
@@ -189,13 +188,12 @@ class ToolCallAgent(ReActAgent):
                 self._current_base64_image = result.base64_image
 
             # Format result for display (standard case)
-            observation = (
+            return (
                 f"Observed output of cmd `{name}` executed:\n{str(result)}"
                 if result
                 else f"Cmd `{name}` completed with no output"
             )
 
-            return observation
         except json.JSONDecodeError:
             error_msg = f"Error parsing arguments for {name}: Invalid JSON format"
             logger.error(
@@ -218,7 +216,7 @@ class ToolCallAgent(ReActAgent):
             self.state = AgentState.FINISHED
 
     @staticmethod
-    def _should_finish_execution(**kwargs) -> bool:
+    def _should_finish_execution(**_kwargs) -> bool:
         """Determine if tool execution should finish the agent"""
         return True
 
@@ -242,7 +240,7 @@ class ToolCallAgent(ReActAgent):
                     )
         logger.info(f"✨ Cleanup complete for agent '{self.name}'.")
 
-    async def run(self, request: Optional[str] = None) -> str:
+    async def run(self, request: str | None = None) -> str:
         """Run the agent with cleanup when done."""
         try:
             return await super().run(request)

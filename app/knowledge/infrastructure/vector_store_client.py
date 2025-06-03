@@ -2,7 +2,7 @@
 
 import asyncio
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 from uuid import uuid4
 
 import chromadb
@@ -10,7 +10,6 @@ from chromadb.api.models.Collection import Collection
 from chromadb.config import Settings
 from chromadb.errors import ChromaError, NotFoundError
 
-from app.core.settings import settings
 from app.core.vector_config import rag_config, vector_db_config
 
 logger = logging.getLogger(__name__)
@@ -39,9 +38,9 @@ class VectorStoreClient:
 
     def __init__(
         self,
-        host: Optional[str] = None,
-        port: Optional[int] = None,
-        auth_token: Optional[str] = None,
+        host: str | None = None,
+        port: int | None = None,
+        auth_token: str | None = None,
     ):
         """
         Initialize the Vector Store Client.
@@ -55,8 +54,8 @@ class VectorStoreClient:
         self.port = port or vector_db_config.port
         self.auth_token = auth_token or vector_db_config.auth_token
 
-        self._client: Optional[chromadb.Client] = None
-        self._collections_cache: Dict[str, Collection] = {}
+        self._client: chromadb.Client | None = None
+        self._collections_cache: dict[str, Collection] = {}
         self._is_connected = False
 
         logger.info(f"Initializing VectorStoreClient for {self.host}:{self.port}")
@@ -99,7 +98,7 @@ class VectorStoreClient:
 
         except Exception as e:
             logger.error(f"Failed to connect to ChromaDB: {str(e)}")
-            raise ConnectionError(f"Failed to connect to vector store: {str(e)}")
+            raise ConnectionError(f"Failed to connect to vector store: {str(e)}") from e
 
     async def _test_connection(self) -> None:
         """Test the connection to ChromaDB."""
@@ -108,7 +107,7 @@ class VectorStoreClient:
             loop = asyncio.get_event_loop()
             await loop.run_in_executor(None, self._client.heartbeat)
         except Exception as e:
-            raise ConnectionError(f"Connection test failed: {str(e)}")
+            raise ConnectionError(f"Connection test failed: {str(e)}") from e
 
     async def disconnect(self) -> None:
         """Disconnect from ChromaDB."""
@@ -127,8 +126,8 @@ class VectorStoreClient:
     async def create_collection(
         self,
         name: str,
-        metadata: Optional[Dict[str, Any]] = None,
-        embedding_function: Optional[Any] = None,
+        metadata: dict[str, Any] | None = None,
+        embedding_function: Any | None = None,
     ) -> Collection:
         """
         Create a collection if it doesn't exist.
@@ -178,7 +177,7 @@ class VectorStoreClient:
 
         except Exception as e:
             logger.error(f"Failed to create collection '{name}': {str(e)}")
-            raise CollectionError(f"Failed to create collection: {str(e)}")
+            raise CollectionError(f"Failed to create collection: {str(e)}") from e
 
     async def get_collection(self, name: str) -> Collection:
         """
@@ -205,16 +204,16 @@ class VectorStoreClient:
 
         except Exception as e:
             logger.error(f"Failed to get collection '{name}': {str(e)}")
-            raise CollectionError(f"Collection '{name}' not found: {str(e)}")
+            raise CollectionError(f"Collection '{name}' not found: {str(e)}") from e
 
     async def add_documents(
         self,
         collection_name: str,
-        documents: List[str],
-        embeddings: Optional[List[List[float]]] = None,
-        metadatas: Optional[List[Dict[str, Any]]] = None,
-        ids: Optional[List[str]] = None,
-    ) -> List[str]:
+        documents: list[str],
+        embeddings: list[list[float]] | None = None,
+        metadatas: list[dict[str, Any]] | None = None,
+        ids: list[str] | None = None,
+    ) -> list[str]:
         """
         Add documents to a collection.
 
@@ -280,17 +279,17 @@ class VectorStoreClient:
 
         except Exception as e:
             logger.error(f"Failed to add documents to '{collection_name}': {str(e)}")
-            raise VectorStoreError(f"Failed to add documents: {str(e)}")
+            raise VectorStoreError(f"Failed to add documents: {str(e)}") from e
 
     async def search_similar(
         self,
         collection_name: str,
-        query_texts: Optional[List[str]] = None,
-        query_embeddings: Optional[List[List[float]]] = None,
-        n_results: Optional[int] = None,
-        where: Optional[Dict[str, Any]] = None,
-        where_document: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        query_texts: list[str] | None = None,
+        query_embeddings: list[list[float]] | None = None,
+        n_results: int | None = None,
+        where: dict[str, Any] | None = None,
+        where_document: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Search for similar documents in a collection.
 
@@ -352,11 +351,11 @@ class VectorStoreClient:
 
         except Exception as e:
             logger.error(f"Search failed in '{collection_name}': {str(e)}")
-            raise VectorStoreError(f"Search failed: {str(e)}")
+            raise VectorStoreError(f"Search failed: {str(e)}") from e
 
     def _filter_by_threshold(
-        self, results: Dict[str, Any], threshold: float
-    ) -> Dict[str, Any]:
+        self, results: dict[str, Any], threshold: float
+    ) -> dict[str, Any]:
         """Filter search results by distance threshold."""
         if "distances" not in results or not results["distances"]:
             return results
@@ -398,10 +397,10 @@ class VectorStoreClient:
     async def update_documents(
         self,
         collection_name: str,
-        ids: List[str],
-        documents: Optional[List[str]] = None,
-        embeddings: Optional[List[List[float]]] = None,
-        metadatas: Optional[List[Dict[str, Any]]] = None,
+        ids: list[str],
+        documents: list[str] | None = None,
+        embeddings: list[list[float]] | None = None,
+        metadatas: list[dict[str, Any]] | None = None,
     ) -> None:
         """
         Update existing documents in a collection.
@@ -436,13 +435,13 @@ class VectorStoreClient:
 
         except Exception as e:
             logger.error(f"Failed to update documents in '{collection_name}': {str(e)}")
-            raise VectorStoreError(f"Failed to update documents: {str(e)}")
+            raise VectorStoreError(f"Failed to update documents: {str(e)}") from e
 
     async def delete_documents(
         self,
         collection_name: str,
-        ids: Optional[List[str]] = None,
-        where: Optional[Dict[str, Any]] = None,
+        ids: list[str] | None = None,
+        where: dict[str, Any] | None = None,
     ) -> None:
         """
         Delete documents from a collection.
@@ -472,9 +471,9 @@ class VectorStoreClient:
             logger.error(
                 f"Failed to delete documents from '{collection_name}': {str(e)}"
             )
-            raise VectorStoreError(f"Failed to delete documents: {str(e)}")
+            raise VectorStoreError(f"Failed to delete documents: {str(e)}") from e
 
-    async def get_collection_info(self, collection_name: str) -> Dict[str, Any]:
+    async def get_collection_info(self, collection_name: str) -> dict[str, Any]:
         """
         Get information about a collection.
 
@@ -503,9 +502,9 @@ class VectorStoreClient:
             logger.error(
                 f"Failed to get info for collection '{collection_name}': {str(e)}"
             )
-            raise CollectionError(f"Failed to get collection info: {str(e)}")
+            raise CollectionError(f"Failed to get collection info: {str(e)}") from e
 
-    async def list_collections(self) -> List[str]:
+    async def list_collections(self) -> list[str]:
         """
         List all collections.
 
@@ -523,7 +522,7 @@ class VectorStoreClient:
 
         except Exception as e:
             logger.error(f"Failed to list collections: {str(e)}")
-            raise VectorStoreError(f"Failed to list collections: {str(e)}")
+            raise VectorStoreError(f"Failed to list collections: {str(e)}") from e
 
     async def reset_collection(self, collection_name: str) -> None:
         """
@@ -548,7 +547,7 @@ class VectorStoreClient:
 
         except Exception as e:
             logger.error(f"Failed to reset collection '{collection_name}': {str(e)}")
-            raise CollectionError(f"Failed to reset collection: {str(e)}")
+            raise CollectionError(f"Failed to reset collection: {str(e)}") from e
 
     @property
     def is_connected(self) -> bool:

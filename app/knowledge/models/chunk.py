@@ -2,9 +2,9 @@
 
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 
 class DocumentChunkCreate(BaseModel):
@@ -21,7 +21,7 @@ class DocumentChunkCreate(BaseModel):
         ge=0,
         description="Index/position of the chunk within the document",
     )
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict,
         description="Additional metadata about the chunk (e.g., page number, section)",
     )
@@ -42,13 +42,13 @@ class DocumentChunk(DocumentChunkCreate):
     created_at: datetime = Field(
         default_factory=datetime.utcnow, description="Chunk creation timestamp"
     )
-    updated_at: Optional[datetime] = Field(
+    updated_at: datetime | None = Field(
         default=None, description="Last update timestamp"
     )
-    vector_id: Optional[str] = Field(
+    vector_id: str | None = Field(
         default=None, description="ID of the chunk in the vector database"
     )
-    embedding_id: Optional[str] = Field(
+    embedding_id: str | None = Field(
         default=None, description="ID of the embedding metadata for this chunk"
     )
 

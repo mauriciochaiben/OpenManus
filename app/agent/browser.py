@@ -1,5 +1,5 @@
 import json
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from pydantic import Field, model_validator
 
@@ -9,7 +9,6 @@ from app.prompt.browser import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.schema import Message, ToolChoice
 from app.tool import BrowserUseTool, Terminate, ToolCollection
 
-
 # Avoid circular import if BrowserAgent needs BrowserContextHelper
 if TYPE_CHECKING:
     from app.agent.base import BaseAgent  # Or wherever memory is defined
@@ -18,9 +17,9 @@ if TYPE_CHECKING:
 class BrowserContextHelper:
     def __init__(self, agent: "BaseAgent"):
         self.agent = agent
-        self._current_base64_image: Optional[str] = None
+        self._current_base64_image: str | None = None
 
-    async def get_browser_state(self) -> Optional[dict]:
+    async def get_browser_state(self) -> dict | None:
         browser_tool = self.agent.available_tools.get_tool(BrowserUseTool().name)
         if not browser_tool or not hasattr(browser_tool, "get_current_state"):
             logger.warning("BrowserUseTool not found or doesn't have get_current_state")
@@ -46,7 +45,9 @@ class BrowserContextHelper:
         results_info = ""  # Or get from agent if needed elsewhere
 
         if browser_state and not browser_state.get("error"):
-            url_info = f"\n   URL: {browser_state.get('url', 'N/A')}\n   Title: {browser_state.get('title', 'N/A')}"
+            url = browser_state.get("url", "N/A")
+            title = browser_state.get("title", "N/A")
+            url_info = f"\n   URL: {url}\n   Title: {title}"
             tabs = browser_state.get("tabs", [])
             if tabs:
                 tabs_info = f"\n   {len(tabs)} tab(s) available"
@@ -105,7 +106,7 @@ class BrowserAgent(ToolCallAgent):
     tool_choices: ToolChoice = ToolChoice.AUTO
     special_tool_names: list[str] = Field(default_factory=lambda: [Terminate().name])
 
-    browser_context_helper: Optional[BrowserContextHelper] = None
+    browser_context_helper: BrowserContextHelper | None = None
 
     @model_validator(mode="after")
     def initialize_helper(self) -> "BrowserAgent":
@@ -113,7 +114,10 @@ class BrowserAgent(ToolCallAgent):
         return self
 
     async def think(self) -> bool:
-        """Process current state and decide next actions using tools, with browser state info added"""
+        """Process current state and decide next actions using tools.
+
+        Browser state info is added to the prompt.
+        """
         self.next_step_prompt = (
             await self.browser_context_helper.format_next_step_prompt()
         )

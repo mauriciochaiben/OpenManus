@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from pydantic import Field
 
@@ -31,18 +31,18 @@ class MCPAgent(ToolCallAgent):
     connection_type: str = "stdio"  # "stdio" or "sse"
 
     # Track tool schemas to detect changes
-    tool_schemas: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
+    tool_schemas: dict[str, dict[str, Any]] = Field(default_factory=dict)
     _refresh_tools_interval: int = 5  # Refresh tools every N steps
 
     # Special tool names that should trigger termination
-    special_tool_names: List[str] = Field(default_factory=lambda: ["terminate"])
+    special_tool_names: list[str] = Field(default_factory=lambda: ["terminate"])
 
     async def initialize(
         self,
-        connection_type: Optional[str] = None,
-        server_url: Optional[str] = None,
-        command: Optional[str] = None,
-        args: Optional[List[str]] = None,
+        connection_type: str | None = None,
+        server_url: str | None = None,
+        command: str | None = None,
+        args: list[str] | None = None,
     ) -> None:
         """Initialize the MCP connection.
 
@@ -84,7 +84,7 @@ class MCPAgent(ToolCallAgent):
             )
         )
 
-    async def _refresh_tools(self) -> Tuple[List[str], List[str]]:
+    async def _refresh_tools(self) -> tuple[list[str], list[str]]:
         """Refresh the list of available tools from the MCP server.
 
         Returns:
@@ -164,7 +164,7 @@ class MCPAgent(ToolCallAgent):
                 )
             )
 
-    def _should_finish_execution(self, name: str, **kwargs) -> bool:
+    def _should_finish_execution(self, name: str, **_kwargs) -> bool:
         """Determine if tool execution should finish the agent"""
         # Terminate if the tool name is 'terminate'
         return name.lower() == "terminate"
@@ -175,11 +175,10 @@ class MCPAgent(ToolCallAgent):
             await self.mcp_clients.disconnect()
             logger.info("MCP connection closed")
 
-    async def run(self, request: Optional[str] = None) -> str:
+    async def run(self, request: str | None = None) -> str:
         """Run the agent with cleanup when done."""
         try:
-            result = await super().run(request)
-            return result
+            return await super().run(request)
         finally:
             # Ensure cleanup happens even if there's an error
             await self.cleanup()

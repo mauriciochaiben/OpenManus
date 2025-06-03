@@ -1,6 +1,6 @@
 """Tool registry for managing and organizing tools in the OpenManus system."""
 
-from typing import Dict, List, Optional, Type, Union
+from typing import Optional
 
 from app.logger import logger
 from app.tool.base import BaseTool
@@ -26,7 +26,7 @@ class ToolRegistry:
     def __init__(self):
         """Initialize the tool registry."""
         if not self._initialized:
-            self._tools: Dict[str, BaseTool] = {}
+            self._tools: dict[str, BaseTool] = {}
             self._initialized = True
             logger.info("Tool registry initialized")
 
@@ -56,7 +56,7 @@ class ToolRegistry:
         self._tools[tool_name] = tool_instance
         logger.info(f"Tool '{tool_name}' registered successfully")
 
-    def get_tool(self, tool_name: str) -> Optional[BaseTool]:
+    def get_tool(self, tool_name: str) -> BaseTool | None:
         """
         Retrieve a tool from the registry by name.
 
@@ -76,7 +76,7 @@ class ToolRegistry:
 
         return tool
 
-    def list_tools(self) -> List[str]:
+    def list_tools(self) -> list[str]:
         """
         Get a list of all registered tool names.
 
@@ -103,11 +103,8 @@ class ToolRegistry:
             del self._tools[tool_name]
             logger.info(f"Tool '{tool_name}' unregistered successfully")
             return True
-        else:
-            logger.warning(
-                f"Cannot unregister tool '{tool_name}': not found in registry"
-            )
-            return False
+        logger.warning(f"Cannot unregister tool '{tool_name}': not found in registry")
+        return False
 
     def is_registered(self, tool_name: str) -> bool:
         """
@@ -140,7 +137,7 @@ class ToolRegistry:
         """
         return len(self._tools)
 
-    def get_tools_by_type(self, tool_type: Type[BaseTool]) -> List[BaseTool]:
+    def get_tools_by_type(self, tool_type: type[BaseTool]) -> list[BaseTool]:
         """
         Get all tools of a specific type.
 

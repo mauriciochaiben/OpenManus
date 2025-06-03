@@ -21,7 +21,8 @@ class DataAnalysis(ToolCallAgent):
 
     name: str = "DataAnalysis"
     description: str = (
-        "An analytical agent that utilizes multiple tools to solve diverse data analysis tasks"
+        "An analytical agent that utilizes multiple tools to solve "
+        "diverse data analysis tasks"
     )
 
     system_prompt: str = SYSTEM_PROMPT.format(directory=settings.workspace_root)

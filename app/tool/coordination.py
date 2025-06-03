@@ -2,11 +2,10 @@
 Ferramentas MCP especializadas para coordenação multi-agente
 """
 
-import asyncio
 import json
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from app.logger import logger
 from app.tool.base import BaseTool, ToolResult
@@ -53,9 +52,9 @@ class CoordinationTool(BaseTool):
     }
 
     # Campos de estado como atributos de classe
-    message_queue: Dict[str, List[Dict]] = {}
-    agent_registry: Dict[str, Dict] = {}
-    task_delegations: Dict[str, Dict] = {}
+    message_queue: dict[str, list[dict]] = {}
+    agent_registry: dict[str, dict] = {}
+    task_delegations: dict[str, dict] = {}
 
     def __init__(self):
         super().__init__()
@@ -71,23 +70,22 @@ class CoordinationTool(BaseTool):
         action: str,
         target_agent: str = None,
         message: str = None,
-        task_data: Dict = None,
+        task_data: dict = None,
     ) -> ToolResult:
         """Implementa comunicação inter-agentes via MCP"""
 
         try:
             if action == "send_message":
                 return await self._send_message(target_agent, message)
-            elif action == "broadcast":
+            if action == "broadcast":
                 return await self._broadcast_message(message)
-            elif action == "request_status":
+            if action == "request_status":
                 return await self._request_status(target_agent)
-            elif action == "delegate_task":
+            if action == "delegate_task":
                 return await self._delegate_task(target_agent, task_data)
-            elif action == "sync_state":
+            if action == "sync_state":
                 return await self._sync_state(target_agent, message)
-            else:
-                return ToolResult(error=f"Unknown coordination action: {action}")
+            return ToolResult(error=f"Unknown coordination action: {action}")
 
         except Exception as e:
             logger.error(f"Error in coordination tool: {e}")
@@ -127,7 +125,7 @@ class CoordinationTool(BaseTool):
         }
 
         sent_count = 0
-        for agent_id in self.agent_registry.keys():
+        for agent_id in self.agent_registry:
             if agent_id not in self.message_queue:
                 self.message_queue[agent_id] = []
             self.message_queue[agent_id].append(msg_data)
@@ -141,10 +139,9 @@ class CoordinationTool(BaseTool):
         if target_agent:
             status = self.agent_registry.get(target_agent, {})
             return ToolResult(output=json.dumps({target_agent: status}))
-        else:
-            return ToolResult(output=json.dumps(self.agent_registry))
+        return ToolResult(output=json.dumps(self.agent_registry))
 
-    async def _delegate_task(self, target_agent: str, task_data: Dict) -> ToolResult:
+    async def _delegate_task(self, target_agent: str, task_data: dict) -> ToolResult:
         """Delega uma tarefa para um agente específico"""
         if not target_agent or not task_data:
             return ToolResult(error="Target agent and task data are required")
@@ -212,7 +209,7 @@ class DistributedMemoryTool(BaseTool):
     }
 
     # Campo de estado como atributo de classe
-    memory_store: Dict[str, Dict[str, Any]] = {}
+    memory_store: dict[str, dict[str, Any]] = {}
 
     def __init__(self):
         super().__init__()
@@ -234,16 +231,15 @@ class DistributedMemoryTool(BaseTool):
         try:
             if operation == "store":
                 return await self._store(namespace, key, value)
-            elif operation == "retrieve":
+            if operation == "retrieve":
                 return await self._retrieve(namespace, key)
-            elif operation == "delete":
+            if operation == "delete":
                 return await self._delete(namespace, key)
-            elif operation == "list":
+            if operation == "list":
                 return await self._list(namespace)
-            elif operation == "search":
+            if operation == "search":
                 return await self._search(namespace, query)
-            else:
-                return ToolResult(error=f"Unknown memory operation: {operation}")
+            return ToolResult(error=f"Unknown memory operation: {operation}")
 
         except Exception as e:
             logger.error(f"Error in distributed memory tool: {e}")
@@ -358,7 +354,7 @@ class TaskRoutingTool(BaseTool):
     }
 
     # Campo de estado como atributo de classe
-    agent_capabilities: Dict[str, Dict] = {
+    agent_capabilities: dict[str, dict] = {
         "code": {
             "specializations": ["development", "programming", "debugging"],
             "capabilities": ["bash", "editor", "python", "git"],
@@ -396,22 +392,21 @@ class TaskRoutingTool(BaseTool):
         self,
         action: str,
         task: str = None,
-        requirements: List[str] = None,
-        agent_info: Dict = None,
+        requirements: list[str] = None,
+        agent_info: dict = None,
     ) -> ToolResult:
         """Analisa tarefa e roteia para agente adequado"""
 
         try:
             if action == "analyze_task":
                 return await self._analyze_task(task)
-            elif action == "route_task":
+            if action == "route_task":
                 return await self._route_task(task, requirements)
-            elif action == "get_recommendations":
+            if action == "get_recommendations":
                 return await self._get_recommendations(task, requirements)
-            elif action == "register_agent":
+            if action == "register_agent":
                 return await self._register_agent(agent_info)
-            else:
-                return ToolResult(error=f"Unknown routing action: {action}")
+            return ToolResult(error=f"Unknown routing action: {action}")
 
         except Exception as e:
             logger.error(f"Error in task routing tool: {e}")
@@ -452,14 +447,16 @@ class TaskRoutingTool(BaseTool):
             "complexity": (
                 "high"
                 if len(detected_requirements) > 2
-                else "medium" if len(detected_requirements) > 1 else "low"
+                else "medium"
+                if len(detected_requirements) > 1
+                else "low"
             ),
         }
 
         return ToolResult(output=json.dumps(analysis))
 
     async def _route_task(
-        self, task: str, requirements: List[str] = None
+        self, task: str, requirements: list[str] = None
     ) -> ToolResult:
         """Roteia tarefa para o melhor agente"""
         if not task:
@@ -509,7 +506,7 @@ class TaskRoutingTool(BaseTool):
         return ToolResult(output=json.dumps(result))
 
     async def _get_recommendations(
-        self, task: str, requirements: List[str] = None
+        self, task: str, requirements: list[str] = None
     ) -> ToolResult:
         """Obtém recomendações detalhadas para roteamento"""
         routing_result = await self._route_task(task, requirements)
@@ -520,13 +517,13 @@ class TaskRoutingTool(BaseTool):
         if recommended_agent in self.agent_capabilities:
             agent_info = self.agent_capabilities[recommended_agent]
             routing_data["agent_info"] = agent_info
-            routing_data["reasoning"] = (
-                f"Agent {recommended_agent} selected based on specializations: {agent_info['specializations']}"
-            )
+            routing_data[
+                "reasoning"
+            ] = f"Agent {recommended_agent} selected based on specializations: {agent_info['specializations']}"
 
         return ToolResult(output=json.dumps(routing_data))
 
-    async def _register_agent(self, agent_info: Dict) -> ToolResult:
+    async def _register_agent(self, agent_info: dict) -> ToolResult:
         """Registra um novo agente no sistema de roteamento"""
         if not agent_info or "agent_id" not in agent_info:
             return ToolResult(error="Agent info with agent_id is required")

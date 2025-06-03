@@ -1,7 +1,6 @@
 """Abstract repository interfaces"""
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
 
 from app.domain.entities import Document, Task
 
@@ -15,12 +14,12 @@ class TaskRepository(ABC):
         pass
 
     @abstractmethod
-    async def find_by_id(self, task_id: str) -> Optional[Task]:
+    async def find_by_id(self, task_id: str) -> Task | None:
         """Find task by ID"""
         pass
 
     @abstractmethod
-    async def find_all(self) -> List[Task]:
+    async def find_all(self) -> list[Task]:
         """Get all tasks"""
         pass
 
@@ -35,7 +34,7 @@ class TaskRepository(ABC):
         pass
 
     @abstractmethod
-    async def find_by_status(self, status: str) -> List[Task]:
+    async def find_by_status(self, status: str) -> list[Task]:
         """Find tasks by status"""
         pass
 
@@ -49,12 +48,12 @@ class DocumentRepository(ABC):
         pass
 
     @abstractmethod
-    async def find_by_id(self, document_id: str) -> Optional[Document]:
+    async def find_by_id(self, document_id: str) -> Document | None:
         """Find document by ID"""
         pass
 
     @abstractmethod
-    async def find_all(self) -> List[Document]:
+    async def find_all(self) -> list[Document]:
         """Get all documents"""
         pass
 

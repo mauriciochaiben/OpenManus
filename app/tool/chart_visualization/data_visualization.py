@@ -1,7 +1,8 @@
 import asyncio
 import json
-import os
-from typing import Any, Hashable
+from collections.abc import Hashable
+from pathlib import Path
+from typing import Any
 
 import pandas as pd
 from pydantic import Field, model_validator
@@ -65,14 +66,14 @@ Outputs:
     ) -> list[str]:
         res = []
         for item in json_info:
-            if os.path.exists(item[path_str]):
+            if Path(item[path_str]).exists():
                 res.append(item[path_str])
-            elif os.path.exists(
-                os.path.join(f"{directory or settings.workspace_root}", item[path_str])
-            ):
+            elif Path(
+                f"{directory or settings.workspace_root}" / item[path_str]
+            ).exists():
                 res.append(
-                    os.path.join(
-                        f"{directory or settings.workspace_root}", item[path_str]
+                    str(
+                        Path(f"{directory or settings.workspace_root}") / item[path_str]
                     )
                 )
             else:
@@ -104,9 +105,7 @@ Outputs:
 
             data_list.append(
                 {
-                    "file_name": os.path.basename(csv_file_path[index]).replace(
-                        ".csv", ""
-                    ),
+                    "file_name": Path(csv_file_path[index]).name.replace(".csv", ""),
                     "dict_data": data_dict_list,
                     "chartTitle": item["chartTitle"],
                 }
@@ -142,8 +141,7 @@ Outputs:
                 "observation": f"# Error chart generated{'\n'.join(error_list)}\n{self.success_output_template(success_list)}",
                 "success": False,
             }
-        else:
-            return {"observation": f"{self.success_output_template(success_list)}"}
+        return {"observation": f"{self.success_output_template(success_list)}"}
 
     async def add_insighs(
         self, json_info: list[dict[str, str]], output_type: str
@@ -152,13 +150,13 @@ Outputs:
         chart_file_path = self.get_file_path(
             json_info,
             "chartPath",
-            os.path.join(settings.workspace_root, "visualization"),
+            str(Path(settings.workspace_root) / "visualization"),
         )
         for index, item in enumerate(json_info):
             if "insights_id" in item:
                 data_list.append(
                     {
-                        "file_name": os.path.basename(chart_file_path[index]).replace(
+                        "file_name": Path(chart_file_path[index]).name.replace(
                             f".{output_type}", ""
                         ),
                         "insights_id": item["insights_id"],
@@ -192,8 +190,7 @@ Outputs:
                 "observation": f"# Error in chart insights:{'\n'.join(error_list)}\n{success_template}",
                 "success": False,
             }
-        else:
-            return {"observation": f"{success_template}"}
+        return {"observation": f"{success_template}"}
 
     async def execute(
         self,
@@ -204,12 +201,11 @@ Outputs:
     ) -> str:
         try:
             logger.info(f"📈 data_visualization with {json_path} in: {tool_type} ")
-            with open(json_path, "r", encoding="utf-8") as file:
+            with Path(json_path).open(encoding="utf-8") as file:
                 json_info = json.load(file)
             if tool_type == "visualization":
                 return await self.data_visualization(json_info, output_type, language)
-            else:
-                return await self.add_insighs(json_info, output_type)
+            return await self.add_insighs(json_info, output_type)
         except Exception as e:
             return {
                 "observation": f"Error: {e}",
@@ -250,7 +246,7 @@ Outputs:
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            cwd=os.path.dirname(__file__),
+            cwd=Path(__file__).parent,
         )
         input_json = json.dumps(vmind_params, ensure_ascii=False).encode("utf-8")
         try:
@@ -259,7 +255,6 @@ Outputs:
             stderr_str = stderr.decode("utf-8")
             if process.returncode == 0:
                 return json.loads(stdout_str)
-            else:
-                return {"error": f"Node.js Error: {stderr_str}"}
+            return {"error": f"Node.js Error: {stderr_str}"}
         except Exception as e:
             return {"error": f"Subprocess Error: {str(e)}"}

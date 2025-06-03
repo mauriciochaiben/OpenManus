@@ -17,7 +17,7 @@ but will issue deprecation warnings.
 """
 
 import warnings
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, validator
 
@@ -50,7 +50,7 @@ class VectorDBConfig(BaseModel):
     )
 
     # Authentication
-    auth_token: Optional[str] = Field(
+    auth_token: str | None = Field(
         default_factory=lambda: settings.knowledge_config.vector_db.auth_token
     )
     auth_header: str = Field(
@@ -62,7 +62,7 @@ class VectorDBConfig(BaseModel):
     max_retries: int = Field(default=3)
     retry_delay: float = Field(default=1.0)
 
-    def get_client_kwargs(self) -> Dict[str, Any]:
+    def get_client_kwargs(self) -> dict[str, Any]:
         """Get kwargs for ChromaDB client initialization."""
         kwargs = {
             "host": self.host,
@@ -74,7 +74,7 @@ class VectorDBConfig(BaseModel):
 
         return kwargs
 
-    def get_collection_metadata(self, collection_type: str) -> Dict[str, Any]:
+    def get_collection_metadata(self, collection_type: str) -> dict[str, Any]:
         """Get metadata for collection creation."""
         base_metadata = {
             "created_by": "openmanus",
@@ -154,7 +154,7 @@ class DocumentProcessingConfig(BaseModel):
     max_file_size: int = Field(
         default_factory=lambda: settings.knowledge_config.document_processing.max_size_bytes
     )
-    allowed_types: List[str] = Field(
+    allowed_types: list[str] = Field(
         default_factory=lambda: settings.knowledge_config.document_processing.allowed_types_list
     )
     storage_path: str = Field(
@@ -165,7 +165,7 @@ class DocumentProcessingConfig(BaseModel):
     timeout: int = Field(
         default_factory=lambda: settings.knowledge_config.document_processing.processing_timeout
     )
-    max_pages: Optional[int] = Field(default=None)
+    max_pages: int | None = Field(default=None)
 
     @validator("chunk_overlap")
     def validate_chunk_overlap(cls, v, values):

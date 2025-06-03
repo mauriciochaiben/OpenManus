@@ -144,7 +144,7 @@ async def test_sandbox_error_handling():
     invalid_config = SandboxSettings(image="nonexistent:latest", work_dir="/invalid")
 
     sandbox = DockerSandbox(invalid_config)
-    with pytest.raises(Exception):
+    with pytest.raises((RuntimeError, ValueError)):
         await sandbox.create()
 
 

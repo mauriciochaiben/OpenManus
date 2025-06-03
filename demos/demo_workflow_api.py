@@ -10,8 +10,6 @@ This script demonstrates the complete workflow functionality:
 
 import asyncio
 import json
-import time
-from typing import Any, Dict
 
 import requests
 
@@ -53,7 +51,7 @@ async def demo_direct_service():
         print(json.dumps(result, indent=2))
 
         # Print summary
-        print(f"\n✅ Workflow completed successfully!")
+        print("\n✅ Workflow completed successfully!")
         print(f"   - Workflow ID: {result.get('workflow_id', 'N/A')}")
         print(f"   - Total steps: {result.get('total_steps', 0)}")
         print(f"   - Successful steps: {result.get('successful_steps', 0)}")
@@ -102,7 +100,7 @@ def demo_api_endpoint():
             print("API Response:")
             print(json.dumps(result, indent=2))
 
-            print(f"\n✅ Workflow started successfully via API!")
+            print("\n✅ Workflow started successfully via API!")
             print(f"   - Workflow ID: {result.get('workflow_id', 'N/A')}")
             print(f"   - Status: {result.get('status', 'N/A')}")
             print(f"   - Message: {result.get('message', 'N/A')}")
@@ -130,7 +128,7 @@ def demo_health_check():
             health_data = response.json()
             print("Health Check Response:")
             print(json.dumps(health_data, indent=2))
-            print(f"\n✅ Workflow service is healthy!")
+            print("\n✅ Workflow service is healthy!")
         else:
             print(f"❌ Health check failed: {response.status_code}")
 
@@ -165,7 +163,7 @@ def demo_validation_errors():
 
             print(f"  Status: {response.status_code}")
             if response.status_code == 422:
-                print(f"  ✅ Validation working correctly")
+                print("  ✅ Validation working correctly")
             else:
                 print(f"  ❓ Unexpected response: {response.text[:100]}")
 

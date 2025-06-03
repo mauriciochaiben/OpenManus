@@ -10,7 +10,7 @@ import json
 import os
 import tomllib
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from pydantic import BaseModel, Field, computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -33,9 +33,9 @@ ENVIRONMENT = get_environment()
 class ProxySettings(BaseModel):
     """Proxy configuration settings."""
 
-    server: Optional[str] = Field(None, description="Proxy server address")
-    username: Optional[str] = Field(None, description="Proxy username")
-    password: Optional[str] = Field(None, description="Proxy password")
+    server: str | None = Field(None, description="Proxy server address")
+    username: str | None = Field(None, description="Proxy username")
+    password: str | None = Field(None, description="Proxy password")
 
 
 class LLMSettings(BaseModel):
@@ -45,7 +45,7 @@ class LLMSettings(BaseModel):
     base_url: str = Field(..., description="API base URL")
     api_key: str = Field(..., description="API key")
     max_tokens: int = Field(4096, description="Maximum number of tokens per request")
-    max_input_tokens: Optional[int] = Field(
+    max_input_tokens: int | None = Field(
         None,
         description="Maximum input tokens to use across all requests (None for unlimited)",
     )
@@ -61,19 +61,19 @@ class BrowserSettings(BaseModel):
     disable_security: bool = Field(
         True, description="Disable browser security features"
     )
-    extra_chromium_args: List[str] = Field(
+    extra_chromium_args: list[str] = Field(
         default_factory=list, description="Extra arguments to pass to the browser"
     )
-    chrome_instance_path: Optional[str] = Field(
+    chrome_instance_path: str | None = Field(
         None, description="Path to a Chrome instance to use"
     )
-    wss_url: Optional[str] = Field(
+    wss_url: str | None = Field(
         None, description="Connect to a browser instance via WebSocket"
     )
-    cdp_url: Optional[str] = Field(
+    cdp_url: str | None = Field(
         None, description="Connect to a browser instance via CDP"
     )
-    proxy: Optional[ProxySettings] = Field(
+    proxy: ProxySettings | None = Field(
         None, description="Proxy settings for the browser"
     )
     max_content_length: int = Field(
@@ -85,7 +85,7 @@ class SearchSettings(BaseModel):
     """Search configuration settings."""
 
     engine: str = Field(default="Google", description="Search engine to use")
-    fallback_engines: List[str] = Field(
+    fallback_engines: list[str] = Field(
         default_factory=lambda: ["DuckDuckGo", "Baidu", "Bing"],
         description="Fallback search engines to try if the primary engine fails",
     )
@@ -125,9 +125,9 @@ class MCPServerConfig(BaseModel):
     """Configuration for a single MCP server."""
 
     type: str = Field(..., description="Server connection type (sse or stdio)")
-    url: Optional[str] = Field(None, description="Server URL for SSE connections")
-    command: Optional[str] = Field(None, description="Command for stdio connections")
-    args: List[str] = Field(
+    url: str | None = Field(None, description="Server URL for SSE connections")
+    command: str | None = Field(None, description="Command for stdio connections")
+    args: list[str] = Field(
         default_factory=list, description="Arguments for stdio command"
     )
 
@@ -138,7 +138,7 @@ class MCPSettings(BaseModel):
     server_reference: str = Field(
         "app.mcp.server", description="Module reference for the MCP server"
     )
-    servers: Dict[str, MCPServerConfig] = Field(
+    servers: dict[str, MCPServerConfig] = Field(
         default_factory=dict, description="MCP server configurations"
     )
 
@@ -151,11 +151,11 @@ class VectorDBSettings(BaseModel):
     url: str = Field(default="http://localhost:8000", description="ChromaDB URL")
 
     # Authentication
-    auth_token: Optional[str] = Field(default=None, description="ChromaDB auth token")
-    auth_provider: Optional[str] = Field(
+    auth_token: str | None = Field(default=None, description="ChromaDB auth token")
+    auth_provider: str | None = Field(
         default=None, description="ChromaDB auth provider"
     )
-    auth_credentials: Optional[str] = Field(
+    auth_credentials: str | None = Field(
         default=None, description="ChromaDB auth credentials"
     )
     auth_header: str = Field(
@@ -199,7 +199,7 @@ class EmbeddingSettings(BaseModel):
     truncate: bool = Field(default=True, description="Truncate text if too long")
 
     # Provider settings
-    openai_api_key: Optional[str] = Field(
+    openai_api_key: str | None = Field(
         default=None, description="OpenAI API key for embeddings"
     )
     ollama_base_url: str = Field(
@@ -234,7 +234,7 @@ class DocumentProcessingSettings(BaseModel):
 
     @computed_field
     @property
-    def allowed_types_list(self) -> List[str]:
+    def allowed_types_list(self) -> list[str]:
         """Get allowed document types as a list."""
         return [t.strip().lower() for t in self.allowed_types.split(",")]
 
@@ -245,12 +245,11 @@ class DocumentProcessingSettings(BaseModel):
         size_str = self.max_upload_size.upper()
         if size_str.endswith("MB"):
             return int(size_str[:-2]) * 1024 * 1024
-        elif size_str.endswith("KB"):
+        if size_str.endswith("KB"):
             return int(size_str[:-2]) * 1024
-        elif size_str.endswith("GB"):
+        if size_str.endswith("GB"):
             return int(size_str[:-2]) * 1024 * 1024 * 1024
-        else:
-            return int(size_str)
+        return int(size_str)
 
 
 class RAGSettings(BaseModel):
@@ -318,7 +317,7 @@ class Settings(BaseSettings):
     llm_temperature: float = Field(default=0.7, description="Default temperature")
     llm_api_type: str = Field(default="openai", description="Default API type")
     llm_api_version: str = Field(default="", description="Default API version")
-    llm_max_input_tokens: Optional[int] = Field(
+    llm_max_input_tokens: int | None = Field(
         default=None, description="Default max input tokens"
     )
 
@@ -332,20 +331,18 @@ class Settings(BaseSettings):
     browser_max_content_length: int = Field(
         default=2000, description="Max content length"
     )
-    browser_chrome_instance_path: Optional[str] = Field(
+    browser_chrome_instance_path: str | None = Field(
         default=None, description="Chrome instance path"
     )
-    browser_wss_url: Optional[str] = Field(default=None, description="WebSocket URL")
-    browser_cdp_url: Optional[str] = Field(default=None, description="CDP URL")
+    browser_wss_url: str | None = Field(default=None, description="WebSocket URL")
+    browser_cdp_url: str | None = Field(default=None, description="CDP URL")
 
     # Browser proxy settings
-    browser_proxy_server: Optional[str] = Field(
-        default=None, description="Proxy server"
-    )
-    browser_proxy_username: Optional[str] = Field(
+    browser_proxy_server: str | None = Field(default=None, description="Proxy server")
+    browser_proxy_username: str | None = Field(
         default=None, description="Proxy username"
     )
-    browser_proxy_password: Optional[str] = Field(
+    browser_proxy_password: str | None = Field(
         default=None, description="Proxy password"
     )
 
@@ -378,7 +375,7 @@ class Settings(BaseSettings):
     # ===============================
     # TTS Configuration
     # ===============================
-    elevenlabs_api_key: Optional[str] = Field(
+    elevenlabs_api_key: str | None = Field(
         default=None, description="ElevenLabs API key"
     )
     podcast_host_1_voice_id: str = Field(
@@ -444,7 +441,7 @@ class Settings(BaseSettings):
     vector_workflow_collection: str = Field(
         default="openmanus_workflows", description="Workflows collection"
     )
-    chroma_auth_token: Optional[str] = Field(
+    chroma_auth_token: str | None = Field(
         default=None, description="ChromaDB auth token"
     )
     chroma_auth_header: str = Field(
@@ -466,7 +463,7 @@ class Settings(BaseSettings):
         default=512, description="Max embedding text length"
     )
     embedding_truncate: bool = Field(default=True, description="Truncate long text")
-    embedding_openai_api_key: Optional[str] = Field(
+    embedding_openai_api_key: str | None = Field(
         default=None, description="OpenAI API key for embeddings"
     )
     embedding_ollama_base_url: str = Field(
@@ -538,20 +535,20 @@ class Settings(BaseSettings):
     # ===============================
     # Configuration Loading Methods
     # ===============================
-    def _load_toml_config(self) -> Dict[str, Any]:
+    def _load_toml_config(self) -> dict[str, Any]:
         """Load configuration from TOML files."""
         config_data = {}
 
         # Load base configuration
         base_config_path = self.config_dir / "config.toml"
         if base_config_path.exists():
-            with open(base_config_path, "rb") as f:
+            with base_config_path.open("rb") as f:
                 config_data.update(tomllib.load(f))
 
         # Load environment-specific configuration
         env_config_path = self.config_dir / f"{self.environment}.toml"
         if env_config_path.exists():
-            with open(env_config_path, "rb") as f:
+            with env_config_path.open("rb") as f:
                 env_config = tomllib.load(f)
                 # Merge environment config over base config
                 self._deep_merge_dict(config_data, env_config)
@@ -560,12 +557,12 @@ class Settings(BaseSettings):
         if not config_data:
             example_config_path = self.config_dir / "examples" / "config.example.toml"
             if example_config_path.exists():
-                with open(example_config_path, "rb") as f:
+                with example_config_path.open("rb") as f:
                     config_data.update(tomllib.load(f))
 
         return config_data
 
-    def _deep_merge_dict(self, base: Dict[str, Any], override: Dict[str, Any]) -> None:
+    def _deep_merge_dict(self, base: dict[str, Any], override: dict[str, Any]) -> None:
         """Deep merge override dict into base dict."""
         for key, value in override.items():
             if key in base and isinstance(base[key], dict) and isinstance(value, dict):
@@ -573,7 +570,7 @@ class Settings(BaseSettings):
             else:
                 base[key] = value
 
-    def _load_mcp_config(self) -> Dict[str, MCPServerConfig]:
+    def _load_mcp_config(self) -> dict[str, MCPServerConfig]:
         """Load MCP server configuration from JSON file."""
         # Try specialized config first
         config_path = self.config_dir / "mcp.specialized.json"
@@ -597,14 +594,14 @@ class Settings(BaseSettings):
                     )
                 return servers
         except Exception as e:
-            raise ValueError(f"Failed to load MCP server config: {e}")
+            raise ValueError(f"Failed to load MCP server config: {e}") from e
 
     # ===============================
     # Structured Configuration Properties
     # ===============================
     @computed_field
     @property
-    def llm_configs(self) -> Dict[str, LLMSettings]:
+    def llm_configs(self) -> dict[str, LLMSettings]:
         """Get LLM configurations from TOML."""
         toml_config = self._load_toml_config()
         llm_config = toml_config.get("llm", {})
@@ -637,7 +634,7 @@ class Settings(BaseSettings):
 
     @computed_field
     @property
-    def browser_config(self) -> Optional[BrowserSettings]:
+    def browser_config(self) -> BrowserSettings | None:
         """Get browser configuration."""
         toml_config = self._load_toml_config()
         browser_config = toml_config.get("browser", {})
@@ -801,3 +798,6 @@ def get_settings() -> Settings:
 
 # Create global settings instance
 settings = get_settings()
+
+# Backward compatibility alias
+config = settings

@@ -1,5 +1,4 @@
 import math
-from typing import Dict, List, Optional, Union
 
 import tiktoken
 from openai import (
@@ -11,13 +10,7 @@ from openai import (
     RateLimitError,
 )
 from openai.types.chat import ChatCompletion, ChatCompletionMessage
-from tenacity import (
-    retry,
-    retry_if_exception_type,
-    retry_if_not_exception_type,
-    stop_after_attempt,
-    wait_random_exponential,
-)
+from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 from app.bedrock import BedrockClient
 from app.core.settings import LLMSettings, settings
@@ -39,7 +32,7 @@ def should_retry_exception(exception):
         return False
 
     # Don't retry quota errors - let the fallback system handle them
-    if isinstance(exception, (APIError, OpenAIError)):
+    if isinstance(exception, APIError | OpenAIError):
         error_msg = str(exception).lower()
         if "insufficient_quota" in error_msg or "quota" in error_msg:
             return False
@@ -53,7 +46,7 @@ def should_retry_exception(exception):
         return False
 
     # Retry other OpenAI errors and general exceptions
-    return isinstance(exception, (OpenAIError, Exception))
+    return isinstance(exception, OpenAIError | Exception)
 
 
 REASONING_MODELS = ["o1", "o3-mini"]
@@ -107,11 +100,9 @@ class TokenCounter:
         # OpenAI doesn't specify a separate calculation for medium
 
         # For high detail, calculate based on dimensions if available
-        if detail == "high" or detail == "medium":
-            # If dimensions are provided in the image_item
-            if "dimensions" in image_item:
-                width, height = image_item["dimensions"]
-                return self._calculate_high_detail_tokens(width, height)
+        if (detail == "high" or detail == "medium") and "dimensions" in image_item:
+            width, height = image_item["dimensions"]
+            return self._calculate_high_detail_tokens(width, height)
 
         return (
             self._calculate_high_detail_tokens(1024, 1024) if detail == "high" else 1024
@@ -140,7 +131,7 @@ class TokenCounter:
             total_tiles * self.HIGH_DETAIL_TILE_TOKENS
         ) + self.LOW_DETAIL_IMAGE_TOKENS
 
-    def count_content(self, content: Union[str, List[Union[str, dict]]]) -> int:
+    def count_content(self, content: str | list[str | dict]) -> int:
         """Calculate tokens for message content"""
         if not content:
             return 0
@@ -159,7 +150,7 @@ class TokenCounter:
                     token_count += self.count_image(item)
         return token_count
 
-    def count_tool_calls(self, tool_calls: List[dict]) -> int:
+    def count_tool_calls(self, tool_calls: list[dict]) -> int:
         """Calculate tokens for tool calls"""
         token_count = 0
         for tool_call in tool_calls:
@@ -169,7 +160,7 @@ class TokenCounter:
                 token_count += self.count_text(function.get("arguments", ""))
         return token_count
 
-    def count_message_tokens(self, messages: List[dict]) -> int:
+    def count_message_tokens(self, messages: list[dict]) -> int:
         """Calculate the total number of tokens in a message list"""
         total_tokens = self.FORMAT_TOKENS  # Base format tokens
 
@@ -197,10 +188,10 @@ class TokenCounter:
 
 
 class LLM:
-    _instances: Dict[str, "LLM"] = {}
+    _instances: dict[str, "LLM"] = {}
 
     def __new__(
-        cls, config_name: str = "default", llm_config: Optional[LLMSettings] = None
+        cls, config_name: str = "default", llm_config: LLMSettings | None = None
     ):
         if config_name not in cls._instances:
             instance = super().__new__(cls)
@@ -209,7 +200,7 @@ class LLM:
         return cls._instances[config_name]
 
     def __init__(
-        self, config_name: str = "default", llm_config: Optional[LLMSettings] = None
+        self, config_name: str = "default", llm_config: LLMSettings | None = None
     ):
         if not hasattr(self, "client"):  # Only initialize if not already initialized
             llm_config = llm_config or settings.llm_configs.get(
@@ -269,12 +260,12 @@ class LLM:
         llm_configs = settings.llm_configs
 
         # Add all available fallback configs
-        for config_key in llm_configs.keys():
+        for config_key in llm_configs:
             if config_key != "default" and config_key != self.config_name:
                 try:
                     fallback_config = llm_configs[config_key]
                     fallback_configs.append((config_key, fallback_config))
-                except:
+                except KeyError:
                     continue
 
         return fallback_configs
@@ -287,10 +278,9 @@ class LLM:
         try:
             if method_name == "ask_internal":
                 return await self._ask_internal(*args, **kwargs)
-            elif method_name == "ask_tool_internal":
+            if method_name == "ask_tool_internal":
                 return await self._ask_tool_internal(*args, **kwargs)
-            else:
-                raise ValueError(f"Unknown method: {method_name}")
+            raise ValueError(f"Unknown method: {method_name}")
         except (RateLimitError, Exception) as e:
             # Check if it's a rate limit or quota error
             error_msg = str(e).lower()
@@ -360,15 +350,12 @@ class LLM:
                 if is_quota_error:
                     raise Exception(
                         "❌ Erro: Saldo insuficiente nas APIs de IA. As chaves da OpenAI e Google Gemini não possuem créditos suficientes. Por favor, adicione créditos às contas ou configure uma chave válida."
-                    )
-                else:
-                    raise Exception(
-                        "❌ Erro: Limite de taxa excedido em todas as APIs de IA configuradas. Tente novamente em alguns minutos."
-                    )
-            else:
-                # For non-rate-limit errors, just raise the original error
-                raise e
-                raise e
+                    ) from e
+                raise Exception(
+                    "❌ Erro: Limite de taxa excedido em todas as APIs de IA configuradas. Tente novamente em alguns minutos."
+                ) from e
+            # For non-rate-limit errors, just raise the original error
+            raise e
 
     async def _throttle_requests(self):
         """Throttle requests to prevent rate limits"""
@@ -402,7 +389,7 @@ class LLM:
             return 0
         return len(self.tokenizer.encode(text))
 
-    def count_message_tokens(self, messages: List[dict]) -> int:
+    def count_message_tokens(self, messages: list[dict]) -> int:
         return self.token_counter.count_message_tokens(messages)
 
     def update_token_count(self, input_tokens: int, completion_tokens: int = 0) -> None:
@@ -435,8 +422,8 @@ class LLM:
 
     @staticmethod
     def format_messages(
-        messages: List[Union[dict, Message]], supports_images: bool = False
-    ) -> List[dict]:
+        messages: list[dict | Message], supports_images: bool = False
+    ) -> list[dict]:
         """
         Format messages for LLM by converting them to OpenAI message format.
 
@@ -523,10 +510,10 @@ class LLM:
 
     async def ask(
         self,
-        messages: List[Union[dict, Message]],
-        system_msgs: Optional[List[Union[dict, Message]]] = None,
+        messages: list[dict | Message],
+        system_msgs: list[dict | Message] | None = None,
         stream: bool = True,
-        temperature: Optional[float] = None,
+        temperature: float | None = None,
     ) -> str:
         """Public ask method with fallback support"""
         return await self._try_with_fallback(
@@ -540,10 +527,10 @@ class LLM:
     )
     async def _ask_internal(
         self,
-        messages: List[Union[dict, Message]],
-        system_msgs: Optional[List[Union[dict, Message]]] = None,
+        messages: list[dict | Message],
+        system_msgs: list[dict | Message] | None = None,
         stream: bool = True,
-        temperature: Optional[float] = None,
+        temperature: float | None = None,
     ) -> str:
         """
         Send a prompt to the LLM and get the response.
@@ -648,10 +635,10 @@ class LLM:
             # Re-raise token limit errors without logging
             raise
         except ValueError:
-            logger.exception(f"Validation error")
+            logger.exception("Validation error")
             raise
         except OpenAIError as oe:
-            logger.exception(f"OpenAI API error")
+            logger.exception("OpenAI API error")
             if isinstance(oe, AuthenticationError):
                 logger.error("Authentication failed. Check API key.")
             elif isinstance(oe, RateLimitError):
@@ -660,7 +647,7 @@ class LLM:
                 logger.error(f"API error: {oe}")
             raise
         except Exception:
-            logger.exception(f"Unexpected error in ask")
+            logger.exception("Unexpected error in ask")
             raise
 
     @retry(
@@ -670,11 +657,11 @@ class LLM:
     )
     async def ask_with_images(
         self,
-        messages: List[Union[dict, Message]],
-        images: List[Union[str, dict]],
-        system_msgs: Optional[List[Union[dict, Message]]] = None,
+        messages: list[dict | Message],
+        images: list[str | dict],
+        system_msgs: list[dict | Message] | None = None,
         stream: bool = False,
-        temperature: Optional[float] = None,
+        temperature: float | None = None,
     ) -> str:
         """
         Send a prompt with images to the LLM and get the response.
@@ -720,7 +707,9 @@ class LLM:
             multimodal_content = (
                 [{"type": "text", "text": content}]
                 if isinstance(content, str)
-                else content if isinstance(content, list) else []
+                else content
+                if isinstance(content, list)
+                else []
             )
 
             # Add images to content
@@ -819,12 +808,12 @@ class LLM:
 
     async def ask_tool(
         self,
-        messages: List[Union[dict, Message]],
-        system_msgs: Optional[List[Union[dict, Message]]] = None,
+        messages: list[dict | Message],
+        system_msgs: list[dict | Message] | None = None,
         timeout: int = 300,
-        tools: Optional[List[dict]] = None,
+        tools: list[dict] | None = None,
         tool_choice: TOOL_CHOICE_TYPE = ToolChoice.AUTO,  # type: ignore
-        temperature: Optional[float] = None,
+        temperature: float | None = None,
         **kwargs,
     ) -> ChatCompletionMessage:
         """Public ask_tool method with fallback support"""
@@ -846,12 +835,12 @@ class LLM:
     )
     async def _ask_tool_internal(
         self,
-        messages: List[Union[dict, Message]],
-        system_msgs: Optional[List[Union[dict, Message]]] = None,
+        messages: list[dict | Message],
+        system_msgs: list[dict | Message] | None = None,
         timeout: int = 300,
-        tools: Optional[List[dict]] = None,
+        tools: list[dict] | None = None,
         tool_choice: TOOL_CHOICE_TYPE = ToolChoice.AUTO,  # type: ignore
-        temperature: Optional[float] = None,
+        temperature: float | None = None,
         **kwargs,
     ) -> ChatCompletionMessage | None:
         """

@@ -1,21 +1,12 @@
 """Test file to verify execution."""
 
-print("Starting execution")
-
-import re
-
-print("re imported")
-
-from typing import Any, Dict, List, Optional
-
-print("typing imported")
-
+import logging
 from dataclasses import dataclass
 
+print("Starting execution")
+print("re imported")
+print("typing imported")
 print("dataclass imported")
-
-import logging
-
 print("logging imported")
 
 logger = logging.getLogger(__name__)

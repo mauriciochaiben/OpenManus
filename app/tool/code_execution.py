@@ -7,21 +7,19 @@ Uses restrictedpython for Python and subprocess for other languages with securit
 
 import logging
 import os
-import signal
 import subprocess
 import sys
 import tempfile
 import threading
 import time
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout, suppress
 from io import StringIO
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional, Tuple
+from typing import Any, ClassVar
 
 try:
     from RestrictedPython import compile_restricted
-    from RestrictedPython.Guards import safe_builtins, safe_globals
-    from RestrictedPython.transformer import RestrictingNodeTransformer
+    from RestrictedPython.Guards import safe_builtins
 
     RESTRICTED_PYTHON_AVAILABLE = True
 except ImportError:
@@ -65,7 +63,7 @@ class CodeExecutionTool(BaseTool):
     MAX_MEMORY_MB: int = 100  # MB (for subprocess)
 
     # Supported languages and their configurations
-    SUPPORTED_LANGUAGES: ClassVar[Dict[str, Dict[str, Any]]] = {
+    SUPPORTED_LANGUAGES: ClassVar[dict[str, dict[str, Any]]] = {
         "python": {
             "extension": ".py",
             "command": [sys.executable],
@@ -302,8 +300,9 @@ class CodeExecutionTool(BaseTool):
             # Execute with timeout
             def execute_code():
                 try:
-                    with redirect_stdout(stdout_capture), redirect_stderr(
-                        stderr_capture
+                    with (
+                        redirect_stdout(stdout_capture),
+                        redirect_stderr(stderr_capture),
                     ):
                         exec(compiled_code, restricted_globals, {})
                 except Exception as e:
@@ -376,7 +375,11 @@ class CodeExecutionTool(BaseTool):
         return await self._execute_subprocess(code, "python", timeout, memory_limit)
 
     async def _execute_subprocess(
-        self, code: str, language: str, timeout: int, memory_limit: int
+        self,
+        code: str,
+        language: str,
+        timeout: int,
+        memory_limit: int,  # noqa: ARG002
     ) -> ToolResult:
         """
         Execute code using subprocess with security measures.
@@ -394,11 +397,11 @@ class CodeExecutionTool(BaseTool):
             config = self.SUPPORTED_LANGUAGES[language]
 
             # Create temporary file
-            temp_file = os.path.join(
-                self.temp_dir, f"code_{int(time.time())}{config['extension']}"
+            temp_file = (
+                Path(self.temp_dir) / f"code_{int(time.time())}{config['extension']}"
             )
 
-            with open(temp_file, "w", encoding="utf-8") as f:
+            with temp_file.open("w", encoding="utf-8") as f:
                 f.write(code)
 
             # Prepare command
@@ -466,10 +469,8 @@ class CodeExecutionTool(BaseTool):
 
             finally:
                 # Clean up temporary file
-                try:
-                    os.remove(temp_file)
-                except OSError:
-                    pass
+                with suppress(OSError):
+                    Path(temp_file).unlink()
 
         except Exception as e:
             logger.error(f"Error in subprocess execution: {str(e)}")
@@ -480,7 +481,7 @@ class CodeExecutionTool(BaseTool):
                 metadata={"language": language},
             )
 
-    def get_schema(self) -> Dict[str, Any]:
+    def get_schema(self) -> dict[str, Any]:
         """Get the JSON schema for this tool."""
         return {
             "type": "object",
@@ -511,7 +512,7 @@ class CodeExecutionTool(BaseTool):
             "additionalProperties": False,
         }
 
-    def get_examples(self) -> List[Dict[str, Any]]:
+    def get_examples(self) -> list[dict[str, Any]]:
         """Get usage examples for this tool."""
         return [
             {
@@ -545,7 +546,7 @@ class CodeExecutionTool(BaseTool):
         try:
             import shutil
 
-            if hasattr(self, "temp_dir") and os.path.exists(self.temp_dir):
+            if hasattr(self, "temp_dir") and Path(self.temp_dir).exists():
                 shutil.rmtree(self.temp_dir)
                 logger.info(f"Cleaned up temporary directory: {self.temp_dir}")
         except Exception as e:

@@ -5,12 +5,12 @@ Servidor MCP especializado em coordenação entre agentes
 import asyncio
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 import mcp.server.stdio
 import mcp.types as types
 from mcp.server import NotificationOptions, Server
-from mcp.types import InitializeResult, Resource, TextContent, Tool
+from mcp.types import InitializeResult, Resource, Tool
 
 # Configuração baseada em variáveis de ambiente
 ROLE = os.getenv("ROLE", "coordination")
@@ -34,7 +34,7 @@ coordination_state = {
 @server.list_resources()
 async def handle_list_resources() -> list[Resource]:
     """Lista recursos disponíveis para coordenação"""
-    resources = [
+    return [
         Resource(
             uri="coordination://status",
             name="Coordination Status",
@@ -60,7 +60,6 @@ async def handle_list_resources() -> list[Resource]:
             mimeType="application/json",
         ),
     ]
-    return resources
 
 
 @server.read_resource()
@@ -79,19 +78,18 @@ async def handle_read_resource(uri: str) -> str:
             indent=2,
         )
 
-    elif uri == "coordination://agents":
+    if uri == "coordination://agents":
         return json.dumps(coordination_state["active_agents"], indent=2)
 
-    elif uri == "coordination://memory":
+    if uri == "coordination://memory":
         return json.dumps(coordination_state["shared_memory"], indent=2)
 
-    elif uri == "coordination://logs":
+    if uri == "coordination://logs":
         return json.dumps(
             coordination_state["communication_logs"][-50:], indent=2
         )  # Últimos 50 logs
 
-    else:
-        raise ValueError(f"Unknown resource: {uri}")
+    raise ValueError(f"Unknown resource: {uri}")
 
 
 @server.list_tools()
@@ -331,7 +329,7 @@ async def handle_call_tool(
             return [
                 types.TextContent(
                     type="text",
-                    text=f"Memory operation result:\n{json.dumps(result, indent=2) if isinstance(result, (dict, list)) else result}",
+                    text=f"Memory operation result:\n{json.dumps(result, indent=2) if isinstance(result, dict | list) else result}",
                 )
             ]
 
@@ -412,7 +410,7 @@ async def handle_call_tool(
             return [
                 types.TextContent(
                     type="text",
-                    text=f"Agent registry result:\n{json.dumps(result, indent=2) if isinstance(result, (dict, list)) else result}",
+                    text=f"Agent registry result:\n{json.dumps(result, indent=2) if isinstance(result, dict | list) else result}",
                 )
             ]
 

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 from bs4 import BeautifulSoup
@@ -31,7 +31,7 @@ class SearchResult(BaseModel):
         default="", description="Description or snippet of the search result"
     )
     source: str = Field(description="The search engine that provided this result")
-    raw_content: Optional[str] = Field(
+    raw_content: str | None = Field(
         default=None, description="Raw content from the search result page if available"
     )
 
@@ -54,10 +54,10 @@ class SearchResponse(ToolResult):
     """Structured response from the web search tool, inheriting ToolResult."""
 
     query: str = Field(description="The search query that was executed")
-    results: List[SearchResult] = Field(
+    results: list[SearchResult] = Field(
         default_factory=list, description="List of search results"
     )
-    metadata: Optional[SearchMetadata] = Field(
+    metadata: SearchMetadata | None = Field(
         default=None, description="Metadata about the search"
     )
 
@@ -92,7 +92,7 @@ class SearchResponse(ToolResult):
         if self.metadata:
             result_text.extend(
                 [
-                    f"\nMetadata:",
+                    "\nMetadata:",
                     f"- Total results: {self.metadata.total_results}",
                     f"- Language: {self.metadata.language}",
                     f"- Country: {self.metadata.country}",
@@ -107,7 +107,7 @@ class WebContentFetcher:
     """Utility class for fetching web content."""
 
     @staticmethod
-    async def fetch_content(url: str, timeout: int = 10) -> Optional[str]:
+    async def fetch_content(url: str, timeout: int = 10) -> str | None:
         """
         Fetch and extract the main content from a webpage.
 
@@ -202,8 +202,8 @@ class WebSearch(BaseTool):
         self,
         query: str,
         num_results: int = 5,
-        lang: Optional[str] = None,
-        country: Optional[str] = None,
+        lang: str | None = None,
+        country: str | None = None,
         fetch_content: bool = False,
     ) -> SearchResponse:
         """
@@ -272,8 +272,8 @@ class WebSearch(BaseTool):
         )
 
     async def _try_all_engines(
-        self, query: str, num_results: int, search_params: Dict[str, Any]
-    ) -> List[SearchResult]:
+        self, query: str, num_results: int, search_params: dict[str, Any]
+    ) -> list[SearchResult]:
         """Try all search engines in the configured order."""
         engine_order = self._get_engine_order()
         failed_engines = []
@@ -311,8 +311,8 @@ class WebSearch(BaseTool):
         return []
 
     async def _fetch_content_for_results(
-        self, results: List[SearchResult]
-    ) -> List[SearchResult]:
+        self, results: list[SearchResult]
+    ) -> list[SearchResult]:
         """Fetch and add web content to search results."""
         if not results:
             return []
@@ -341,7 +341,7 @@ class WebSearch(BaseTool):
                 result.raw_content = content
         return result
 
-    def _get_engine_order(self) -> List[str]:
+    def _get_engine_order(self) -> list[str]:
         """Determines the order in which to try search engines."""
         preferred = settings.search_config.engine.lower()
         fallbacks = [
@@ -369,8 +369,8 @@ class WebSearch(BaseTool):
         engine: WebSearchEngine,
         query: str,
         num_results: int,
-        search_params: Dict[str, Any],
-    ) -> List[SearchItem]:
+        search_params: dict[str, Any],
+    ) -> list[SearchItem]:
         """Execute search with the given engine and parameters."""
         return await asyncio.get_event_loop().run_in_executor(
             None,
