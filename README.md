@@ -1,4 +1,4 @@
-# OpenManus - Open Source AI Agent Framework
+# OpenManus - Open Source AI Agent Frameworks
 
 English | [中文](README_zh.md)
 
