@@ -27,7 +27,8 @@ import {
   ProfileOutlined,
   SunOutlined,
   MoonOutlined,
-} from "@ant-design/icons";
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 
 const { Sider, Header, Content } = Layout;
 const { Title } = Typography;
@@ -40,6 +41,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkMode, toggleTheme } = useTheme();
+  const [collapsed, setCollapsed] = React.useState(false);
 
   // Menu items para o Sider
   const menuItems = [
@@ -149,7 +151,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     <Layout style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
       <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
         width={250}
+        collapsedWidth={80}
         style={{
           background: "#001529",
           borderRight: "1px solid #303030",
@@ -224,7 +230,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </Sider>
 
       {/* Layout Principal */}
-      <Layout style={{ marginLeft: 250 }}>
+        <Layout style={{ marginLeft: collapsed ? 80 : 250 }}>
         {/* Header */}
         <Header
           style={{
@@ -262,6 +268,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
           {/* Ações do Header */}
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              style={{ border: "none" }}
+            />
             {/* Botão de Troca de Tema */}
             <Button
               type="text"
