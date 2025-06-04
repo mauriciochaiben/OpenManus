@@ -203,3 +203,9 @@ cython_debug/
 
 # node
 node_modules
+
+# Test reports and results
+test-results/
+playwright-report/
+coverage/
+.nyc_output/

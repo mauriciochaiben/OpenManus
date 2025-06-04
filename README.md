@@ -1,54 +1,60 @@
-<p align="center">
-  <img src="assets/logo.jpg" width="200"/>
-</p>
+# OpenManus - Open Source AI Agent Framework
 
-English | [中文](README_zh.md) | [한국어](README_ko.md) | [日本語](README_ja.md)
+English | [中文](README_zh.md)
 
-[![GitHub stars](https://img.shields.io/github/stars/mannaandpoem/OpenManus?style=social)](https://github.com/mannaandpoem/OpenManus/stargazers)
-&ensp;
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) &ensp;
-[![Discord Follow](https://dcbadge.vercel.app/api/server/DYn29wFk9z?style=flat)](https://discord.gg/DYn29wFk9z)
-[![Demo](https://img.shields.io/badge/Demo-Hugging%20Face-yellow)](https://huggingface.co/spaces/lyh-917/OpenManusDemo)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15186407.svg)](https://doi.org/10.5281/zenodo.15186407)
+---
 
-# 👋 OpenManus
+## 🚀 Welcome to OpenManus
 
-Manus is incredible, but OpenManus can achieve any idea without an *Invite Code* 🛫!
+**OpenManus** is an advanced, open-source AI agent framework that enables you to build, deploy, and orchestrate intelligent agents without limitations. No invite codes, no restrictions – just pure innovation at your fingertips!
 
-Our team members [@Xinbin Liang](https://github.com/mannaandpoem) and [@Jinyu Xiang](https://github.com/XiangJinyu) (core authors), along with [@Zhaoyang Yu](https://github.com/MoshiQAQ), [@Jiayi Zhang](https://github.com/didiforgithub), and [@Sirui Hong](https://github.com/stellaHSR), we are from [@MetaGPT](https://github.com/geekan/MetaGPT). The prototype is launched within 3 hours and we are keeping building!
+### ✨ What Makes OpenManus Special
 
-It's a simple implementation, so we welcome any suggestions, contributions, and feedback!
+- 🤖 **Multi-Agent Architecture**: Coordinate multiple specialized AI agents
+- 🧠 **Intelligent Orchestration**: Automatic task analysis and agent selection
+- 🔧 **Extensible Framework**: Plugin-based architecture for maximum flexibility
+- 🌐 **Web-Based Interface**: Modern React frontend with real-time updates
+- 📊 **Knowledge Management**: Advanced document processing and vector storage
+- 🔄 **Workflow Automation**: Visual workflow designer for complex tasks
+- 🛠️ **Developer-Friendly**: Comprehensive APIs and extensive documentation
 
-Enjoy your own agent with OpenManus!
+---
 
-We're also excited to introduce [OpenManus-RL](https://github.com/OpenManus/OpenManus-RL), an open-source project dedicated to reinforcement learning (RL)- based (such as GRPO) tuning methods for LLM agents, developed collaboratively by researchers from UIUC and OpenManus.
+## 🏗️ Architecture Overview
 
-## 🏗️ Multi-Agent Architecture
+### Core Components
 
-OpenManus features a sophisticated **multi-agent coordination system** that enables complex task execution through specialized AI agents working together:
+```mermaid
+graph TB
+    A[Frontend React App] --> B[FastAPI Backend]
+    B --> C[Agent Orchestrator]
+    C --> D[Multi-Agent System]
+    D --> E[Specialized Agents]
+    B --> F[Knowledge Base]
+    B --> G[Workflow Engine]
+    B --> H[Tool Registry]
 
-### 🤖 Agent Types
-- **Manus Agent**: Core coordination and general operations
-- **Browser Agent**: Web navigation and data collection
-- **SWE Agent**: Software engineering and code development
-- **Data Analysis Agent**: Data processing and visualization
+    E --> I[Manus Agent]
+    E --> J[Browser Agent]
+    E --> K[SWE Agent]
+    E --> L[Data Analysis Agent]
+```
 
-### 🔄 Flow Management
-- **FlowFactory**: Creates and manages different flow types
-- **Multi-Agent Flow**: Coordinates multiple agents for complex tasks
-- **Single Agent Flow**: Handles simple tasks with one agent
+### 🤖 Agent Ecosystem
 
-### 🧠 Decision System
-- **Task Complexity Analysis**: Automatically determines if task requires multiple agents
-- **Agent Selection**: Chooses appropriate agents based on task requirements
-- **Execution Planning**: Plans and coordinates agent interactions
+| Agent Type | Purpose | Capabilities |
+|------------|---------|-------------|
+| **Manus Agent** | Core coordination and general operations | Task planning, general reasoning, agent coordination |
+| **Browser Agent** | Web navigation and data collection | Web scraping, form filling, automated browsing |
+| **SWE Agent** | Software engineering tasks | Code generation, debugging, refactoring, testing |
+| **Data Analysis Agent** | Data processing and insights | Statistical analysis, visualization, reporting |
 
-### 🛠️ Coordination Tools
-- **Distributed Memory**: Shared memory for agent communication
-- **Planning Tool**: Strategic task planning capabilities
-- **Coordination Tool**: Inter-agent communication and synchronization
+### 🔄 Flow Management System
 
-### 📊 Performance Characteristics
+- **FlowFactory**: Dynamic flow creation and management
+- **Multi-Agent Flows**: Complex task orchestration across multiple agents
+- **Single Agent Flows**: Streamlined execution for simple tasks
+- **Conditional Flows**: Decision-based routing and execution paths
 - Supports concurrent agent execution
 - Scales to handle complex multi-step tasks
 - Real-time progress monitoring
@@ -69,57 +75,152 @@ OpenManus features a sophisticated **multi-agent coordination system** that enab
 ```
 
 **Very Complex Task (Full Multi-Agent)**
-```python
-"Research best practices for microservices, then create a Python implementation"
-# → Uses Browser Agent + SWE Agent + Manus Agent + planning
+---
+
+## 🛠️ Technology Stack
+
+### Backend
+- **Python 3.11+**: Core runtime environment
+- **FastAPI**: High-performance API framework
+- **SQLAlchemy**: Database ORM and migrations
+- **ChromaDB**: Vector database for knowledge storage
+- **Celery**: Distributed task processing
+- **Docker**: Containerization and deployment
+
+### Frontend
+- **React 18**: Modern UI framework
+- **TypeScript**: Type-safe development
+- **Vite**: Fast build tooling
+- **Ant Design**: Professional UI components
+- **React Router**: Client-side routing
+- **React Query**: Server state management
+
+### AI & ML
+- **LangChain**: LLM orchestration framework
+- **OpenAI API**: Large language model integration
+- **Anthropic Claude**: Alternative LLM support
+- **AWS Bedrock**: Enterprise LLM access
+- **Hugging Face**: Open-source model integration
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Docker & Docker Compose** (recommended)
+- **Python 3.11+** (for local development)
+- **Node.js 18+** (for frontend development)
+- **Git** for version control
+
+### 🐳 Docker Setup (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/mannaandpoem/OpenManus.git
+cd OpenManus
+
+# Configure environment
+cp docker.env.example docker.env
+# Edit docker.env with your settings
+
+# Start all services
+docker-compose up -d
+
+# Access the application
+open http://localhost:3000
 ```
 
-## 📋 API Reference
+### 🔧 Local Development Setup
 
-### Core Endpoints
+```bash
+# Clone and navigate
+git clone https://github.com/mannaandpoem/OpenManus.git
+cd OpenManus
 
-#### Health & System
-- `GET /health` - Health check
-- `GET /info` - System information
-- `GET /agents` - Available agents
+# Backend setup
+python -m venv venv
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+pip install -r requirements.txt
 
-#### Tasks
-- `POST /tasks` - Create new task
-- `GET /tasks` - List all tasks
-- `GET /tasks/{task_id}` - Get specific task
-- `DELETE /tasks/{task_id}` - Delete task
-- `POST /tasks/{task_id}/cancel` - Cancel task
-- `POST /tasks/{task_id}/retry` - Retry failed task
-- `GET /tasks/{task_id}/logs` - Get task logs
-- `POST /analyze-complexity` - Analyze task complexity
+# Configure backend
+cp config/development.toml.example config/development.toml
+# Edit configuration as needed
 
-#### Documents
-- `POST /documents/upload` - Upload document
-- `GET /documents/{doc_id}` - Get document info
-- `DELETE /documents/{doc_id}` - Delete document
-- `POST /documents/{doc_id}/process` - Process document
-- `GET /documents/{doc_id}/download` - Download document
+# Frontend setup
+cd frontend
+npm install
 
-#### MCP Servers
-- `GET /mcp/servers` - List MCP servers
-- `POST /mcp/servers` - Create MCP server
-- `PUT /mcp/servers/{server_id}` - Update MCP server
-- `DELETE /mcp/servers/{server_id}` - Delete MCP server
-- `POST /mcp/servers/{server_id}/connect` - Connect to server
-- `POST /mcp/servers/{server_id}/disconnect` - Disconnect from server
-- `GET /mcp/servers/{server_id}/tools` - Get server tools
+# Start development servers
+# Terminal 1 - Backend
+cd ../
+python main.py
 
-#### WebSocket
-- `WS /ws/{client_id}` - WebSocket connection for real-time updates
+# Terminal 2 - Frontend
+cd frontend
+npm run dev
+```
 
-## 🏗️ Architecture Overview
+### ⚡ Quick Start Script
 
-OpenManus features a complete **5-pillar enterprise-grade architecture**:
+```bash
+# Use the provided development script
+./start_dev.sh
+```
 
-### ✅ **Pillar 1: Backend Architecture**
-- **Clean Architecture** with Domain-Driven Design (DDD)
-- **FastAPI** with structured controllers, services, and repositories
-- **Type-safe** Python with comprehensive error handling
+---
+
+## 📖 Configuration
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# LLM Configuration
+OPENAI_API_KEY=your_openai_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+AWS_ACCESS_KEY_ID=your_aws_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret
+
+# Database
+DATABASE_URL=postgresql://user:pass@localhost/openmanus
+CHROMA_PERSIST_DIRECTORY=./data/chroma
+
+# Redis (for caching and task queue)
+REDIS_URL=redis://localhost:6379
+
+# Application
+ENVIRONMENT=development
+DEBUG=true
+SECRET_KEY=your_secret_key_here
+```
+
+### LLM Provider Setup
+
+#### OpenAI
+```toml
+[llm.openai]
+api_key = "your_openai_api_key"
+model = "gpt-4"
+max_tokens = 4096
+temperature = 0.7
+```
+
+#### Anthropic Claude
+```toml
+[llm.anthropic]
+api_key = "your_anthropic_api_key"
+model = "claude-3-sonnet-20240229"
+max_tokens = 4096
+```
+
+#### Local Models (Ollama)
+```toml
+[llm.ollama]
+base_url = "http://localhost:11434"
+model = "llama2"
+```
 - **API versioning** and standardized response patterns
 
 ### ✅ **Pillar 2: Frontend Architecture**
@@ -152,10 +253,6 @@ OpenManus features a complete **5-pillar enterprise-grade architecture**:
 - **Type-safe data flow** from database to UI components
 - **Graceful error handling** and connection recovery
 - **Scalable project structure** ready for enterprise deployment
-
-## Project Demo
-
-<video src="https://private-user-images.githubusercontent.com/61239030/420168772-6dcfd0d2-9142-45d9-b74e-d10aa75073c6.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDEzMTgwNTksIm5iZiI6MTc0MTMxNzc1OSwicGF0aCI6Ii82MTIzOTAzMC80MjAxNjg3NzItNmRjZmQwZDItOTE0Mi00NWQ5LWI3NGUtZDEwYWE3NTA3M2M2Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTAzMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwMzA3VDAzMjIzOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdiZjFkNjlmYWNjMmEzOTliM2Y3M2VlYjgyNDRlZDJmOWE3NWZhZjE1MzhiZWY4YmQ3NjdkNTYwYTU5ZDA2MzYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.UuHQCgWYkh0OQq9qsUWqGsUbhG3i9jcZDAMeHjLt5T4" data-canonical-src="https://private-user-images.githubusercontent.com/61239030/420168772-6dcfd0d2-9142-45d9-b74e-d10aa75073c6.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDEzMTgwNTksIm5iZiI6MTc0MTMxNzc1OSwicGF0aCI6Ii82MTIzOTAzMC80MjAxNjg3NzItNmRjZmQwZDItOTE0Mi00NWQ5LWI3NGUtZDEwYWE3NTA3M2M2Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTAzMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwMzA3VDAzMjIzOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdiZjFkNjlmYWNjMmEzOTliM2Y3M2VlYjgyNDRlZDJmOWE3NWZhZjE1MzhiZWY4YmQ3NjdkNTYwYTU5ZDA2MzYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.UuHQCgWYkh0OQq9qsUWqGsUbhG3i9jcZDAMeHjLt5T4" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
 ## 🚀 Installation & Quick Start
 
