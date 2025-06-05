@@ -3,6 +3,8 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+
+pytest.importorskip("httpx")
 from fastapi.testclient import TestClient
 
 from app.api.main import create_app

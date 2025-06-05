@@ -1,4 +1,4 @@
-from pydantic import Field, model_validator
+from app.compat import Field, model_validator
 
 from app.agent.browser import BrowserContextHelper
 from app.agent.toolcall import ToolCallAgent

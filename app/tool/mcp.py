@@ -1,9 +1,16 @@
 from contextlib import AsyncExitStack
 
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.sse import sse_client
-from mcp.client.stdio import stdio_client
-from mcp.types import ListToolsResult, TextContent
+try:
+    from mcp import ClientSession, StdioServerParameters
+    from mcp.client.sse import sse_client
+    from mcp.client.stdio import stdio_client
+    from mcp.types import ListToolsResult, TextContent
+except Exception:  # pragma: no cover - optional dependency missing
+    from typing import Any
+
+    ClientSession = StdioServerParameters = Any
+    sse_client = stdio_client = None
+    ListToolsResult = TextContent = Any
 
 from app.logger import logger
 from app.tool.base import BaseTool, ToolResult

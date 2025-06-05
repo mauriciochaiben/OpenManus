@@ -1,7 +1,7 @@
 import json
 from typing import TYPE_CHECKING
 
-from pydantic import Field, model_validator
+from app.compat import Field, model_validator
 
 from app.agent.toolcall import ToolCallAgent
 from app.logger import logger
@@ -105,11 +105,6 @@ class BrowserAgent(ToolCallAgent):
     special_tool_names: list[str] = Field(default_factory=lambda: [Terminate().name])
 
     browser_context_helper: BrowserContextHelper | None = None
-
-    @model_validator(mode="after")
-    def initialize_helper(self) -> "BrowserAgent":
-        self.browser_context_helper = BrowserContextHelper(self)
-        return self
 
     async def think(self) -> bool:
         """Process current state and decide next actions using tools.

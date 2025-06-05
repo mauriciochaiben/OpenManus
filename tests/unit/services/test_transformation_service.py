@@ -1,6 +1,12 @@
-import os, sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
+import os
+import sys
+from pathlib import Path
+
+root_dir = Path(__file__).resolve().parents[3]
+if str(root_dir) not in sys.path:
+    sys.path.insert(0, str(root_dir))
 import pytest
+pytest.importorskip("chromadb")
 
 from app.services.transformation_service import TransformationService
 

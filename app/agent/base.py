@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from contextlib import asynccontextmanager
 
-from pydantic import BaseModel, Field, model_validator
+from app.compat import BaseModel, Field, model_validator
 
 from app.llm import LLM
 from app.logger import logger
@@ -25,7 +25,7 @@ class BaseAgent(BaseModel, ABC):
     next_step_prompt: str | None = Field(None, description="Prompt for determining next action")
 
     # Dependencies
-    llm: LLM = Field(default_factory=LLM, description="Language model instance")
+    llm: LLM | None = Field(default=None, description="Language model instance")
     memory: Memory = Field(default_factory=Memory, description="Agent's memory store")
     state: AgentState = Field(default=AgentState.IDLE, description="Current agent state")
 
@@ -40,13 +40,14 @@ class BaseAgent(BaseModel, ABC):
         extra = "allow"  # Allow extra fields for flexibility in subclasses
 
     @model_validator(mode="after")
-    def initialize_agent(self) -> "BaseAgent":
+    def initialize_agent(cls, values: dict) -> dict:
         """Initialize agent with default settings if not provided."""
-        if self.llm is None or not isinstance(self.llm, LLM):
-            self.llm = LLM(config_name=self.name.lower())
-        if not isinstance(self.memory, Memory):
-            self.memory = Memory()
-        return self
+        llm = values.get("llm")
+        if (llm is None or not isinstance(llm, LLM)) and LLM.is_available():
+            values["llm"] = LLM(config_name=values.get("name", "default").lower())
+        if not isinstance(values.get("memory"), Memory):
+            values["memory"] = Memory()
+        return values
 
     @asynccontextmanager
     async def state_context(self, new_state: AgentState):

@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 # Adicionar o diretório raiz ao path para importações
-root_dir = Path(__file__).resolve().parent.parent.parent.parent
+root_dir = Path(__file__).resolve().parents[3]
 if str(root_dir) not in sys.path:
     sys.path.insert(0, str(root_dir))
 

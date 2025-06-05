@@ -1,7 +1,11 @@
 import sys
 from datetime import datetime
+import logging
 
-from loguru import logger as _logger
+try:
+    from loguru import logger as _logger  # type: ignore
+except Exception:  # pragma: no cover - optional dependency missing
+    _logger = logging.getLogger("openmanus")
 
 from app.core.settings import settings
 
@@ -17,9 +21,15 @@ def define_log_level(print_level="INFO", logfile_level="DEBUG", name: str = None
     formatted_date = current_date.strftime("%Y%m%d%H%M%S")
     log_name = f"{name}_{formatted_date}" if name else formatted_date  # name a log with prefix name
 
-    _logger.remove()
-    _logger.add(sys.stderr, level=print_level)
-    _logger.add(settings.project_root / f"logs/{log_name}.log", level=logfile_level)
+    if hasattr(_logger, "remove"):
+        _logger.remove()
+        _logger.add(sys.stderr, level=print_level)
+        _logger.add(settings.project_root / f"logs/{log_name}.log", level=logfile_level)
+    else:  # Basic logging fallback
+        _logger.setLevel(print_level)
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setLevel(print_level)
+        _logger.addHandler(handler)
     return _logger
 
 

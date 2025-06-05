@@ -6,9 +6,13 @@ from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-import pandas as pd
-from docling.document_converter import DocumentConverter
-from docling_core.types.doc import DoclingDocument
+try:
+    import pandas as pd
+    from docling.document_converter import DocumentConverter
+    from docling_core.types.doc import DoclingDocument
+except Exception:  # pragma: no cover - optional dependency missing
+    pd = None
+    DocumentConverter = DoclingDocument = None
 
 from app.core.settings import config
 from app.exceptions import ToolError
@@ -360,6 +364,8 @@ class AdvancedDocumentReader(BaseTool):
 
     async def _read_csv_fallback(self, file_path: str, output_format: str, operator: FileOperator) -> str:
         """Fallback CSV reading using pandas."""
+        if pd is None:
+            raise ToolError("pandas is required to read CSV files")
         try:
             if config.sandbox.use_sandbox:
                 content = await operator.read_file(file_path)

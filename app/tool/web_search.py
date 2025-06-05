@@ -1,10 +1,28 @@
 import asyncio
 from typing import Any
 
-import requests
-from bs4 import BeautifulSoup
-from pydantic import BaseModel, ConfigDict, Field, model_validator
-from tenacity import retry, stop_after_attempt, wait_exponential
+try:
+    import requests
+    from bs4 import BeautifulSoup
+except Exception:  # pragma: no cover - optional dependency missing
+    requests = None
+    BeautifulSoup = None
+from pydantic import ConfigDict
+from app.compat import BaseModel, Field, model_validator
+try:
+    from tenacity import retry, stop_after_attempt, wait_exponential
+except Exception:  # pragma: no cover - optional dependency missing
+    def retry(*_args, **_kwargs):
+        def decorator(func):
+            return func
+
+        return decorator
+
+    def stop_after_attempt(*_args, **_kwargs):
+        return None
+
+    def wait_exponential(*_args, **_kwargs):
+        return None
 
 from app.core.settings import settings
 from app.logger import logger
