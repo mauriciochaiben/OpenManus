@@ -79,6 +79,8 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // WebSocket connection for real-time updates
+  const [selectedStep, setSelectedStep] = useState<WorkflowStep | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
   const {
     isConnected,
     connectionState,
@@ -99,6 +101,10 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
 
   const connectionError = connectionState === "disconnected";
 
+  const handleStepClick = (step: WorkflowStep) => {
+    setSelectedStep(step);
+    setDetailVisible(true);
+  };
   const handleWorkflowEvent = useCallback(
     (event: any) => {
       const { type, ...eventData } = event;
@@ -349,7 +355,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
               </Space>
             }
             status={getStepStatus(step)}
-            icon={getStepIcon(step)}
+            icon={getStepIcon(step)} onClick={() => handleStepClick(step)} 
           />
         ))}
       </Steps>
@@ -398,7 +404,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
                     ? "blue"
                     : "gray"
             }
-            dot={getStepIcon(step)}
+            dot={getStepIcon(step)} onClick={() => handleStepClick(step)}
           >
             <Space direction="vertical" size="small">
               <Space>
@@ -513,6 +519,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
   }
 
   return (
+    <>
     <Card
       title={
         <Space>
@@ -610,6 +617,18 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
         {showTimeline ? renderTimelineView() : renderStepsView()}
       </Space>
     </Card>
+    <Modal
+      open={detailVisible}
+      onCancel={() => setDetailVisible(false)}
+      footer={null}
+      title={selectedStep?.name}
+    >
+      {selectedStep?.result && <Paragraph>{selectedStep.result}</Paragraph>}
+      {selectedStep?.error && (
+        <Alert type="error" message={selectedStep.error} />
+      )}
+    </Modal>
+    </>
   );
 };
 
