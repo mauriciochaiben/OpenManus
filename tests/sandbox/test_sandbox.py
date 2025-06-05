@@ -1,4 +1,6 @@
 import pytest
+pytest.importorskip("pytest_asyncio")
+pytest.importorskip("docker")
 import pytest_asyncio
 
 from app.sandbox.core.sandbox import DockerSandbox, SandboxSettings

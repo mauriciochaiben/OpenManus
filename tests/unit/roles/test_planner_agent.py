@@ -16,6 +16,7 @@ if str(root_dir) not in sys.path:
 from unittest.mock import AsyncMock, patch  # noqa: E402
 
 import pytest  # noqa: E402
+pytest.importorskip("openai")
 
 from app.roles.planner_agent import PlannerAgent  # noqa: E402
 
