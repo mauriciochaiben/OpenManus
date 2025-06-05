@@ -40,7 +40,7 @@ setup(
         "openpyxl~=3.1.5",
         "pandas",
         # Advanced document processing with Docling
-        "docling~=2.34.0",
+        "docling>=2.34,<2.37",
         "docling-core~=2.31.2",
         "docling-ibm-models~=3.4.3",
         "docling-parse~=4.0.1",
