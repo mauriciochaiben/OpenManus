@@ -1,6 +1,9 @@
 import math
 
-import tiktoken
+try:
+    import tiktoken
+except Exception:  # pragma: no cover - optional dependency missing
+    tiktoken = None
 from openai import (
     APIError,
     AsyncAzureOpenAI,
@@ -222,10 +225,13 @@ class LLM:
 
             # Initialize tokenizer
             try:
-                self.tokenizer = tiktoken.encoding_for_model(self.model)
+                if tiktoken:
+                    self.tokenizer = tiktoken.encoding_for_model(self.model)
+                else:
+                    raise KeyError
             except KeyError:
-                # If the model is not in tiktoken's presets, use cl100k_base as default
-                self.tokenizer = tiktoken.get_encoding("cl100k_base")
+                # If the model is not in tiktoken's presets or tiktoken is unavailable
+                self.tokenizer = tiktoken.get_encoding("cl100k_base") if tiktoken else None
 
             if self.api_type == "azure":
                 self.client = AsyncAzureOpenAI(
@@ -369,9 +375,8 @@ class LLM:
         logger.info(
             f"Token usage: Input={input_tokens}, Completion={completion_tokens}, "
             f"Cumulative Input={self.total_input_tokens}, "
-            f"Total={input_tokens +
-                completion_tokens}, Cumulative Total={self.total_input_tokens +
-                self.total_completion_tokens}"
+            f"Total={input_tokens + completion_tokens}, "
+            f"Cumulative Total={self.total_input_tokens + self.total_completion_tokens}"
         )
 
     def check_token_limit(self, input_tokens: int) -> bool:

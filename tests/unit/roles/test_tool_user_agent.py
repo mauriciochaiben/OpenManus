@@ -16,6 +16,7 @@ if str(root_dir) not in sys.path:
 from unittest.mock import AsyncMock, Mock, patch  # noqa: E402
 
 import pytest  # noqa: E402
+pytest.importorskip("openai")
 
 from app.roles.tool_user_agent import ToolUserAgent  # noqa: E402
 from app.tool.base import ToolResult  # noqa: E402

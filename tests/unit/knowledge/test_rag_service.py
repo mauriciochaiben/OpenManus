@@ -3,6 +3,7 @@ from typing import Any
 from unittest.mock import AsyncMock, Mock
 
 import pytest
+pytest.importorskip("chromadb")
 
 sys.path.append("/Users/mauriciochaiben/OpenManus")
 
