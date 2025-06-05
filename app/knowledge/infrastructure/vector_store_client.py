@@ -5,10 +5,18 @@ import logging
 from typing import Any
 from uuid import uuid4
 
-import chromadb
-from chromadb.api.models.Collection import Collection
-from chromadb.config import Settings
-from chromadb.errors import ChromaError, NotFoundError
+try:
+    import chromadb
+    from chromadb.api.models.Collection import Collection
+    from chromadb.config import Settings
+    from chromadb.errors import ChromaError, NotFoundError
+except Exception:  # pragma: no cover - optional dependency missing
+    chromadb = None
+    Collection = Settings = object
+    class ChromaError(Exception):
+        pass
+    class NotFoundError(Exception):
+        pass
 
 from app.core.vector_config import rag_config, vector_db_config
 

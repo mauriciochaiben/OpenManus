@@ -3,11 +3,19 @@ import base64
 import json
 from typing import Generic, TypeVar
 
-from browser_use import Browser as BrowserUseBrowser
-from browser_use import BrowserConfig
-from browser_use.browser.context import BrowserContext, BrowserContextConfig
-from browser_use.dom.service import DomService
-from pydantic import Field, field_validator
+try:
+    from browser_use import Browser as BrowserUseBrowser
+    from browser_use import BrowserConfig
+    from browser_use.browser.context import BrowserContext, BrowserContextConfig
+    from browser_use.dom.service import DomService
+except Exception:  # pragma: no cover - optional dependency missing
+    BrowserUseBrowser = None
+    BrowserConfig = BrowserContext = BrowserContextConfig = DomService = None
+
+    class BrowserUseToolUnavailable(Exception):
+        """Raised when browser_use dependency is missing."""
+
+from app.compat import Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
 from app.core.settings import settings

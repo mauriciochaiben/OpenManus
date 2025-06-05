@@ -2,8 +2,15 @@ import asyncio
 import uuid
 from contextlib import asynccontextmanager, suppress
 
-import docker
-from docker.errors import APIError, ImageNotFound
+try:
+    import docker
+    from docker.errors import APIError, ImageNotFound
+except Exception:  # pragma: no cover - optional dependency missing
+    docker = None
+    class APIError(Exception):
+        pass
+    class ImageNotFound(Exception):
+        pass
 
 from app.core.settings import SandboxSettings
 from app.logger import logger

@@ -1,16 +1,41 @@
 import math
 
-import tiktoken
-from openai import (
-    APIError,
-    AsyncAzureOpenAI,
-    AsyncOpenAI,
-    AuthenticationError,
-    OpenAIError,
-    RateLimitError,
-)
-from openai.types.chat import ChatCompletion, ChatCompletionMessage
-from tenacity import retry, stop_after_attempt, wait_random_exponential
+try:
+    import tiktoken
+except Exception:  # pragma: no cover - optional dependency missing
+    tiktoken = None
+try:
+    from openai import (
+        APIError,
+        AsyncAzureOpenAI,
+        AsyncOpenAI,
+        AuthenticationError,
+        OpenAIError,
+        RateLimitError,
+    )
+    from openai.types.chat import ChatCompletion, ChatCompletionMessage
+    _openai_available = True
+except Exception:  # pragma: no cover - optional dependency missing
+    from typing import Any
+
+    APIError = AsyncAzureOpenAI = AsyncOpenAI = AuthenticationError = RateLimitError = None
+    OpenAIError = Exception
+    ChatCompletion = ChatCompletionMessage = Any
+    _openai_available = False
+try:
+    from tenacity import retry, stop_after_attempt, wait_random_exponential
+except Exception:  # pragma: no cover - optional dependency missing
+    def retry(*_args, **_kwargs):
+        def decorator(func):
+            return func
+
+        return decorator
+
+    def stop_after_attempt(*_args, **_kwargs):
+        return None
+
+    def wait_random_exponential(*_args, **_kwargs):
+        return None
 
 from app.bedrock import BedrockClient
 from app.core.settings import LLMSettings, settings
@@ -186,6 +211,11 @@ class TokenCounter:
 class LLM:
     _instances: dict[str, "LLM"] = {}
 
+    @classmethod
+    def is_available(cls) -> bool:
+        """Return True if the OpenAI dependency is available."""
+        return _openai_available
+
     def __new__(cls, config_name: str = "default", llm_config: LLMSettings | None = None):
         if config_name not in cls._instances:
             instance = super().__new__(cls)
@@ -222,10 +252,13 @@ class LLM:
 
             # Initialize tokenizer
             try:
-                self.tokenizer = tiktoken.encoding_for_model(self.model)
+                if tiktoken:
+                    self.tokenizer = tiktoken.encoding_for_model(self.model)
+                else:
+                    raise KeyError
             except KeyError:
-                # If the model is not in tiktoken's presets, use cl100k_base as default
-                self.tokenizer = tiktoken.get_encoding("cl100k_base")
+                # If the model is not in tiktoken's presets or tiktoken is unavailable
+                self.tokenizer = tiktoken.get_encoding("cl100k_base") if tiktoken else None
 
             if self.api_type == "azure":
                 self.client = AsyncAzureOpenAI(
@@ -369,9 +402,8 @@ class LLM:
         logger.info(
             f"Token usage: Input={input_tokens}, Completion={completion_tokens}, "
             f"Cumulative Input={self.total_input_tokens}, "
-            f"Total={input_tokens +
-                completion_tokens}, Cumulative Total={self.total_input_tokens +
-                self.total_completion_tokens}"
+            f"Total={input_tokens + completion_tokens}, "
+            f"Cumulative Total={self.total_input_tokens + self.total_completion_tokens}"
         )
 
     def check_token_limit(self, input_tokens: int) -> bool:

@@ -14,6 +14,7 @@ import uuid
 from unittest.mock import AsyncMock
 
 import pytest
+pytest.importorskip("pytest_asyncio")
 import pytest_asyncio
 
 from app.services.workflow_service import (

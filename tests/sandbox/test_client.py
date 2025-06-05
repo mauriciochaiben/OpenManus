@@ -3,6 +3,8 @@ from collections.abc import AsyncGenerator, Generator
 from pathlib import Path
 
 import pytest
+pytest.importorskip("pytest_asyncio")
+pytest.importorskip("docker")
 import pytest_asyncio
 
 from app.core.settings import SandboxSettings

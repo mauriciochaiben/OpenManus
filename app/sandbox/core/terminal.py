@@ -10,10 +10,18 @@ import contextlib
 import re
 import socket
 
-import docker
-from docker import APIClient
-from docker.errors import APIError
-from docker.models.containers import Container
+try:
+    import docker
+    from docker import APIClient
+    from docker.errors import APIError
+    from docker.models.containers import Container
+except Exception:  # pragma: no cover - optional dependency missing
+    docker = None
+    APIClient = None
+    class APIError(Exception):
+        pass
+    class Container:
+        pass
 
 
 class DockerSession:

@@ -7,7 +7,15 @@ e que implementações concretas seguem a interface definida.
 
 import asyncio
 
+import sys
+from pathlib import Path
+
 import pytest
+
+# Ensure the project root is on the Python path
+root_dir = Path(__file__).resolve().parents[1]
+if str(root_dir) not in sys.path:
+    sys.path.insert(0, str(root_dir))
 
 from app.agent.base_agent import BaseAgent
 from app.agent.example_agent import ExampleAgent
