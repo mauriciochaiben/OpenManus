@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 # Adicionar o diretório raiz ao path para importações
-root_dir = Path(__file__).resolve().parent.parent.parent.parent
+root_dir = Path(__file__).resolve().parents[3]
 if str(root_dir) not in sys.path:
     sys.path.insert(0, str(root_dir))
 
@@ -373,9 +373,15 @@ class TestToolUserAgent:
 
             task_details = {"tool_name": "slow_tool", "arguments": {"query": "test"}}
 
-            # Mock time.time para simular tempo de execução
-            with patch("time.time") as mock_time:
-                mock_time.side_effect = [0.0, 1.5]  # Start and end time
+            # Patch time.time using a generator to avoid StopIteration
+            def time_seq():
+                # First value for logging before start_time, second for start_time
+                yield 0.0
+                yield 0.0
+                while True:
+                    yield 1.5
+
+            with patch("time.time", side_effect=time_seq()):
 
                 result = await agent.run(task_details)
 

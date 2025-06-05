@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from pydantic import Field, model_validator
+from app.compat import Field, model_validator
 
 from app.core.settings import settings
 from app.llm import LLM

@@ -1,16 +1,25 @@
 from app.tool.base import BaseTool
 from app.tool.bash import Bash
 from app.tool.basic_tools import WebSearchTool
-from app.tool.browser_use_tool import BrowserUseTool
+try:
+    from app.tool.browser_use_tool import BrowserUseTool
+except Exception:  # pragma: no cover - optional dependency missing
+    BrowserUseTool = None
 from app.tool.create_chat_completion import CreateChatCompletion
 from app.tool.document_analyzer import DocumentAnalyzer
-from app.tool.document_reader import DocumentReader
+try:
+    from app.tool.document_reader import DocumentReader
+except Exception:  # pragma: no cover - optional dependency missing
+    DocumentReader = None
 from app.tool.planning import PlanningTool
 from app.tool.registry import ToolRegistry, tool_registry
 from app.tool.str_replace_editor import StrReplaceEditor
 from app.tool.terminate import Terminate
 from app.tool.tool_collection import ToolCollection
-from app.tool.web_search import WebSearch
+try:
+    from app.tool.web_search import WebSearch
+except Exception:  # pragma: no cover - optional dependency missing
+    WebSearch = None
 
 # Import tools to trigger registration
 from . import code_execution

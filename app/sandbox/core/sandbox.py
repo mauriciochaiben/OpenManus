@@ -7,8 +7,13 @@ import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import docker
-from docker.errors import NotFound
+try:
+    import docker
+    from docker.errors import NotFound
+except Exception:  # pragma: no cover - optional dependency missing
+    docker = None
+    class NotFound(Exception):
+        pass
 
 from app.core.settings import SandboxSettings
 from app.sandbox.core.exceptions import SandboxTimeoutError

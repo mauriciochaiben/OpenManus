@@ -5,7 +5,10 @@ import uuid
 from datetime import datetime
 from typing import Literal
 
-import boto3
+try:
+    import boto3
+except Exception:  # pragma: no cover - optional dependency missing
+    boto3 = None
 
 # Global variables to track the current tool use ID across function calls
 # Tmp solution
@@ -34,6 +37,8 @@ class OpenAIResponse:
 class BedrockClient:
     def __init__(self):
         # Initialize Bedrock client, you need to configure AWS env first
+        if boto3 is None:
+            raise ImportError("boto3 is required for BedrockClient")
         try:
             self.client = boto3.client("bedrock-runtime")
             self.chat = Chat(self.client)

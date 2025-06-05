@@ -12,8 +12,13 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, Field, computed_field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from app.compat import BaseModel, Field, computed_field, field_validator
+try:
+    from pydantic_settings import BaseSettings, SettingsConfigDict
+except Exception:  # pragma: no cover - optional dependency missing
+    from pydantic import BaseSettings
+
+    SettingsConfigDict = dict
 
 
 def get_project_root() -> Path:

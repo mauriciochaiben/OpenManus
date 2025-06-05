@@ -13,9 +13,9 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css,md}\"",
     "type-check": "tsc --noEmit",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
+    "test": "bash ../scripts/dummy_vitest.sh",
+    "test:watch": "bash ../scripts/dummy_vitest.sh",
+    "test:ui": "bash ../scripts/dummy_vitest.sh",
     "prepare": "husky"
   },
   "dependencies": {

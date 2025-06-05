@@ -3,8 +3,13 @@ from typing import Any
 from unittest.mock import AsyncMock, Mock
 
 import pytest
+pytest.importorskip("chromadb")
 
-sys.path.append("/Users/mauriciochaiben/OpenManus")
+from pathlib import Path
+
+root_dir = Path(__file__).resolve().parents[3]
+if str(root_dir) not in sys.path:
+    sys.path.insert(0, str(root_dir))
 
 from app.knowledge.infrastructure.vector_store_client import VectorStoreClient
 from app.knowledge.services.embedding_service import EmbeddingService

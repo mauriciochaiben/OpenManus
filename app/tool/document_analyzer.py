@@ -3,9 +3,12 @@
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from docling.chunking import HierarchicalChunker  # Changed import
-from docling.document_converter import DocumentConverter
-from docling_core.types.doc import DoclingDocument
+try:
+    from docling.chunking import HierarchicalChunker  # Changed import
+    from docling.document_converter import DocumentConverter
+    from docling_core.types.doc import DoclingDocument
+except Exception:  # pragma: no cover - optional dependency missing
+    HierarchicalChunker = DocumentConverter = DoclingDocument = None
 
 from app.exceptions import ToolError
 from app.logger import logger
@@ -528,7 +531,8 @@ class DocumentAnalyzer(BaseTool):
             result.append("Document Statistics:")
             result.append(f"- Words: {word_count:,}")
             result.append(f"- Characters: {len(text_content):,}")
-            result.append(f"- Paragraphs: {len([p for p in text_content.split('\\n\\n') if p.strip()])}")
+            paragraphs = [p for p in text_content.split("\n\n") if p.strip()]
+            result.append(f"- Paragraphs: {len(paragraphs)}")
 
             # Quick structure analysis
             headers = [line for line in markdown_content.split("\\n") if line.strip().startswith("#")]
