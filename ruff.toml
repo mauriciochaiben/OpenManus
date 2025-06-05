@@ -197,11 +197,11 @@ force-sort-within-sections = true
 known-first-party = ["app"]
 
 # Use hanging indents for long imports
-multi-line-output = 3
-include-trailing-comma = true
-force-grid-wrap = 0
-combine-as-imports = true
-line-length = 120
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+combine_as_imports = true
+line_length = 120
 
 [lint.mccabe]
 # McCabe complexity threshold
