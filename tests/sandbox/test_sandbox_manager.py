@@ -4,6 +4,8 @@ from collections.abc import AsyncGenerator
 from pathlib import Path
 
 import pytest
+pytest.importorskip("pytest_asyncio")
+pytest.importorskip("docker")
 import pytest_asyncio
 
 from app.sandbox.core.manager import SandboxManager

@@ -3,7 +3,8 @@ from typing import Any
 
 import requests
 from bs4 import BeautifulSoup
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import ConfigDict
+from app.compat import BaseModel, Field, model_validator
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.core.settings import settings

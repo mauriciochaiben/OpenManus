@@ -8,6 +8,8 @@ e que implementações concretas seguem a interface definida.
 import asyncio
 
 import pytest
+pytest.importorskip("openai")
+pytest.importorskip("tiktoken")
 
 from app.agent.base_agent import BaseAgent
 from app.agent.example_agent import ExampleAgent

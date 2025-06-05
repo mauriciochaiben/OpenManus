@@ -1,7 +1,7 @@
 import json
 from typing import TYPE_CHECKING
 
-from pydantic import Field, model_validator
+from app.compat import Field, model_validator
 
 from app.agent.toolcall import ToolCallAgent
 from app.logger import logger

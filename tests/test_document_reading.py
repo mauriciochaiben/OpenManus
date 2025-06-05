@@ -15,6 +15,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import contextlib
 
+import pytest
+pytest.importorskip("PyPDF2")
+pytest.importorskip("python_docx")
+pytest.importorskip("openpyxl")
+
 from app.logger import logger
 from app.tool.document_analyzer import DocumentAnalyzer
 from app.tool.document_reader import AdvancedDocumentReader, DocumentReader

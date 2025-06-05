@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from contextlib import asynccontextmanager
 
-from pydantic import BaseModel, Field, model_validator
+from app.compat import BaseModel, Field, model_validator
 
 from app.llm import LLM
 from app.logger import logger

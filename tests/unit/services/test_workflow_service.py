@@ -8,6 +8,7 @@ testing workflow orchestration, step classification, tool execution, and event p
 from unittest.mock import AsyncMock
 
 import pytest
+pytest.importorskip("openai")
 
 from app.infrastructure.messaging.event_bus import EventBus
 from app.roles.planner_agent import PlannerAgent
