@@ -91,18 +91,19 @@ repos:
       - id: typescript-check
         name: TypeScript Check
         description: Type check TypeScript files in frontend
-        entry: bash -c 'cd frontend && npm run type-check'
+        entry: bash -c 'cd frontend && npx tsc --noEmit --skipLibCheck'
         language: system
         files: ^frontend/src/.*\.(ts|tsx)$
         pass_filenames: false
 
   # Docker
-  - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.0
+  - repo: local
     hooks:
-      - id: hadolint-docker
+      - id: hadolint-local
         name: Hadolint
-        description: Lint Dockerfiles
+        description: Lint Dockerfiles with local hadolint
+        entry: hadolint
+        language: system
         files: ^.*Dockerfile.*$
 
   # Security checks

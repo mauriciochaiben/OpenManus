@@ -1,5 +1,4 @@
 /// <reference types="vitest" />
-/// <reference types="@testing-library/jest-dom" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
@@ -11,6 +10,9 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
     css: true,
+    typecheck: {
+      tsconfig: "./tsconfig.json",
+    },
   },
   resolve: {
     alias: {
