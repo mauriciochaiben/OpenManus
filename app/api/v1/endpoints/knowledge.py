@@ -114,6 +114,7 @@ async def upload_source(
 
     Raises:
         HTTPException: If upload fails
+
     """
     try:
         logger.info(f"Uploading file: {file.filename}")
@@ -139,10 +140,10 @@ async def upload_source(
         )
 
     except SourceServiceError as e:
-        logger.error(f"Source service error: {str(e)}")
+        logger.error(f"Source service error: {e!s}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     except Exception as e:
-        logger.error(f"Unexpected error during upload: {str(e)}")
+        logger.error(f"Unexpected error during upload: {e!s}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during file upload",
@@ -163,6 +164,7 @@ async def get_source_status(source_id: str, service: Any = Depends(get_source_se
 
     Raises:
         HTTPException: If source not found
+
     """
     try:
         source_doc = await service.get_source_document(source_id)
@@ -203,7 +205,7 @@ async def get_source_status(source_id: str, service: Any = Depends(get_source_se
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error getting source status: {str(e)}")
+        logger.error(f"Error getting source status: {e!s}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error",
@@ -232,6 +234,7 @@ async def list_sources(
 
     Returns:
         Paginated list of source documents
+
     """
     try:
         logger.info(f"Listing sources: page={page}, page_size={page_size}")
@@ -248,7 +251,7 @@ async def list_sources(
         return SourceListResponse(sources=sources, total=total, page=page, page_size=page_size)
 
     except Exception as e:
-        logger.error(f"Error listing sources: {str(e)}")
+        logger.error(f"Error listing sources: {e!s}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error",
@@ -266,6 +269,7 @@ async def search_documents(request: SearchRequest, service: Any = Depends(get_so
 
     Returns:
         Search results with similar documents
+
     """
     try:
         logger.info(f"Searching documents: query='{request.query}'")
@@ -285,10 +289,10 @@ async def search_documents(request: SearchRequest, service: Any = Depends(get_so
         )
 
     except SourceServiceError as e:
-        logger.error(f"Search service error: {str(e)}")
+        logger.error(f"Search service error: {e!s}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     except Exception as e:
-        logger.error(f"Error during search: {str(e)}")
+        logger.error(f"Error during search: {e!s}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during search",
@@ -309,6 +313,7 @@ async def delete_source(source_id: str, service: Any = Depends(get_source_servic
 
     Raises:
         HTTPException: If deletion fails
+
     """
     try:
         logger.info(f"Deleting source document: {source_id}")
@@ -332,10 +337,10 @@ async def delete_source(source_id: str, service: Any = Depends(get_source_servic
     except HTTPException:
         raise
     except SourceServiceError as e:
-        logger.error(f"Source service error: {str(e)}")
+        logger.error(f"Source service error: {e!s}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     except Exception as e:
-        logger.error(f"Error deleting source: {str(e)}")
+        logger.error(f"Error deleting source: {e!s}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during deletion",
@@ -349,6 +354,7 @@ async def health_check() -> JSONResponse:
 
     Returns:
         Health status information
+
     """
     try:
         # Check if source service is available
@@ -369,7 +375,7 @@ async def health_check() -> JSONResponse:
         )
 
     except Exception as e:
-        logger.error(f"Health check failed: {str(e)}")
+        logger.error(f"Health check failed: {e!s}")
         return JSONResponse(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             content={

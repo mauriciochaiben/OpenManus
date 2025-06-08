@@ -1,11 +1,11 @@
 import asyncio
 import io
 import os
+from pathlib import Path
 import tarfile
 import tempfile
-import uuid
-from pathlib import Path
 from typing import TYPE_CHECKING
+import uuid
 
 import docker
 from docker.errors import NotFound
@@ -19,7 +19,8 @@ if TYPE_CHECKING:
 
 
 class DockerSandbox:
-    """Docker sandbox environment.
+    """
+    Docker sandbox environment.
 
     Provides a containerized execution environment with resource limits,
     file operations, and command execution capabilities.
@@ -30,6 +31,7 @@ class DockerSandbox:
         client: Docker client.
         container: Docker container instance.
         terminal: Container terminal interface.
+
     """
 
     def __init__(
@@ -37,11 +39,13 @@ class DockerSandbox:
         config: SandboxSettings | None = None,
         volume_bindings: dict[str, str] | None = None,
     ):
-        """Initializes a sandbox instance.
+        """
+        Initializes a sandbox instance.
 
         Args:
             config: Sandbox configuration. Default configuration used if None.
             volume_bindings: Volume mappings in {host_path: container_path} format.
+
         """
         self.config = config or SandboxSettings()
         self.volume_bindings = volume_bindings or {}
@@ -50,7 +54,8 @@ class DockerSandbox:
         self.terminal: AsyncDockerizedTerminal | None = None
 
     async def create(self) -> "DockerSandbox":
-        """Creates and starts the sandbox container.
+        """
+        Creates and starts the sandbox container.
 
         Returns:
             Current sandbox instance.
@@ -58,6 +63,7 @@ class DockerSandbox:
         Raises:
             docker.errors.APIError: If Docker API call fails.
             RuntimeError: If container creation or startup fails.
+
         """
         try:
             # Prepare container config
@@ -106,10 +112,12 @@ class DockerSandbox:
             raise RuntimeError(f"Failed to create sandbox: {e}") from e
 
     def _prepare_volume_bindings(self) -> dict[str, dict[str, str]]:
-        """Prepares volume binding configuration.
+        """
+        Prepares volume binding configuration.
 
         Returns:
             Volume binding configuration dictionary.
+
         """
         bindings = {}
 
@@ -125,20 +133,23 @@ class DockerSandbox:
 
     @staticmethod
     def _ensure_host_dir(path: str) -> str:
-        """Ensures directory exists on the host.
+        """
+        Ensures directory exists on the host.
 
         Args:
             path: Directory path.
 
         Returns:
             Actual path on the host.
+
         """
         host_path = Path(tempfile.gettempdir()) / f"sandbox_{Path(path).name}_{os.urandom(4).hex()}"
         host_path.mkdir(parents=True, exist_ok=True)
         return str(host_path)
 
     async def run_command(self, cmd: str, timeout: int | None = None) -> str:
-        """Runs a command in the sandbox.
+        """
+        Runs a command in the sandbox.
 
         Args:
             cmd: Command to execute.
@@ -150,6 +161,7 @@ class DockerSandbox:
         Raises:
             RuntimeError: If sandbox not initialized or command execution fails.
             TimeoutError: If command execution times out.
+
         """
         if not self.terminal:
             raise RuntimeError("Sandbox not initialized")
@@ -162,7 +174,8 @@ class DockerSandbox:
             ) from e
 
     async def read_file(self, path: str) -> str:
-        """Reads a file from the container.
+        """
+        Reads a file from the container.
 
         Args:
             path: File path.
@@ -173,6 +186,7 @@ class DockerSandbox:
         Raises:
             FileNotFoundError: If file does not exist.
             RuntimeError: If read operation fails.
+
         """
         if not self.container:
             raise RuntimeError("Sandbox not initialized")
@@ -192,7 +206,8 @@ class DockerSandbox:
             raise RuntimeError(f"Failed to read file: {e}") from e
 
     async def write_file(self, path: str, content: str) -> None:
-        """Writes content to a file in the container.
+        """
+        Writes content to a file in the container.
 
         Args:
             path: Target path.
@@ -200,6 +215,7 @@ class DockerSandbox:
 
         Raises:
             RuntimeError: If write operation fails.
+
         """
         if not self.container:
             raise RuntimeError("Sandbox not initialized")
@@ -222,7 +238,8 @@ class DockerSandbox:
             raise RuntimeError(f"Failed to write file: {e}") from e
 
     def _safe_resolve_path(self, path: str) -> str:
-        """Safely resolves container path, preventing path traversal.
+        """
+        Safely resolves container path, preventing path traversal.
 
         Args:
             path: Original path.
@@ -232,6 +249,7 @@ class DockerSandbox:
 
         Raises:
             ValueError: If path contains potentially unsafe patterns.
+
         """
         # Check for path traversal attempts
         if ".." in path.split("/"):
@@ -240,7 +258,8 @@ class DockerSandbox:
         return str(Path(self.config.work_dir) / path) if not Path(path).is_absolute() else path
 
     async def copy_from(self, src_path: str, dst_path: str) -> None:
-        """Copies a file from the container.
+        """
+        Copies a file from the container.
 
         Args:
             src_path: Source file path (container).
@@ -249,6 +268,7 @@ class DockerSandbox:
         Raises:
             FileNotFoundError: If source file does not exist.
             RuntimeError: If copy operation fails.
+
         """
         try:
             # Ensure destination file's parent directory exists
@@ -290,7 +310,7 @@ class DockerSandbox:
                                 target_path = Path(dst_path) / member.name
                                 if is_safe_path(target_path, dst_path):
                                     safe_members.append(member)
-                        tar.extractall(dst_path, members=safe_members)
+                        tar.extractall(dst_path, members=safe_members)  # nosec
                     else:
                         # If destination is a file, we only extract the source file's content
                         if len(members) > 1:
@@ -308,7 +328,8 @@ class DockerSandbox:
             raise RuntimeError(f"Failed to copy file: {e}") from e
 
     async def copy_to(self, src_path: str, dst_path: str) -> None:
-        """Copies a file to the container.
+        """
+        Copies a file to the container.
 
         Args:
             src_path: Source file path (host).
@@ -317,6 +338,7 @@ class DockerSandbox:
         Raises:
             FileNotFoundError: If source file does not exist.
             RuntimeError: If copy operation fails.
+
         """
         try:
             if not Path(src_path).exists():
@@ -368,7 +390,8 @@ class DockerSandbox:
 
     @staticmethod
     async def _create_tar_stream(name: str, content: bytes) -> io.BytesIO:
-        """Creates a tar file stream.
+        """
+        Creates a tar file stream.
 
         Args:
             name: Filename.
@@ -376,6 +399,7 @@ class DockerSandbox:
 
         Returns:
             Tar file stream.
+
         """
         tar_stream = io.BytesIO()
         with tarfile.open(fileobj=tar_stream, mode="w") as tar:
@@ -387,7 +411,8 @@ class DockerSandbox:
 
     @staticmethod
     async def _read_from_tar(tar_stream) -> bytes:
-        """Reads file content from a tar stream.
+        """
+        Reads file content from a tar stream.
 
         Args:
             tar_stream: Tar file stream.
@@ -397,6 +422,7 @@ class DockerSandbox:
 
         Raises:
             RuntimeError: If read operation fails.
+
         """
         with tempfile.NamedTemporaryFile() as tmp:
             for chunk in tar_stream:

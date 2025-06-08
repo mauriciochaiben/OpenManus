@@ -9,40 +9,48 @@ class SandboxFileOperations(Protocol):
     """Protocol for sandbox file operations."""
 
     async def copy_from(self, container_path: str, local_path: str) -> None:
-        """Copies file from container to local.
+        """
+        Copies file from container to local.
 
         Args:
             container_path: File path in container.
             local_path: Local destination path.
+
         """
         ...
 
     async def copy_to(self, local_path: str, container_path: str) -> None:
-        """Copies file from local to container.
+        """
+        Copies file from local to container.
 
         Args:
             local_path: Local source file path.
             container_path: Destination path in container.
+
         """
         ...
 
     async def read_file(self, path: str) -> str:
-        """Reads file content from container.
+        """
+        Reads file content from container.
 
         Args:
             path: File path in container.
 
         Returns:
             str: File content.
+
         """
         ...
 
     async def write_file(self, path: str, content: str) -> None:
-        """Writes content to file in container.
+        """
+        Writes content to file in container.
 
         Args:
             path: File path in container.
             content: Content to write.
+
         """
         ...
 
@@ -95,7 +103,8 @@ class LocalSandboxClient(BaseSandboxClient):
         config: SandboxSettings | None = None,
         volume_bindings: dict[str, str] | None = None,
     ) -> None:
-        """Creates a sandbox.
+        """
+        Creates a sandbox.
 
         Args:
             config: Sandbox configuration.
@@ -103,12 +112,14 @@ class LocalSandboxClient(BaseSandboxClient):
 
         Raises:
             RuntimeError: If sandbox creation fails.
+
         """
         self.sandbox = DockerSandbox(config, volume_bindings)
         await self.sandbox.create()
 
     async def run_command(self, command: str, timeout: int | None = None) -> str:
-        """Runs command in sandbox.
+        """
+        Runs command in sandbox.
 
         Args:
             command: Command to execute.
@@ -119,13 +130,15 @@ class LocalSandboxClient(BaseSandboxClient):
 
         Raises:
             RuntimeError: If sandbox not initialized.
+
         """
         if not self.sandbox:
             raise RuntimeError("Sandbox not initialized")
         return await self.sandbox.run_command(command, timeout)
 
     async def copy_from(self, container_path: str, local_path: str) -> None:
-        """Copies file from container to local.
+        """
+        Copies file from container to local.
 
         Args:
             container_path: File path in container.
@@ -133,13 +146,15 @@ class LocalSandboxClient(BaseSandboxClient):
 
         Raises:
             RuntimeError: If sandbox not initialized.
+
         """
         if not self.sandbox:
             raise RuntimeError("Sandbox not initialized")
         await self.sandbox.copy_from(container_path, local_path)
 
     async def copy_to(self, local_path: str, container_path: str) -> None:
-        """Copies file from local to container.
+        """
+        Copies file from local to container.
 
         Args:
             local_path: Local source file path.
@@ -147,13 +162,15 @@ class LocalSandboxClient(BaseSandboxClient):
 
         Raises:
             RuntimeError: If sandbox not initialized.
+
         """
         if not self.sandbox:
             raise RuntimeError("Sandbox not initialized")
         await self.sandbox.copy_to(local_path, container_path)
 
     async def read_file(self, path: str) -> str:
-        """Reads file from container.
+        """
+        Reads file from container.
 
         Args:
             path: File path in container.
@@ -163,13 +180,15 @@ class LocalSandboxClient(BaseSandboxClient):
 
         Raises:
             RuntimeError: If sandbox not initialized.
+
         """
         if not self.sandbox:
             raise RuntimeError("Sandbox not initialized")
         return await self.sandbox.read_file(path)
 
     async def write_file(self, path: str, content: str) -> None:
-        """Writes file to container.
+        """
+        Writes file to container.
 
         Args:
             path: File path in container.
@@ -177,6 +196,7 @@ class LocalSandboxClient(BaseSandboxClient):
 
         Raises:
             RuntimeError: If sandbox not initialized.
+
         """
         if not self.sandbox:
             raise RuntimeError("Sandbox not initialized")
@@ -190,10 +210,12 @@ class LocalSandboxClient(BaseSandboxClient):
 
 
 def create_sandbox_client() -> LocalSandboxClient:
-    """Creates a sandbox client.
+    """
+    Creates a sandbox client.
 
     Returns:
         LocalSandboxClient: Sandbox client instance.
+
     """
     return LocalSandboxClient()
 

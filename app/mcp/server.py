@@ -1,10 +1,10 @@
 import argparse
 import asyncio
 import atexit
+from inspect import Parameter, Signature
 import json
 import logging
 import sys
-from inspect import Parameter, Signature
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP

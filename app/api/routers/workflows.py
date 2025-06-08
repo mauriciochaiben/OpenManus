@@ -78,6 +78,7 @@ async def start_simple_workflow(
 
     Raises:
         HTTPException: If the workflow fails to start
+
     """
     try:
         # Validate the initial task
@@ -112,7 +113,7 @@ async def start_simple_workflow(
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to start workflow: {str(e)}") from e
+        raise HTTPException(status_code=500, detail=f"Failed to start workflow: {e!s}") from e
 
 
 @router.get("/simple/{workflow_id}", response_model=WorkflowResultResponse)
@@ -135,6 +136,7 @@ async def get_workflow_result(
 
     Raises:
         HTTPException: If the workflow is not found or still running
+
     """
     try:
         # This is a placeholder implementation
@@ -150,7 +152,7 @@ async def get_workflow_result(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve workflow: {str(e)}") from e
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve workflow: {e!s}") from e
 
 
 @router.get("/", response_model=list[dict])
@@ -174,6 +176,7 @@ async def list_workflows(
 
     Raises:
         HTTPException: If the request fails
+
     """
     try:
         # Placeholder implementation
@@ -192,7 +195,7 @@ async def list_workflows(
         ]
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to list workflows: {str(e)}") from e
+        raise HTTPException(status_code=500, detail=f"Failed to list workflows: {e!s}") from e
 
 
 async def _execute_workflow_async(workflow_service: WorkflowService, initial_task: str, _metadata: dict) -> None:
@@ -206,6 +209,7 @@ async def _execute_workflow_async(workflow_service: WorkflowService, initial_tas
         workflow_service: The workflow service instance
         initial_task: The initial task to execute
         metadata: Additional metadata for the workflow
+
     """
     try:
         # Create a WorkflowRequest object for the workflow service
@@ -234,7 +238,7 @@ async def _execute_workflow_async(workflow_service: WorkflowService, initial_tas
         import logging
 
         logger = logging.getLogger(__name__)
-        logger.error(f"Workflow execution failed: {str(e)}")
+        logger.error(f"Workflow execution failed: {e!s}")
 
 
 @router.get("/health")
@@ -244,5 +248,6 @@ async def workflow_health() -> dict[str, str]:
 
     Returns:
         Dict[str, str]: Health status information
+
     """
     return {"status": "healthy", "service": "workflow_service", "version": "1.0.0"}

@@ -2,10 +2,10 @@
 Flow Multi-Agente especializado que aproveita o sistema MCP existente
 """
 
+from enum import Enum
 import json
 import time
 import uuid
-from enum import Enum
 
 from pydantic import Field
 
@@ -190,11 +190,10 @@ class MultiAgentFlow(BaseFlow):
             # Broadcast failure
             await progress_broadcaster.broadcast_failure(task_id=self.current_task_id, error=str(e))
 
-            return f"Execution failed: {str(e)}"
+            return f"Execution failed: {e!s}"
 
     async def _determine_execution_approach(self, input_text: str) -> AgentApproach:
         """Determina a abordagem de execução baseada no modo e análise"""
-
         if self.execution_mode == ExecutionMode.FORCE_SINGLE:
             return AgentApproach.SINGLE_AGENT
         if self.execution_mode == ExecutionMode.FORCE_MULTI:
@@ -258,7 +257,7 @@ class MultiAgentFlow(BaseFlow):
 
         except Exception as e:
             logger.error(f"Single agent execution failed: {e}")
-            return f"Single agent execution failed: {str(e)}"
+            return f"Single agent execution failed: {e!s}"
 
     async def _execute_multi_agent(self, input_text: str, approach: AgentApproach) -> str:
         """Executa com múltiplos agentes usando o orquestrador"""
@@ -335,7 +334,7 @@ class MultiAgentFlow(BaseFlow):
 
         except Exception as e:
             logger.error(f"Multi-agent execution failed: {e}")
-            return f"Multi-agent execution failed: {str(e)}"
+            return f"Multi-agent execution failed: {e!s}"
 
     async def _create_execution_plan(self, input_text: str) -> None:
         """Cria um plano de execução usando a ferramenta de planejamento"""
@@ -414,7 +413,7 @@ class MultiAgentFlow(BaseFlow):
         self.execution_mode = mode
         logger.info(f"Execution mode set to: {mode.value}")
 
-    async def enable_features(self, planning: bool = None, coordination: bool = None):
+    async def enable_features(self, planning: bool | None = None, coordination: bool | None = None):
         """Habilita/desabilita features"""
         if planning is not None:
             self.enable_planning = planning
@@ -453,8 +452,9 @@ class MultiAgentFlow(BaseFlow):
 
             loop = asyncio.get_event_loop()
             if loop.is_running():
-                loop.create_task(self.cleanup())
+                # Create background cleanup task - intentionally not awaited
+                loop.create_task(self.cleanup())  # noqa: RUF006
             else:
                 loop.run_until_complete(self.cleanup())
-        except Exception:
-            pass  # Ignore cleanup errors during destruction
+        except Exception as e:
+            logger.warning(f"Cleanup failed during destruction: {e}")

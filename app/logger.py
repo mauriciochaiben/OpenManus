@@ -1,6 +1,6 @@
-import sys
 from datetime import datetime
 import logging
+import sys
 
 try:
     from loguru import logger as _logger  # type: ignore
@@ -12,9 +12,9 @@ from app.core.settings import settings
 _print_level = "INFO"
 
 
-def define_log_level(print_level="INFO", logfile_level="DEBUG", name: str = None):
+def define_log_level(print_level="INFO", logfile_level="DEBUG", name: str | None = None):
     """Adjust the log level to above level"""
-    global _print_level
+    global _print_level  # noqa: PLW0603
     _print_level = print_level
 
     current_date = datetime.now()

@@ -5,20 +5,21 @@ Este módulo contém testes abrangentes para o PlannerAgent, incluindo
 mock das chamadas LLM e validação de todas as funcionalidades.
 """
 
-import sys
 from pathlib import Path
+import sys
 
 # Adicionar o diretório raiz ao path para importações
 root_dir = Path(__file__).resolve().parent.parent.parent.parent
 if str(root_dir) not in sys.path:
     sys.path.insert(0, str(root_dir))
 
-from unittest.mock import AsyncMock, patch  # noqa: E402
+from unittest.mock import AsyncMock, patch
 
-import pytest  # noqa: E402
+import pytest
+
 pytest.importorskip("openai")
 
-from app.roles.planner_agent import PlannerAgent  # noqa: E402
+from app.roles.planner_agent import PlannerAgent
 
 
 class TestPlannerAgent:

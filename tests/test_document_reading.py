@@ -3,23 +3,24 @@
 Testes específicos para leitura de documentos
 """
 
-import asyncio
-import sys
-import tempfile
-from pathlib import Path
-
 import pytest
 
-# Adicionar o diretório raiz ao path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-import contextlib
-
-import pytest
+# Check dependencies early
 pytest.importorskip("PyPDF2")
 pytest.importorskip("python_docx")
 pytest.importorskip("openpyxl")
 
+# Standard library imports
+import asyncio
+import contextlib
+from pathlib import Path
+import sys
+import tempfile
+
+# Adicionar o diretório raiz ao path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Application imports
 from app.logger import logger
 from app.tool.document_analyzer import DocumentAnalyzer
 from app.tool.document_reader import AdvancedDocumentReader, DocumentReader
@@ -92,7 +93,7 @@ class TestDocumentReading:
             assert len(result) > 0
 
             # Debug: print the actual result
-            print(f"DEBUG: Result content: {repr(result)}")
+            print(f"DEBUG: Result content: {result!r}")
 
             # Check if it contains the expected content (convert to string if needed)
             result_str = str(result)
@@ -141,9 +142,9 @@ class TestDocumentReading:
                     assert isinstance(result, str)
                     logger.info(f"✅ Leitura de arquivo do workspace: {text_files[0]}")
                 else:
-                    logger.info("ℹ️  Nenhum arquivo .txt encontrado no workspace")
+                    logger.info("ⓘ  Nenhum arquivo .txt encontrado no workspace")
             else:
-                logger.info("ℹ️  Diretório workspace não encontrado")
+                logger.info("ⓘ  Diretório workspace não encontrado")
         except Exception as e:
             logger.warning(f"Falha na leitura de arquivos do workspace: {e}")
 

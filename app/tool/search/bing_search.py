@@ -1,5 +1,5 @@
-import requests
 from bs4 import BeautifulSoup
+import requests
 
 from app.logger import logger
 from app.tool.search.base import SearchItem, WebSearchEngine
@@ -51,6 +51,7 @@ class BingSearchEngine(WebSearchEngine):
 
         Returns:
             List[SearchItem]: A list of search items with title, URL, and description.
+
         """
         if not query:
             return []
@@ -80,6 +81,7 @@ class BingSearchEngine(WebSearchEngine):
 
         Returns:
             tuple: (List of SearchItem objects, next page URL or None)
+
         """
         try:
             res = self.session.get(url=url)
@@ -118,8 +120,8 @@ class BingSearchEngine(WebSearchEngine):
                             description=abstract,
                         )
                     )
-                except Exception:
-                    continue
+                except Exception:  # nosec  # noqa: S112
+                    continue  # Skip malformed search results
 
             next_btn = root.find("a", title="Next page")
             if not next_btn:

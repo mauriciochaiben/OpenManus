@@ -1,12 +1,12 @@
 import asyncio
-from typing import Any
+from typing import Any, ClassVar
 
-import requests
 from bs4 import BeautifulSoup
 from pydantic import ConfigDict
-from app.compat import BaseModel, Field, model_validator
+import requests
 from tenacity import retry, stop_after_attempt, wait_exponential
 
+from app.compat import BaseModel, Field, model_validator
 from app.core.settings import settings
 from app.logger import logger
 from app.tool.base import BaseTool, ToolResult
@@ -110,6 +110,7 @@ class WebContentFetcher:
 
         Returns:
             Extracted text content or None if fetching fails
+
         """
         headers = {
             "WebSearch": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -151,7 +152,7 @@ class WebSearch(BaseTool):
     description: str = """Search the web for real-time information about any topic.
     This tool returns comprehensive search results with relevant information, URLs, titles, and descriptions.
     If the primary search engine fails, it automatically falls back to alternative engines."""
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "query": {
@@ -181,7 +182,7 @@ class WebSearch(BaseTool):
         },
         "required": ["query"],
     }
-    _search_engine: dict[str, WebSearchEngine] = {
+    _search_engine: ClassVar[dict[str, WebSearchEngine]] = {
         "google": GoogleSearchEngine(),
         "baidu": BaiduSearchEngine(),
         "duckduckgo": DuckDuckGoSearchEngine(),
@@ -209,6 +210,7 @@ class WebSearch(BaseTool):
 
         Returns:
             A structured response containing search results and metadata
+
         """
         # Get settings from centralized configuration
         retry_delay = settings.search_config.retry_delay
@@ -283,7 +285,7 @@ class WebSearch(BaseTool):
                 SearchResult(
                     position=i + 1,
                     url=item.url,
-                    title=item.title or f"Result {i+1}",  # Ensure we always have a title
+                    title=item.title or f"Result {i + 1}",  # Ensure we always have a title
                     description=item.description or "",
                     source=engine_name,
                 )

@@ -2,10 +2,10 @@
 Ferramentas MCP especializadas para coordenação multi-agente
 """
 
-import json
-import uuid
 from datetime import datetime
-from typing import Any
+import json
+from typing import Any, ClassVar
+import uuid
 
 from app.logger import logger
 from app.tool.base import BaseTool, ToolResult
@@ -16,7 +16,7 @@ class CoordinationTool(BaseTool):
 
     name: str = "coordination"
     description: str = "Coordena ações entre múltiplos agentes"
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "action": {
@@ -52,9 +52,9 @@ class CoordinationTool(BaseTool):
     }
 
     # Campos de estado como atributos de classe
-    message_queue: dict[str, list[dict]] = {}
-    agent_registry: dict[str, dict] = {}
-    task_delegations: dict[str, dict] = {}
+    message_queue: ClassVar[dict[str, list[dict]]] = {}
+    agent_registry: ClassVar[dict[str, dict]] = {}
+    task_delegations: ClassVar[dict[str, dict]] = {}
 
     def __init__(self):
         super().__init__()
@@ -68,12 +68,11 @@ class CoordinationTool(BaseTool):
     async def execute(
         self,
         action: str,
-        target_agent: str = None,
-        message: str = None,
-        task_data: dict = None,
+        target_agent: str | None = None,
+        message: str | None = None,
+        task_data: dict | None = None,
     ) -> ToolResult:
         """Implementa comunicação inter-agentes via MCP"""
-
         try:
             if action == "send_message":
                 return await self._send_message(target_agent, message)
@@ -89,7 +88,7 @@ class CoordinationTool(BaseTool):
 
         except Exception as e:
             logger.error(f"Error in coordination tool: {e}")
-            return ToolResult(error=f"Coordination error: {str(e)}")
+            return ToolResult(error=f"Coordination error: {e!s}")
 
     async def _send_message(self, target_agent: str, message: str) -> ToolResult:
         """Envia mensagem para um agente específico"""
@@ -134,7 +133,7 @@ class CoordinationTool(BaseTool):
         logger.info(f"Broadcast sent to {sent_count} agents: {message[:50]}...")
         return ToolResult(output=f"Broadcast sent to {sent_count} agents")
 
-    async def _request_status(self, target_agent: str = None) -> ToolResult:
+    async def _request_status(self, target_agent: str | None = None) -> ToolResult:
         """Solicita status de um agente ou todos os agentes"""
         if target_agent:
             status = self.agent_registry.get(target_agent, {})
@@ -183,7 +182,7 @@ class DistributedMemoryTool(BaseTool):
 
     name: str = "distributed_memory"
     description: str = "Gerencia memória compartilhada entre agentes"
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "operation": {
@@ -207,7 +206,7 @@ class DistributedMemoryTool(BaseTool):
     }
 
     # Campo de estado como atributo de classe
-    memory_store: dict[str, dict[str, Any]] = {}
+    memory_store: ClassVar[dict[str, dict[str, Any]]] = {}
 
     def __init__(self):
         super().__init__()
@@ -219,13 +218,12 @@ class DistributedMemoryTool(BaseTool):
     async def execute(
         self,
         operation: str,
-        key: str = None,
-        value: str = None,
+        key: str | None = None,
+        value: str | None = None,
         namespace: str = "default",
-        query: str = None,
+        query: str | None = None,
     ) -> ToolResult:
         """Implementa operações de memória compartilhada"""
-
         try:
             if operation == "store":
                 return await self._store(namespace, key, value)
@@ -241,7 +239,7 @@ class DistributedMemoryTool(BaseTool):
 
         except Exception as e:
             logger.error(f"Error in distributed memory tool: {e}")
-            return ToolResult(error=f"Memory error: {str(e)}")
+            return ToolResult(error=f"Memory error: {e!s}")
 
     async def _store(self, namespace: str, key: str, value: str) -> ToolResult:
         """Armazena valor na memória"""
@@ -318,7 +316,7 @@ class TaskRoutingTool(BaseTool):
 
     name: str = "task_routing"
     description: str = "Roteia tarefas para agentes especializados"
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "action": {
@@ -352,7 +350,7 @@ class TaskRoutingTool(BaseTool):
     }
 
     # Campo de estado como atributo de classe
-    agent_capabilities: dict[str, dict] = {
+    agent_capabilities: ClassVar[dict[str, dict]] = {
         "code": {
             "specializations": ["development", "programming", "debugging"],
             "capabilities": ["bash", "editor", "python", "git"],
@@ -389,12 +387,11 @@ class TaskRoutingTool(BaseTool):
     async def execute(
         self,
         action: str,
-        task: str = None,
-        requirements: list[str] = None,
-        agent_info: dict = None,
+        task: str | None = None,
+        requirements: list[str] | None = None,
+        agent_info: dict | None = None,
     ) -> ToolResult:
         """Analisa tarefa e roteia para agente adequado"""
-
         try:
             if action == "analyze_task":
                 return await self._analyze_task(task)
@@ -408,7 +405,7 @@ class TaskRoutingTool(BaseTool):
 
         except Exception as e:
             logger.error(f"Error in task routing tool: {e}")
-            return ToolResult(error=f"Routing error: {str(e)}")
+            return ToolResult(error=f"Routing error: {e!s}")
 
     async def _analyze_task(self, task: str) -> ToolResult:
         """Analisa uma tarefa e identifica requisitos"""
@@ -449,7 +446,7 @@ class TaskRoutingTool(BaseTool):
 
         return ToolResult(output=json.dumps(analysis))
 
-    async def _route_task(self, task: str, requirements: list[str] = None) -> ToolResult:
+    async def _route_task(self, task: str, requirements: list[str] | None = None) -> ToolResult:
         """Roteia tarefa para o melhor agente"""
         if not task:
             return ToolResult(error="Task description is required")
@@ -497,7 +494,7 @@ class TaskRoutingTool(BaseTool):
 
         return ToolResult(output=json.dumps(result))
 
-    async def _get_recommendations(self, task: str, requirements: list[str] = None) -> ToolResult:
+    async def _get_recommendations(self, task: str, requirements: list[str] | None = None) -> ToolResult:
         """Obtém recomendações detalhadas para roteamento"""
         routing_result = await self._route_task(task, requirements)
         routing_data = json.loads(routing_result.output)

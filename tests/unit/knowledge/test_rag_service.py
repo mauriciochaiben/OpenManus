@@ -1,12 +1,16 @@
+import pytest
+
+# Check dependencies early
+pytest.importorskip("chromadb")
+
+# Standard library imports
 import sys
 from typing import Any
 from unittest.mock import AsyncMock, Mock
 
-import pytest
-pytest.importorskip("chromadb")
-
 sys.path.append("/Users/mauriciochaiben/OpenManus")
 
+# Application imports
 from app.knowledge.infrastructure.vector_store_client import VectorStoreClient
 from app.knowledge.services.embedding_service import EmbeddingService
 from app.knowledge.services.rag_service import RagService

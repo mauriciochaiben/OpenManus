@@ -1,13 +1,19 @@
-import asyncio
-import tempfile
-from collections.abc import AsyncGenerator
-from pathlib import Path
-
 import pytest
+
+# Check dependencies early
 pytest.importorskip("pytest_asyncio")
 pytest.importorskip("docker")
+
+# Standard library imports
+import asyncio
+from collections.abc import AsyncGenerator
+from pathlib import Path
+import tempfile
+
+# Third-party imports
 import pytest_asyncio
 
+# Application imports
 from app.sandbox.core.manager import SandboxManager
 
 

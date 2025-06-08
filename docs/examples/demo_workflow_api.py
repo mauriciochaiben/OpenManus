@@ -54,7 +54,7 @@ async def demo_direct_service():
         print(f"   - Failed steps: {result.get('failed_steps', 0)}")
 
     except Exception as e:
-        print(f"❌ Workflow failed: {str(e)}")
+        print(f"❌ Workflow failed: {e!s}")
 
 
 def demo_api_endpoint():
@@ -105,7 +105,7 @@ def demo_api_endpoint():
             print(f"❌ API request failed: {response.text}")
 
     except requests.exceptions.RequestException as e:
-        print(f"❌ API request error: {str(e)}")
+        print(f"❌ API request error: {e!s}")
         print("   Make sure the development server is running: ./start_dev.sh")
 
 
@@ -129,7 +129,7 @@ def demo_health_check():
             print(f"❌ Health check failed: {response.status_code}")
 
     except requests.exceptions.RequestException as e:
-        print(f"❌ Health check error: {str(e)}")
+        print(f"❌ Health check error: {e!s}")
 
 
 def demo_validation_errors():
@@ -164,7 +164,7 @@ def demo_validation_errors():
                 print(f"  ❓ Unexpected response: {response.text[:100]}")
 
         except requests.exceptions.RequestException as e:
-            print(f"  ❌ Request error: {str(e)}")
+            print(f"  ❌ Request error: {e!s}")
 
 
 async def main():

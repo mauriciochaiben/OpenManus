@@ -1,5 +1,6 @@
 """
 Exemplo prático de uso do sistema de configuração centralizado
+
 Demonstra como diferentes partes do sistema podem acessar configurações
 de forma consistente e segura.
 """
@@ -184,7 +185,6 @@ class ExampleEnvironmentAwareService:
 
 def demonstrate_configuration_usage():
     """Demonstra o uso prático das configurações"""
-
     print("🚀 Demonstração do Sistema de Configuração Centralizado\n")
 
     # Informações básicas do ambiente

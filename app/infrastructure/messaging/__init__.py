@@ -10,10 +10,10 @@ from .event_bus import (
 )
 
 __all__ = [
-    "EventBus",
     "Event",
+    "EventBus",
     "TaskCreatedEvent",
-    "TaskUpdatedEvent",
     "TaskProgressEvent",
+    "TaskUpdatedEvent",
     "event_bus",
 ]

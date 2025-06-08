@@ -6,9 +6,9 @@ import asyncio
 import os
 from typing import Any
 
-import mcp.server.stdio
-import mcp.types as types
+from mcp import types
 from mcp.server import NotificationOptions, Server
+import mcp.server.stdio
 from mcp.types import InitializeResult, Resource, Tool
 
 # Configuração centralizada via settings
@@ -258,7 +258,6 @@ async def handle_call_tool(
     name: str, arguments: dict[str, Any]
 ) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
     """Executa ferramentas de pesquisa"""
-
     if name == "research_web_search":
         query = arguments.get("query")
         sources = arguments.get("sources", ["google"])
@@ -271,8 +270,8 @@ async def handle_call_tool(
             for i in range(min(max_results, 5)):
                 results.append(
                     {
-                        "title": f"Search result {i+1} for '{query}'",
-                        "url": f"https://example.com/result{i+1}",
+                        "title": f"Search result {i + 1} for '{query}'",
+                        "url": f"https://example.com/result{i + 1}",
                         "snippet": f"This is a simulated search result snippet for {query}",
                         "source": sources[0] if sources else "web",
                     }
@@ -287,7 +286,7 @@ async def handle_call_tool(
             ]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error in web search: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error in web search: {e!s}")]
 
     elif name == "research_data_analysis":
         data_source = arguments.get("data_source")
@@ -333,7 +332,7 @@ async def handle_call_tool(
             ]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error in data analysis: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error in data analysis: {e!s}")]
 
     elif name == "research_document_processing":
         document_path = arguments.get("document_path")
@@ -356,7 +355,7 @@ async def handle_call_tool(
             return [types.TextContent(type="text", text=f"Operation {operation} not yet implemented")]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error processing document: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error processing document: {e!s}")]
 
     elif name == "research_fact_check":
         statement = arguments.get("statement")
@@ -387,7 +386,7 @@ async def handle_call_tool(
             ]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error in fact-checking: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error in fact-checking: {e!s}")]
 
     elif name == "research_trend_analysis":
         topic = arguments.get("topic")
@@ -422,7 +421,7 @@ async def handle_call_tool(
             ]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error in trend analysis: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error in trend analysis: {e!s}")]
 
     else:
         return [types.TextContent(type="text", text=f"Unknown tool: {name}")]

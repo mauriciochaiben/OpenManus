@@ -47,14 +47,14 @@ class LocalFileOperator(FileOperator):
         try:
             return Path(path).read_text(encoding=self.encoding)
         except Exception as e:
-            raise ToolError(f"Failed to read {path}: {str(e)}") from None
+            raise ToolError(f"Failed to read {path}: {e!s}") from None
 
     async def write_file(self, path: PathLike, content: str) -> None:
         """Write content to a local file."""
         try:
             Path(path).write_text(content, encoding=self.encoding)
         except Exception as e:
-            raise ToolError(f"Failed to write to {path}: {str(e)}") from None
+            raise ToolError(f"Failed to write to {path}: {e!s}") from None
 
     async def is_directory(self, path: PathLike) -> bool:
         """Check if path points to a directory."""
@@ -100,7 +100,7 @@ class SandboxFileOperator(FileOperator):
         try:
             return await self.sandbox_client.read_file(str(path))
         except Exception as e:
-            raise ToolError(f"Failed to read {path} in sandbox: {str(e)}") from None
+            raise ToolError(f"Failed to read {path} in sandbox: {e!s}") from None
 
     async def write_file(self, path: PathLike, content: str) -> None:
         """Write content to a file in sandbox."""
@@ -108,7 +108,7 @@ class SandboxFileOperator(FileOperator):
         try:
             await self.sandbox_client.write_file(str(path), content)
         except Exception as e:
-            raise ToolError(f"Failed to write to {path} in sandbox: {str(e)}") from None
+            raise ToolError(f"Failed to write to {path} in sandbox: {e!s}") from None
 
     async def is_directory(self, path: PathLike) -> bool:
         """Check if path points to a directory in sandbox."""
@@ -135,4 +135,4 @@ class SandboxFileOperator(FileOperator):
         except TimeoutError as exc:
             raise TimeoutError(f"Command '{cmd}' timed out after {timeout} seconds in sandbox") from exc
         except Exception as exc:
-            return 1, "", f"Error executing command in sandbox: {str(exc)}"
+            return 1, "", f"Error executing command in sandbox: {exc!s}"

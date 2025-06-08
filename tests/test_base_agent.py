@@ -5,12 +5,17 @@ Este teste valida que a nova classe BaseAgent está funcionando corretamente
 e que implementações concretas seguem a interface definida.
 """
 
-import asyncio
-
 import pytest
+
+# Check dependencies early
 pytest.importorskip("openai")
 pytest.importorskip("tiktoken")
 
+# Standard library imports
+import asyncio
+import sys
+
+# Application imports
 from app.agent.base_agent import BaseAgent
 from app.agent.example_agent import ExampleAgent
 from app.logger import logger
@@ -168,6 +173,6 @@ if __name__ == "__main__":
             print("✨ Validação concluída com sucesso!")
         else:
             print("💥 Validação falhou!")
-            exit(1)
+            sys.exit(1)
 
     asyncio.run(main())

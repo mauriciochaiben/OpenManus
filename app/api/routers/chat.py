@@ -1,9 +1,9 @@
 """Chat API router for OpenManus"""
 
-import json
-import uuid
 from datetime import datetime
+import json
 from typing import Any
+import uuid
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
@@ -271,7 +271,7 @@ O OpenManus é um sistema multi-agente que executa tarefas complexas:
             or "insufficient_quota" in error_msg
             or "retryerror" in error_msg
         ):
-            logger.warning("Rate limit/quota error detected, " "attempting with system fallback: {str(e)}")
+            logger.warning("Rate limit/quota error detected, attempting with system fallback: {str(e)}")
 
             # Try using mock LLM for system queries
             if is_system_query:
@@ -304,7 +304,7 @@ O sistema está enfrentando limitações temporárias de recursos externos.
 • Simplifique sua solicitação
 • Use consultas sobre o sistema enquanto isso
 
-**Detalhes técnicos:** {str(e)}"""
+**Detalhes técnicos:** {e!s}"""
                 suggestions = [
                     "Tentar novamente em 5 minutos",
                     "Simplificar a tarefa",
@@ -313,10 +313,10 @@ O sistema está enfrentando limitações temporárias de recursos externos.
                 ]
         else:
             # For other types of errors, use generic error handling
-            logger.error(f"Erro ao processar mensagem: {str(e)}")
+            logger.error(f"Erro ao processar mensagem: {e!s}")
             response_content = (
                 f"❌ **Erro ao processar tarefa**\n\n"
-                f"Ocorreu um erro durante a execução: {str(e)}\n\n"
+                f"Ocorreu um erro durante a execução: {e!s}\n\n"
                 f"Tente reformular sua solicitação ou verificar se os recursos "
                 f"necessários estão disponíveis."
             )

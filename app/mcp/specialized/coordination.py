@@ -7,9 +7,9 @@ import json
 import os
 from typing import Any
 
-import mcp.server.stdio
-import mcp.types as types
+from mcp import types
 from mcp.server import NotificationOptions, Server
+import mcp.server.stdio
 from mcp.types import InitializeResult, Resource, Tool
 
 # Configuração centralizada via settings
@@ -249,7 +249,6 @@ async def handle_list_tools() -> list[Tool]:
 @server.call_tool()
 async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[types.TextContent]:
     """Executa ferramentas de coordenação"""
-
     if name == "coord_task_routing":
         task_description = arguments.get("task_description")
         task_type = arguments.get("task_type")
@@ -290,7 +289,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[types.T
             ]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error in task routing: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error in task routing: {e!s}")]
 
     elif name == "coord_memory_operations":
         operation = arguments.get("operation")
@@ -333,7 +332,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[types.T
             ]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error in memory operation: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error in memory operation: {e!s}")]
 
     elif name == "coord_agent_communication":
         action = arguments.get("action")
@@ -363,7 +362,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[types.T
             return [types.TextContent(type="text", text=result)]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error in agent communication: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error in agent communication: {e!s}")]
 
     elif name == "coord_agent_registry":
         action = arguments.get("action")
@@ -406,7 +405,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[types.T
             ]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error in agent registry: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error in agent registry: {e!s}")]
 
     elif name == "coord_workload_analysis":
         analysis_type = arguments.get("analysis_type")
@@ -445,7 +444,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[types.T
             ]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error in workload analysis: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error in workload analysis: {e!s}")]
 
     else:
         return [types.TextContent(type="text", text=f"Unknown tool: {name}")]

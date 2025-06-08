@@ -1,11 +1,16 @@
 """Tests for the AsyncDockerizedTerminal implementation."""
 
 import pytest
+
+# Check dependencies early
 pytest.importorskip("pytest_asyncio")
 pytest.importorskip("docker")
+
+# Third-party imports
 import docker
 import pytest_asyncio
 
+# Application imports
 from app.sandbox.core.terminal import AsyncDockerizedTerminal
 
 

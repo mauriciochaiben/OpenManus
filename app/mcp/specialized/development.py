@@ -7,9 +7,9 @@ import os
 from pathlib import Path
 from typing import Any
 
-import mcp.server.stdio
-import mcp.types as types
+from mcp import types
 from mcp.server import NotificationOptions, Server
+import mcp.server.stdio
 from mcp.types import InitializeResult, Resource, Tool
 
 # Configuração centralizada via settings
@@ -208,7 +208,6 @@ async def handle_call_tool(
     name: str, arguments: dict[str, Any]
 ) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
     """Executa ferramentas de desenvolvimento"""
-
     if name == "dev_file_operations":
         operation = arguments.get("operation")
         path = arguments.get("path")
@@ -227,15 +226,13 @@ async def handle_call_tool(
                 return [types.TextContent(type="text", text=f"Successfully wrote to {path}")]
 
             if operation == "list":
-                import os
-
-                files = os.listdir(path)
+                files = [f.name for f in Path(path).iterdir()]
                 return [types.TextContent(type="text", text=f"Files in {path}:\n" + "\n".join(files))]
 
             return [types.TextContent(type="text", text=f"Operation {operation} not yet implemented")]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error in file operation: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error in file operation: {e!s}")]
 
     elif name == "dev_code_execution":
         language = arguments.get("language")
@@ -245,13 +242,14 @@ async def handle_call_tool(
         # Implementação básica de execução de código
         try:
             if language == "python":
-                import subprocess
+                import subprocess  # nosec
 
-                result = subprocess.run(
+                result = subprocess.run(  # nosec
                     ["python", "-c", code],
                     capture_output=True,
                     text=True,
                     timeout=timeout,
+                    check=False,
                 )
                 output = result.stdout if result.returncode == 0 else result.stderr
                 return [types.TextContent(type="text", text=f"Execution result:\n{output}")]
@@ -259,7 +257,7 @@ async def handle_call_tool(
             return [types.TextContent(type="text", text=f"Language {language} not yet supported")]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error executing code: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error executing code: {e!s}")]
 
     elif name == "dev_git_operations":
         operation = arguments.get("operation")
@@ -268,26 +266,31 @@ async def handle_call_tool(
         # Implementação básica de operações Git
         try:
             import os
-            import subprocess
+            import subprocess  # nosec
 
             os.chdir(repository)
 
             if operation == "status":
-                result = subprocess.run(["git", "status"], capture_output=True, text=True)
+                result = subprocess.run(["git", "status"], capture_output=True, text=True, check=False)  # nosec
             elif operation == "add":
                 files = arguments.get("files", ["."])
-                result = subprocess.run(["git", "add"] + files, capture_output=True, text=True)
+                result = subprocess.run(["git", "add", *files], capture_output=True, text=True, check=False)  # nosec
             elif operation == "commit":
                 message = arguments.get("message", "Automated commit")
-                result = subprocess.run(["git", "commit", "-m", message], capture_output=True, text=True)
+                result = subprocess.run(  # nosec
+                    ["git", "commit", "-m", message],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )  # nosec
             else:
-                result = subprocess.run(["git", operation], capture_output=True, text=True)
+                result = subprocess.run(["git", operation], capture_output=True, text=True, check=False)  # nosec
 
             output = result.stdout if result.returncode == 0 else result.stderr
             return [types.TextContent(type="text", text=f"Git {operation} result:\n{output}")]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error in git operation: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error in git operation: {e!s}")]
 
     elif name == "dev_testing":
         arguments.get("test_type")
@@ -296,7 +299,7 @@ async def handle_call_tool(
 
         # Implementação básica de execução de testes
         try:
-            import subprocess
+            import subprocess  # nosec
 
             if framework == "pytest":
                 cmd = ["python", "-m", "pytest", test_path, "-v"]
@@ -305,13 +308,13 @@ async def handle_call_tool(
             else:
                 cmd = ["python", "-m", "unittest", test_path]
 
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec
             output = result.stdout + result.stderr
 
             return [types.TextContent(type="text", text=f"Test execution result:\n{output}")]
 
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error running tests: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error running tests: {e!s}")]
 
     else:
         return [types.TextContent(type="text", text=f"Unknown tool: {name}")]

@@ -1,4 +1,5 @@
 import math
+from typing import ClassVar
 
 try:
     import tiktoken
@@ -103,7 +104,7 @@ class TokenCounter:
         # OpenAI doesn't specify a separate calculation for medium
 
         # For high detail, calculate based on dimensions if available
-        if (detail == "high" or detail == "medium") and "dimensions" in image_item:
+        if (detail in {"high", "medium"}) and "dimensions" in image_item:
             width, height = image_item["dimensions"]
             return self._calculate_high_detail_tokens(width, height)
 
@@ -187,7 +188,7 @@ class TokenCounter:
 
 
 class LLM:
-    _instances: dict[str, "LLM"] = {}
+    _instances: ClassVar[dict[str, "LLM"]] = {}
 
     def __new__(cls, config_name: str = "default", llm_config: LLMSettings | None = None):
         if config_name not in cls._instances:
@@ -253,7 +254,7 @@ class LLM:
 
         # Add all available fallback configs
         for config_key in llm_configs:
-            if config_key != "default" and config_key != self.config_name:
+            if config_key not in ("default", self.config_name):
                 try:
                     fallback_config = llm_configs[config_key]
                     fallback_configs.append((config_key, fallback_config))
@@ -291,7 +292,7 @@ class LLM:
                 # Try fallback configurations
                 for fallback_name, _ in self.fallback_configs:
                     try:
-                        logger.info("Trying fallback configuration: " "{fallback_name}")
+                        logger.info("Trying fallback configuration: {fallback_name}")
 
                         # Create temporary fallback instance
                         fallback_llm = LLM(fallback_name)
@@ -303,13 +304,13 @@ class LLM:
                         else:
                             raise ValueError(f"Unknown method: {method_name}")
 
-                        logger.info("Successfully used fallback: " "{fallback_name}")
+                        logger.info("Successfully used fallback: {fallback_name}")
                         return result
 
                     except (RateLimitError, Exception) as fe:
                         fallback_error_msg = str(fe).lower()
                         if "insufficient_quota" in fallback_error_msg or "quota" in fallback_error_msg:
-                            logger.warning(f"Fallback {fallback_name} " "also has quota exhausted: {fe}")
+                            logger.warning(f"Fallback {fallback_name} also has quota exhausted: {{fe}}")
                         elif isinstance(fe, RateLimitError) or "rate limit" in fallback_error_msg:
                             logger.warning(f"Fallback {fallback_name} also rate limited: {fe}")
                         else:
@@ -417,9 +418,10 @@ class LLM:
             >>> msgs = [
             ...     Message.system_message("You are a helpful assistant"),
             ...     {"role": "user", "content": "Hello"},
-            ...     Message.user_message("How are you?")
+            ...     Message.user_message("How are you?"),
             ... ]
             >>> formatted = LLM.format_messages(msgs)
+
         """
         formatted_messages = []
 
@@ -451,7 +453,7 @@ class LLM:
                     message["content"].append(
                         {
                             "type": "image_url",
-                            "image_url": {"url": "data:image/jpeg;" "base64,{message['base64_image']}"},
+                            "image_url": {"url": "data:image/jpeg;base64,{message['base64_image']}"},
                         }
                     )
 
@@ -514,6 +516,7 @@ class LLM:
             ValueError: If messages are invalid or response is empty
             OpenAIError: If API call fails after retries
             Exception: For unexpected errors
+
         """
         try:
             # Throttle requests to prevent rate limits
@@ -583,7 +586,7 @@ class LLM:
 
             # estimate completion tokens for streaming response
             completion_tokens = self.count_tokens(completion_text)
-            logger.info("Estimated completion tokens for " "streaming response: {completion_tokens}")
+            logger.info("Estimated completion tokens for streaming response: {completion_tokens}")
             self.total_completion_tokens += completion_tokens
 
             return full_response
@@ -638,12 +641,13 @@ class LLM:
             ValueError: If messages are invalid or response is empty
             OpenAIError: If API call fails after retries
             Exception: For unexpected errors
+
         """
         try:
             # For ask_with_images, we always set supports_images to True because
             # this method should only be called with models that support images
             if self.model not in MULTIMODAL_MODELS:
-                raise ValueError(f"Model {self.model} does not support " "images. Use a model from {MULTIMODAL_MODELS}")
+                raise ValueError(f"Model {self.model} does not support images. Use a model from {{MULTIMODAL_MODELS}}")
 
             # Format messages with image support
             formatted_messages = self.format_messages(messages, supports_images=True)
@@ -809,6 +813,7 @@ class LLM:
             ValueError: If tools, tool_choice, or messages are invalid
             OpenAIError: If API call fails after retries
             Exception: For unexpected errors
+
         """
         try:
             # Throttle requests to prevent rate limits

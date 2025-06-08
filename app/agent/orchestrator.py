@@ -172,8 +172,11 @@ class MCPAgentOrchestrator:
                     self.specialized_agents[agent_id] = await Manus.create()
 
     async def route_task_to_agent(self, task: Task) -> str:
-        """Roteia tarefa para o agente mais adequado baseado nas ferramentas
-        MCP necessárias"""
+        """
+        Roteia tarefa para o agente mais adequado baseado nas ferramentas
+
+        MCP necessárias
+        """
         logger.info(f"Routing task: {task.description[:100]}...")
 
         # Analisar a tarefa
@@ -218,7 +221,7 @@ class MCPAgentOrchestrator:
             return result
         except Exception as e:
             task.status = "failed"
-            task.result = f"Error: {str(e)}"
+            task.result = f"Error: {e!s}"
             logger.error(f"Task failed on {agent_id}: {e}")
             return task.result
 
@@ -244,7 +247,7 @@ class MCPAgentOrchestrator:
             progress = 70 + (i / len(subtasks)) * 15  # 70-85% range
             await progress_broadcaster.broadcast_progress(
                 task_id=f"orch_{hash(task.description) % 10000}",
-                stage=f"Executando etapa {i+1}/{len(subtasks)}",
+                stage=f"Executando etapa {i + 1}/{len(subtasks)}",
                 progress=progress,
                 execution_type="multi",
                 step_number=i + 1,
@@ -255,7 +258,7 @@ class MCPAgentOrchestrator:
             agent_id = subtask.assigned_agent or self._select_best_agent({subtask.description})
             agent = self.specialized_agents.get(agent_id, self.specialized_agents["default"])
 
-            logger.info(f"Executing subtask {i+1}/{len(subtasks)} with {agent_id}")
+            logger.info(f"Executing subtask {i + 1}/{len(subtasks)} with {agent_id}")
 
             try:
                 # Incluir contexto dos resultados anteriores
@@ -263,12 +266,12 @@ class MCPAgentOrchestrator:
                 full_description = f"{context}Current task: {subtask.description}"
 
                 result = await agent.run(full_description)
-                results.append(f"Step {i+1}: {result}")
+                results.append(f"Step {i + 1}: {result}")
                 subtask.status = "completed"
                 subtask.result = result
 
             except Exception as e:
-                error_msg = f"Step {i+1} failed: {str(e)}"
+                error_msg = f"Step {i + 1} failed: {e!s}"
                 results.append(error_msg)
                 subtask.status = "failed"
                 logger.error(f"Subtask failed: {e}")
@@ -316,7 +319,7 @@ class MCPAgentOrchestrator:
                 return f"{agent_id}: {result}"
             except Exception as e:
                 subtask.status = "failed"
-                error_msg = f"{agent_id} failed: {str(e)}"
+                error_msg = f"{agent_id} failed: {e!s}"
                 subtask.result = error_msg
                 return error_msg
 
@@ -370,7 +373,7 @@ class MCPAgentOrchestrator:
             subtask = Task(
                 description=subtask_description,
                 priority=task.priority,
-                dependencies=[] if parallel else [f"task_{i-1}"] if i > 0 else [],
+                dependencies=[] if parallel else [f"task_{i - 1}"] if i > 0 else [],
                 assigned_agent=agent_id,
             )
             subtasks.append(subtask)

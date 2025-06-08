@@ -1,7 +1,7 @@
 """Test file to verify execution."""
 
-import logging
 from dataclasses import dataclass
+import logging
 
 print("Starting execution")
 print("re imported")

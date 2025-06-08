@@ -1,9 +1,9 @@
+from datetime import datetime
 import json
 import sys
 import time
-import uuid
-from datetime import datetime
 from typing import Literal
+import uuid
 
 import boto3
 
@@ -101,7 +101,7 @@ class ChatCompletions:
                         "input": json.loads(openai_tool_calls[0]["function"]["arguments"]),
                     }
                     bedrock_message["content"].append({"toolUse": bedrock_tool_use})
-                    global CURRENT_TOOLUSE_ID
+                    global CURRENT_TOOLUSE_ID  # noqa: PLW0603
                     CURRENT_TOOLUSE_ID = openai_tool_calls[0]["id"]
                 bedrock_messages.append(bedrock_message)
             elif message.get("role") == "tool":
@@ -136,7 +136,7 @@ class ChatCompletions:
             for content_item in bedrock_response["output"]["message"]["content"]:
                 if content_item.get("toolUse"):
                     bedrock_tool_use = content_item["toolUse"]
-                    global CURRENT_TOOLUSE_ID
+                    global CURRENT_TOOLUSE_ID  # noqa: PLW0603
                     CURRENT_TOOLUSE_ID = bedrock_tool_use["toolUseId"]
                     openai_tool_call = {
                         "id": CURRENT_TOOLUSE_ID,
@@ -249,7 +249,7 @@ class ChatCompletions:
                         "name": bedrock_tool_use["name"],
                     }
                     bedrock_response["output"]["message"]["content"].append({"toolUse": tool_use})
-                    global CURRENT_TOOLUSE_ID
+                    global CURRENT_TOOLUSE_ID  # noqa: PLW0603
                     CURRENT_TOOLUSE_ID = bedrock_tool_use["toolUseId"]
                 if event.get("contentBlockDelta", {}).get("delta", {}).get("toolUse"):
                     bedrock_response_tool_input += event["contentBlockDelta"]["delta"]["toolUse"]["input"]

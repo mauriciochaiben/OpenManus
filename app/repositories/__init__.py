@@ -5,8 +5,8 @@ from .interfaces import DocumentRepository, TaskRepository
 from .task_repository import InMemoryTaskRepository
 
 __all__ = [
-    "TaskRepository",
     "DocumentRepository",
-    "InMemoryTaskRepository",
     "InMemoryDocumentRepository",
+    "InMemoryTaskRepository",
+    "TaskRepository",
 ]

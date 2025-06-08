@@ -7,8 +7,8 @@ mostrando como ele decompõe diversos tipos de tarefas em passos executáveis.
 """
 
 import asyncio
-import sys
 from pathlib import Path
+import sys
 
 from app.roles.planner_agent import PlannerAgent
 
@@ -156,7 +156,7 @@ async def benchmark_planner_performance():
     print(f"   • Sucessos: {successful}/{len(tasks)}")
     print(f"   • Total de passos gerados: {total_steps}")
     print(f"   • Tempo total: {end_time - start_time:.2f}s")
-    print(f"   • Média por tarefa: {(end_time - start_time)/len(tasks):.3f}s")
+    print(f"   • Média por tarefa: {(end_time - start_time) / len(tasks):.3f}s")
 
 
 if __name__ == "__main__":

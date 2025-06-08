@@ -18,6 +18,7 @@ Opções:
 import argparse
 import json
 import os
+from pathlib import Path
 import platform
 import shutil
 import signal
@@ -25,7 +26,6 @@ import subprocess
 import sys
 import time
 import venv
-from pathlib import Path
 
 
 # Cores para output
@@ -67,7 +67,7 @@ def print_error(message: str):
 
 def print_info(message: str):
     """Print info message"""
-    print_colored(f"ℹ️  {message}", Colors.CYAN)
+    print_colored(f"ⓘ  {message}", Colors.CYAN)
 
 
 class OpenManusSetup:
@@ -141,7 +141,7 @@ class OpenManusSetup:
             self.cleanup()
             sys.exit(1)
         except Exception as e:
-            print_error(f"Erro durante setup: {str(e)}")
+            print_error(f"Erro durante setup: {e!s}")
             self.cleanup()
             sys.exit(1)
 
@@ -152,7 +152,7 @@ class OpenManusSetup:
         # Verificar Python
         if sys.version_info < self.required_python_version:
             print_error(
-                f"Python {'.'.join(map(str, self.required_python_version))}+ necessário. " f"Encontrado: {sys.version}"
+                f"Python {'.'.join(map(str, self.required_python_version))}+ necessário. Encontrado: {sys.version}"
             )
             sys.exit(1)
 
@@ -183,7 +183,7 @@ class OpenManusSetup:
         # Verificar Docker (opcional)
         if shutil.which("docker"):
             try:
-                result = subprocess.run(["docker", "--version"], capture_output=True, text=True, timeout=5)
+                result = subprocess.run(["docker", "--version"], capture_output=True, text=True, timeout=5, check=False)
                 if result.returncode == 0:
                     print_success("Docker ✓")
                 else:
@@ -226,7 +226,7 @@ class OpenManusSetup:
         env = os.environ.copy()
         env["VIRTUAL_ENV"] = str(self.venv_path)
         env["PATH"] = f"{self.venv_path / 'bin'}:{env['PATH']}"
-        return subprocess.run(command, env=env, **kwargs)
+        return subprocess.run(command, env=env, **kwargs, check=False)
 
     def install_dependencies(self):
         """Instala dependências Python"""
@@ -388,7 +388,8 @@ class OpenManusSetup:
                     cwd=frontend_dir,
                     capture_output=True,
                     text=True,
-                    timeout=300,  # 5 minutos
+                    timeout=300,
+                    check=False,  # 5 minutos
                 )
 
                 if result.returncode == 0:
@@ -419,7 +420,7 @@ class OpenManusSetup:
         # Verificar Docker daemon
         if shutil.which("docker"):
             try:
-                result = subprocess.run(["docker", "ps"], capture_output=True, text=True, timeout=10)
+                result = subprocess.run(["docker", "ps"], capture_output=True, text=True, timeout=10, check=False)
                 if result.returncode == 0:
                     print_success("Docker daemon ativo ✓")
                 else:

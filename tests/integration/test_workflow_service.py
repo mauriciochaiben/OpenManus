@@ -9,14 +9,20 @@ These tests verify the complete workflow execution flow including:
 - End-to-end workflow orchestration
 """
 
-import asyncio
-import uuid
-from unittest.mock import AsyncMock
-
 import pytest
+
+# Check dependencies early
 pytest.importorskip("pytest_asyncio")
+
+# Standard library imports
+import asyncio
+from unittest.mock import AsyncMock
+import uuid
+
+# Third-party imports
 import pytest_asyncio
 
+# Application imports
 from app.services.workflow_service import (
     WorkflowCompletedEvent,
     WorkflowService,
@@ -316,7 +322,7 @@ class TestWorkflowServiceIntegration:
         assert result["results"] == []
 
     @pytest.mark.asyncio
-    async def test_workflow_concurrent_execution(self, mock_planner_agent, mock_tool_user_agent, mock_event_bus):  # noqa: ARG002
+    async def test_workflow_concurrent_execution(self, mock_planner_agent, mock_tool_user_agent, mock_event_bus):
         """Test multiple concurrent workflow executions"""
 
         # Create separate workflow service instances

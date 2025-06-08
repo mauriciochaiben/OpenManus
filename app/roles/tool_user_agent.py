@@ -11,7 +11,8 @@ from app.tool.registry import ToolRegistry
 
 
 class ToolUserAgent(BaseAgent):
-    """Agent specialized in executing tools through the tool registry.
+    """
+    Agent specialized in executing tools through the tool registry.
 
     The ToolUserAgent receives task details that specify which tool to execute
     and with what arguments, then uses the ToolRegistry to locate and execute
@@ -19,10 +20,12 @@ class ToolUserAgent(BaseAgent):
 
     Attributes:
         tool_registry: The ToolRegistry instance for tool management and execution.
+
     """
 
     def __init__(self, config: dict | None = None) -> None:
-        """Initialize the ToolUserAgent with a ToolRegistry instance.
+        """
+        Initialize the ToolUserAgent with a ToolRegistry instance.
 
         Args:
             config: Dictionary containing optional configuration for the agent.
@@ -31,13 +34,15 @@ class ToolUserAgent(BaseAgent):
         Note:
             The ToolRegistry is injected as a dependency to enable tool
             discovery and execution capabilities.
+
         """
         self.tool_registry = ToolRegistry()
         self.config = config or {}
         logger.info("ToolUserAgent initialized with tool registry")
 
     async def run(self, task_details: dict) -> dict:
-        """Execute a tool based on the provided task details.
+        """
+        Execute a tool based on the provided task details.
 
         Args:
             task_details: Dictionary containing task execution details. Expected format:
@@ -58,6 +63,7 @@ class ToolUserAgent(BaseAgent):
         Raises:
             ValueError: When required task details are missing or invalid
             Exception: When tool execution fails unexpectedly
+
         """
         try:
             # Validate required task details
@@ -111,12 +117,12 @@ class ToolUserAgent(BaseAgent):
 
             except Exception as tool_error:
                 execution_time = time.time() - start_time
-                logger.error(f"Tool '{tool_name}' execution failed: {str(tool_error)}")
+                logger.error(f"Tool '{tool_name}' execution failed: {tool_error!s}")
 
                 return {
                     "success": False,
                     "result": None,
-                    "message": f"Tool '{tool_name}' execution failed: {str(tool_error)}",
+                    "message": f"Tool '{tool_name}' execution failed: {tool_error!s}",
                     "metadata": {
                         "tool_name": tool_name,
                         "execution_time": execution_time,
@@ -126,25 +132,26 @@ class ToolUserAgent(BaseAgent):
                 }
 
         except ValueError as ve:
-            logger.error(f"Invalid task details for ToolUserAgent: {str(ve)}")
+            logger.error(f"Invalid task details for ToolUserAgent: {ve!s}")
             return {
                 "success": False,
                 "result": None,
-                "message": f"Invalid task details: {str(ve)}",
+                "message": f"Invalid task details: {ve!s}",
                 "metadata": {"error_type": "ValueError", "execution_time": 0},
             }
 
         except Exception as e:
-            logger.error(f"Unexpected error in ToolUserAgent.run: {str(e)}")
+            logger.error(f"Unexpected error in ToolUserAgent.run: {e!s}")
             return {
                 "success": False,
                 "result": None,
-                "message": f"Unexpected error during tool execution: {str(e)}",
+                "message": f"Unexpected error during tool execution: {e!s}",
                 "metadata": {"error_type": type(e).__name__, "execution_time": 0},
             }
 
     def get_capabilities(self) -> list[str]:
-        """Return the capabilities of the ToolUserAgent.
+        """
+        Return the capabilities of the ToolUserAgent.
 
         Returns:
             List[str]: List containing the agent's capabilities.
@@ -154,11 +161,13 @@ class ToolUserAgent(BaseAgent):
         Note:
             This capability identifier is used by the task routing system
             to determine when this agent should be selected for execution.
+
         """
         return ["tool_execution"]
 
     def get_available_tools(self) -> list[str]:
-        """Get a list of all available tools in the registry.
+        """
+        Get a list of all available tools in the registry.
 
         Returns:
             List[str]: List of tool names currently registered in the tool registry.
@@ -166,16 +175,19 @@ class ToolUserAgent(BaseAgent):
         Note:
             This is a convenience method for inspecting which tools
             are available for execution.
+
         """
         return self.tool_registry.list_tools()
 
     def is_tool_available(self, tool_name: str) -> bool:
-        """Check if a specific tool is available in the registry.
+        """
+        Check if a specific tool is available in the registry.
 
         Args:
             tool_name: The name of the tool to check for availability.
 
         Returns:
             bool: True if the tool is registered and available, False otherwise.
+
         """
         return self.tool_registry.is_registered(tool_name)

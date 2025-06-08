@@ -91,6 +91,7 @@ class SourceService:
         Raises:
             HTTPException: If file validation fails
             SourceServiceError: If processing fails
+
         """
         try:
             # Validate file
@@ -112,13 +113,13 @@ class SourceService:
 
             logger.info(f"File uploaded successfully: {source_doc.filename} ({source_doc.id})")
 
-            # Start background processing
-            asyncio.create_task(self._process_source_async(file_path, source_doc))
+            # Start background processing - intentionally not awaited
+            asyncio.create_task(self._process_source_async(file_path, source_doc))  # noqa: RUF006
 
             return source_doc
 
         except Exception as e:
-            logger.error(f"Failed to upload source file: {str(e)}")
+            logger.error(f"Failed to upload source file: {e!s}")
 
             # Clean up file if it was saved
             if "file_path" in locals():
@@ -127,7 +128,7 @@ class SourceService:
 
             if isinstance(e, HTTPException | SourceServiceError):
                 raise
-            raise SourceServiceError(f"Upload failed: {str(e)}") from e
+            raise SourceServiceError(f"Upload failed: {e!s}") from e
 
     async def _validate_file(self, file: UploadFile) -> None:
         """
@@ -138,12 +139,13 @@ class SourceService:
 
         Raises:
             HTTPException: If validation fails
+
         """
         # Check file size
         if file.size and file.size > self.max_file_size:
             raise HTTPException(
                 status_code=413,
-                detail=f"File too large. Maximum size: {self.max_file_size / (1024*1024):.1f}MB",
+                detail=f"File too large. Maximum size: {self.max_file_size / (1024 * 1024):.1f}MB",
             )
 
         # Check file extension
@@ -188,6 +190,7 @@ class SourceService:
 
         Returns:
             Tuple of (file_path, content_hash)
+
         """
         # Generate unique filename
         timestamp = int(asyncio.get_event_loop().time())
@@ -232,6 +235,7 @@ class SourceService:
 
         Returns:
             Created SourceDocument
+
         """
         # Get file info
         file_size = file.size or Path(file_path).stat().st_size
@@ -273,11 +277,12 @@ class SourceService:
         Args:
             file_path: Path to the uploaded file
             source_doc: Source document to process
+
         """
         try:
             await self._process_source(file_path, source_doc.id)
         except Exception as e:
-            logger.error(f"Background processing failed for {source_doc.id}: {str(e)}")
+            logger.error(f"Background processing failed for {source_doc.id}: {e!s}")
             source_doc.mark_as_failed(str(e))
             # TODO: Update database record
 
@@ -288,6 +293,7 @@ class SourceService:
         Args:
             file_path: Path to the uploaded file
             source_id: Source document ID
+
         """
         try:
             # TODO: Get source document from database
@@ -322,16 +328,15 @@ class SourceService:
             source_doc.mark_as_completed(chunk_count=len(chunks), embedding_count=embedding_count)
 
             logger.info(
-                f"Processing completed for {source_doc.filename}: "
-                f"{len(chunks)} chunks, {embedding_count} embeddings"
+                f"Processing completed for {source_doc.filename}: {len(chunks)} chunks, {embedding_count} embeddings"
             )
 
             # TODO: Update database record
 
         except Exception as e:
-            logger.error(f"Processing failed for {source_id}: {str(e)}")
+            logger.error(f"Processing failed for {source_id}: {e!s}")
             # TODO: Update database record to failed status
-            raise FileProcessingError(f"Processing failed: {str(e)}") from e
+            raise FileProcessingError(f"Processing failed: {e!s}") from e
 
     async def _extract_text_content(self, file_path: str, doc_type: DocumentType | None) -> str:
         """
@@ -347,6 +352,7 @@ class SourceService:
         Raises:
             UnsupportedFileTypeError: If file type is not supported
             FileProcessingError: If extraction fails
+
         """
         try:
             file_ext = Path(file_path).suffix.lower().lstrip(".")
@@ -373,7 +379,7 @@ class SourceService:
         except Exception as e:
             if isinstance(e, UnsupportedFileTypeError):
                 raise
-            raise FileProcessingError(f"Text extraction failed: {str(e)}") from e
+            raise FileProcessingError(f"Text extraction failed: {e!s}") from e
 
     async def _extract_pdf_content(self, file_path: str) -> str:
         """Extract text from PDF file using pypdf."""
@@ -390,13 +396,13 @@ class SourceService:
                         if text.strip():
                             text_parts.append(f"[Page {page_num + 1}]\n{text}")
                     except Exception as e:
-                        logger.warning(f"Failed to extract text from page {page_num + 1}: {str(e)}")
+                        logger.warning(f"Failed to extract text from page {page_num + 1}: {e!s}")
                         continue
 
                 return "\n\n".join(text_parts)
 
             except Exception as e:
-                raise FileProcessingError(f"PDF processing failed: {str(e)}") from e
+                raise FileProcessingError(f"PDF processing failed: {e!s}") from e
 
         return await loop.run_in_executor(None, extract_pdf)
 
@@ -427,7 +433,7 @@ class SourceService:
                 return "\n\n".join(text_parts)
 
             except Exception as e:
-                raise FileProcessingError(f"DOCX processing failed: {str(e)}") from e
+                raise FileProcessingError(f"DOCX processing failed: {e!s}") from e
 
         return await loop.run_in_executor(None, extract_docx)
 
@@ -456,7 +462,7 @@ class SourceService:
         except ImportError as e:
             raise FileProcessingError("BeautifulSoup4 is required for HTML processing") from e
         except Exception as e:
-            raise FileProcessingError(f"HTML processing failed: {str(e)}") from e
+            raise FileProcessingError(f"HTML processing failed: {e!s}") from e
 
     async def _extract_json_content(self, file_path: str) -> str:
         """Extract content from JSON file."""
@@ -472,7 +478,7 @@ class SourceService:
             return json.dumps(data, indent=2, ensure_ascii=False)
 
         except Exception as e:
-            raise FileProcessingError(f"JSON processing failed: {str(e)}") from e
+            raise FileProcessingError(f"JSON processing failed: {e!s}") from e
 
     async def _extract_csv_content(self, file_path: str) -> str:
         """Extract content from CSV file."""
@@ -498,7 +504,7 @@ class SourceService:
             return "\n".join(text_parts)
 
         except Exception as e:
-            raise FileProcessingError(f"CSV processing failed: {str(e)}") from e
+            raise FileProcessingError(f"CSV processing failed: {e!s}") from e
 
     async def _create_text_chunks(self, content: str, source_id: str) -> list[DocumentChunk]:
         """
@@ -510,6 +516,7 @@ class SourceService:
 
         Returns:
             List of DocumentChunk objects
+
         """
         try:
             # Split text into chunks
@@ -548,7 +555,7 @@ class SourceService:
             return chunks
 
         except Exception as e:
-            raise FileProcessingError(f"Text chunking failed: {str(e)}") from e
+            raise FileProcessingError(f"Text chunking failed: {e!s}") from e
 
     async def _process_embeddings(self, chunks: list[DocumentChunk], source_doc: SourceDocument) -> int:
         """
@@ -560,6 +567,7 @@ class SourceService:
 
         Returns:
             Number of embeddings created
+
         """
         try:
             if not chunks:
@@ -619,9 +627,9 @@ class SourceService:
             return len(vector_ids)
 
         except VectorStoreError as e:
-            raise FileProcessingError(f"Vector store operation failed: {str(e)}") from e
+            raise FileProcessingError(f"Vector store operation failed: {e!s}") from e
         except Exception as e:
-            raise FileProcessingError(f"Embedding processing failed: {str(e)}") from e
+            raise FileProcessingError(f"Embedding processing failed: {e!s}") from e
 
     async def search_documents(
         self,
@@ -643,6 +651,7 @@ class SourceService:
 
         Returns:
             Search results with documents and metadata
+
         """
         try:
             vector_store = await get_vector_store()
@@ -667,8 +676,8 @@ class SourceService:
             )
 
         except Exception as e:
-            logger.error(f"Document search failed: {str(e)}")
-            raise SourceServiceError(f"Search failed: {str(e)}") from e
+            logger.error(f"Document search failed: {e!s}")
+            raise SourceServiceError(f"Search failed: {e!s}") from e
 
 
 # Global service instance

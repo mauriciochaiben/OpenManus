@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 """
-Script para análise da es                    try:
-                        with file_path.open('r', encoding='utf-8', errors='ignore') as f:
-                            content = f.read()
-                        files[str(file_path)] = contentura do projeto OpenManus após a remoção do diretório backend/
+Script para análise da estrutura do projeto OpenManus após a remoção do diretório backend/
+
 Parte da refatoração do projeto OpenManus
 """
 
+from collections import defaultdict
 import fnmatch
 import os
+from pathlib import Path
 import re
 import sys
-from collections import defaultdict
-from pathlib import Path
 
 # Configure paths
 BASE_DIR = Path(__file__).resolve().parent.parent

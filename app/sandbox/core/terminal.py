@@ -7,6 +7,7 @@ allowing interactive command execution with timeout control.
 
 import asyncio
 import contextlib
+import logging
 import re
 import socket
 
@@ -15,13 +16,17 @@ from docker import APIClient
 from docker.errors import APIError
 from docker.models.containers import Container
 
+logger = logging.getLogger(__name__)
+
 
 class DockerSession:
     def __init__(self, container_id: str) -> None:
-        """Initializes a Docker session.
+        """
+        Initializes a Docker session.
 
         Args:
             container_id: ID of the Docker container.
+
         """
         self.api = APIClient()
         self.container_id = container_id
@@ -29,7 +34,8 @@ class DockerSession:
         self.socket = None
 
     async def create(self, working_dir: str, env_vars: dict[str, str]) -> None:
-        """Creates an interactive session with the container.
+        """
+        Creates an interactive session with the container.
 
         Args:
             working_dir: Working directory inside the container.
@@ -37,11 +43,12 @@ class DockerSession:
 
         Raises:
             RuntimeError: If socket connection fails.
+
         """
         startup_command = [
             "bash",
             "-c",
-            f"cd {working_dir} && " "PROMPT_COMMAND='' " "PS1='$ ' " "exec bash --norc --noprofile",
+            f"cd {working_dir} && PROMPT_COMMAND='' PS1='$ ' exec bash --norc --noprofile",
         ]
 
         exec_data = self.api.exec_create(
@@ -68,7 +75,8 @@ class DockerSession:
         await self._read_until_prompt()
 
     async def close(self) -> None:
-        """Cleans up session resources.
+        """
+        Cleans up session resources.
 
         1. Sends exit command
         2. Closes socket connection
@@ -81,7 +89,7 @@ class DockerSession:
                     self.socket.sendall(b"exit\n")
                     # Allow time for command execution
                     await asyncio.sleep(0.1)
-                except Exception:
+                except Exception:  # nosec  # noqa: S110
                     pass  # Ignore sending errors, continue cleanup
 
                 # Close socket connection
@@ -98,7 +106,8 @@ class DockerSession:
                     if exec_inspect.get("Running", False):
                         # If still running, wait for it to complete
                         await asyncio.sleep(0.5)
-                except Exception:
+                except Exception as e:
+                    logger.debug(f"Inspection sleep interrupted during cleanup: {e}")
                     pass  # Ignore inspection errors, continue cleanup
 
                 self.exec_id = None
@@ -108,13 +117,15 @@ class DockerSession:
             print(f"Warning: Error during session cleanup: {e}")
 
     async def _read_until_prompt(self) -> str:
-        """Reads output until prompt is found.
+        """
+        Reads output until prompt is found.
 
         Returns:
             String containing output up to the prompt.
 
         Raises:
             socket.error: If socket communication fails.
+
         """
         buffer = b""
         while b"$ " not in buffer:
@@ -130,7 +141,8 @@ class DockerSession:
         return buffer.decode("utf-8")
 
     async def execute(self, command: str, timeout: int | None = None) -> str:
-        """Executes a command and returns cleaned output.
+        """
+        Executes a command and returns cleaned output.
 
         Args:
             command: Shell command to execute.
@@ -142,6 +154,7 @@ class DockerSession:
         Raises:
             RuntimeError: If session not initialized or execution fails.
             TimeoutError: If command execution exceeds timeout.
+
         """
         if not self.socket:
             raise RuntimeError("Session not initialized")
@@ -207,7 +220,8 @@ class DockerSession:
             raise RuntimeError(f"Failed to execute command: {e}") from e
 
     def _sanitize_command(self, command: str) -> str:
-        """Sanitizes the command string to prevent shell injection.
+        """
+        Sanitizes the command string to prevent shell injection.
 
         Args:
             command: Raw command string.
@@ -217,8 +231,8 @@ class DockerSession:
 
         Raises:
             ValueError: If command contains potentially dangerous patterns.
-        """
 
+        """
         # Additional checks for specific risky commands
         risky_commands = [
             "rm -rf /",
@@ -245,13 +259,15 @@ class AsyncDockerizedTerminal:
         env_vars: dict[str, str] | None = None,
         default_timeout: int = 60,
     ) -> None:
-        """Initializes an asynchronous terminal for Docker containers.
+        """
+        Initializes an asynchronous terminal for Docker containers.
 
         Args:
             container: Docker container ID or Container object.
             working_dir: Working directory inside the container.
             env_vars: Environment variables to set.
             default_timeout: Default command execution timeout in seconds.
+
         """
         self.client = docker.from_env()
         self.container = container if isinstance(container, Container) else self.client.containers.get(container)
@@ -261,12 +277,14 @@ class AsyncDockerizedTerminal:
         self.session = None
 
     async def init(self) -> None:
-        """Initializes the terminal environment.
+        """
+        Initializes the terminal environment.
 
         Ensures working directory exists and creates an interactive session.
 
         Raises:
             RuntimeError: If initialization fails.
+
         """
         await self._ensure_workdir()
 
@@ -274,10 +292,12 @@ class AsyncDockerizedTerminal:
         await self.session.create(self.working_dir, self.env_vars)
 
     async def _ensure_workdir(self) -> None:
-        """Ensures working directory exists in container.
+        """
+        Ensures working directory exists in container.
 
         Raises:
             RuntimeError: If directory creation fails.
+
         """
         try:
             await self._exec_simple(f"mkdir -p {self.working_dir}")
@@ -285,19 +305,22 @@ class AsyncDockerizedTerminal:
             raise RuntimeError(f"Failed to create working directory: {e}") from e
 
     async def _exec_simple(self, cmd: str) -> tuple[int, str]:
-        """Executes a simple command using Docker's exec_run.
+        """
+        Executes a simple command using Docker's exec_run.
 
         Args:
             cmd: Command to execute.
 
         Returns:
             Tuple of (exit_code, output).
+
         """
         result = await asyncio.to_thread(self.container.exec_run, cmd, environment=self.env_vars)
         return result.exit_code, result.output.decode("utf-8")
 
     async def run_command(self, cmd: str, timeout: int | None = None) -> str:
-        """Runs a command in the container with timeout.
+        """
+        Runs a command in the container with timeout.
 
         Args:
             cmd: Shell command to execute.
@@ -308,6 +331,7 @@ class AsyncDockerizedTerminal:
 
         Raises:
             RuntimeError: If terminal not initialized.
+
         """
         if not self.session:
             raise RuntimeError("Terminal not initialized")

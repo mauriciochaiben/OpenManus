@@ -1,5 +1,6 @@
 """
 Script de análise de migração - ATUALIZADO
+
 ==========================================
 
 Este script foi atualizado após a remoção do diretório backend/.
@@ -9,9 +10,9 @@ Data da atualização: 3 de junho de 2025
 Razão: Remoção do diretório backend/ obsoleto durante refatoração
 """
 
+from collections import defaultdict
 import fnmatch
 import os
-from collections import defaultdict
 from pathlib import Path
 
 # Configure paths

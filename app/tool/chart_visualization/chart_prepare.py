@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from app.tool.chart_visualization.python_execute import NormalPythonExecute
 
 
@@ -6,7 +8,7 @@ class VisualizationPrepare(NormalPythonExecute):
 
     name: str = "visualization_preparation"
     description: str = "Using Python code to generates metadata of data_visualization tool. Outputs: 1) JSON Information. 2) Cleaned CSV data files (Optional)."
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "code_type": {

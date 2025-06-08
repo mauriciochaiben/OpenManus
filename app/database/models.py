@@ -4,8 +4,8 @@ Database models for OpenManus application.
 SQLAlchemy models for database persistence.
 """
 
-import uuid
 from datetime import datetime
+import uuid
 
 from sqlalchemy import JSON, Boolean, Column, DateTime, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base

@@ -11,7 +11,8 @@ from app.tool.mcp import MCPClients
 
 
 class MCPAgent(ToolCallAgent):
-    """Agent for interacting with MCP (Model Context Protocol) servers.
+    """
+    Agent for interacting with MCP (Model Context Protocol) servers.
 
     This agent connects to an MCP server using either SSE or stdio transport
     and makes the server's tools available through the agent's tool interface.
@@ -44,13 +45,15 @@ class MCPAgent(ToolCallAgent):
         command: str | None = None,
         args: list[str] | None = None,
     ) -> None:
-        """Initialize the MCP connection.
+        """
+        Initialize the MCP connection.
 
         Args:
             connection_type: Type of connection to use ("stdio" or "sse")
             server_url: URL of the MCP server (for SSE connection)
             command: Command to run (for stdio connection)
             args: Arguments for the command (for stdio connection)
+
         """
         if connection_type:
             self.connection_type = connection_type
@@ -81,10 +84,12 @@ class MCPAgent(ToolCallAgent):
         self.memory.add_message(Message.system_message(f"{self.system_prompt}\n\nAvailable MCP tools: {tools_info}"))
 
     async def _refresh_tools(self) -> tuple[list[str], list[str]]:
-        """Refresh the list of available tools from the MCP server.
+        """
+        Refresh the list of available tools from the MCP server.
 
         Returns:
             A tuple of (added_tools, removed_tools)
+
         """
         if not self.mcp_clients.sessions:
             return [], []

@@ -585,7 +585,7 @@ pre-commit install --hook-type commit-msg
 ```
 
 #### Configured Hooks
-- **Python Backend**: Ruff linting and formatting, MyPy type checking, Bandit security checks
+- **Python Backend**: Ruff linting and formatting, Bandit security checks
 - **Frontend**: ESLint, Prettier formatting
 - **General**: YAML/JSON/TOML validation, trailing whitespace, file permissions
 
@@ -713,7 +713,7 @@ We welcome any friendly suggestions and helpful contributions!
    - Create a feature branch for your changes
 
 3. **Code Standards**:
-   - **Python**: Follow PEP 8, use type hints, run `ruff check` and `mypy`
+   - **Python**: Follow PEP 8, use type hints, run `ruff check` and `ruff format`
    - **TypeScript**: Follow project ESLint configuration
    - **Testing**: Add tests for new functionality (pytest for backend, Jest for frontend)
    - **Documentation**: Update documentation as needed

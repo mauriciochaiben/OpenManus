@@ -5,13 +5,13 @@ Specialized workflow for generating podcasts from knowledge content.
 Aggregates content from notes/sources, generates scripts, and converts to audio.
 """
 
-import json
-import logging
-import uuid
 from dataclasses import dataclass
 from datetime import datetime
+import json
+import logging
 from pathlib import Path
 from typing import Any
+import uuid
 
 from app.core.config import settings
 from app.core.exceptions import ValidationError
@@ -95,6 +95,7 @@ class PodcastGenerator:
             note_service: Service for notes
             rag_service: Service for RAG content retrieval
             output_dir: Directory to save generated podcasts
+
         """
         self.llm_client = llm_client
         self.source_service = source_service
@@ -150,6 +151,7 @@ class PodcastGenerator:
 
         Returns:
             Dictionary with script and audio file information
+
         """
         try:
             logger.info("Starting podcast generation")
@@ -187,8 +189,8 @@ class PodcastGenerator:
             }
 
         except Exception as e:
-            logger.error(f"Error generating podcast: {str(e)}")
-            raise ValidationError(f"Podcast generation failed: {str(e)}") from e
+            logger.error(f"Error generating podcast: {e!s}")
+            raise ValidationError(f"Podcast generation failed: {e!s}") from e
 
     async def _aggregate_content(
         self,
@@ -206,6 +208,7 @@ class PodcastGenerator:
 
         Returns:
             Aggregated content string
+
         """
         content_parts = []
 
@@ -228,7 +231,7 @@ class PodcastGenerator:
                         content_parts.append(f"# From {source.filename}\n\n{source_content}")
 
                     except Exception as e:
-                        logger.error(f"Error getting content from source {source_id}: {str(e)}")
+                        logger.error(f"Error getting content from source {source_id}: {e!s}")
                         continue
 
             # Get content from notes
@@ -239,7 +242,7 @@ class PodcastGenerator:
                         content_parts.append(f"# Note: {note.title}\n\n{note.content}")
 
                     except Exception as e:
-                        logger.error(f"Error getting note {note_id}: {str(e)}")
+                        logger.error(f"Error getting note {note_id}: {e!s}")
                         continue
 
             # If no specific sources but topic provided, use RAG broadly
@@ -248,7 +251,7 @@ class PodcastGenerator:
                     chunks = await self.rag_service.retrieve_relevant_context(query=topic, k=10)
                     content_parts.append(f"# Content about {topic}\n\n" + "\n\n".join(chunks))
                 except Exception as e:
-                    logger.error(f"Error getting RAG content for topic {topic}: {str(e)}")
+                    logger.error(f"Error getting RAG content for topic {topic}: {e!s}")
 
             if not content_parts:
                 raise ValidationError("No content found to generate podcast from")
@@ -256,7 +259,7 @@ class PodcastGenerator:
             return "\n\n---\n\n".join(content_parts)
 
         except Exception as e:
-            logger.error(f"Error aggregating content: {str(e)}")
+            logger.error(f"Error aggregating content: {e!s}")
             raise
 
     async def _generate_script(
@@ -283,6 +286,7 @@ class PodcastGenerator:
 
         Returns:
             Generated podcast script
+
         """
         try:
             # Prepare prompt for script generation
@@ -354,7 +358,7 @@ The script should feel natural and conversational, not like reading from notes."
             return script
 
         except Exception as e:
-            logger.error(f"Error generating script: {str(e)}")
+            logger.error(f"Error generating script: {e!s}")
             raise
 
     def _parse_script_segments(self, script_text: str) -> list[dict[str, Any]]:
@@ -423,6 +427,7 @@ The script should feel natural and conversational, not like reading from notes."
 
         Returns:
             Audio file information or None if TTS not available
+
         """
         if not self.tts_available:
             logger.warning("TTS not available, skipping audio generation")
@@ -458,7 +463,7 @@ The script should feel natural and conversational, not like reading from notes."
                                 audio_segments.append(audio_data)
 
                             except Exception as e:
-                                logger.error(f"Error generating audio for segment: {str(e)}")
+                                logger.error(f"Error generating audio for segment: {e!s}")
                                 continue
 
             if not audio_segments:
@@ -495,7 +500,7 @@ The script should feel natural and conversational, not like reading from notes."
             return audio
 
         except Exception as e:
-            logger.error(f"Error generating audio: {str(e)}")
+            logger.error(f"Error generating audio: {e!s}")
             return None
 
 
@@ -519,6 +524,7 @@ class PodcastWorkflow:
 
         Returns:
             Workflow result with podcast information
+
         """
         try:
             # Extract configuration
@@ -555,10 +561,10 @@ class PodcastWorkflow:
             }
 
         except Exception as e:
-            logger.error(f"Podcast workflow execution failed: {str(e)}")
+            logger.error(f"Podcast workflow execution failed: {e!s}")
             return {
                 "status": "error",
-                "result": f"Podcast generation failed: {str(e)}",
+                "result": f"Podcast generation failed: {e!s}",
                 "error": str(e),
             }
 

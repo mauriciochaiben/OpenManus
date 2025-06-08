@@ -7,11 +7,11 @@ from app.agent.swe import SWEAgent
 from app.agent.toolcall import ToolCallAgent
 
 __all__ = [
-    "BaseAgent",
     "AbstractBaseAgent",
+    "BaseAgent",
     "BrowserAgent",
+    "MCPAgent",
     "ReActAgent",
     "SWEAgent",
     "ToolCallAgent",
-    "MCPAgent",
 ]

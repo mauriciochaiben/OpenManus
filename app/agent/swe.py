@@ -6,11 +6,14 @@ from app.tool import Bash, StrReplaceEditor, Terminate, ToolCollection
 
 
 class SWEAgent(ToolCallAgent):
-    """An agent that implements the SWEAgent paradigm for executing code and
-    natural conversations."""
+    """
+    An agent that implements the SWEAgent paradigm for executing code and
+
+    natural conversations.
+    """
 
     name: str = "swe"
-    description: str = "an autonomous AI programmer that interacts directly with the computer " "to solve tasks."
+    description: str = "an autonomous AI programmer that interacts directly with the computer to solve tasks."
 
     system_prompt: str = SYSTEM_PROMPT
     next_step_prompt: str = ""

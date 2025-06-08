@@ -16,8 +16,8 @@ For backward compatibility, the old configuration objects are still available
 but will issue deprecation warnings.
 """
 
-import warnings
 from typing import Any
+import warnings
 
 from pydantic import BaseModel, Field, validator
 
@@ -33,7 +33,8 @@ warnings.warn(
 
 
 class VectorDBConfig(BaseModel):
-    """Vector Database Configuration.
+    """
+    Vector Database Configuration.
 
     DEPRECATED: Use settings.knowledge_config.vector_db instead.
     """
@@ -96,7 +97,8 @@ class VectorDBConfig(BaseModel):
 
 
 class EmbeddingConfig(BaseModel):
-    """Embedding Configuration.
+    """
+    Embedding Configuration.
 
     DEPRECATED: Use settings.knowledge_config.embedding instead.
     """
@@ -119,7 +121,8 @@ class EmbeddingConfig(BaseModel):
 
 
 class DocumentProcessingConfig(BaseModel):
-    """Document Processing Configuration.
+    """
+    Document Processing Configuration.
 
     DEPRECATED: Use settings.knowledge_config.document_processing instead.
     """
@@ -147,7 +150,8 @@ class DocumentProcessingConfig(BaseModel):
 
 
 class RAGConfig(BaseModel):
-    """RAG (Retrieval-Augmented Generation) Configuration.
+    """
+    RAG (Retrieval-Augmented Generation) Configuration.
 
     DEPRECATED: Use settings.knowledge_config.rag instead.
     """

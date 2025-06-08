@@ -1,5 +1,5 @@
 # tool/planning.py
-from typing import Literal
+from typing import ClassVar, Literal
 
 from app.exceptions import ToolError
 from app.tool.base import BaseTool, ToolResult
@@ -13,12 +13,13 @@ The tool provides functionality for creating plans, updating plan steps, and tra
 class PlanningTool(BaseTool):
     """
     A planning tool that allows the agent to create and manage plans for solving complex tasks.
+
     The tool provides functionality for creating plans, updating plan steps, and tracking progress.
     """
 
     name: str = "planning"
     description: str = _PLANNING_TOOL_DESCRIPTION
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "command": {
@@ -65,7 +66,7 @@ class PlanningTool(BaseTool):
         "additionalProperties": False,
     }
 
-    plans: dict = {}  # Dictionary to store plans by plan_id
+    plans: ClassVar[dict] = {}  # Dictionary to store plans by plan_id
     _current_plan_id: str | None = None  # Track the current active plan
 
     async def execute(
@@ -83,16 +84,17 @@ class PlanningTool(BaseTool):
         """
         Execute the planning tool with the given command and parameters.
 
-        Parameters:
-        - command: The operation to perform
-        - plan_id: Unique identifier for the plan
-        - title: Title for the plan (used with create command)
-        - steps: List of steps for the plan (used with create command)
-        - step_index: Index of the step to update (used with mark_step command)
-        - step_status: Status to set for a step (used with mark_step command)
-        - step_notes: Additional notes for a step (used with mark_step command)
-        """
+        Args:
+            command: The operation to perform
+            plan_id: Unique identifier for the plan
+            title: Title for the plan (used with create command)
+            steps: List of steps for the plan (used with create command)
+            step_index: Index of the step to update (used with mark_step command)
+            step_status: Status to set for a step (used with mark_step command)
+            step_notes: Additional notes for a step (used with mark_step command)
+            **kwargs: Additional keyword arguments
 
+        """
         if command == "create":
             return self._create_plan(plan_id, title, steps)
         if command == "update":
@@ -245,7 +247,9 @@ class PlanningTool(BaseTool):
         plan = self.plans[plan_id]
 
         if step_index < 0 or step_index >= len(plan["steps"]):
-            raise ToolError(f"Invalid step_index: {step_index}. Valid indices range from 0 to {len(plan['steps'])-1}.")
+            raise ToolError(
+                f"Invalid step_index: {step_index}. Valid indices range from 0 to {len(plan['steps']) - 1}."
+            )
 
         if step_status and step_status not in [
             "not_started",

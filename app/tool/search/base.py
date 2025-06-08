@@ -30,5 +30,6 @@ class WebSearchEngine(BaseModel):
 
         Returns:
             List[SearchItem]: A list of SearchItem objects matching the search query.
+
         """
         raise NotImplementedError

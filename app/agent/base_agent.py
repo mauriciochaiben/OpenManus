@@ -9,7 +9,8 @@ from abc import ABC, abstractmethod
 
 
 class BaseAgent(ABC):
-    """Classe abstrata base para todos os agentes do OpenManus.
+    """
+    Classe abstrata base para todos os agentes do OpenManus.
 
     Define a interface comum que todos os agentes devem implementar,
     garantindo consistência na arquitetura multi-agente do sistema.
@@ -20,7 +21,8 @@ class BaseAgent(ABC):
 
     @abstractmethod
     def __init__(self, config: dict | None = None) -> None:
-        """Inicializa o agente com configurações opcionais.
+        """
+        Inicializa o agente com configurações opcionais.
 
         Args:
             config: Dicionário opcional contendo configurações específicas
@@ -29,12 +31,14 @@ class BaseAgent(ABC):
         Note:
             Subclasses devem implementar este método para configurar
             suas dependências e estado inicial específicos.
+
         """
         pass
 
     @abstractmethod
     async def run(self, task_details: dict) -> dict:
-        """Executa uma tarefa específica de forma assíncrona.
+        """
+        Executa uma tarefa específica de forma assíncrona.
 
         Args:
             task_details: Dicionário contendo os detalhes da tarefa a ser executada.
@@ -57,12 +61,14 @@ class BaseAgent(ABC):
         Note:
             Este método é o ponto principal de execução do agente.
             Implementações devem ser thread-safe e handle exceptions apropriadamente.
+
         """
         pass
 
     @abstractmethod
     def get_capabilities(self) -> list[str]:
-        """Retorna uma lista das capacidades do agente.
+        """
+        Retorna uma lista das capacidades do agente.
 
         Returns:
             List[str]: Lista de strings descrevendo as capacidades específicas
@@ -79,5 +85,6 @@ class BaseAgent(ABC):
 
             As capacidades devem ser descritas de forma consistente
             para facilitar a descoberta e seleção automática de agentes.
+
         """
         pass

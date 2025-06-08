@@ -1,4 +1,4 @@
-from typing import Any, Union, get_args, get_origin
+from typing import Any, ClassVar, Union, get_args, get_origin
 
 from pydantic import BaseModel, Field
 
@@ -10,7 +10,7 @@ class CreateChatCompletion(BaseTool):
     description: str = "Creates a structured completion with specified output formatting."
 
     # Type mapping for JSON schema
-    type_mapping: dict = {
+    type_mapping: ClassVar[dict] = {
         str: "string",
         int: "integer",
         float: "number",
@@ -122,7 +122,8 @@ class CreateChatCompletion(BaseTool):
         }
 
     async def execute(self, required: list | None = None, **kwargs) -> Any:
-        """Execute the chat completion with type conversion.
+        """
+        Execute the chat completion with type conversion.
 
         Args:
             required: List of required field names or None
@@ -130,6 +131,7 @@ class CreateChatCompletion(BaseTool):
 
         Returns:
             Converted response based on response_type
+
         """
         required = required or self.required
 

@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Literal, get_args
+from typing import Any, ClassVar, Literal, get_args
 
 from app.core.settings import settings
 from app.exceptions import ToolError
@@ -59,7 +59,7 @@ class StrReplaceEditor(BaseTool):
 
     name: str = "str_replace_editor"
     description: str = _STR_REPLACE_EDITOR_DESCRIPTION
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "command": {
@@ -95,7 +95,7 @@ class StrReplaceEditor(BaseTool):
         },
         "required": ["command", "path"],
     }
-    _file_history: defaultdict[PathLike, list[str]] = defaultdict(list)
+    _file_history: ClassVar[defaultdict[PathLike, list[str]]] = defaultdict(list)
     _local_operator: LocalFileOperator = LocalFileOperator()
     _sandbox_operator: SandboxFileOperator = SandboxFileOperator()
 
@@ -147,7 +147,7 @@ class StrReplaceEditor(BaseTool):
         else:
             # This should be caught by type checking, but we include it for safety
             raise ToolError(
-                f'Unrecognized command {command}. The allowed commands for the {self.name} tool are: {", ".join(get_args(Command))}'
+                f"Unrecognized command {command}. The allowed commands for the {self.name} tool are: {', '.join(get_args(Command))}"
             )
 
         return str(result)
@@ -205,8 +205,7 @@ class StrReplaceEditor(BaseTool):
 
         if not stderr:
             stdout = (
-                f"Here's the files and directories up to 2 levels deep in {path}, "
-                f"excluding hidden items:\n{stdout}\n"
+                f"Here's the files and directories up to 2 levels deep in {path}, excluding hidden items:\n{stdout}\n"
             )
 
         return CLIResult(output=stdout, error=stderr)

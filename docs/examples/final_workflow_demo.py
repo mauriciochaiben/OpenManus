@@ -12,9 +12,9 @@ This script showcases the complete WorkflowService functionality including:
 """
 
 import asyncio
+from datetime import datetime
 import json
 import sys
-from datetime import datetime
 
 from app.infrastructure.messaging.event_bus import event_bus
 
@@ -82,7 +82,6 @@ class DemoEventLogger:
 
 async def demo_comprehensive_workflow():
     """Demonstrate comprehensive workflow functionality."""
-
     print("=" * 80)
     print("🔧 OPENMANUS WORKFLOW SERVICE - FINAL DEMONSTRATION")
     print("=" * 80)

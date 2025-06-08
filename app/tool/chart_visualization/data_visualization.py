@@ -1,12 +1,12 @@
 import asyncio
-import json
 from collections.abc import Hashable
+import json
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import pandas as pd
-from app.compat import Field, model_validator
 
+from app.compat import Field, model_validator
 from app.core.settings import settings
 from app.llm import LLM
 from app.logger import logger
@@ -21,7 +21,7 @@ class DataVisualization(BaseTool):
 Outputs:
 1. Charts (png/html)
 2. Charts Insights (.md)(Optional)"""
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "json_path": {
@@ -62,7 +62,7 @@ Outputs:
         self,
         json_info: list[dict[str, str]],
         path_str: str,
-        directory: str = None,
+        directory: str | None = None,
     ) -> list[str]:
         res = []
         for item in json_info:
@@ -79,7 +79,7 @@ Outputs:
         if len(result) == 0:
             return "Is EMPTY!"
         for item in result:
-            content += f"""## {item['title']}\nChart saved in: {item['chart_path']}"""
+            content += f"""## {item["title"]}\nChart saved in: {item["chart_path"]}"""
             if "insight_path" in item and item["insight_path"] and "insight_md" in item:
                 content += "\n" + item["insight_md"]
             else:
@@ -201,9 +201,9 @@ Outputs:
         file_name: str,
         output_type: str,
         task_type: str,
-        insights_id: list[str] = None,
-        dict_data: list[dict[Hashable, Any]] = None,
-        chart_description: str = None,
+        insights_id: list[str] | None = None,
+        dict_data: list[dict[Hashable, Any]] | None = None,
+        chart_description: str | None = None,
         language: str = "en",
     ):
         llm_config = {
@@ -241,4 +241,4 @@ Outputs:
                 return json.loads(stdout_str)
             return {"error": f"Node.js Error: {stderr_str}"}
         except Exception as e:
-            return {"error": f"Subprocess Error: {str(e)}"}
+            return {"error": f"Subprocess Error: {e!s}"}

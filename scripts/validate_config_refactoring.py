@@ -7,8 +7,8 @@ testando carregamento de arquivos TOML, overrides por ambiente e acesso via sett
 """
 # ruff: noqa: E402
 
-import sys
 from pathlib import Path
+import sys
 
 # Adicionar o diretório do projeto ao path
 project_root = Path(__file__).parent.parent
@@ -45,7 +45,7 @@ def test_toml_loading():
     if browser_config:
         print(f"  ✅ Browser config: headless={browser_config.headless}")
     else:
-        print("  ℹ️  Browser config não configurado")
+        print("  ⓘ  Browser config não configurado")
 
     # Testa configuração de search
     search_config = settings.search_config

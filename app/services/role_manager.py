@@ -5,10 +5,10 @@ Manages role configurations and provides agent instances based on role names.
 Supports loading configurations from YAML files or database sources.
 """
 
-import logging
 from abc import ABC, abstractmethod
+import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import yaml
 
@@ -42,6 +42,7 @@ class YamlRoleConfigLoader(RoleConfigLoader):
 
         Args:
             config_dir: Directory containing role configuration YAML files
+
         """
         self.config_dir = Path(config_dir)
         self._role_cache: dict[str, dict[str, Any]] = {}
@@ -56,6 +57,7 @@ class YamlRoleConfigLoader(RoleConfigLoader):
 
         Returns:
             Role configuration dictionary or None if not found
+
         """
         if not self._cache_loaded:
             await self._load_cache()
@@ -68,6 +70,7 @@ class YamlRoleConfigLoader(RoleConfigLoader):
 
         Returns:
             Dictionary mapping role names to their configurations
+
         """
         if not self._cache_loaded:
             await self._load_cache()
@@ -96,7 +99,7 @@ class YamlRoleConfigLoader(RoleConfigLoader):
                         logger.debug(f"Loaded role config: {role_name}")
 
                 except Exception as e:
-                    logger.error(f"Error loading role config from {yaml_file}: {str(e)}")
+                    logger.error(f"Error loading role config from {yaml_file}: {e!s}")
 
             # Also try to load from a single roles.yaml file
             roles_file = self.config_dir / "roles.yaml"
@@ -110,13 +113,13 @@ class YamlRoleConfigLoader(RoleConfigLoader):
                         logger.debug(f"Loaded roles from unified config: {list(all_roles.keys())}")
 
                 except Exception as e:
-                    logger.error(f"Error loading unified roles config: {str(e)}")
+                    logger.error(f"Error loading unified roles config: {e!s}")
 
             self._cache_loaded = True
             logger.info(f"Loaded {len(self._role_cache)} role configurations")
 
         except Exception as e:
-            logger.error(f"Error loading role cache: {str(e)}")
+            logger.error(f"Error loading role cache: {e!s}")
             self._cache_loaded = True
 
 
@@ -129,10 +132,14 @@ class DatabaseRoleConfigLoader(RoleConfigLoader):
 
         Args:
             db_session: Database session for querying role configurations
+
         """
         self.db_session = db_session
 
-    async def load_role_config(self, role_name: str) -> dict[str, Any] | None:  # noqa: ARG002
+    async def load_role_config(
+        self,
+        role_name: str,  # noqa: ARG002
+    ) -> dict[str, Any] | None:
         """
         Load configuration for a specific role from database.
 
@@ -141,6 +148,7 @@ class DatabaseRoleConfigLoader(RoleConfigLoader):
 
         Returns:
             Role configuration dictionary or None if not found
+
         """
         # TODO: Implement database loading when database models are ready
         logger.warning("Database role loading not yet implemented")
@@ -152,6 +160,7 @@ class DatabaseRoleConfigLoader(RoleConfigLoader):
 
         Returns:
             Dictionary mapping role names to their configurations
+
         """
         # TODO: Implement database loading when database models are ready
         logger.warning("Database role loading not yet implemented")
@@ -167,7 +176,7 @@ class RoleManager:
     """
 
     # Registry of available agent classes
-    AGENT_REGISTRY: dict[str, type] = {
+    AGENT_REGISTRY: ClassVar[dict[str, type]] = {
         "planner": PlannerAgent,
         "tool_user": ToolUserAgent,
         "planner_agent": PlannerAgent,
@@ -181,6 +190,7 @@ class RoleManager:
         Args:
             config_loader: Configuration loader instance
             event_bus: Optional event bus for agent communication
+
         """
         self.config_loader = config_loader
         self.event_bus = event_bus
@@ -197,6 +207,7 @@ class RoleManager:
 
         Returns:
             Agent instance or None if role not found
+
         """
         try:
             # Check if we already have an instance (singleton pattern)
@@ -219,7 +230,7 @@ class RoleManager:
             return agent
 
         except Exception as e:
-            logger.error(f"Error getting agent for role '{role_name}': {str(e)}")
+            logger.error(f"Error getting agent for role '{role_name}': {e!s}")
             return None
 
     async def get_available_roles(self) -> dict[str, dict[str, Any]]:
@@ -228,11 +239,12 @@ class RoleManager:
 
         Returns:
             Dictionary mapping role names to their configurations
+
         """
         try:
             return await self.config_loader.load_all_roles()
         except Exception as e:
-            logger.error(f"Error loading available roles: {str(e)}")
+            logger.error(f"Error loading available roles: {e!s}")
             return {}
 
     async def register_agent_class(self, agent_type: str, agent_class: type):
@@ -242,6 +254,7 @@ class RoleManager:
         Args:
             agent_type: Type identifier for the agent
             agent_class: Agent class to register
+
         """
         self.AGENT_REGISTRY[agent_type] = agent_class
         logger.info(f"Registered agent class: {agent_type} -> {agent_class.__name__}")
@@ -252,6 +265,7 @@ class RoleManager:
 
         Args:
             role_name: Name of the role to reload
+
         """
         try:
             # Remove cached instance
@@ -269,7 +283,7 @@ class RoleManager:
                 logger.info(f"Reloaded configuration for role: {role_name}")
 
         except Exception as e:
-            logger.error(f"Error reloading role config for '{role_name}': {str(e)}")
+            logger.error(f"Error reloading role config for '{role_name}': {e!s}")
 
     async def _get_role_config(self, role_name: str) -> dict[str, Any] | None:
         """Get role configuration with caching."""
@@ -291,6 +305,7 @@ class RoleManager:
 
         Returns:
             Agent instance or None if creation fails
+
         """
         try:
             # Get agent type from config
@@ -323,7 +338,7 @@ class RoleManager:
             return agent
 
         except Exception as e:
-            logger.error(f"Error creating agent instance for role '{role_name}': {str(e)}")
+            logger.error(f"Error creating agent instance for role '{role_name}': {e!s}")
             return None
 
     def clear_cache(self):
@@ -349,6 +364,7 @@ def create_yaml_role_manager(
 
     Returns:
         Configured RoleManager instance
+
     """
     config_loader = YamlRoleConfigLoader(config_dir)
     return RoleManager(config_loader, event_bus)
@@ -364,6 +380,7 @@ def create_database_role_manager(db_session=None, event_bus: EventBus | None = N
 
     Returns:
         Configured RoleManager instance
+
     """
     config_loader = DatabaseRoleConfigLoader(db_session)
     return RoleManager(config_loader, event_bus)

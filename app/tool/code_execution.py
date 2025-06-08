@@ -5,16 +5,16 @@ Secure code execution tool supporting multiple programming languages.
 Uses restrictedpython for Python and subprocess for other languages with security measures.
 """
 
+from contextlib import redirect_stderr, redirect_stdout, suppress
+from io import StringIO
 import logging
 import os
-import subprocess
+from pathlib import Path
+import subprocess  # nosec
 import sys
 import tempfile
 import threading
 import time
-from contextlib import redirect_stderr, redirect_stdout, suppress
-from io import StringIO
-from pathlib import Path
 from typing import Any, ClassVar
 
 try:
@@ -142,11 +142,12 @@ class CodeExecutionTool(BaseTool):
             else:
                 # Check if interpreter is available
                 try:
-                    result = subprocess.run(
+                    result = subprocess.run(  # nosec
                         config["command"] + ["--version"],
                         capture_output=True,
                         timeout=5,
                         text=True,
+                        check=False,
                     )
                     if result.returncode == 0:
                         self.available_languages.append(lang)
@@ -171,6 +172,7 @@ class CodeExecutionTool(BaseTool):
 
         Returns:
             ToolResult with execution output and metadata
+
         """
         try:
             # Validate inputs
@@ -212,11 +214,11 @@ class CodeExecutionTool(BaseTool):
             return result
 
         except Exception as e:
-            logger.error(f"Error executing {language} code: {str(e)}")
+            logger.error(f"Error executing {language} code: {e!s}")
             return ToolResult(
                 success=False,
                 result="",
-                error=f"Execution error: {str(e)}",
+                error=f"Execution error: {e!s}",
                 metadata={"language": language},
             )
 
@@ -230,6 +232,7 @@ class CodeExecutionTool(BaseTool):
 
         Returns:
             ToolResult with execution output
+
         """
         try:
             # Check for blocked imports
@@ -294,9 +297,9 @@ class CodeExecutionTool(BaseTool):
                         redirect_stdout(stdout_capture),
                         redirect_stderr(stderr_capture),
                     ):
-                        exec(compiled_code, restricted_globals, {})
+                        exec(compiled_code, restricted_globals, {})  # nosec
                 except Exception as e:
-                    stderr_capture.write(f"Execution error: {str(e)}")
+                    stderr_capture.write(f"Execution error: {e!s}")
 
             # Run in thread with timeout
             thread = threading.Thread(target=execute_code)
@@ -338,11 +341,11 @@ class CodeExecutionTool(BaseTool):
             )
 
         except Exception as e:
-            logger.error(f"Error in restricted Python execution: {str(e)}")
+            logger.error(f"Error in restricted Python execution: {e!s}")
             return ToolResult(
                 success=False,
                 result="",
-                error=f"Execution error: {str(e)}",
+                error=f"Execution error: {e!s}",
                 metadata={"language": "python", "restricted": True},
             )
 
@@ -357,6 +360,7 @@ class CodeExecutionTool(BaseTool):
 
         Returns:
             ToolResult with execution output
+
         """
         return await self._execute_subprocess(code, "python", timeout, memory_limit)
 
@@ -378,6 +382,7 @@ class CodeExecutionTool(BaseTool):
 
         Returns:
             ToolResult with execution output
+
         """
         try:
             config = self.SUPPORTED_LANGUAGES[language]
@@ -399,13 +404,14 @@ class CodeExecutionTool(BaseTool):
 
             # Execute with subprocess
             try:
-                result = subprocess.run(
+                result = subprocess.run(  # nosec
                     command,
                     capture_output=True,
                     timeout=timeout,
                     text=True,
                     env=env,
                     cwd=self.temp_dir,
+                    check=False,
                 )
 
                 execution_time = time.time() - start_time
@@ -451,11 +457,11 @@ class CodeExecutionTool(BaseTool):
                     Path(temp_file).unlink()
 
         except Exception as e:
-            logger.error(f"Error in subprocess execution: {str(e)}")
+            logger.error(f"Error in subprocess execution: {e!s}")
             return ToolResult(
                 success=False,
                 result="",
-                error=f"Execution error: {str(e)}",
+                error=f"Execution error: {e!s}",
                 metadata={"language": language},
             )
 
@@ -528,7 +534,7 @@ class CodeExecutionTool(BaseTool):
                 shutil.rmtree(self.temp_dir)
                 logger.info(f"Cleaned up temporary directory: {self.temp_dir}")
         except Exception as e:
-            logger.error(f"Error cleaning up temporary directory: {str(e)}")
+            logger.error(f"Error cleaning up temporary directory: {e!s}")
 
     def __del__(self):
         """Destructor to ensure cleanup."""

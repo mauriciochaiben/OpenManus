@@ -1,17 +1,17 @@
 import asyncio
+from datetime import datetime
 import hashlib
 import logging
 import mimetypes
-import shutil
-import uuid
-from datetime import datetime
 from pathlib import Path
-from typing import Any, BinaryIO
+import shutil
+from typing import Any, BinaryIO, ClassVar
+import uuid
 
 import aiofiles
-import openai
 from fastapi import UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+import openai
 
 from app.core.settings import settings
 from app.core.text_processing import TextProcessor
@@ -37,7 +37,7 @@ class SourceServiceError(Exception):
 
 class SourceService:
     # Define supported document formats and MIME types
-    SUPPORTED_DOCUMENT_FORMATS = {
+    SUPPORTED_DOCUMENT_FORMATS: ClassVar = {
         "application/pdf": DocumentType.PDF,
         "text/plain": DocumentType.TXT,
         "text/markdown": DocumentType.MARKDOWN,
@@ -48,7 +48,7 @@ class SourceService:
     }
 
     # Define supported audio formats
-    SUPPORTED_AUDIO_FORMATS = {
+    SUPPORTED_AUDIO_FORMATS: ClassVar = {
         "audio/mpeg",  # mp3
         "audio/wav",  # wav
         "audio/x-wav",  # wav alternative
@@ -59,14 +59,22 @@ class SourceService:
         "audio/webm",  # webm
     }
 
-    AUDIO_EXTENSIONS = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac", ".webm"}
+    AUDIO_EXTENSIONS: ClassVar = {
+        ".mp3",
+        ".wav",
+        ".m4a",
+        ".aac",
+        ".ogg",
+        ".flac",
+        ".webm",
+    }
 
     def __init__(
         self,
         text_processor: TextProcessor,
         embedding_service: EmbeddingService,
         vector_store_client: VectorStoreClient,
-        upload_dir: str = None,
+        upload_dir: str | None = None,
         openai_api_key: str | None = None,
     ):
         """
@@ -78,6 +86,7 @@ class SourceService:
             vector_store_client: Client for vector database operations
             upload_dir: Directory for storing uploaded files
             openai_api_key: OpenAI API key for transcription services
+
         """
         self.text_processor = text_processor
         self.embedding_service = embedding_service
@@ -118,6 +127,7 @@ class SourceService:
 
         Raises:
             SourceServiceError: If file type is not supported
+
         """
         # Check if it's an audio file
         if self._is_audio_file(file_path, content_type):
@@ -154,6 +164,7 @@ class SourceService:
 
         Returns:
             True if the file is an audio file
+
         """
         # Check MIME type
         if content_type in self.SUPPORTED_AUDIO_FORMATS:
@@ -175,6 +186,7 @@ class SourceService:
 
         Raises:
             SourceServiceError: If transcription fails
+
         """
         if not self.openai_client:
             raise SourceServiceError("OpenAI client not configured. Please provide openai_api_key.")
@@ -207,8 +219,8 @@ class SourceService:
             return text
 
         except Exception as e:
-            logger.error(f"Transcription failed: {str(e)}")
-            raise SourceServiceError(f"Audio transcription failed: {str(e)}") from e
+            logger.error(f"Transcription failed: {e!s}")
+            raise SourceServiceError(f"Audio transcription failed: {e!s}") from e
 
     async def _extract_text_from_file(self, file_path: str, file_type: DocumentType) -> str:
         """
@@ -223,6 +235,7 @@ class SourceService:
 
         Raises:
             SourceServiceError: If text extraction fails
+
         """
         try:
             logger.info(f"Extracting text from {file_type} file: {file_path}")
@@ -230,19 +243,19 @@ class SourceService:
             # Handle different file types
             if file_type == DocumentType.PDF:
                 return await self._extract_text_from_pdf(file_path)
-            if file_type == DocumentType.TXT or file_type == DocumentType.MARKDOWN:
+            if file_type in (DocumentType.TXT, DocumentType.MARKDOWN):
                 return await self._extract_text_from_txt(file_path)
             if file_type == DocumentType.DOCX:
                 return await self._extract_text_from_docx(file_path)
-            if file_type == DocumentType.HTML or file_type == DocumentType.JSON or file_type == DocumentType.CSV:
+            if file_type in (DocumentType.HTML, DocumentType.JSON, DocumentType.CSV):
                 return await self._extract_text_from_txt(file_path)
             if file_type == DocumentType.AUDIO:
                 return await self._transcribe_audio_file(file_path)
             raise SourceServiceError(f"Unsupported file type for text extraction: {file_type}")
 
         except Exception as e:
-            logger.error(f"Text extraction failed: {str(e)}")
-            raise SourceServiceError(f"Text extraction failed: {str(e)}") from e
+            logger.error(f"Text extraction failed: {e!s}")
+            raise SourceServiceError(f"Text extraction failed: {e!s}") from e
 
     async def _extract_text_from_pdf(self, file_path: str) -> str:
         """Extract text from PDF file."""
@@ -262,8 +275,8 @@ class SourceService:
 
             return text
         except Exception as e:
-            logger.error(f"PDF extraction failed: {str(e)}")
-            raise SourceServiceError(f"PDF extraction failed: {str(e)}") from e
+            logger.error(f"PDF extraction failed: {e!s}")
+            raise SourceServiceError(f"PDF extraction failed: {e!s}") from e
 
     async def _extract_text_from_txt(self, file_path: str) -> str:
         """Extract text from plain text file."""
@@ -271,8 +284,8 @@ class SourceService:
             async with aiofiles.open(file_path, encoding="utf-8", errors="replace") as f:
                 return await f.read()
         except Exception as e:
-            logger.error(f"Text file reading failed: {str(e)}")
-            raise SourceServiceError(f"Text file reading failed: {str(e)}") from e
+            logger.error(f"Text file reading failed: {e!s}")
+            raise SourceServiceError(f"Text file reading failed: {e!s}") from e
 
     async def _extract_text_from_docx(self, file_path: str) -> str:
         """Extract text from DOCX file."""
@@ -287,8 +300,8 @@ class SourceService:
 
             return text
         except Exception as e:
-            logger.error(f"DOCX extraction failed: {str(e)}")
-            raise SourceServiceError(f"DOCX extraction failed: {str(e)}") from e
+            logger.error(f"DOCX extraction failed: {e!s}")
+            raise SourceServiceError(f"DOCX extraction failed: {e!s}") from e
 
     async def _compute_content_hash(self, file: BinaryIO) -> str:
         """Compute SHA-256 hash of file content for deduplication."""
@@ -308,8 +321,8 @@ class SourceService:
 
             return file_hash.hexdigest()
         except Exception as e:
-            logger.error(f"Hash computation failed: {str(e)}")
-            raise SourceServiceError(f"Hash computation failed: {str(e)}") from e
+            logger.error(f"Hash computation failed: {e!s}")
+            raise SourceServiceError(f"Hash computation failed: {e!s}") from e
 
     async def _save_uploaded_file(
         self, upload_file: UploadFile, dest_dir: str, filename: str | None = None
@@ -327,6 +340,7 @@ class SourceService:
 
         Raises:
             SourceServiceError: If file save fails
+
         """
         try:
             # Ensure destination directory exists
@@ -360,8 +374,8 @@ class SourceService:
             return file_path, file_size
 
         except Exception as e:
-            logger.error(f"File save failed: {str(e)}")
-            raise SourceServiceError(f"Failed to save uploaded file: {str(e)}") from e
+            logger.error(f"File save failed: {e!s}")
+            raise SourceServiceError(f"Failed to save uploaded file: {e!s}") from e
 
     async def _chunk_text(self, text: str, metadata: dict[str, Any]) -> list[dict[str, Any]]:
         """
@@ -373,6 +387,7 @@ class SourceService:
 
         Returns:
             List of chunk objects with text and metadata
+
         """
         try:
             # Split text into chunks
@@ -394,8 +409,8 @@ class SourceService:
             return result
 
         except Exception as e:
-            logger.error(f"Text chunking failed: {str(e)}")
-            raise SourceServiceError(f"Text chunking failed: {str(e)}") from e
+            logger.error(f"Text chunking failed: {e!s}")
+            raise SourceServiceError(f"Text chunking failed: {e!s}") from e
 
     async def _store_chunks(
         self, source_id: str, chunks: list[dict[str, Any]]
@@ -409,6 +424,7 @@ class SourceService:
 
         Returns:
             Tuple of (document chunks, embedding metadata)
+
         """
         try:
             # Prepare texts for embedding
@@ -467,8 +483,8 @@ class SourceService:
             return document_chunks, embedding_metadata
 
         except Exception as e:
-            logger.error(f"Chunk storage failed: {str(e)}")
-            raise SourceServiceError(f"Chunk storage failed: {str(e)}") from e
+            logger.error(f"Chunk storage failed: {e!s}")
+            raise SourceServiceError(f"Chunk storage failed: {e!s}") from e
 
     async def _update_source_document_status(
         self, doc: SourceDocument, status: DocumentStatus, error: str | None = None
@@ -483,6 +499,7 @@ class SourceService:
 
         Returns:
             Updated source document
+
         """
         doc.status = status
         doc.updated_at = datetime.utcnow()
@@ -519,6 +536,7 @@ class SourceService:
 
         Raises:
             SourceServiceError: If upload fails
+
         """
         try:
             # Setup metadata
@@ -545,7 +563,7 @@ class SourceService:
             try:
                 file_path, file_size = await self._save_uploaded_file(file, source_dir, file.filename)
             except Exception as e:
-                raise SourceServiceError(f"Failed to save file: {str(e)}") from e
+                raise SourceServiceError(f"Failed to save file: {e!s}") from e
 
             # Determine document type
             try:
@@ -553,7 +571,7 @@ class SourceService:
             except Exception as e:
                 # Clean up on failure
                 shutil.rmtree(source_dir, ignore_errors=True)
-                raise SourceServiceError(f"Failed to determine document type: {str(e)}") from e
+                raise SourceServiceError(f"Failed to determine document type: {e!s}") from e
 
             # Create source document
             source_doc = SourceDocument(
@@ -573,17 +591,17 @@ class SourceService:
 
             logger.info(f"Created source document: {source_id}")
 
-            # Start processing in background
-            asyncio.create_task(self._process_document(source_doc))
+            # Start processing in background - intentionally not awaited
+            asyncio.create_task(self._process_document(source_doc))  # noqa: RUF006
 
             return source_doc
 
         except SourceServiceError as e:
-            logger.error(f"Source upload failed: {str(e)}")
+            logger.error(f"Source upload failed: {e!s}")
             raise
         except Exception as e:
-            logger.error(f"Unexpected error in upload_source: {str(e)}")
-            raise SourceServiceError(f"Unexpected error during upload: {str(e)}") from e
+            logger.error(f"Unexpected error in upload_source: {e!s}")
+            raise SourceServiceError(f"Unexpected error during upload: {e!s}") from e
 
     async def _process_document(self, source_doc: SourceDocument) -> None:
         """
@@ -591,6 +609,7 @@ class SourceService:
 
         Args:
             source_doc: Source document to process
+
         """
         try:
             # Update status to processing
@@ -627,9 +646,7 @@ class SourceService:
             try:
                 chunks = await self._chunk_text(text, chunk_metadata)
             except Exception as e:
-                await self._update_source_document_status(
-                    source_doc, DocumentStatus.FAILED, f"Chunking failed: {str(e)}"
-                )
+                await self._update_source_document_status(source_doc, DocumentStatus.FAILED, f"Chunking failed: {e!s}")
                 return
 
             # Create embeddings and store in vector database
@@ -639,7 +656,7 @@ class SourceService:
                 await self._update_source_document_status(
                     source_doc,
                     DocumentStatus.FAILED,
-                    f"Vector storage failed: {str(e)}",
+                    f"Vector storage failed: {e!s}",
                 )
                 return
 
@@ -655,7 +672,7 @@ class SourceService:
             )
 
         except Exception as e:
-            logger.error(f"Document processing failed: {str(e)}")
+            logger.error(f"Document processing failed: {e!s}")
             await self._update_source_document_status(source_doc, DocumentStatus.FAILED, str(e))
 
     async def get_source_document(self, source_id: str) -> SourceDocument | None:
@@ -667,6 +684,7 @@ class SourceService:
 
         Returns:
             Source document or None if not found
+
         """
         # In a real implementation, this would retrieve the document from storage
         # For now, we're returning an example document for illustration
@@ -688,7 +706,7 @@ class SourceService:
                 embedding_count=10,
             )
         except Exception as e:
-            logger.error(f"Error getting source document {source_id}: {str(e)}")
+            logger.error(f"Error getting source document {source_id}: {e!s}")
             return None
 
     async def list_sources(
@@ -711,6 +729,7 @@ class SourceService:
 
         Returns:
             Tuple of (list of source documents, total count)
+
         """
         # In a real implementation, this would query a database
         # For now, we're returning example data
@@ -751,6 +770,7 @@ class SourceService:
 
         Returns:
             List of search results with scores and metadata
+
         """
         try:
             # Generate query embedding
@@ -795,8 +815,8 @@ class SourceService:
             return search_results
 
         except Exception as e:
-            logger.error(f"Search failed: {str(e)}")
-            raise SourceServiceError(f"Search failed: {str(e)}") from e
+            logger.error(f"Search failed: {e!s}")
+            raise SourceServiceError(f"Search failed: {e!s}") from e
 
     async def delete_source(self, source_id: str) -> bool:
         """
@@ -810,6 +830,7 @@ class SourceService:
 
         Raises:
             SourceServiceError: If deletion fails
+
         """
         try:
             # Get document to verify it exists
@@ -825,7 +846,7 @@ class SourceService:
                     filter={"source_id": source_id},
                 )
             except Exception as e:
-                logger.error(f"Vector deletion failed for {source_id}: {str(e)}")
+                logger.error(f"Vector deletion failed for {source_id}: {e!s}")
                 # Continue with other deletion steps
 
             # Delete file from disk if it exists
@@ -835,7 +856,7 @@ class SourceService:
                     source_dir = Path(doc.file_path).parent
                     shutil.rmtree(source_dir)
                 except Exception as e:
-                    logger.error(f"File deletion failed for {source_id}: {str(e)}")
+                    logger.error(f"File deletion failed for {source_id}: {e!s}")
 
             # Update document status to deleted
             doc.status = DocumentStatus.DELETED
@@ -846,11 +867,11 @@ class SourceService:
             return True
 
         except SourceServiceError as e:
-            logger.error(f"Source deletion failed: {str(e)}")
+            logger.error(f"Source deletion failed: {e!s}")
             raise
         except Exception as e:
-            logger.error(f"Unexpected error in delete_source: {str(e)}")
-            raise SourceServiceError(f"Unexpected error during deletion: {str(e)}") from e
+            logger.error(f"Unexpected error in delete_source: {e!s}")
+            raise SourceServiceError(f"Unexpected error during deletion: {e!s}") from e
 
 
 # Factory function to create source service instance
@@ -882,7 +903,7 @@ source_service = None
 # Get or create the source service singleton
 async def get_or_create_source_service():
     """Get or create a source service singleton instance."""
-    global source_service
+    global source_service  # noqa: PLW0603
     if source_service is None:
         source_service = await get_source_service()
     return source_service

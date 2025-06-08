@@ -29,6 +29,7 @@ import {
   MoonOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+} from "@ant-design/icons";
 
 const { Sider, Header, Content } = Layout;
 const { Title } = Typography;
@@ -230,7 +231,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </Sider>
 
       {/* Layout Principal */}
-        <Layout style={{ marginLeft: collapsed ? 80 : 250 }}>
+      <Layout style={{ marginLeft: collapsed ? 80 : 250 }}>
         {/* Header */}
         <Header
           style={{

@@ -98,7 +98,7 @@ async def create_complex_workflow(
         )
 
     except Exception as e:
-        logger.error(f"Error creating complex workflow: {str(e)}")
+        logger.error(f"Error creating complex workflow: {e!s}")
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
@@ -148,7 +148,7 @@ async def create_simple_workflow(
         )
 
     except Exception as e:
-        logger.error(f"Error creating workflow: {str(e)}")
+        logger.error(f"Error creating workflow: {e!s}")
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 

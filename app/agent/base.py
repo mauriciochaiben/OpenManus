@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from contextlib import asynccontextmanager
 
 from app.compat import BaseModel, Field, model_validator
-
 from app.llm import LLM
 from app.logger import logger
 from app.sandbox.client import SANDBOX_CLIENT
@@ -10,7 +9,8 @@ from app.schema import ROLE_TYPE, AgentState, Memory, Message
 
 
 class BaseAgent(BaseModel, ABC):
-    """Abstract base class for managing agent state and execution.
+    """
+    Abstract base class for managing agent state and execution.
 
     Provides foundational functionality for state transitions, memory management,
     and a step-based execution loop. Subclasses must implement the `step` method.
@@ -50,7 +50,8 @@ class BaseAgent(BaseModel, ABC):
 
     @asynccontextmanager
     async def state_context(self, new_state: AgentState):
-        """Context manager for safe agent state transitions.
+        """
+        Context manager for safe agent state transitions.
 
         Args:
             new_state: The state to transition to during the context.
@@ -60,6 +61,7 @@ class BaseAgent(BaseModel, ABC):
 
         Raises:
             ValueError: If the new_state is invalid.
+
         """
         if not isinstance(new_state, AgentState):
             raise ValueError(f"Invalid state: {new_state}")
@@ -81,7 +83,8 @@ class BaseAgent(BaseModel, ABC):
         base64_image: str | None = None,
         **kwargs,
     ) -> None:
-        """Add a message to the agent's memory.
+        """
+        Add a message to the agent's memory.
 
         Args:
             role: The role of the message sender (user, system, assistant, tool).
@@ -91,6 +94,7 @@ class BaseAgent(BaseModel, ABC):
 
         Raises:
             ValueError: If the role is unsupported.
+
         """
         message_map = {
             "user": Message.user_message,
@@ -107,7 +111,8 @@ class BaseAgent(BaseModel, ABC):
         self.memory.add_message(message_map[role](content, **kwargs))
 
     async def run(self, request: str | None = None) -> str:
-        """Execute the agent's main loop asynchronously.
+        """
+        Execute the agent's main loop asynchronously.
 
         Args:
             request: Optional initial user request to process.
@@ -117,6 +122,7 @@ class BaseAgent(BaseModel, ABC):
 
         Raises:
             RuntimeError: If the agent is not in IDLE state at start.
+
         """
         if self.state != AgentState.IDLE:
             raise RuntimeError(f"Cannot run agent from state: {self.state}")
@@ -146,7 +152,8 @@ class BaseAgent(BaseModel, ABC):
 
     @abstractmethod
     async def step(self) -> str:
-        """Execute a single step in the agent's workflow.
+        """
+        Execute a single step in the agent's workflow.
 
         Must be implemented by subclasses to define specific behavior.
         """

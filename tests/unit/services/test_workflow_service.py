@@ -5,11 +5,15 @@ This module contains comprehensive unit tests for the WorkflowService class,
 testing workflow orchestration, step classification, tool execution, and event publishing.
 """
 
-from unittest.mock import AsyncMock
-
 import pytest
+
+# Check dependencies early
 pytest.importorskip("openai")
 
+# Standard library imports
+from unittest.mock import AsyncMock
+
+# Application imports
 from app.infrastructure.messaging.event_bus import EventBus
 from app.roles.planner_agent import PlannerAgent
 from app.roles.tool_user_agent import ToolUserAgent

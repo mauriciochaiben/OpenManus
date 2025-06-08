@@ -32,6 +32,7 @@ class RagService:
         Args:
             embedding_service: Service for generating embeddings
             vector_store_client: Client for vector database operations
+
         """
         self.embedding_service = embedding_service
         self.vector_store_client = vector_store_client
@@ -54,6 +55,7 @@ class RagService:
         Raises:
             ValueError: If query is empty or k is not positive
             Exception: If embedding generation or vector search fails
+
         """
         if not query.strip():
             raise ValueError("Query cannot be empty")
@@ -94,8 +96,8 @@ class RagService:
             return context_chunks
 
         except Exception as e:
-            logger.error(f"Failed to retrieve relevant context: {str(e)}")
-            raise Exception(f"Context retrieval failed: {str(e)}") from e
+            logger.error(f"Failed to retrieve relevant context: {e!s}")
+            raise Exception(f"Context retrieval failed: {e!s}") from e
 
     async def retrieve_relevant_context_with_scores(
         self,
@@ -122,6 +124,7 @@ class RagService:
         Raises:
             ValueError: If query is empty, k is not positive, or min_score is invalid
             Exception: If embedding generation or vector search fails
+
         """
         if not query.strip():
             raise ValueError("Query cannot be empty")
@@ -171,5 +174,5 @@ class RagService:
             return context_with_scores
 
         except Exception as e:
-            logger.error(f"Failed to retrieve context with scores: {str(e)}")
-            raise Exception(f"Context retrieval with scores failed: {str(e)}") from e
+            logger.error(f"Failed to retrieve context with scores: {e!s}")
+            raise Exception(f"Context retrieval with scores failed: {e!s}") from e

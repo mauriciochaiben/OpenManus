@@ -5,9 +5,9 @@ Pydantic model for representing user notes that can reference knowledge sources.
 Notes support markdown content and can be linked to knowledge sources for context.
 """
 
-import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, ClassVar
+import uuid
 
 from pydantic import BaseModel, Field, validator
 
@@ -128,8 +128,8 @@ class Note(BaseModel):
     class Config:
         """Pydantic configuration."""
 
-        json_encoders = {datetime: lambda v: v.isoformat()}
-        schema_extra = {
+        json_encoders: ClassVar = {datetime: lambda v: v.isoformat()}
+        schema_extra: ClassVar = {
             "example": {
                 "id": "note-123e4567-e89b-12d3-a456-426614174000",
                 "title": "AI Agent Architecture Notes",
@@ -289,7 +289,7 @@ class NoteResponse(BaseModel):
     class Config:
         """Pydantic configuration."""
 
-        json_encoders = {datetime: lambda v: v.isoformat()}
+        json_encoders: ClassVar = {datetime: lambda v: v.isoformat()}
 
 
 class NoteSearchQuery(BaseModel):
@@ -330,4 +330,4 @@ class NoteSearchResponse(BaseModel):
     class Config:
         """Pydantic configuration."""
 
-        json_encoders = {datetime: lambda v: v.isoformat()}
+        json_encoders: ClassVar = {datetime: lambda v: v.isoformat()}

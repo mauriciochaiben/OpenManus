@@ -1,9 +1,8 @@
 import json
 from typing import TYPE_CHECKING
 
-from app.compat import Field, model_validator
-
 from app.agent.toolcall import ToolCallAgent
+from app.compat import Field, model_validator
 from app.logger import logger
 from app.prompt.browser import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.schema import Message, ToolChoice
@@ -35,7 +34,7 @@ class BrowserContextHelper:
                 self._current_base64_image = None
             return json.loads(result.output)
         except Exception as e:
-            logger.debug(f"Failed to get browser state: {str(e)}")
+            logger.debug(f"Failed to get browser state: {e!s}")
             return None
 
     async def format_next_step_prompt(self) -> str:
@@ -112,7 +111,8 @@ class BrowserAgent(ToolCallAgent):
         return self
 
     async def think(self) -> bool:
-        """Process current state and decide next actions using tools.
+        """
+        Process current state and decide next actions using tools.
 
         Browser state info is added to the prompt.
         """

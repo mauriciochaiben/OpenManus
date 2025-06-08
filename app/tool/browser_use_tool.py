@@ -1,15 +1,15 @@
 import asyncio
 import base64
 import json
-from typing import Generic, TypeVar
+from typing import ClassVar, Generic, TypeVar
 
 from browser_use import Browser as BrowserUseBrowser
 from browser_use import BrowserConfig
 from browser_use.browser.context import BrowserContext, BrowserContextConfig
 from browser_use.dom.service import DomService
-from app.compat import Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
+from app.compat import Field, field_validator
 from app.core.settings import settings
 from app.llm import LLM
 from app.tool.base import BaseTool, ToolResult
@@ -38,7 +38,7 @@ Context = TypeVar("Context")
 class BrowserUseTool(BaseTool, Generic[Context]):
     name: str = "browser_use"
     description: str = _BROWSER_DESCRIPTION
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "action": {
@@ -217,6 +217,7 @@ class BrowserUseTool(BaseTool, Generic[Context]):
 
         Returns:
             ToolResult with the action's output or error
+
         """
         async with self.lock:
             try:
@@ -279,7 +280,7 @@ class BrowserUseTool(BaseTool, Generic[Context]):
                     await context._input_text_element_node(element, text)
                     return ToolResult(output=f"Input '{text}' into element at index {index}")
 
-                if action == "scroll_down" or action == "scroll_up":
+                if action in {"scroll_down", "scroll_up"}:
                     direction = 1 if action == "scroll_down" else -1
                     amount = (
                         scroll_amount if scroll_amount is not None else context.config.browser_window_size["height"]
@@ -296,7 +297,7 @@ class BrowserUseTool(BaseTool, Generic[Context]):
                         await locator.scroll_into_view_if_needed()
                         return ToolResult(output=f"Scrolled to text: '{text}'")
                     except Exception as e:
-                        return ToolResult(error=f"Failed to scroll to text: {str(e)}")
+                        return ToolResult(error=f"Failed to scroll to text: {e!s}")
 
                 elif action == "send_keys":
                     if not keys:
@@ -436,11 +437,12 @@ Page content:
                     return ToolResult(error=f"Unknown action: {action}")
 
             except Exception as e:
-                return ToolResult(error=f"Browser action '{action}' failed: {str(e)}")
+                return ToolResult(error=f"Browser action '{action}' failed: {e!s}")
 
     async def get_current_state(self, context: BrowserContext | None = None) -> ToolResult:
         """
         Get the current browser state as a ToolResult.
+
         If context is not provided, uses self.context.
         """
         try:
@@ -492,7 +494,7 @@ Page content:
                 base64_image=screenshot,
             )
         except Exception as e:
-            return ToolResult(error=f"Failed to get browser state: {str(e)}")
+            return ToolResult(error=f"Failed to get browser state: {e!s}")
 
     async def cleanup(self):
         """Clean up browser resources."""

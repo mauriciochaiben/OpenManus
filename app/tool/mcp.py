@@ -1,4 +1,5 @@
 from contextlib import AsyncExitStack
+from typing import ClassVar
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.sse import sse_client
@@ -28,7 +29,7 @@ class MCPClientTool(BaseTool):
             content_str = ", ".join(item.text for item in result.content if isinstance(item, TextContent))
             return ToolResult(output=content_str or "No output returned.")
         except Exception as e:
-            return ToolResult(error=f"Error executing tool: {str(e)}")
+            return ToolResult(error=f"Error executing tool: {e!s}")
 
 
 class MCPClients(ToolCollection):
@@ -36,8 +37,8 @@ class MCPClients(ToolCollection):
     A collection of tools that connects to multiple MCP servers and manages available tools through the Model Context Protocol.
     """
 
-    sessions: dict[str, ClientSession] = {}
-    exit_stacks: dict[str, AsyncExitStack] = {}
+    sessions: ClassVar[dict[str, ClientSession]] = {}
+    exit_stacks: ClassVar[dict[str, AsyncExitStack]] = {}
     description: str = "MCP client tools for server interaction"
 
     def __init__(self):

@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from app.core.settings import settings
 from app.tool.python_execute import PythonExecute
 
@@ -7,7 +9,7 @@ class NormalPythonExecute(PythonExecute):
 
     name: str = "python_execute"
     description: str = """Execute Python code for in-depth data analysis / data report(task conclusion) / other normal task without direct visualization."""
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "code_type": {
@@ -30,5 +32,10 @@ class NormalPythonExecute(PythonExecute):
         "required": ["code"],
     }
 
-    async def execute(self, code: str, code_type: str | None = None, timeout=5):  # noqa: ARG002
+    async def execute(
+        self,
+        code: str,
+        code_type: str | None = None,  # noqa: ARG002
+        timeout=5,
+    ):
         return await super().execute(code, timeout)

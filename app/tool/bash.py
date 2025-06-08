@@ -1,8 +1,12 @@
 import asyncio
+import logging
 import os
+from typing import ClassVar
 
 from app.exceptions import ToolError
 from app.tool.base import BaseTool, CLIResult
+
+logger = logging.getLogger(__name__)
 
 _BASH_DESCRIPTION = """Execute a bash command in the terminal.
 * Long running commands: For commands that may run indefinitely, it should be run in the background and the output should be redirected to a file, e.g. command = `python3 app.py > server.log 2>&1 &`.
@@ -15,7 +19,7 @@ class _BashSession:
     """A session of a bash shell."""
 
     _started: bool
-    _process: asyncio.subprocess.Process
+    _process: asyncio.subprocess.Process | None
 
     command: str = "/bin/bash"
     _output_delay: float = 0.2  # seconds
@@ -25,15 +29,16 @@ class _BashSession:
     def __init__(self):
         self._started = False
         self._timed_out = False
+        self._process = None
 
     async def start(self):
         if self._started:
             return
 
-        self._process = await asyncio.create_subprocess_shell(
-            self.command,
+        self._process = await asyncio.create_subprocess_exec(
+            "/bin/bash",
+            "-i",
             preexec_fn=os.setsid,
-            shell=True,
             bufsize=0,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
@@ -46,61 +51,95 @@ class _BashSession:
         """Terminate the bash shell."""
         if not self._started:
             raise ToolError("Session has not started.")
-        if self._process.returncode is not None:
+        if not self._process or self._process.returncode is not None:
             return
         self._process.terminate()
+
+    async def _read_until_sentinel(self, stream: asyncio.StreamReader) -> str:
+        """Read from stream until sentinel is found."""
+        output_parts = []
+        while True:
+            try:
+                # Read available data
+                data = await asyncio.wait_for(stream.read(4096), timeout=self._output_delay)
+                if not data:
+                    break
+
+                text = data.decode("utf-8", errors="replace")
+                output_parts.append(text)
+
+                # Check if we have the sentinel
+                full_output = "".join(output_parts)
+                if self._sentinel in full_output:
+                    # Return everything before the sentinel
+                    return full_output[: full_output.index(self._sentinel)]
+
+            except TimeoutError:
+                # No more immediate data, check what we have
+                full_output = "".join(output_parts)
+                if self._sentinel in full_output:
+                    return full_output[: full_output.index(self._sentinel)]
+                # Continue reading if no sentinel found
+                continue
+
+        return "".join(output_parts)
 
     async def run(self, command: str):
         """Execute a command in the bash shell."""
         if not self._started:
             raise ToolError("Session has not started.")
-        if self._process.returncode is not None:
+        if not self._process or self._process.returncode is not None:
             return CLIResult(
                 system="tool must be restarted",
-                error=f"bash has exited with returncode {self._process.returncode}",
+                error=f"bash has exited with returncode {self._process.returncode if self._process else 'unknown'}",
             )
         if self._timed_out:
             raise ToolError(
                 f"timed out: bash has not returned in {self._timeout} seconds and must be restarted",
             )
 
-        # we know these are not None because we created the process with PIPEs
-        assert self._process.stdin
-        assert self._process.stdout
-        assert self._process.stderr
+        # Validate process streams
+        if not self._process.stdin:
+            raise RuntimeError("Process stdin is not available")
+        if not self._process.stdout:
+            raise RuntimeError("Process stdout is not available")
+        if not self._process.stderr:
+            raise RuntimeError("Process stderr is not available")
 
-        # send command to the process
-        self._process.stdin.write(command.encode() + f"; echo '{self._sentinel}'\n".encode())
+        # Send command to the process
+        command_with_sentinel = f"{command}; echo '{self._sentinel}'\n"
+        self._process.stdin.write(command_with_sentinel.encode())
         await self._process.stdin.drain()
 
-        # read output from the process, until the sentinel is found
+        # Read output with timeout
         try:
             async with asyncio.timeout(self._timeout):
-                while True:
-                    await asyncio.sleep(self._output_delay)
-                    # if we read directly from stdout/stderr, it will wait forever for
-                    # EOF. use the StreamReader buffer directly instead.
-                    output = self._process.stdout._buffer.decode()  # pyright: ignore[reportAttributeAccessIssue]
-                    if self._sentinel in output:
-                        # strip the sentinel and break
-                        output = output[: output.index(self._sentinel)]
-                        break
+                output = await self._read_until_sentinel(self._process.stdout)
+
+                # Read any stderr data that's immediately available
+                error_parts = []
+                try:
+                    while True:
+                        error_data = await asyncio.wait_for(self._process.stderr.read(4096), timeout=0.1)
+                        if not error_data:
+                            break
+                        error_parts.append(error_data.decode("utf-8", errors="replace"))
+                except TimeoutError:
+                    pass  # No more stderr data available
+
+                error = "".join(error_parts)
+
         except TimeoutError:
             self._timed_out = True
             raise ToolError(
                 f"timed out: bash has not returned in {self._timeout} seconds and must be restarted",
             ) from None
 
+        # Clean up output
         if output.endswith("\n"):
             output = output[:-1]
-
-        error = self._process.stderr._buffer.decode()  # pyright: ignore[reportAttributeAccessIssue]
         if error.endswith("\n"):
             error = error[:-1]
-
-        # clear the buffers so that the next output can be read correctly
-        self._process.stdout._buffer.clear()  # pyright: ignore[reportAttributeAccessIssue]
-        self._process.stderr._buffer.clear()  # pyright: ignore[reportAttributeAccessIssue]
 
         return CLIResult(output=output, error=error)
 
@@ -110,7 +149,7 @@ class Bash(BaseTool):
 
     name: str = "bash"
     description: str = _BASH_DESCRIPTION
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "command": {

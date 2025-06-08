@@ -7,14 +7,13 @@ a funcionalidade do PlannerAgent usando mocks e pytest.
 """
 
 import os
+from pathlib import Path
 import subprocess
 import sys
-from pathlib import Path
 
 
 def run_tests():
     """Executa os testes do PlannerAgent com relatório detalhado."""
-
     print("🧪 Demonstração dos Testes Unitários do PlannerAgent")
     print("=" * 60)
 
@@ -45,6 +44,7 @@ def run_tests():
             capture_output=True,
             text=True,
             timeout=60,
+            check=False,
         )
 
         print("📊 Resultado dos Testes:")
@@ -80,7 +80,6 @@ def run_tests():
 
 def show_test_structure():
     """Mostra a estrutura dos testes implementados."""
-
     print("\n🏗️ Estrutura dos Testes Implementados:")
     print("-" * 40)
 
@@ -120,7 +119,6 @@ def show_test_structure():
 
 def show_mock_example():
     """Mostra exemplo de como os mocks são usados nos testes."""
-
     print("\n🎭 Exemplo de Mock Implementation:")
     print("-" * 40)
 
@@ -159,7 +157,6 @@ async def test_run_success_with_development_task(self):
 
 def show_benefits():
     """Mostra os benefícios da implementação de testes."""
-
     print("\n🌟 Benefícios dos Testes Implementados:")
     print("-" * 40)
 
@@ -180,7 +177,6 @@ def show_benefits():
 
 def main():
     """Função principal da demonstração."""
-
     # Verificar se estamos no diretório correto
     if not Path("app/roles/planner_agent.py").exists():
         print("❌ Execute este script no diretório raiz do OpenManus")

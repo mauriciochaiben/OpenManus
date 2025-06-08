@@ -28,7 +28,7 @@ class ConfigurationMigration:
         """Issue a deprecation warning once per path."""
         if old_path not in self._warned_deprecations:
             warnings.warn(
-                f"Accessing configuration via '{old_path}' is deprecated. " f"Use '{new_path}' instead.",
+                f"Accessing configuration via '{old_path}' is deprecated. Use '{new_path}' instead.",
                 DeprecationWarning,
                 stacklevel=3,
             )

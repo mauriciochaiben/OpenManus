@@ -8,12 +8,13 @@ configuration loading across the application.
 
 import json
 import os
-import tomllib
 from pathlib import Path
+import tomllib
 from typing import Any
 
-from app.compat import BaseModel, Field, computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.compat import BaseModel, Field, computed_field, field_validator
 
 
 def get_project_root() -> Path:
@@ -221,7 +222,8 @@ class KnowledgeSettings(BaseModel):
 
 
 class Settings(BaseSettings):
-    """Main application settings using Pydantic BaseSettings.
+    """
+    Main application settings using Pydantic BaseSettings.
 
     This class automatically loads configuration from:
     1. Environment variables (highest priority)
@@ -608,7 +610,7 @@ class Settings(BaseSettings):
                 chunk_overlap=self.vector_chunk_overlap,
                 search_k=self.vector_search_k,
                 search_threshold=self.vector_search_threshold,
-                max_upload_size=f"{self.document_max_size_bytes // (1024*1024)}MB",
+                max_upload_size=f"{self.document_max_size_bytes // (1024 * 1024)}MB",
                 allowed_types=self.document_allowed_types,
                 storage_path=self.document_storage_path,
                 processing_timeout=self.document_processing_timeout,

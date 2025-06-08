@@ -90,12 +90,11 @@ class TaskService:
         description: str,
         mode: str | None = None,
         priority: str = "medium",
-        tags: list[str] = None,
-        document_ids: list[str] = None,
-        config: dict = None,
+        tags: list[str] | None = None,
+        document_ids: list[str] | None = None,
+        config: dict | None = None,
     ) -> Task:
         """Create a new task with complexity analysis"""
-
         # Analyze complexity
         analysis = self.complexity_service.analyze(description)
         complexity = analysis["complexity"]

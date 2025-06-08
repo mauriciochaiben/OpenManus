@@ -60,9 +60,8 @@ class MockLLM:
         temperature: float | None = None,  # noqa: ARG002
     ) -> str:
         """Mock ask method that provides realistic responses"""
-
         # Simulate processing delay
-        await asyncio.sleep(random.uniform(0.5, 2.0))
+        await asyncio.sleep(random.uniform(0.5, 2.0))  # nosec
 
         self.request_count += 1
 
@@ -80,7 +79,7 @@ class MockLLM:
         # Determine response type and get appropriate response
         response_type = self._get_response_type(user_message)
         responses = self.responses.get(response_type, self.responses["default"])
-        base_response = random.choice(responses)
+        base_response = random.choice(responses)  # nosec
 
         # Add some context based on the request
         if len(user_message) > 50:
@@ -96,7 +95,8 @@ class MockLLM:
             response = detailed_response
         else:
             response = (
-                f"{base_response}\n\n**Resposta:** {user_message}\n\n**Status:** Processamento concluído com sucesso."
+                f"{base_response}\n\n**Resposta:** {user_message}\n\n"
+                f"**Status:** Processamento concluído com sucesso."
             )
 
         return response
@@ -112,9 +112,8 @@ class MockLLM:
         **kwargs,  # noqa: ARG002
     ) -> ChatCompletionMessage:
         """Mock ask_tool method"""
-
         # Simulate processing delay
-        await asyncio.sleep(random.uniform(1.0, 3.0))
+        await asyncio.sleep(random.uniform(1.0, 3.0))  # nosec
 
         response_content = await self.ask(messages, system_msgs, False, temperature)
 

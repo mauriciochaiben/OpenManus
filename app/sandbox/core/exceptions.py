@@ -1,4 +1,5 @@
-"""Exception classes for the sandbox system.
+"""
+Exception classes for the sandbox system.
 
 This module defines custom exceptions used throughout the sandbox system to
 handle various error conditions in a structured way.

@@ -16,7 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 class PlannerAgent(BaseAgent):
-    """Agente especializado em decomposição e planejamento de tarefas.
+    """
+    Agente especializado em decomposição e planejamento de tarefas.
 
     O PlannerAgent recebe uma tarefa complexa e a decompõe em uma sequência
     de passos menores e mais específicos que podem ser executados por outros
@@ -24,10 +25,12 @@ class PlannerAgent(BaseAgent):
 
     Attributes:
         llm_config: Configuração opcional para o cliente LLM usado na decomposição.
+
     """
 
     def __init__(self, config: dict | None = None) -> None:
-        """Inicializa o PlannerAgent com configurações opcionais.
+        """
+        Inicializa o PlannerAgent com configurações opcionais.
 
         Args:
             config: Dicionário opcional contendo configurações específicas
@@ -39,13 +42,15 @@ class PlannerAgent(BaseAgent):
         Note:
             Se não fornecido, o agente usará configurações padrão para
             decomposição de tarefas.
+
         """
         self.llm_config = config.get("llm_config") if config else None
         self.max_steps = config.get("max_steps", 10) if config else 10
         self.planning_strategy = config.get("planning_strategy", "sequential") if config else "sequential"
 
     async def run(self, task_details: dict) -> dict:
-        """Executa a decomposição de uma tarefa em passos sequenciais.
+        """
+        Executa a decomposição de uma tarefa em passos sequenciais.
 
         Args:
             task_details: Dicionário contendo os detalhes da tarefa a ser decomposta.
@@ -63,6 +68,7 @@ class PlannerAgent(BaseAgent):
         Raises:
             KeyError: Quando 'input' não está presente em task_details.
             Exception: Quando ocorre erro durante a decomposição.
+
         """
         try:
             # Extrair a descrição da tarefa principal
@@ -98,7 +104,7 @@ class PlannerAgent(BaseAgent):
         except Exception as e:
             return {
                 "status": "error",
-                "message": f"Erro na decomposição da tarefa: {str(e)}",
+                "message": f"Erro na decomposição da tarefa: {e!s}",
                 "steps": [],
             }
 
@@ -127,7 +133,7 @@ class PlannerAgent(BaseAgent):
             }
 
         except Exception as e:
-            logger.error(f"Planning failed: {str(e)}")
+            logger.error(f"Planning failed: {e!s}")
             return {
                 "status": "error",
                 "result": "Planning failed",
@@ -148,16 +154,19 @@ class PlannerAgent(BaseAgent):
         pass
 
     def get_capabilities(self) -> list[str]:
-        """Retorna as capacidades do agente planejador.
+        """
+        Retorna as capacidades do agente planejador.
 
         Returns:
             List[str]: Lista contendo as capacidades específicas do PlannerAgent:
                       - "task_decomposition": Decomposição de tarefas complexas
+
         """
         return ["task_decomposition"]
 
     def _create_decomposition_prompt(self, task: str, context: str, complexity: str) -> str:
-        """Cria o prompt para decomposição da tarefa pelo LLM.
+        """
+        Cria o prompt para decomposição da tarefa pelo LLM.
 
         Args:
             task: Descrição da tarefa principal
@@ -166,6 +175,7 @@ class PlannerAgent(BaseAgent):
 
         Returns:
             str: Prompt formatado para o LLM
+
         """
         base_prompt = f"""
         Decompor a seguinte tarefa em passos sequenciais simples e executáveis:
@@ -187,7 +197,8 @@ class PlannerAgent(BaseAgent):
         return base_prompt
 
     async def _simulate_llm_decomposition(self, task: str, prompt: str) -> list[str]:  # noqa: ARG002
-        """Simula a chamada ao LLM para decomposição da tarefa.
+        """
+        Simula a chamada ao LLM para decomposição da tarefa.
 
         Args:
             task: Descrição da tarefa original
@@ -199,6 +210,7 @@ class PlannerAgent(BaseAgent):
         Note:
             Esta é uma implementação temporária. Será substituída por
             integração real com LLM posteriormente.
+
         """
         # Simular delay de processamento do LLM
         await asyncio.sleep(0.1)

@@ -99,8 +99,8 @@ async def main():
     except KeyboardInterrupt:
         logger.warning("Operation interrupted.")
     except Exception as e:
-        logger.error(f"Error during execution: {str(e)}")
-        print(f"Error: {str(e)}")
+        logger.error(f"Error during execution: {e!s}")
+        print(f"Error: {e!s}")
     finally:
         # Cleanup de recursos
         try:
@@ -109,7 +109,7 @@ async def main():
             if "flow" in locals() and hasattr(flow, "cleanup"):
                 await flow.cleanup()
         except Exception as e:
-            logger.error(f"Error during cleanup: {str(e)}")
+            logger.error(f"Error during cleanup: {e!s}")
 
 
 if __name__ == "__main__":

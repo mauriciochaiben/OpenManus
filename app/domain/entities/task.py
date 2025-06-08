@@ -102,7 +102,7 @@ class Task:
         self.completed_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
 
-    def fail(self, error_message: str = None):  # noqa: ARG002
+    def fail(self, error_message: str | None = None):  # noqa: ARG002
         """Mark task as failed"""
         self.status = TaskStatus.ERROR
         self.updated_at = datetime.utcnow()

@@ -41,6 +41,7 @@ class ToolRegistry:
         Raises:
             ValueError: If tool_name is empty or tool_instance is not a BaseTool
             TypeError: If tool_instance is not an instance of BaseTool
+
         """
         if not tool_name or not isinstance(tool_name, str):
             raise ValueError("Tool name must be a non-empty string")
@@ -63,6 +64,7 @@ class ToolRegistry:
 
         Returns:
             Optional[BaseTool]: The tool instance if found, None otherwise
+
         """
         if not tool_name or not isinstance(tool_name, str):
             logger.warning("Tool name must be a non-empty string")
@@ -80,6 +82,7 @@ class ToolRegistry:
 
         Returns:
             List[str]: A list of all registered tool names, sorted alphabetically
+
         """
         return sorted(self._tools.keys())
 
@@ -92,6 +95,7 @@ class ToolRegistry:
 
         Returns:
             bool: True if the tool was removed, False if it wasn't found
+
         """
         if not tool_name or not isinstance(tool_name, str):
             logger.warning("Tool name must be a non-empty string")
@@ -113,6 +117,7 @@ class ToolRegistry:
 
         Returns:
             bool: True if the tool is registered, False otherwise
+
         """
         return tool_name in self._tools
 
@@ -132,6 +137,7 @@ class ToolRegistry:
 
         Returns:
             int: The number of registered tools
+
         """
         return len(self._tools)
 
@@ -144,6 +150,7 @@ class ToolRegistry:
 
         Returns:
             List[BaseTool]: A list of tools that are instances of the specified type
+
         """
         return [tool for tool in self._tools.values() if isinstance(tool, tool_type)]
 

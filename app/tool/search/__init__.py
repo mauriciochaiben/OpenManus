@@ -5,9 +5,9 @@ from app.tool.search.duckduckgo_search import DuckDuckGoSearchEngine
 from app.tool.search.google_search import GoogleSearchEngine
 
 __all__ = [
-    "WebSearchEngine",
     "BaiduSearchEngine",
+    "BingSearchEngine",
     "DuckDuckGoSearchEngine",
     "GoogleSearchEngine",
-    "BingSearchEngine",
+    "WebSearchEngine",
 ]

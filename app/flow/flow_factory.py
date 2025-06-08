@@ -44,7 +44,7 @@ class FlowFactory:
             elif isinstance(agents, list):
                 agents_dict = {"primary": agents[0]}
             else:
-                agents_dict = {"primary": list(agents.values())[0]}
+                agents_dict = {"primary": next(iter(agents.values()))}
 
             return MultiAgentFlow(agents=agents_dict, mode=ExecutionMode.FORCE_SINGLE, **kwargs)
 

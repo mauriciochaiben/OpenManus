@@ -1,7 +1,6 @@
-from app.compat import Field, model_validator
-
 from app.agent.browser import BrowserContextHelper
 from app.agent.toolcall import ToolCallAgent
+from app.compat import Field, model_validator
 from app.core.settings import settings
 from app.logger import logger
 from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT
@@ -19,9 +18,7 @@ class Manus(ToolCallAgent):
     """A versatile general-purpose agent with support for both local and MCP tools."""
 
     name: str = "Manus"
-    description: str = (
-        "A versatile agent that can solve various tasks using multiple tools " "including MCP-based tools"
-    )
+    description: str = "A versatile agent that can solve various tasks using multiple tools including MCP-based tools"
 
     system_prompt: str = SYSTEM_PROMPT.format(directory=settings.workspace_root)
     next_step_prompt: str = NEXT_STEP_PROMPT
@@ -73,7 +70,7 @@ class Manus(ToolCallAgent):
                 if server_config.type == "sse":
                     if server_config.url:
                         await self.connect_mcp_server(server_config.url, server_id)
-                        logger.info(f"Connected to MCP server {server_id} at " f"{server_config.url}")
+                        logger.info(f"Connected to MCP server {server_id} at {server_config.url}")
                 elif server_config.type == "stdio" and server_config.command:
                     await self.connect_mcp_server(
                         server_config.command,
@@ -81,7 +78,7 @@ class Manus(ToolCallAgent):
                         use_stdio=True,
                         stdio_args=server_config.args,
                     )
-                    logger.info(f"Connected to MCP server {server_id} using command " f"{server_config.command}")
+                    logger.info(f"Connected to MCP server {server_id} using command {server_config.command}")
             except Exception as e:
                 logger.error(f"Failed to connect to MCP server {server_id}: {e}")
 
@@ -90,7 +87,7 @@ class Manus(ToolCallAgent):
         server_url: str,
         server_id: str = "",
         use_stdio: bool = False,
-        stdio_args: list[str] = None,
+        stdio_args: list[str] | None = None,
     ) -> None:
         """Connect to an MCP server and add its tools."""
         if use_stdio:

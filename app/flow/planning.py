@@ -1,6 +1,6 @@
+from enum import Enum
 import json
 import time
-from enum import Enum
 
 from pydantic import Field
 
@@ -74,6 +74,7 @@ class PlanningFlow(BaseFlow):
     def get_executor(self, step_type: str | None = None) -> BaseAgent:
         """
         Get an appropriate executor agent for the current step.
+
         Can be extended to select agents based on step type/requirements.
         """
         # If step type is provided and matches an agent key, use that agent
@@ -125,8 +126,8 @@ class PlanningFlow(BaseFlow):
 
             return result
         except Exception as e:
-            logger.error(f"Error in PlanningFlow: {str(e)}")
-            return f"Execution failed: {str(e)}"
+            logger.error(f"Error in PlanningFlow: {e!s}")
+            return f"Execution failed: {e!s}"
 
     async def _create_initial_plan(self, request: str) -> None:
         """Create an initial plan based on the request using the flow's LLM and PlanningTool."""
@@ -171,7 +172,7 @@ class PlanningFlow(BaseFlow):
                     # Execute the tool via ToolCollection instead of directly
                     result = await self.planning_tool.execute(**args)
 
-                    logger.info(f"Plan creation result: {str(result)}")
+                    logger.info(f"Plan creation result: {result!s}")
                     return
 
         # If execution reached here, create a default plan
@@ -190,6 +191,7 @@ class PlanningFlow(BaseFlow):
     async def _get_current_step_info(self) -> tuple[int | None, dict | None]:
         """
         Parse the current plan to identify the first non-completed step's index and info.
+
         Returns (None, None) if no active step is found.
         """
         if not self.active_plan_id or self.active_plan_id not in self.planning_tool.plans:
@@ -273,7 +275,7 @@ class PlanningFlow(BaseFlow):
             return step_result
         except Exception as e:
             logger.error(f"Error executing step {self.current_step_index}: {e}")
-            return f"Error executing step {self.current_step_index}: {str(e)}"
+            return f"Error executing step {self.current_step_index}: {e!s}"
 
     async def _mark_step_completed(self) -> None:
         """Mark the current step as completed."""
@@ -332,7 +334,7 @@ class PlanningFlow(BaseFlow):
                 step_notes.append("")
 
             # Count steps by status
-            status_counts = {status: 0 for status in PlanStepStatus.get_all_statuses()}
+            status_counts = dict.fromkeys(PlanStepStatus.get_all_statuses(), 0)
 
             for status in step_statuses:
                 if status in status_counts:

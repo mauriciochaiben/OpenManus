@@ -1,7 +1,7 @@
 """Enhanced document analysis tool with specialized Docling capabilities."""
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docling.chunking import HierarchicalChunker  # Changed import
 from docling.document_converter import DocumentConverter
@@ -16,7 +16,8 @@ if TYPE_CHECKING:
 
 
 class DocumentAnalyzer(BaseTool):
-    """Advanced document analyzer with specialized AI-powered capabilities.
+    """
+    Advanced document analyzer with specialized AI-powered capabilities.
 
     This tool provides sophisticated document analysis beyond basic reading:
     - Semantic document chunking for RAG applications
@@ -47,7 +48,7 @@ class DocumentAnalyzer(BaseTool):
     - Financial report analysis
     """
 
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "file_path": {
@@ -118,7 +119,6 @@ class DocumentAnalyzer(BaseTool):
         **kwargs: Any,  # noqa: ARG002
     ) -> str:
         """Execute advanced document analysis."""
-
         try:
             if not Path(file_path).exists():
                 raise ToolError(f"File not found: {file_path}")
@@ -157,7 +157,7 @@ class DocumentAnalyzer(BaseTool):
             result = ToolResult(output=f"📊 Document analysis results ({analysis_type}):\n\n{content}")
 
         except Exception as e:
-            result = ToolResult(error=f"Analysis failed for {file_path}: {str(e)}")
+            result = ToolResult(error=f"Analysis failed for {file_path}: {e!s}")
 
         return str(result)
 
@@ -239,7 +239,7 @@ class DocumentAnalyzer(BaseTool):
             result.append(markdown_content)
 
         except Exception as e:
-            result.append(f"Table analysis failed: {str(e)}")
+            result.append(f"Table analysis failed: {e!s}")
             result.append("\nFallback text content:")
             result.append(doc.export_to_text())
 
@@ -270,13 +270,13 @@ class DocumentAnalyzer(BaseTool):
                 "√",
                 "π",
                 "θ",
-                "α",
+                "α",  # noqa: RUF001 - Greek letter alpha, used for mathematical symbols
                 "β",
-                "γ",
+                "γ",  # noqa: RUF001 - Greek letter gamma, used for mathematical symbols
                 "δ",
                 "λ",
                 "μ",
-                "σ",
+                "σ",  # noqa: RUF001 - Greek letter sigma, used for mathematical symbols
             ]
             formula_patterns = ["$", "\\(", "\\[", "equation", "formula"]
 
@@ -301,7 +301,7 @@ class DocumentAnalyzer(BaseTool):
             result.append(markdown_content)
 
         except Exception as e:
-            result.append(f"Formula extraction failed: {str(e)}")
+            result.append(f"Formula extraction failed: {e!s}")
             result.append("\nDocument text:")
             result.append(doc.export_to_text())
 
@@ -352,7 +352,7 @@ class DocumentAnalyzer(BaseTool):
             result.append(markdown_content)
 
         except Exception as e:
-            result.append(f"Structure mapping failed: {str(e)}")
+            result.append(f"Structure mapping failed: {e!s}")
             result.append("\nBasic content:")
             result.append(doc.export_to_text())
 
@@ -443,7 +443,7 @@ class DocumentAnalyzer(BaseTool):
             result.append(doc.export_to_markdown())
 
         except Exception as e:
-            result.append(f"Content summarization failed: {str(e)}")
+            result.append(f"Content summarization failed: {e!s}")
             result.append("\nFallback content:")
             result.append(doc.export_to_text())
 
@@ -501,7 +501,7 @@ class DocumentAnalyzer(BaseTool):
             result.append(doc.export_to_markdown())
 
         except Exception as e:
-            result.append(f"Citation analysis failed: {str(e)}")
+            result.append(f"Citation analysis failed: {e!s}")
             result.append("\nDocument content:")
             result.append(doc.export_to_text())
 
@@ -564,7 +564,7 @@ class DocumentAnalyzer(BaseTool):
             result.append(await self._perform_semantic_chunking(doc, chunk_size, overlap_size))
 
         except Exception as e:
-            result.append(f"Full analysis failed: {str(e)}")
+            result.append(f"Full analysis failed: {e!s}")
             result.append("\\nBasic content:")
             result.append(doc.export_to_markdown())
 

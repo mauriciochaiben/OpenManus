@@ -7,10 +7,10 @@ decompose tasks, execute steps, and publish progress events.
 """
 
 import asyncio
-import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+import logging
+from typing import Any, ClassVar
 
 from app.infrastructure.messaging.event_bus import Event, EventBus
 from app.knowledge.services.rag_service import RagService
@@ -136,7 +136,8 @@ class WorkflowContext:
 
 
 class WorkflowService:
-    """Service for orchestrating workflow execution.
+    """
+    Service for orchestrating workflow execution.
 
     The WorkflowService coordinates the execution of complex workflows by:
     1. Using PlannerAgent to decompose tasks into steps
@@ -147,7 +148,7 @@ class WorkflowService:
     """
 
     # Keywords that indicate a step requires tool execution
-    TOOL_KEYWORDS = {
+    TOOL_KEYWORDS: ClassVar = {
         "search",
         "web_search",
         "google",
@@ -193,12 +194,14 @@ class WorkflowService:
         tool_user_agent: ToolUserAgent | None = None,
         event_bus: EventBus | None = None,
     ) -> None:
-        """Initialize the WorkflowService with required dependencies.
+        """
+        Initialize the WorkflowService with required dependencies.
 
         Args:
             planner_agent: PlannerAgent instance for task decomposition
             tool_user_agent: ToolUserAgent instance for tool execution
             event_bus: EventBus instance for publishing workflow events
+
         """
         self.planner_agent = planner_agent or PlannerAgent()
         self.tool_user_agent = tool_user_agent or ToolUserAgent()
@@ -242,6 +245,7 @@ class WorkflowService:
 
         Returns:
             Enhanced prompt with context or original prompt if no context available
+
         """
         if not source_ids or not self.rag_service:
             return original_prompt
@@ -261,7 +265,7 @@ class WorkflowService:
                 return original_prompt
 
             # Format context for LLM prompt
-            context_text = "\n\n".join([f"Context {i+1}:\n{chunk}" for i, chunk in enumerate(context_chunks)])
+            context_text = "\n\n".join([f"Context {i + 1}:\n{chunk}" for i, chunk in enumerate(context_chunks)])
 
             enhanced_prompt = (
                 "Use the following context from the knowledge base to help answer the question or complete the task. "
@@ -278,7 +282,7 @@ class WorkflowService:
             return enhanced_prompt
 
         except Exception as e:
-            logger.error(f"Error retrieving context for prompt enhancement: {str(e)}")
+            logger.error(f"Error retrieving context for prompt enhancement: {e!s}")
             # Return original prompt if context retrieval fails
             return original_prompt
 
@@ -292,7 +296,6 @@ class WorkflowService:
         - Context enhancement from knowledge sources
         - Error recovery and step dependencies
         """
-
         workflow_id = self._generate_workflow_id()
 
         # Initialize workflow data structure
@@ -392,7 +395,7 @@ class WorkflowService:
             return result
 
         except Exception as e:
-            logger.error(f"Complex workflow execution failed: {str(e)}")
+            logger.error(f"Complex workflow execution failed: {e!s}")
             workflow_data["status"] = "failed"
 
             return {
@@ -426,6 +429,7 @@ class WorkflowService:
 
         Returns:
             Dictionary representing the executed step result
+
         """
         step_id = f"{workflow_data['id']}-step-{step_index}"
         step_name = step_config.get("name", f"step_{step_index}")
@@ -481,9 +485,9 @@ class WorkflowService:
             step_result["status"] = "failed"
             step_result["success"] = False
             step_result["error"] = str(e)
-            step_result["result"] = f"Step execution failed: {str(e)}"
+            step_result["result"] = f"Step execution failed: {e!s}"
 
-            logger.error(f"Step execution failed: {str(e)}")
+            logger.error(f"Step execution failed: {e!s}")
 
             await self.event_bus.publish(
                 WorkflowStepCompletedEvent(
@@ -507,6 +511,7 @@ class WorkflowService:
 
         Args:
             request: Either a string (initial task) or WorkflowRequest object
+
         """
         # Handle backward compatibility - convert string to WorkflowRequest
         if isinstance(request, str):
@@ -620,7 +625,7 @@ class WorkflowService:
                         )
 
                 except Exception as e:
-                    error_msg = f"Error executing step {step_number}: {str(e)}"
+                    error_msg = f"Error executing step {step_number}: {e!s}"
                     logger.error(error_msg)
 
                     step_results.append(
@@ -684,7 +689,7 @@ class WorkflowService:
             return result
 
         except Exception as e:
-            error_msg = f"Workflow execution failed: {str(e)}"
+            error_msg = f"Workflow execution failed: {e!s}"
             logger.error(f"Workflow {workflow_id} failed: {error_msg}")
 
             # Publish workflow failed event
@@ -705,13 +710,15 @@ class WorkflowService:
             return self._create_error_result(workflow_id, error_msg, 0, 0)
 
     async def _decompose_task(self, task: str) -> dict:
-        """Decompose a task using the PlannerAgent.
+        """
+        Decompose a task using the PlannerAgent.
 
         Args:
             task: The task description to decompose
 
         Returns:
             Dict: Decomposition result from PlannerAgent
+
         """
         try:
             return await self.planner_agent.run(
@@ -722,21 +729,23 @@ class WorkflowService:
                 }
             )
         except Exception as e:
-            logger.error(f"Task decomposition failed: {str(e)}")
+            logger.error(f"Task decomposition failed: {e!s}")
             return {
                 "status": "error",
-                "message": f"Task decomposition failed: {str(e)}",
+                "message": f"Task decomposition failed: {e!s}",
                 "steps": [],
             }
 
     def _classify_step(self, step_description: str) -> str:
-        """Classify a step as requiring tools or being a generic task.
+        """
+        Classify a step as requiring tools or being a generic task.
 
         Args:
             step_description: The description of the step to classify
 
         Returns:
             str: "tool" if step requires tool execution, "generic" otherwise
+
         """
         step_lower = step_description.lower()
 
@@ -748,13 +757,15 @@ class WorkflowService:
         return "generic"
 
     async def _execute_tool_step(self, step_description: str) -> dict:
-        """Execute a tool-based step using ToolUserAgent.
+        """
+        Execute a tool-based step using ToolUserAgent.
 
         Args:
             step_description: Description of the step to execute
 
         Returns:
             Dict: Execution result
+
         """
         try:
             # Extract potential tool name and arguments from step description
@@ -764,18 +775,20 @@ class WorkflowService:
             return await self.tool_user_agent.run(tool_info)
 
         except Exception as e:
-            error_msg = f"Tool step execution failed: {str(e)}"
+            error_msg = f"Tool step execution failed: {e!s}"
             logger.error(error_msg)
             return {"success": False, "result": None, "message": error_msg}
 
     async def _execute_generic_step(self, step_description: str) -> dict:
-        """Execute a generic step that doesn't require specific tools.
+        """
+        Execute a generic step that doesn't require specific tools.
 
         Args:
             step_description: Description of the step to execute
 
         Returns:
             Dict: Execution result (simulated for generic steps)
+
         """
         try:
             # Simulate generic step execution
@@ -793,18 +806,20 @@ class WorkflowService:
             }
 
         except Exception as e:
-            error_msg = f"Generic step execution failed: {str(e)}"
+            error_msg = f"Generic step execution failed: {e!s}"
             logger.error(error_msg)
             return {"success": False, "result": None, "message": error_msg}
 
     def _extract_tool_info(self, step_description: str) -> dict:
-        """Extract tool name and arguments from step description.
+        """
+        Extract tool name and arguments from step description.
 
         Args:
             step_description: The step description to parse
 
         Returns:
             Dict: Tool execution details for ToolUserAgent
+
         """
         # Simple extraction logic - can be enhanced with NLP
         step_lower = step_description.lower()
@@ -842,13 +857,15 @@ class WorkflowService:
         return tool_info
 
     def _aggregate_results(self, step_results: list[dict]) -> dict:
-        """Aggregate step results into a final workflow result.
+        """
+        Aggregate step results into a final workflow result.
 
         Args:
             step_results: List of individual step execution results
 
         Returns:
             Dict: Aggregated final result
+
         """
         successful_steps = [r for r in step_results if r.get("success")]
         failed_steps = [r for r in step_results if not r.get("success")]
@@ -872,7 +889,8 @@ class WorkflowService:
         completed_steps: int,
         total_steps: int,
     ) -> dict:
-        """Create a standardized error result.
+        """
+        Create a standardized error result.
 
         Args:
             workflow_id: The workflow identifier
@@ -882,6 +900,7 @@ class WorkflowService:
 
         Returns:
             Dict: Standardized error result
+
         """
         return {
             "workflow_id": workflow_id,
@@ -904,6 +923,7 @@ class WorkflowService:
 
         Returns:
             True if the step should be enhanced with context
+
         """
         if not source_ids or not self.rag_service:
             return False
@@ -946,6 +966,7 @@ class WorkflowService:
 
         Returns:
             Enhanced input configuration with context
+
         """
         try:
             # Extract the main query/prompt from step input
@@ -991,7 +1012,7 @@ class WorkflowService:
             return enhanced_input
 
         except Exception as e:
-            logger.error(f"Error enhancing step with context: {str(e)}")
+            logger.error(f"Error enhancing step with context: {e!s}")
             return {}
 
     def _extract_query_from_step_input(self, step_input: dict, step_config: dict) -> str | None:
@@ -1004,6 +1025,7 @@ class WorkflowService:
 
         Returns:
             Extracted query string or None if not found
+
         """
         # Try common field names for queries/prompts
         query_fields = [

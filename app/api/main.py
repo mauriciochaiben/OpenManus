@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 def create_app() -> FastAPI:
     """Create FastAPI application with clean architecture"""
-
     app = FastAPI(
         title="OpenManus API v2",
         version="2.0.0",
@@ -86,4 +85,4 @@ app = create_app()
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)  # nosec

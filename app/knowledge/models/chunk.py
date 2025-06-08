@@ -1,8 +1,8 @@
 """Document chunk models for knowledge management."""
 
-import uuid
 from datetime import datetime
 from typing import Any
+import uuid
 
 from pydantic import BaseModel, Field
 

@@ -53,7 +53,7 @@ class Document:
         """Start document processing"""
         self.status = DocumentStatus.PROCESSING
 
-    def complete_processing(self, extracted_text: str = None):
+    def complete_processing(self, extracted_text: str | None = None):
         """Complete document processing"""
         self.status = DocumentStatus.PROCESSED
         if extracted_text:

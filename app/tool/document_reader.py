@@ -1,14 +1,14 @@
 # filepath: /Users/mauriciochaiben/OpenManus/app/tool/document_reader.py
 """Advanced document reader tool using Docling for comprehensive document processing."""
 
-import json
 from io import StringIO
+import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
-import pandas as pd
 from docling.document_converter import DocumentConverter
 from docling_core.types.doc import DoclingDocument
+import pandas as pd
 
 from app.core.settings import config
 from app.exceptions import ToolError
@@ -21,7 +21,8 @@ if TYPE_CHECKING:
 
 
 class AdvancedDocumentReader(BaseTool):
-    """An advanced document reader using IBM Docling for comprehensive document processing.
+    """
+    An advanced document reader using IBM Docling for comprehensive document processing.
 
     This tool leverages Docling's advanced capabilities including:
     - AI-powered layout detection and structure preservation
@@ -53,7 +54,7 @@ class AdvancedDocumentReader(BaseTool):
     - Chunks documents intelligently for better processing
     """
 
-    parameters: dict = {
+    parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "file_path": {
@@ -133,7 +134,6 @@ class AdvancedDocumentReader(BaseTool):
         **kwargs: Any,  # noqa: ARG002
     ) -> str:
         """Execute advanced document reading operation."""
-
         try:
             operator = self._get_operator()
 
@@ -191,7 +191,7 @@ class AdvancedDocumentReader(BaseTool):
             result = ToolResult(output=f"📖 Advanced document analysis of {file_name}:\n\n{content}")
 
         except Exception as e:
-            result = ToolResult(error=f"Failed to process document {file_path}: {str(e)}")
+            result = ToolResult(error=f"Failed to process document {file_path}: {e!s}")
 
         return str(result)
 
@@ -206,7 +206,6 @@ class AdvancedDocumentReader(BaseTool):
         include_metadata: bool,
     ) -> str:
         """Format the Docling document output according to specified format."""
-
         if output_format == "json":
             # Return structured JSON representation
             return self._format_as_json(doc, extract_tables, extract_figures, include_metadata)
@@ -257,7 +256,7 @@ class AdvancedDocumentReader(BaseTool):
             return json.dumps(doc_dict, indent=2, ensure_ascii=False)
         except Exception as e:
             logger.warning(f"Failed to format as JSON: {e}")
-            return f"JSON formatting failed: {str(e)}\n\nFallback text:\n{doc.export_to_text()}"
+            return f"JSON formatting failed: {e!s}\n\nFallback text:\n{doc.export_to_text()}"
 
     def _format_structured_analysis(
         self,
@@ -319,7 +318,7 @@ class AdvancedDocumentReader(BaseTool):
             for i, para in enumerate(non_empty_paragraphs[:3]):
                 if len(para) > 200:
                     para = para[:200] + "..."
-                summary.append(f"{i+1}. {para}")
+                summary.append(f"{i + 1}. {para}")
 
         if len(non_empty_paragraphs) > 3:
             summary.append(f"\n... and {len(non_empty_paragraphs) - 3} more sections")
@@ -330,8 +329,8 @@ class AdvancedDocumentReader(BaseTool):
                 summary.append("\n✓ Tables extracted and analyzed")
             if extract_figures:
                 summary.append("✓ Figures and images processed")
-        except Exception:
-            pass
+        except Exception:  # nosec  # noqa: S110
+            pass  # Figure processing is optional, continue without it
 
         return "\n".join(summary)
 
@@ -389,7 +388,7 @@ class AdvancedDocumentReader(BaseTool):
             return df.to_string(index=False)
 
         except Exception as e:
-            raise ToolError(f"Failed to read CSV file: {str(e)}") from e
+            raise ToolError(f"Failed to read CSV file: {e!s}") from e
 
 
 # Keep the original DocumentReader for backward compatibility

@@ -1,12 +1,17 @@
 """Integration tests for workflow API endpoints"""
 
-from unittest.mock import AsyncMock, patch
-
 import pytest
 
+# Check dependencies early
 pytest.importorskip("httpx")
+
+# Standard library imports
+from unittest.mock import AsyncMock, patch
+
+# Third-party imports
 from fastapi.testclient import TestClient
 
+# Application imports
 from app.api.main import create_app
 
 

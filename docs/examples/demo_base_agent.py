@@ -71,7 +71,7 @@ class CalculatorAgent(BaseAgent):
             return {
                 "success": False,
                 "result": None,
-                "message": f"Erro no cálculo: {str(e)}",
+                "message": f"Erro no cálculo: {e!s}",
                 "metadata": {"error_type": type(e).__name__, "agent": self.name},
             }
 

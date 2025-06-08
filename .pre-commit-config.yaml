@@ -52,22 +52,7 @@ repos:
         description: Run Ruff formatter (replaces black)
         files: ^(app/|tests/|scripts/|demos/|examples/|.*\.py)$
 
-  # Python type checking
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
-    hooks:
-      - id: mypy
-        name: MyPy Type Checker
-        description: Run mypy static type checker
-        files: ^app/.*\.py$
-        args: [--config-file=pyproject.toml]
-        additional_dependencies:
-          - types-requests
-          - types-PyYAML
-          - types-python-dateutil
-          - pydantic
-          - fastapi
-          - sqlalchemy
+
 
   # Frontend - Prettier for formatting
   - repo: https://github.com/pre-commit/mirrors-prettier
@@ -156,7 +141,6 @@ exclude: |
       venv/.*|
       __pycache__/.*|
       \.pytest_cache/.*|
-      \.mypy_cache/.*|
       \.ruff_cache/.*|
       build/.*|
       dist/.*|

@@ -41,7 +41,6 @@ class WorkflowEventSubscriber:
 
 async def test_comprehensive_workflow():
     """Test WorkflowService with a comprehensive workflow example."""
-
     print("=" * 80)
     print("🔧 OPENMANUS WORKFLOW SERVICE DEMONSTRATION")
     print("=" * 80)
@@ -126,7 +125,6 @@ async def test_comprehensive_workflow():
 
 async def test_tool_extraction():
     """Test the tool information extraction logic."""
-
     print("\n🔍 Tool Extraction Test")
     print("-" * 30)
 

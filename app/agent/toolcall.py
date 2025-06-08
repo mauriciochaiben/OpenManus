@@ -56,7 +56,7 @@ class ToolCallAgent(ReActAgent):
                 logger.error(f"🚨 Token limit error (from RetryError): {token_limit_error}")
                 self.memory.add_message(
                     Message.assistant_message(
-                        f"Maximum token limit reached, cannot continue execution: " f"{str(token_limit_error)}"
+                        f"Maximum token limit reached, cannot continue execution: {token_limit_error!s}"
                     )
                 )
                 self.state = AgentState.FINISHED
@@ -68,9 +68,9 @@ class ToolCallAgent(ReActAgent):
 
         # Log response info
         logger.info(f"✨ {self.name}'s thoughts: {content}")
-        logger.info(f"🛠️ {self.name} selected {len(tool_calls) if tool_calls else 0} " f"tools to use")
+        logger.info(f"🛠️ {self.name} selected {len(tool_calls) if tool_calls else 0} tools to use")
         if tool_calls:
-            logger.info(f"🧰 Tools being prepared: " f"{[call.function.name for call in tool_calls]}")
+            logger.info(f"🧰 Tools being prepared: {[call.function.name for call in tool_calls]}")
             logger.info(f"🔧 Tool arguments: {tool_calls[0].function.arguments}")
 
         try:
@@ -80,7 +80,7 @@ class ToolCallAgent(ReActAgent):
             # Handle different tool_choices modes
             if self.tool_choices == ToolChoice.NONE:
                 if tool_calls:
-                    logger.warning(f"🤔 Hmm, {self.name} tried to use tools when they " f"weren't available!")
+                    logger.warning(f"🤔 Hmm, {self.name} tried to use tools when they weren't available!")
                 if content:
                     self.memory.add_message(Message.assistant_message(content))
                     return True
@@ -104,7 +104,7 @@ class ToolCallAgent(ReActAgent):
             return bool(self.tool_calls)
         except Exception as e:
             logger.error(f"🚨 Oops! The {self.name}'s thinking process hit a snag: {e}")
-            self.memory.add_message(Message.assistant_message(f"Error encountered while processing: {str(e)}"))
+            self.memory.add_message(Message.assistant_message(f"Error encountered while processing: {e!s}"))
             return False
 
     async def act(self) -> str:
@@ -126,7 +126,7 @@ class ToolCallAgent(ReActAgent):
             if self.max_observe:
                 result = result[: self.max_observe]
 
-            logger.info(f"🎯 Tool '{command.function.name}' completed its mission! " f"Result: {result}")
+            logger.info(f"🎯 Tool '{command.function.name}' completed its mission! Result: {result}")
 
             # Add tool response to memory
             tool_msg = Message.tool_message(
@@ -167,7 +167,7 @@ class ToolCallAgent(ReActAgent):
 
             # Format result for display (standard case)
             return (
-                f"Observed output of cmd `{name}` executed:\n{str(result)}"
+                f"Observed output of cmd `{name}` executed:\n{result!s}"
                 if result
                 else f"Cmd `{name}` completed with no output"
             )
@@ -180,7 +180,7 @@ class ToolCallAgent(ReActAgent):
             )
             return f"Error: {error_msg}"
         except Exception as e:
-            error_msg = f"⚠️ Tool '{name}' encountered a problem: {str(e)}"
+            error_msg = f"⚠️ Tool '{name}' encountered a problem: {e!s}"
             logger.exception(error_msg)
             return f"Error: {error_msg}"
 

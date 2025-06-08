@@ -38,7 +38,7 @@ The `.pre-commit-config.yaml` file configures automated checks that run before e
 ### Python Backend (app/, tests/, scripts/, demos/, examples/)
 - **Ruff Linter**: Fast Python linter (replaces flake8, isort, etc.)
 - **Ruff Formatter**: Code formatting (replaces black)
-- **MyPy**: Static type checking with project-specific configuration
+- **Ruff**: Modern Python linting and formatting with project-specific configuration
 - **Bandit**: Security vulnerability scanning
 - **Hadolint**: Dockerfile linting
 
@@ -99,13 +99,11 @@ pre-commit run --files frontend/src/App.tsx
 - Uses project-specific `.prettierrc` in frontend/
 - Consistent formatting across all frontend files
 
-### MyPy Configuration
-- Uses `pyproject.toml` for configuration
-- Includes type stubs for common libraries (requests, PyYAML, etc.)
-
 ### Ruff Configuration
+- Configured in `ruff.toml` and `pyproject.toml`
 - Replaces black, flake8, isort, and other Python tools
 - Fast and comprehensive Python linting and formatting
+- Provides basic type checking capabilities
 
 ## Performance Settings
 
@@ -118,31 +116,58 @@ pre-commit run --files frontend/src/App.tsx
 
 The configuration excludes common build artifacts and dependencies:
 - `node_modules/`, `dist/`, `build/`, `coverage/`
-- `__pycache__/`, `.pytest_cache/`, `.mypy_cache/`
+- `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`
 - `.git/`, `.venv/`, `venv/`
 - `logs/`, `workspace/`, `uploads/`
 - Minified files (`.min.js`, `.min.css`)
 
-## Troubleshooting
+## Simplified Commit Process
 
-### Hook Fails
-1. Read the error message carefully
-2. Fix the issues manually or let auto-fix handle them
-3. Re-run the commit
+### Normal Commit (Recommended)
+```bash
+# Stage your changes
+git add .
 
-### Skip Hooks (Emergency)
+# Commit (pre-commit hooks will run automatically)
+git commit -m "Your commit message"
+
+# Push if all checks pass
+git push
+```
+
+### If Pre-commit Hooks Fail
+1. **Read the error message** - it will tell you what needs to be fixed
+2. **Most issues are auto-fixed** - just re-add and commit:
+   ```bash
+   git add .
+   git commit -m "Your commit message"
+   ```
+3. **Manual fixes required** - fix the reported issues and retry
+
+### Troubleshooting
+
+#### Skip Hooks (Emergency Only)
 ```bash
 git commit --no-verify -m "emergency fix"
 ```
 
-### Update Hook Versions
+#### Update Hook Versions
 ```bash
 pre-commit autoupdate
 ```
 
-### Clear Cache
+#### Clear Cache
 ```bash
 pre-commit clean
+```
+
+#### Run Hooks Manually
+```bash
+# Run on all files
+pre-commit run --all-files
+
+# Run specific hook
+pre-commit run ruff --all-files
 ```
 
 ## Integration with CI/CD

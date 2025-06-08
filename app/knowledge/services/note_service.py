@@ -5,8 +5,8 @@ Service class for managing notes with CRUD operations.
 Handles database interactions for note management with SQLAlchemy ORM.
 """
 
-import logging
 from datetime import datetime
+import logging
 
 from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,6 +39,7 @@ class NoteService:
 
         Args:
             db_session: Async SQLAlchemy database session
+
         """
         self.db_session = db_session
 
@@ -55,6 +56,7 @@ class NoteService:
 
         Raises:
             ValidationError: If note data is invalid
+
         """
         try:
             logger.info(f"Creating new note: {note_data.title}")
@@ -85,8 +87,8 @@ class NoteService:
 
         except Exception as e:
             await self.db_session.rollback()
-            logger.error(f"Error creating note: {str(e)}")
-            raise ValidationError(f"Failed to create note: {str(e)}") from e
+            logger.error(f"Error creating note: {e!s}")
+            raise ValidationError(f"Failed to create note: {e!s}") from e
 
     async def get_note(self, note_id: str, author_id: str | None = None) -> NoteResponse:
         """
@@ -101,6 +103,7 @@ class NoteService:
 
         Raises:
             NotFoundError: If note is not found or access denied
+
         """
         try:
             logger.debug(f"Retrieving note: {note_id}")
@@ -127,8 +130,8 @@ class NoteService:
         except NotFoundError:
             raise
         except Exception as e:
-            logger.error(f"Error retrieving note {note_id}: {str(e)}")
-            raise ValidationError(f"Failed to retrieve note: {str(e)}") from e
+            logger.error(f"Error retrieving note {note_id}: {e!s}")
+            raise ValidationError(f"Failed to retrieve note: {e!s}") from e
 
     async def update_note(self, note_id: str, note_data: NoteUpdate, author_id: str | None = None) -> NoteResponse:
         """
@@ -145,6 +148,7 @@ class NoteService:
         Raises:
             NotFoundError: If note is not found
             ValidationError: If update fails or access denied
+
         """
         try:
             logger.info(f"Updating note: {note_id}")
@@ -194,8 +198,8 @@ class NoteService:
             raise
         except Exception as e:
             await self.db_session.rollback()
-            logger.error(f"Error updating note {note_id}: {str(e)}")
-            raise ValidationError(f"Failed to update note: {str(e)}") from e
+            logger.error(f"Error updating note {note_id}: {e!s}")
+            raise ValidationError(f"Failed to update note: {e!s}") from e
 
     async def delete_note(self, note_id: str, author_id: str | None = None) -> bool:
         """
@@ -211,6 +215,7 @@ class NoteService:
         Raises:
             NotFoundError: If note is not found
             ValidationError: If deletion fails or access denied
+
         """
         try:
             logger.info(f"Deleting note: {note_id}")
@@ -234,8 +239,8 @@ class NoteService:
             raise
         except Exception as e:
             await self.db_session.rollback()
-            logger.error(f"Error deleting note {note_id}: {str(e)}")
-            raise ValidationError(f"Failed to delete note: {str(e)}") from e
+            logger.error(f"Error deleting note {note_id}: {e!s}")
+            raise ValidationError(f"Failed to delete note: {e!s}") from e
 
     async def list_notes(
         self,
@@ -259,6 +264,7 @@ class NoteService:
 
         Returns:
             Tuple of (notes list, total count)
+
         """
         try:
             logger.debug(f"Listing notes with limit={limit}, offset={offset}")
@@ -314,8 +320,8 @@ class NoteService:
             return notes, total_count
 
         except Exception as e:
-            logger.error(f"Error listing notes: {str(e)}")
-            raise ValidationError(f"Failed to list notes: {str(e)}") from e
+            logger.error(f"Error listing notes: {e!s}")
+            raise ValidationError(f"Failed to list notes: {e!s}") from e
 
     async def search_notes(self, search_query: NoteSearchQuery, author_id: str | None = None) -> NoteSearchResponse:
         """
@@ -327,6 +333,7 @@ class NoteService:
 
         Returns:
             Search results with notes and metadata
+
         """
         try:
             logger.debug(f"Searching notes with query: {search_query.query}")
@@ -416,8 +423,8 @@ class NoteService:
             )
 
         except Exception as e:
-            logger.error(f"Error searching notes: {str(e)}")
-            raise ValidationError(f"Failed to search notes: {str(e)}") from e
+            logger.error(f"Error searching notes: {e!s}")
+            raise ValidationError(f"Failed to search notes: {e!s}") from e
 
     async def get_notes_by_source(
         self,
@@ -437,6 +444,7 @@ class NoteService:
 
         Returns:
             Tuple of (notes list, total count)
+
         """
         try:
             logger.debug(f"Getting notes for source: {source_id}")
@@ -470,8 +478,8 @@ class NoteService:
             return notes, total_count
 
         except Exception as e:
-            logger.error(f"Error getting notes by source {source_id}: {str(e)}")
-            raise ValidationError(f"Failed to get notes by source: {str(e)}") from e
+            logger.error(f"Error getting notes by source {source_id}: {e!s}")
+            raise ValidationError(f"Failed to get notes by source: {e!s}") from e
 
     def _model_to_pydantic(self, note_model: NoteModel) -> Note:
         """
@@ -482,6 +490,7 @@ class NoteService:
 
         Returns:
             Pydantic Note model
+
         """
         return Note(
             id=note_model.id,

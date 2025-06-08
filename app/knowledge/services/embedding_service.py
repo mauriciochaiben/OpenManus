@@ -1,8 +1,8 @@
 """Embedding service for generating text embeddings."""
 
+from abc import ABC, abstractmethod
 import asyncio
 import logging
-from abc import ABC, abstractmethod
 from typing import Any
 
 import numpy as np
@@ -35,7 +35,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         self.api_key = api_key
         self.model = model
         self._client = None
-        self._dimension = 1536 if model == "text-embedding-ada-002" else 1536
+        self._dimension = 1536
 
     async def _get_client(self):
         """Get or create OpenAI client."""
@@ -58,7 +58,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
             return [data.embedding for data in response.data]
 
         except Exception as e:
-            logger.error(f"OpenAI embedding generation failed: {str(e)}")
+            logger.error(f"OpenAI embedding generation failed: {e!s}")
             raise
 
     def get_dimension(self) -> int:
@@ -109,7 +109,7 @@ class SentenceTransformersProvider(EmbeddingProvider):
             return embeddings
 
         except Exception as e:
-            logger.error(f"Sentence Transformers embedding generation failed: {str(e)}")
+            logger.error(f"Sentence Transformers embedding generation failed: {e!s}")
             raise
 
     def get_dimension(self) -> int:
@@ -159,7 +159,7 @@ class OllamaEmbeddingProvider(EmbeddingProvider):
             return embeddings
 
         except Exception as e:
-            logger.error(f"Ollama embedding generation failed: {str(e)}")
+            logger.error(f"Ollama embedding generation failed: {e!s}")
             raise
 
     def get_dimension(self) -> int:
@@ -226,6 +226,7 @@ class EmbeddingService:
 
         Raises:
             EmbeddingServiceError: If embedding generation fails
+
         """
         if not texts:
             return []
@@ -256,7 +257,7 @@ class EmbeddingService:
             return all_embeddings
 
         except Exception as e:
-            logger.error(f"Embedding generation failed: {str(e)}")
+            logger.error(f"Embedding generation failed: {e!s}")
             # Return dummy embeddings as fallback
             return [[0.0] * embedding_config.dimension for _ in texts]
 
@@ -269,6 +270,7 @@ class EmbeddingService:
 
         Returns:
             Embedding vector
+
         """
         embeddings = await self.generate_embeddings([text])
         return embeddings[0] if embeddings else [0.0] * embedding_config.dimension
@@ -282,6 +284,7 @@ class EmbeddingService:
 
         Returns:
             Preprocessed text
+
         """
         # Remove excessive whitespace
         text = " ".join(text.split())
@@ -302,6 +305,7 @@ class EmbeddingService:
 
         Returns:
             Normalized embedding vector
+
         """
         try:
             # Convert to numpy for easier computation
@@ -315,7 +319,7 @@ class EmbeddingService:
             return normalized.tolist()
 
         except Exception as e:
-            logger.warning(f"Failed to normalize embedding: {str(e)}")
+            logger.warning(f"Failed to normalize embedding: {e!s}")
             return embedding
 
     def get_dimension(self) -> int:
@@ -324,13 +328,14 @@ class EmbeddingService:
 
         Returns:
             Embedding dimension
+
         """
         try:
             if self.provider:
                 return self.provider.get_dimension()
             return embedding_config.dimension
         except Exception as e:
-            logger.warning(f"Failed to get embedding dimension: {str(e)}")
+            logger.warning(f"Failed to get embedding dimension: {e!s}")
             return embedding_config.dimension
 
     async def health_check(self) -> dict[str, Any]:
@@ -339,6 +344,7 @@ class EmbeddingService:
 
         Returns:
             Health check results
+
         """
         try:
             # Test embedding generation with a simple text
@@ -372,5 +378,6 @@ async def get_embedding_service() -> EmbeddingService:
 
     Returns:
         EmbeddingService instance
+
     """
     return embedding_service

@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 """
 Final Project Analysis Script - OpenManus
+
 Analyzes the complete project structure after backend directory cleanup and refactoring.
 """
 
-import os
-import subprocess
 from datetime import datetime
+import os
 from pathlib import Path
+import subprocess
 
 
 def run_command(cmd: str) -> tuple[str, int]:
     """Run shell command and return output and return code."""
     try:
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        result = subprocess.run(  # noqa: S602
+            cmd, shell=True, capture_output=True, text=True, check=False
+        )
         return result.stdout.strip(), result.returncode
     except Exception as e:
         return f"Error: {e}", 1
@@ -123,8 +126,8 @@ def analyze_python_code() -> dict[str, any]:
                 # Count non-empty, non-comment lines
                 code_lines = [line for line in lines if line.strip() and not line.strip().startswith("#")]
                 python_info["lines_of_code"] += len(code_lines)
-        except Exception:
-            continue
+        except Exception:  # noqa: S112
+            continue  # Skip files that can't be read or parsed
 
     # Get main modules in app/
     app_path = base_path / "app"
@@ -166,8 +169,8 @@ def analyze_frontend() -> dict[str, any]:
                     frontend_info["framework"] = f"Vue {deps.get('vue', 'unknown')}"
                 elif "angular" in deps:
                     frontend_info["framework"] = f"Angular {deps.get('@angular/core', 'unknown')}"
-        except Exception:
-            pass
+        except Exception:  # noqa: S110
+            pass  # JSON parsing failed, skip package analysis
 
     # Count TypeScript/JavaScript files
     for ext in ["*.ts", "*.tsx", "*.js", "*.jsx"]:
@@ -225,63 +228,66 @@ def generate_final_report() -> str:
 ## 📂 Directory Structure Analysis
 
 ### **Key Directories Status:**
-- **app/**: {'✅ EXISTS' if key_directories['app'] else '❌ MISSING'}
-- **frontend/**: {'✅ EXISTS' if key_directories['frontend'] else '❌ MISSING'}
-- **config/**: {'✅ EXISTS' if key_directories['config'] else '❌ MISSING'}
-- **docs/**: {'✅ EXISTS' if key_directories['docs'] else '❌ MISSING'}
-- **tests/**: {'✅ EXISTS' if key_directories['tests'] else '❌ MISSING'}
-- **scripts/**: {'✅ EXISTS' if key_directories['scripts'] else '❌ MISSING'}
-- **backend/**: {'❌ REMOVED (SUCCESS)' if not key_directories['backend'] else '⚠️ STILL EXISTS'}
+- **app/**: {"✅ EXISTS" if key_directories["app"] else "❌ MISSING"}
+- **frontend/**: {"✅ EXISTS" if key_directories["frontend"] else "❌ MISSING"}
+- **config/**: {"✅ EXISTS" if key_directories["config"] else "❌ MISSING"}
+- **docs/**: {"✅ EXISTS" if key_directories["docs"] else "❌ MISSING"}
+- **tests/**: {"✅ EXISTS" if key_directories["tests"] else "❌ MISSING"}
+- **scripts/**: {"✅ EXISTS" if key_directories["scripts"] else "❌ MISSING"}
+- **backend/**: {"❌ REMOVED (SUCCESS)" if not key_directories["backend"] else "⚠️ STILL EXISTS"}
 
 ### **Project Scale:**
-- **Total Directories**: {directory_analysis['total_directories']:,}
-- **Total Files**: {directory_analysis['total_files']:,}
-- **Main Directories**: {len(directory_analysis['main_directories'])}
+- **Total Directories**: {directory_analysis["total_directories"]:,}
+- **Total Files**: {directory_analysis["total_files"]:,}
+- **Main Directories**: {len(directory_analysis["main_directories"])}
 
 ### **Large Directories** (>10 files):
-{chr(10).join([f"- **{name}**: {count:,} files" for name, count in directory_analysis['large_directories'].items()])}
+{chr(10).join([f"- **{name}**: {count:,} files" for name, count in directory_analysis["large_directories"].items()])}
 
 ## 🐍 Python Backend Analysis
 
 ### **Code Statistics:**
-- **Python Files**: {python_analysis['total_py_files']:,}
-- **Lines of Code**: {python_analysis['lines_of_code']:,}
-- **Test Files**: {python_analysis['test_files']:,}
+- **Python Files**: {python_analysis["total_py_files"]:,}
+- **Lines of Code**: {python_analysis["lines_of_code"]:,}
+- **Test Files**: {python_analysis["test_files"]:,}
 
 ### **Main Modules** (in app/):
-{chr(10).join([f"- {module}" for module in python_analysis['main_modules']])}
+{chr(10).join([f"- {module}" for module in python_analysis["main_modules"]])}
 
 ### **File Type Distribution:**
-{chr(10).join([
-    f"- **{ext}**: {count:,} files"
-    for ext, count in sorted(
-        directory_analysis['file_types'].items(),
-        key=lambda x: x[1], reverse=True
-    )[:10]
-])}
+{
+        chr(10).join(
+            [
+                f"- **{ext}**: {count:,} files"
+                for ext, count in sorted(directory_analysis["file_types"].items(), key=lambda x: x[1], reverse=True)[
+                    :10
+                ]
+            ]
+        )
+    }
 
 ## ⚛️ Frontend Analysis
 
 ### **Framework Information:**
-- **Exists**: {'✅ YES' if frontend_analysis['exists'] else '❌ NO'}
-- **Framework**: {frontend_analysis['framework']}
-- **Package.json**: {'✅ EXISTS' if frontend_analysis['package_json_exists'] else '❌ MISSING'}
+- **Exists**: {"✅ YES" if frontend_analysis["exists"] else "❌ NO"}
+- **Framework**: {frontend_analysis["framework"]}
+- **Package.json**: {"✅ EXISTS" if frontend_analysis["package_json_exists"] else "❌ MISSING"}
 
 ### **Code Statistics:**
-- **TypeScript Files**: {frontend_analysis['total_ts_files']:,}
-- **Components**: {frontend_analysis['total_components']:,}
+- **TypeScript Files**: {frontend_analysis["total_ts_files"]:,}
+- **Components**: {frontend_analysis["total_components"]:,}
 
 ## 📋 Git Repository Status
 
 ### **Repository State:**
-- **Current Branch**: {git_analysis['branch']}
-- **Status**: {git_analysis['status']}
-- **Last Commit**: {git_analysis['last_commit']}
+- **Current Branch**: {git_analysis["branch"]}
+- **Status**: {git_analysis["status"]}
+- **Last Commit**: {git_analysis["last_commit"]}
 
 ## 🔧 Configuration Analysis
 
 ### **Config Examples** (maintained):
-- **config/examples/**: {'✅ EXISTS' if (base_path / 'config' / 'examples').exists() else '❌ MISSING'}
+- **config/examples/**: {"✅ EXISTS" if (base_path / "config" / "examples").exists() else "❌ MISSING"}
   - Configuration templates for all LLM providers
   - MCP (Model Context Protocol) examples
   - Referenced in README.md documentation
@@ -312,11 +318,11 @@ def generate_final_report() -> str:
 
 ## 📊 Final Statistics
 
-- **Total Project Size**: {directory_analysis['total_files']:,} files in \\
-  {directory_analysis['total_directories']:,} directories
-- **Python Codebase**: {python_analysis['lines_of_code']:,} lines of code in {python_analysis['total_py_files']:,} files
-- **Frontend Codebase**: {frontend_analysis['total_ts_files']:,} TypeScript files
-- **Test Coverage**: {python_analysis['test_files']:,} test files
+- **Total Project Size**: {directory_analysis["total_files"]:,} files in \\
+  {directory_analysis["total_directories"]:,} directories
+- **Python Codebase**: {python_analysis["lines_of_code"]:,} lines of code in {python_analysis["total_py_files"]:,} files
+- **Frontend Codebase**: {frontend_analysis["total_ts_files"]:,} TypeScript files
+- **Test Coverage**: {python_analysis["test_files"]:,} test files
 - **Documentation**: Multiple comprehensive guides available
 
 ## ✅ Conclusion

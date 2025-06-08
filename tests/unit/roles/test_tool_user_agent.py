@@ -5,21 +5,22 @@ Este módulo contém testes abrangentes para o ToolUserAgent, incluindo
 mock do ToolRegistry e das ferramentas, além de validação de todas as funcionalidades.
 """
 
-import sys
 from pathlib import Path
+import sys
 
 # Adicionar o diretório raiz ao path para importações
 root_dir = Path(__file__).resolve().parent.parent.parent.parent
 if str(root_dir) not in sys.path:
     sys.path.insert(0, str(root_dir))
 
-from unittest.mock import AsyncMock, Mock, patch  # noqa: E402
+from unittest.mock import AsyncMock, Mock, patch
 
-import pytest  # noqa: E402
+import pytest
+
 pytest.importorskip("openai")
 
-from app.roles.tool_user_agent import ToolUserAgent  # noqa: E402
-from app.tool.base import ToolResult  # noqa: E402
+from app.roles.tool_user_agent import ToolUserAgent
+from app.tool.base import ToolResult
 
 
 class MockTool:

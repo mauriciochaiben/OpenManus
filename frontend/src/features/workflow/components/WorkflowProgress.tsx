@@ -13,6 +13,7 @@ import {
   Spin,
   Result,
   Empty,
+  Modal,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -355,7 +356,8 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
               </Space>
             }
             status={getStepStatus(step)}
-            icon={getStepIcon(step)} onClick={() => handleStepClick(step)} 
+            icon={getStepIcon(step)}
+            onClick={() => handleStepClick(step)}
           />
         ))}
       </Steps>
@@ -404,25 +406,32 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
                     ? "blue"
                     : "gray"
             }
-            dot={getStepIcon(step)} onClick={() => handleStepClick(step)}
+            dot={getStepIcon(step)}
           >
-            <Space direction="vertical" size="small">
-              <Space>
-                <Text strong>{step.name}</Text>
-                {step.agentRole && <Tag color="blue">{step.agentRole}</Tag>}
+            <div
+              style={{ cursor: "pointer" }}
+              onClick={() => handleStepClick(step)}
+            >
+              <Space direction="vertical" size="small">
+                <Space>
+                  <Text strong>{step.name}</Text>
+                  {step.agentRole && <Tag color="blue">{step.agentRole}</Tag>}
+                </Space>
+                {step.result && (
+                  <Text
+                    type={step.status === "failed" ? "danger" : "secondary"}
+                  >
+                    {step.result}
+                  </Text>
+                )}
+                {step.startTime && (
+                  <Text type="secondary" style={{ fontSize: "12px" }}>
+                    {new Date(step.startTime).toLocaleString()}
+                    {step.duration && ` • ${formatDuration(step.duration)}`}
+                  </Text>
+                )}
               </Space>
-              {step.result && (
-                <Text type={step.status === "failed" ? "danger" : "secondary"}>
-                  {step.result}
-                </Text>
-              )}
-              {step.startTime && (
-                <Text type="secondary" style={{ fontSize: "12px" }}>
-                  {new Date(step.startTime).toLocaleString()}
-                  {step.duration && ` • ${formatDuration(step.duration)}`}
-                </Text>
-              )}
-            </Space>
+            </div>
           </TimelineItem>
         ))}
 
@@ -520,114 +529,114 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
 
   return (
     <>
-    <Card
-      title={
-        <Space>
-          <span>{workflowState.title}</span>
-          {workflowState.contextEnhanced && (
-            <Tooltip title="This workflow uses knowledge context">
-              <Tag color="blue">Context Enhanced</Tag>
-            </Tooltip>
-          )}
-        </Space>
-      }
-      extra={
-        !isConnected && (
-          <Tooltip title="Disconnected from real-time updates">
-            <Button
-              size="small"
-              icon={<ReloadOutlined />}
-              onClick={reconnect}
-              type="text"
-            >
-              Reconnect
-            </Button>
-          </Tooltip>
-        )
-      }
-    >
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        {/* Workflow Description */}
-        {workflowState.description && (
-          <Paragraph type="secondary">{workflowState.description}</Paragraph>
-        )}
-
-        {/* Progress Bar */}
-        <div>
-          <div style={{ marginBottom: "8px" }}>
-            <Space>
-              <Text strong>Progress:</Text>
-              <Text>{Math.round(getWorkflowProgress())}%</Text>
-              {workflowState.totalDuration && (
-                <Text type="secondary">
-                  • {formatDuration(workflowState.totalDuration)}
-                </Text>
-              )}
-            </Space>
-          </div>
-          <Progress
-            percent={getWorkflowProgress()}
-            status={
-              workflowState.status === "failed"
-                ? "exception"
-                : workflowState.status === "completed"
-                  ? "success"
-                  : "active"
-            }
-            strokeColor={
-              workflowState.status === "completed"
-                ? "#52c41a"
-                : workflowState.status === "failed"
-                  ? "#ff4d4f"
-                  : "#1890ff"
-            }
-          />
-        </div>
-
-        {/* Error Alert */}
-        {error && (
-          <Alert
-            message="Falha no Workflow"
-            description={
-              <Space direction="vertical" size="small">
-                <Text>{error}</Text>
-                <Text type="secondary" style={{ fontSize: "12px" }}>
-                  O workflow encontrou um erro e foi interrompido
-                </Text>
-              </Space>
-            }
-            type="error"
-            showIcon
-            icon={<ExclamationCircleOutlined />}
-            closable
-            onClose={() => setError(null)}
-            action={
+      <Card
+        title={
+          <Space>
+            <span>{workflowState.title}</span>
+            {workflowState.contextEnhanced && (
+              <Tooltip title="This workflow uses knowledge context">
+                <Tag color="blue">Context Enhanced</Tag>
+              </Tooltip>
+            )}
+          </Space>
+        }
+        extra={
+          !isConnected && (
+            <Tooltip title="Disconnected from real-time updates">
               <Button
                 size="small"
                 icon={<ReloadOutlined />}
                 onClick={reconnect}
+                type="text"
               >
-                Reconectar
+                Reconnect
               </Button>
-            }
-          />
-        )}
+            </Tooltip>
+          )
+        }
+      >
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+          {/* Workflow Description */}
+          {workflowState.description && (
+            <Paragraph type="secondary">{workflowState.description}</Paragraph>
+          )}
 
-        {/* Steps or Timeline */}
-        {showTimeline ? renderTimelineView() : renderStepsView()}
-      </Space>
-    </Card>
-    <Modal
-      open={detailVisible}
-      onCancel={() => setDetailVisible(false)}
-      footer={null}
-      title={selectedStep?.name}
-    >
-      {selectedStep?.result && <Paragraph>{selectedStep.result}</Paragraph>}
-      {selectedStep?.error && (
-        <Alert type="error" message={selectedStep.error} />
-      )}
-    </Modal>
+          {/* Progress Bar */}
+          <div>
+            <div style={{ marginBottom: "8px" }}>
+              <Space>
+                <Text strong>Progress:</Text>
+                <Text>{Math.round(getWorkflowProgress())}%</Text>
+                {workflowState.totalDuration && (
+                  <Text type="secondary">
+                    • {formatDuration(workflowState.totalDuration)}
+                  </Text>
+                )}
+              </Space>
+            </div>
+            <Progress
+              percent={getWorkflowProgress()}
+              status={
+                workflowState.status === "failed"
+                  ? "exception"
+                  : workflowState.status === "completed"
+                    ? "success"
+                    : "active"
+              }
+              strokeColor={
+                workflowState.status === "completed"
+                  ? "#52c41a"
+                  : workflowState.status === "failed"
+                    ? "#ff4d4f"
+                    : "#1890ff"
+              }
+            />
+          </div>
+
+          {/* Error Alert */}
+          {error && (
+            <Alert
+              message="Falha no Workflow"
+              description={
+                <Space direction="vertical" size="small">
+                  <Text>{error}</Text>
+                  <Text type="secondary" style={{ fontSize: "12px" }}>
+                    O workflow encontrou um erro e foi interrompido
+                  </Text>
+                </Space>
+              }
+              type="error"
+              showIcon
+              icon={<ExclamationCircleOutlined />}
+              closable
+              onClose={() => setError(null)}
+              action={
+                <Button
+                  size="small"
+                  icon={<ReloadOutlined />}
+                  onClick={reconnect}
+                >
+                  Reconectar
+                </Button>
+              }
+            />
+          )}
+
+          {/* Steps or Timeline */}
+          {showTimeline ? renderTimelineView() : renderStepsView()}
+        </Space>
+      </Card>
+      <Modal
+        open={detailVisible}
+        onCancel={() => setDetailVisible(false)}
+        footer={null}
+        title={selectedStep?.name}
+      >
+        {selectedStep?.result && <Paragraph>{selectedStep.result}</Paragraph>}
+        {selectedStep?.error && (
+          <Alert type="error" message={selectedStep.error} />
+        )}
+      </Modal>
     </>
   );
 };

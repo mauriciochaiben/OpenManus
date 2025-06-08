@@ -10,7 +10,8 @@ from app.logger import logger
 
 
 class ExampleAgent(BaseAgent):
-    """Agente de exemplo que implementa a interface BaseAgent.
+    """
+    Agente de exemplo que implementa a interface BaseAgent.
 
     Este agente demonstra como implementar corretamente todos os métodos
     abstratos definidos na classe BaseAgent, seguindo as convenções
@@ -18,7 +19,8 @@ class ExampleAgent(BaseAgent):
     """
 
     def __init__(self, config: dict | None = None) -> None:
-        """Inicializa o agente de exemplo.
+        """
+        Inicializa o agente de exemplo.
 
         Args:
             config: Configurações opcionais para o agente.
@@ -26,6 +28,7 @@ class ExampleAgent(BaseAgent):
                    - name: Nome do agente
                    - timeout: Timeout para operações
                    - debug: Flag para modo debug
+
         """
         self.config = config or {}
         self.name = self.config.get("name", "ExampleAgent")
@@ -35,13 +38,15 @@ class ExampleAgent(BaseAgent):
         logger.info(f"Inicializando {self.name} com configurações: {self.config}")
 
     async def run(self, task_details: dict) -> dict:
-        """Executa uma tarefa de demonstração.
+        """
+        Executa uma tarefa de demonstração.
 
         Args:
             task_details: Detalhes da tarefa a ser executada.
 
         Returns:
             Dict: Resultado da execução com informações sobre o processamento.
+
         """
         try:
             task_description = task_details.get("description", "No description provided")
@@ -73,19 +78,21 @@ class ExampleAgent(BaseAgent):
             }
 
         except Exception as e:
-            logger.error(f"Erro durante execução da tarefa no {self.name}: {str(e)}")
+            logger.error(f"Erro durante execução da tarefa no {self.name}: {e!s}")
             return {
                 "success": False,
                 "result": None,
-                "message": f"Erro durante execução: {str(e)}",
+                "message": f"Erro durante execução: {e!s}",
                 "metadata": {"error_type": type(e).__name__, "agent_name": self.name},
             }
 
     def get_capabilities(self) -> list[str]:
-        """Retorna as capacidades do agente de exemplo.
+        """
+        Retorna as capacidades do agente de exemplo.
 
         Returns:
             List[str]: Lista das capacidades disponíveis.
+
         """
         return [
             "task_processing",  # Processamento básico de tarefas

@@ -64,7 +64,7 @@ class Message(BaseModel):
     def __add__(self, other) -> list["Message"]:
         """支持 Message + list 或 Message + Message 的操作"""
         if isinstance(other, list):
-            return [self] + other
+            return [self, *other]
         if isinstance(other, Message):
             return [self, other]
         raise TypeError(f"unsupported operand type(s) for +: '{type(self).__name__}' and '{type(other).__name__}'")
@@ -72,7 +72,7 @@ class Message(BaseModel):
     def __radd__(self, other) -> list["Message"]:
         """支持 list + Message 的操作"""
         if isinstance(other, list):
-            return other + [self]
+            return [*other, self]
         raise TypeError(f"unsupported operand type(s) for +: '{type(other).__name__}' and '{type(self).__name__}'")
 
     def to_dict(self) -> dict:
@@ -124,12 +124,15 @@ class Message(BaseModel):
         base64_image: str | None = None,
         **kwargs,
     ):
-        """Create ToolCallsMessage from raw tool calls.
+        """
+        Create ToolCallsMessage from raw tool calls.
 
         Args:
             tool_calls: Raw tool calls from LLM
             content: Optional message content
             base64_image: Optional base64 encoded image
+            **kwargs: Additional keyword arguments
+
         """
         formatted_calls = [
             {"id": call.id, "function": call.function.model_dump(), "type": "function"} for call in tool_calls

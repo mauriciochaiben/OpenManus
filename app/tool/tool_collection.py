@@ -23,7 +23,7 @@ class ToolCollection:
     def to_params(self) -> list[dict[str, Any]]:
         return [tool.to_param() for tool in self.tools]
 
-    async def execute(self, *, name: str, tool_input: dict[str, Any] = None) -> ToolResult:
+    async def execute(self, *, name: str, tool_input: dict[str, Any] | None = None) -> ToolResult:
         tool = self.tool_map.get(name)
         if not tool:
             return ToolFailure(error=f"Tool {name} is invalid")
@@ -47,7 +47,8 @@ class ToolCollection:
         return self.tool_map.get(name)
 
     def add_tool(self, tool: BaseTool):
-        """Add a single tool to the collection.
+        """
+        Add a single tool to the collection.
 
         If a tool with the same name already exists, it will be skipped and a warning will be logged.
         """
@@ -60,7 +61,8 @@ class ToolCollection:
         return self
 
     def add_tools(self, *tools: BaseTool):
-        """Add multiple tools to the collection.
+        """
+        Add multiple tools to the collection.
 
         If any tool has a name conflict with an existing tool, it will be skipped and a warning will be logged.
         """

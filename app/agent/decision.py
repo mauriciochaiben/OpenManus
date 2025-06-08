@@ -2,9 +2,9 @@
 Sistema de decisão inteligente para escolha entre single agent e multi-agent
 """
 
-import re
 from dataclasses import dataclass
 from enum import Enum
+import re
 
 from app.logger import logger
 
@@ -41,7 +41,8 @@ class TaskAnalysis:
 
 
 class AgentDecisionSystem:
-    """Sistema que decide entre single agent ou multi-agent baseado na complexidade.
+    """
+    Sistema que decide entre single agent ou multi-agent baseado na complexidade.
 
     Baseado na complexidade da tarefa.
     """
@@ -152,7 +153,6 @@ class AgentDecisionSystem:
 
     def recommend_approach(self, analysis: TaskAnalysis) -> AgentApproach:
         """Recomenda a abordagem baseada na análise da tarefa"""
-
         # Single agent para tarefas simples ou com um único domínio
         if (
             analysis.complexity == TaskComplexity.SIMPLE
@@ -300,7 +300,8 @@ class AgentDecisionSystem:
 # Convenience function for external use
 def analyze_task_complexity(task: str) -> dict:
     """
-    Standalone function for analyzing task complexity
+    Standalone function for analyzing task complexity.
+
     Returns a simplified dictionary format for compatibility with existing tests
     """
     try:

@@ -1,6 +1,6 @@
 import asyncio
-import uuid
 from contextlib import asynccontextmanager, suppress
+import uuid
 
 import docker
 from docker.errors import APIError, ImageNotFound
@@ -11,7 +11,8 @@ from app.sandbox.core.sandbox import DockerSandbox
 
 
 class SandboxManager:
-    """Docker sandbox manager.
+    """
+    Docker sandbox manager.
 
     Manages multiple DockerSandbox instances lifecycle including creation,
     monitoring, and cleanup. Provides concurrent access control and automatic
@@ -23,6 +24,7 @@ class SandboxManager:
         cleanup_interval: Cleanup check interval in seconds.
         _sandboxes: Active sandbox instance mapping.
         _last_used: Last used time record for sandboxes.
+
     """
 
     def __init__(
@@ -31,12 +33,14 @@ class SandboxManager:
         idle_timeout: int = 3600,
         cleanup_interval: int = 300,
     ):
-        """Initializes sandbox manager.
+        """
+        Initializes sandbox manager.
 
         Args:
             max_sandboxes: Maximum sandbox count limit.
             idle_timeout: Idle timeout in seconds.
             cleanup_interval: Cleanup check interval in seconds.
+
         """
         self.max_sandboxes = max_sandboxes
         self.idle_timeout = idle_timeout
@@ -62,13 +66,15 @@ class SandboxManager:
         self.start_cleanup_task()
 
     async def ensure_image(self, image: str) -> bool:
-        """Ensures Docker image is available.
+        """
+        Ensures Docker image is available.
 
         Args:
             image: Image name.
 
         Returns:
             bool: Whether image is available.
+
         """
         try:
             self._client.images.get(image)
@@ -84,7 +90,8 @@ class SandboxManager:
 
     @asynccontextmanager
     async def sandbox_operation(self, sandbox_id: str):
-        """Context manager for sandbox operations.
+        """
+        Context manager for sandbox operations.
 
         Provides concurrency control and usage time updates.
 
@@ -93,6 +100,7 @@ class SandboxManager:
 
         Raises:
             KeyError: If sandbox not found.
+
         """
         if sandbox_id not in self._locks:
             self._locks[sandbox_id] = asyncio.Lock()
@@ -113,7 +121,8 @@ class SandboxManager:
         config: SandboxSettings | None = None,
         volume_bindings: dict[str, str] | None = None,
     ) -> str:
-        """Creates a new sandbox instance.
+        """
+        Creates a new sandbox instance.
 
         Args:
             config: Sandbox configuration.
@@ -124,6 +133,7 @@ class SandboxManager:
 
         Raises:
             RuntimeError: If max sandbox count reached or creation fails.
+
         """
         async with self._global_lock:
             if len(self._sandboxes) >= self.max_sandboxes:
@@ -152,7 +162,8 @@ class SandboxManager:
                 raise RuntimeError(f"Failed to create sandbox: {e}") from e
 
     async def get_sandbox(self, sandbox_id: str) -> DockerSandbox:
-        """Gets a sandbox instance.
+        """
+        Gets a sandbox instance.
 
         Args:
             sandbox_id: Sandbox ID.
@@ -162,6 +173,7 @@ class SandboxManager:
 
         Raises:
             KeyError: If sandbox does not exist.
+
         """
         async with self.sandbox_operation(sandbox_id) as sandbox:
             return sandbox
@@ -232,10 +244,12 @@ class SandboxManager:
         logger.info("Manager cleanup completed")
 
     async def _safe_delete_sandbox(self, sandbox_id: str) -> None:
-        """Safely deletes a single sandbox.
+        """
+        Safely deletes a single sandbox.
 
         Args:
             sandbox_id: Sandbox ID to delete.
+
         """
         try:
             if sandbox_id in self._active_operations:
@@ -262,10 +276,12 @@ class SandboxManager:
             logger.error(f"Error during cleanup of sandbox {sandbox_id}: {e}")
 
     async def delete_sandbox(self, sandbox_id: str) -> None:
-        """Deletes specified sandbox.
+        """
+        Deletes specified sandbox.
 
         Args:
             sandbox_id: Sandbox ID.
+
         """
         if sandbox_id not in self._sandboxes:
             return
@@ -284,10 +300,12 @@ class SandboxManager:
         await self.cleanup()
 
     def get_stats(self) -> dict:
-        """Gets manager statistics.
+        """
+        Gets manager statistics.
 
         Returns:
             Dict: Statistics information.
+
         """
         return {
             "total_sandboxes": len(self._sandboxes),

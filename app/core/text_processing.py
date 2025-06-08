@@ -1,8 +1,8 @@
 """Text processing utilities for the OpenManus knowledge management system."""
 
+from dataclasses import dataclass
 import logging
 import re
-from dataclasses import dataclass
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -23,11 +23,13 @@ class TextProcessor:
     """Text processing utility for splitting text into chunks and processing documents."""
 
     def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
-        """Initialize the text processor.
+        """
+        Initialize the text processor.
 
         Args:
             chunk_size: Maximum size of each text chunk in characters
             chunk_overlap: Number of characters to overlap between chunks
+
         """
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
@@ -39,7 +41,8 @@ class TextProcessor:
         chunk_overlap: int | None = None,
         source_metadata: dict[str, Any] | None = None,
     ) -> list[TextChunk]:
-        """Split text into overlapping chunks.
+        """
+        Split text into overlapping chunks.
 
         Args:
             text: The text to split
@@ -49,6 +52,7 @@ class TextProcessor:
 
         Returns:
             List of TextChunk objects
+
         """
         if not text or not text.strip():
             return []
@@ -119,7 +123,8 @@ class TextProcessor:
         return text.strip()
 
     def _find_sentence_boundary(self, text: str, preferred_end: int, min_end: int) -> int:
-        """Find a good sentence boundary for splitting text.
+        """
+        Find a good sentence boundary for splitting text.
 
         Args:
             text: The text to search
@@ -128,6 +133,7 @@ class TextProcessor:
 
         Returns:
             Best end position for the chunk
+
         """
         # Look for sentence endings within a reasonable range
         search_start = max(min_end, preferred_end - 100)
@@ -163,7 +169,8 @@ class TextProcessor:
         return preferred_end
 
     def extract_key_phrases(self, text: str, max_phrases: int = 10) -> list[str]:
-        """Extract key phrases from text.
+        """
+        Extract key phrases from text.
 
         Args:
             text: Text to analyze
@@ -171,6 +178,7 @@ class TextProcessor:
 
         Returns:
             List of key phrases
+
         """
         # Simple extraction based on common patterns
         # In a real implementation, you might use NLP libraries like spaCy or NLTK
@@ -192,13 +200,15 @@ class TextProcessor:
         return phrases[:max_phrases]
 
     def calculate_readability(self, text: str) -> dict[str, float]:
-        """Calculate basic readability metrics.
+        """
+        Calculate basic readability metrics.
 
         Args:
             text: Text to analyze
 
         Returns:
             Dictionary with readability metrics
+
         """
         if not text.strip():
             return {"words": 0, "sentences": 0, "avg_words_per_sentence": 0}

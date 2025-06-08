@@ -49,6 +49,7 @@ class VectorStoreClient:
             host: ChromaDB host (defaults to config)
             port: ChromaDB port (defaults to config)
             auth_token: Authentication token (defaults to config)
+
         """
         self.host = host or vector_db_config.host
         self.port = port or vector_db_config.port
@@ -93,8 +94,8 @@ class VectorStoreClient:
             logger.info(f"Successfully connected to ChromaDB at {self.host}:{self.port}")
 
         except Exception as e:
-            logger.error(f"Failed to connect to ChromaDB: {str(e)}")
-            raise ConnectionError(f"Failed to connect to vector store: {str(e)}") from e
+            logger.error(f"Failed to connect to ChromaDB: {e!s}")
+            raise ConnectionError(f"Failed to connect to vector store: {e!s}") from e
 
     async def _test_connection(self) -> None:
         """Test the connection to ChromaDB."""
@@ -103,7 +104,7 @@ class VectorStoreClient:
             loop = asyncio.get_event_loop()
             await loop.run_in_executor(None, self._client.heartbeat)
         except Exception as e:
-            raise ConnectionError(f"Connection test failed: {str(e)}") from e
+            raise ConnectionError(f"Connection test failed: {e!s}") from e
 
     async def disconnect(self) -> None:
         """Disconnect from ChromaDB."""
@@ -133,6 +134,7 @@ class VectorStoreClient:
 
         Returns:
             Collection object
+
         """
         self._ensure_connected()
 
@@ -164,8 +166,8 @@ class VectorStoreClient:
                 return collection
 
         except Exception as e:
-            logger.error(f"Failed to create collection '{name}': {str(e)}")
-            raise CollectionError(f"Failed to create collection: {str(e)}") from e
+            logger.error(f"Failed to create collection '{name}': {e!s}")
+            raise CollectionError(f"Failed to create collection: {e!s}") from e
 
     async def get_collection(self, name: str) -> Collection:
         """
@@ -176,6 +178,7 @@ class VectorStoreClient:
 
         Returns:
             Collection object
+
         """
         self._ensure_connected()
 
@@ -189,8 +192,8 @@ class VectorStoreClient:
             return collection
 
         except Exception as e:
-            logger.error(f"Failed to get collection '{name}': {str(e)}")
-            raise CollectionError(f"Collection '{name}' not found: {str(e)}") from e
+            logger.error(f"Failed to get collection '{name}': {e!s}")
+            raise CollectionError(f"Collection '{name}' not found: {e!s}") from e
 
     async def add_documents(
         self,
@@ -212,6 +215,7 @@ class VectorStoreClient:
 
         Returns:
             List of document IDs
+
         """
         self._ensure_connected()
 
@@ -258,8 +262,8 @@ class VectorStoreClient:
             return ids
 
         except Exception as e:
-            logger.error(f"Failed to add documents to '{collection_name}': {str(e)}")
-            raise VectorStoreError(f"Failed to add documents: {str(e)}") from e
+            logger.error(f"Failed to add documents to '{collection_name}': {e!s}")
+            raise VectorStoreError(f"Failed to add documents: {e!s}") from e
 
     async def search_similar(
         self,
@@ -283,6 +287,7 @@ class VectorStoreClient:
 
         Returns:
             Search results with documents, distances, and metadata
+
         """
         self._ensure_connected()
 
@@ -326,8 +331,8 @@ class VectorStoreClient:
             return results
 
         except Exception as e:
-            logger.error(f"Search failed in '{collection_name}': {str(e)}")
-            raise VectorStoreError(f"Search failed: {str(e)}") from e
+            logger.error(f"Search failed in '{collection_name}': {e!s}")
+            raise VectorStoreError(f"Search failed: {e!s}") from e
 
     def _filter_by_threshold(self, results: dict[str, Any], threshold: float) -> dict[str, Any]:
         """Filter search results by distance threshold."""
@@ -375,6 +380,7 @@ class VectorStoreClient:
             documents: New document texts
             embeddings: New embeddings
             metadatas: New metadata
+
         """
         self._ensure_connected()
 
@@ -396,8 +402,8 @@ class VectorStoreClient:
             logger.info(f"Updated {len(ids)} documents in collection '{collection_name}'")
 
         except Exception as e:
-            logger.error(f"Failed to update documents in '{collection_name}': {str(e)}")
-            raise VectorStoreError(f"Failed to update documents: {str(e)}") from e
+            logger.error(f"Failed to update documents in '{collection_name}': {e!s}")
+            raise VectorStoreError(f"Failed to update documents: {e!s}") from e
 
     async def delete_documents(
         self,
@@ -412,6 +418,7 @@ class VectorStoreClient:
             collection_name: Target collection name
             ids: Document IDs to delete
             where: Metadata filter for deletion
+
         """
         self._ensure_connected()
 
@@ -428,8 +435,8 @@ class VectorStoreClient:
             logger.info(f"Deleted documents from collection '{collection_name}'")
 
         except Exception as e:
-            logger.error(f"Failed to delete documents from '{collection_name}': {str(e)}")
-            raise VectorStoreError(f"Failed to delete documents: {str(e)}") from e
+            logger.error(f"Failed to delete documents from '{collection_name}': {e!s}")
+            raise VectorStoreError(f"Failed to delete documents: {e!s}") from e
 
     async def get_collection_info(self, collection_name: str) -> dict[str, Any]:
         """
@@ -440,6 +447,7 @@ class VectorStoreClient:
 
         Returns:
             Collection information including count and metadata
+
         """
         self._ensure_connected()
 
@@ -457,8 +465,8 @@ class VectorStoreClient:
             }
 
         except Exception as e:
-            logger.error(f"Failed to get info for collection '{collection_name}': {str(e)}")
-            raise CollectionError(f"Failed to get collection info: {str(e)}") from e
+            logger.error(f"Failed to get info for collection '{collection_name}': {e!s}")
+            raise CollectionError(f"Failed to get collection info: {e!s}") from e
 
     async def list_collections(self) -> list[str]:
         """
@@ -466,6 +474,7 @@ class VectorStoreClient:
 
         Returns:
             List of collection names
+
         """
         self._ensure_connected()
 
@@ -475,8 +484,8 @@ class VectorStoreClient:
             return [col.name for col in collections]
 
         except Exception as e:
-            logger.error(f"Failed to list collections: {str(e)}")
-            raise VectorStoreError(f"Failed to list collections: {str(e)}") from e
+            logger.error(f"Failed to list collections: {e!s}")
+            raise VectorStoreError(f"Failed to list collections: {e!s}") from e
 
     async def reset_collection(self, collection_name: str) -> None:
         """
@@ -484,6 +493,7 @@ class VectorStoreClient:
 
         Args:
             collection_name: Collection to reset
+
         """
         self._ensure_connected()
 
@@ -500,8 +510,8 @@ class VectorStoreClient:
             logger.info(f"Reset collection '{collection_name}'")
 
         except Exception as e:
-            logger.error(f"Failed to reset collection '{collection_name}': {str(e)}")
-            raise CollectionError(f"Failed to reset collection: {str(e)}") from e
+            logger.error(f"Failed to reset collection '{collection_name}': {e!s}")
+            raise CollectionError(f"Failed to reset collection: {e!s}") from e
 
     @property
     def is_connected(self) -> bool:
@@ -516,6 +526,7 @@ vector_store_client = VectorStoreClient()
 async def get_vector_store() -> VectorStoreClient:
     """
     Get the global vector store client instance.
+
     Ensures connection is established.
     """
     if not vector_store_client.is_connected:

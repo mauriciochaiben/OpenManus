@@ -1,9 +1,9 @@
 """Event system for decoupled communication"""
 
-import asyncio
-import contextlib
 from abc import ABC, abstractmethod
+import asyncio
 from collections.abc import Callable
+import contextlib
 from dataclasses import dataclass
 
 from app.domain.entities import Task, TaskStatus

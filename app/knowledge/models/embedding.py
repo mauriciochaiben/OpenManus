@@ -1,7 +1,7 @@
 """Embedding metadata models for knowledge management."""
 
-import uuid
 from datetime import datetime
+import uuid
 
 from pydantic import BaseModel, Field
 

@@ -29,7 +29,6 @@ exclude = [
     ".git-rewrite",
     ".hg",
     ".ipynb_checkpoints",
-    ".mypy_cache",
     ".nox",
     ".pants.d",
     ".pyenv",
@@ -121,9 +120,15 @@ ignore = [
     "ANN206",
     # Security issues that are false positives in this context
     "S101", # Use of assert
+    "S102", # Use of exec detected
     "S104", # Possible binding to all interfaces
     "S108", # Probable insecure usage of temp file/directory
+    "S110", # try-except-pass detected
+    "S112", # try-except-continue detected
+    "S202", # Uses of tarfile.extractall()
     "S311", # Standard pseudo-random generators
+    "S603", # subprocess call: check for execution of untrusted input
+    "S607", # Starting a process with a partial executable path
     # Pylint rules that can be too opinionated
     "PLR0913", # Too many arguments
     "PLR0915", # Too many statements
@@ -139,8 +144,8 @@ unfixable = []
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.lint.per-file-ignores]
-# Tests can use magic values, assertions, and longer lines
-"tests/**/*.py" = ["PLR2004", "S101", "E501"]
+# Tests can use magic values, assertions, longer lines, and imports after pytest.importorskip
+"tests/**/*.py" = ["PLR2004", "S101", "E501", "E402", "ANN", "D"]
 # __init__.py files can have unused imports
 "__init__.py" = ["F401"]
 # FastAPI files can use function calls in default arguments (Depends, File, Query)

@@ -5,13 +5,13 @@ Service for applying content transformations using LLM with prompt templates.
 Supports loading source content, formatting prompts, and generating transformed results.
 """
 
-import json
-import logging
-import uuid
 from dataclasses import dataclass
 from datetime import datetime
+import json
+import logging
 from pathlib import Path
 from typing import Any
+import uuid
 
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
 from pydantic import BaseModel, Field
@@ -88,6 +88,7 @@ class TransformationService:
             source_service: Service for source management
             llm_client: Client for LLM interactions
             templates_dir: Directory containing prompt templates
+
         """
         self.rag_service = rag_service
         self.source_service = source_service
@@ -124,12 +125,12 @@ class TransformationService:
                     logger.debug(f"Loaded template: {template.name}")
 
                 except Exception as e:
-                    logger.error(f"Error loading template from {template_file}: {str(e)}")
+                    logger.error(f"Error loading template from {template_file}: {e!s}")
 
             logger.info(f"Loaded {len(self._template_cache)} prompt templates")
 
         except Exception as e:
-            logger.error(f"Error loading templates: {str(e)}")
+            logger.error(f"Error loading templates: {e!s}")
 
     async def apply_transformation(
         self,
@@ -155,6 +156,7 @@ class TransformationService:
         Raises:
             NotFoundError: If source or template not found
             ValidationError: If transformation fails
+
         """
         start_time = datetime.utcnow()
         transformation_id = str(uuid.uuid4())
@@ -207,8 +209,8 @@ class TransformationService:
             return result
 
         except Exception as e:
-            logger.error(f"Error in transformation {transformation_id}: {str(e)}")
-            raise ValidationError(f"Transformation failed: {str(e)}") from e
+            logger.error(f"Error in transformation {transformation_id}: {e!s}")
+            raise ValidationError(f"Transformation failed: {e!s}") from e
 
     async def _load_source_content(self, source_id: str, use_rag: bool, max_chunks: int) -> dict[str, Any]:
         """
@@ -221,6 +223,7 @@ class TransformationService:
 
         Returns:
             Dictionary with content and metadata
+
         """
         try:
             # Get source metadata
@@ -255,7 +258,7 @@ class TransformationService:
             }
 
         except Exception as e:
-            logger.error(f"Error loading content for source {source_id}: {str(e)}")
+            logger.error(f"Error loading content for source {source_id}: {e!s}")
             raise
 
     async def _get_template(self, template_identifier: str) -> PromptTemplate:
@@ -267,6 +270,7 @@ class TransformationService:
 
         Returns:
             PromptTemplate object
+
         """
         # Check if it's a template name
         if template_identifier in self._template_cache:
@@ -282,7 +286,7 @@ class TransformationService:
                 self._template_cache[template.name] = template
                 return template
             except Exception as e:
-                logger.error(f"Error loading template file {template_file}: {str(e)}")
+                logger.error(f"Error loading template file {template_file}: {e!s}")
 
         # Treat as inline template string
         return PromptTemplate(
@@ -304,6 +308,7 @@ class TransformationService:
 
         Returns:
             Rendered prompt string
+
         """
         try:
             jinja_template = Template(template.template)
@@ -311,8 +316,8 @@ class TransformationService:
             return rendered.strip()
 
         except Exception as e:
-            logger.error(f"Error rendering template {template.name}: {str(e)}")
-            raise ValidationError(f"Template rendering failed: {str(e)}") from e
+            logger.error(f"Error rendering template {template.name}: {e!s}")
+            raise ValidationError(f"Template rendering failed: {e!s}") from e
 
     async def _generate_transformation(self, prompt: str, output_format: str = "text") -> str:
         """
@@ -324,6 +329,7 @@ class TransformationService:
 
         Returns:
             Generated content
+
         """
         try:
             # Prepare LLM request
@@ -339,8 +345,8 @@ class TransformationService:
             return response.strip()
 
         except Exception as e:
-            logger.error(f"Error generating transformation: {str(e)}")
-            raise ValidationError(f"LLM generation failed: {str(e)}") from e
+            logger.error(f"Error generating transformation: {e!s}")
+            raise ValidationError(f"LLM generation failed: {e!s}") from e
 
     def _get_system_prompt(self, output_format: str) -> str:
         """Get appropriate system prompt based on output format."""
@@ -372,6 +378,7 @@ class TransformationService:
 
         Returns:
             True if created successfully
+
         """
         try:
             # Save to cache
@@ -388,7 +395,7 @@ class TransformationService:
             return True
 
         except Exception as e:
-            logger.error(f"Error creating template {template.name}: {str(e)}")
+            logger.error(f"Error creating template {template.name}: {e!s}")
             return False
 
     async def batch_transform(
@@ -403,6 +410,7 @@ class TransformationService:
 
         Returns:
             List of transformation results
+
         """
         results = []
 
@@ -418,7 +426,7 @@ class TransformationService:
                 results.append(result)
 
             except Exception as e:
-                logger.error(f"Error transforming source {source_id}: {str(e)}")
+                logger.error(f"Error transforming source {source_id}: {e!s}")
                 # Create error result
                 error_result = TransformationResult(
                     id=str(uuid.uuid4()),

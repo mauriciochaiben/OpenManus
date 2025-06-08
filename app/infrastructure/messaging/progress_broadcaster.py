@@ -5,9 +5,9 @@ This module provides utilities to broadcast real-time progress updates
 via WebSocket during multi-agent execution.
 """
 
-import json
 from dataclasses import dataclass
 from datetime import datetime
+import json
 
 from app.logger import logger
 
@@ -50,14 +50,13 @@ class ProgressBroadcaster:
         stage: str,
         progress: float,
         execution_type: str,
-        agents: list[str] = None,
-        task_name: str = None,
-        step_number: int = None,
-        total_steps: int = None,
-        description: str = None,
+        agents: list[str] | None = None,
+        task_name: str | None = None,
+        step_number: int | None = None,
+        total_steps: int | None = None,
+        description: str | None = None,
     ):
         """Broadcast a progress update to all connected clients"""
-
         # Create progress update
         progress_update = ProgressUpdate(
             stage=stage,

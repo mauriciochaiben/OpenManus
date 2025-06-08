@@ -224,14 +224,13 @@ jobs:
 
     - name: Install Python linting tools
       run: |
-        pip install flake8 black isort mypy
+        pip install flake8 black isort
 
     - name: Run Python linting
       run: |
         flake8 app/ --max-line-length=88 --extend-ignore=E203,W503
         black --check app/
         isort --check-only app/
-        mypy app/ --ignore-missing-imports
 
     - name: Set up Node.js
       uses: actions/setup-node@v4

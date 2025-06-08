@@ -1,8 +1,13 @@
 import pytest
+
+# Check dependencies early
 pytest.importorskip("pytest_asyncio")
 pytest.importorskip("docker")
+
+# Third-party imports
 import pytest_asyncio
 
+# Application imports
 from app.sandbox.core.sandbox import DockerSandbox, SandboxSettings
 
 
