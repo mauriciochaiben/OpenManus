@@ -3,19 +3,14 @@
 Testes específicos para leitura de documentos
 """
 
-import pytest
-
-# Check dependencies early
-pytest.importorskip("PyPDF2")
-pytest.importorskip("python_docx")
-pytest.importorskip("openpyxl")
-
 # Standard library imports
 import asyncio
 import contextlib
 from pathlib import Path
 import sys
 import tempfile
+
+import pytest
 
 # Adicionar o diretório raiz ao path
 sys.path.insert(0, str(Path(__file__).parent.parent))
