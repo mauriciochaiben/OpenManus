@@ -9,6 +9,7 @@ from typing import Any, BinaryIO, ClassVar
 import uuid
 
 import aiofiles
+from docling.document_converter import DocumentConverter
 from fastapi import UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import openai
@@ -108,6 +109,15 @@ class SourceService:
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
         )
+
+        # Initialize Docling converter for PDF and DOCX processing
+        self.docling_converter = None
+        try:
+            self.docling_converter = DocumentConverter()
+            logger.info("Docling DocumentConverter initialized for SourceService")
+        except Exception as e:
+            logger.warning(f"Failed to initialize Docling converter: {e}")
+            self.docling_converter = None
 
     def ensure_upload_dir_exists(self):
         """Ensure that the upload directory exists."""
@@ -258,25 +268,8 @@ class SourceService:
             raise SourceServiceError(f"Text extraction failed: {e!s}") from e
 
     async def _extract_text_from_pdf(self, file_path: str) -> str:
-        """Extract text from PDF file."""
-        try:
-            from pypdf import PdfReader
-
-            text = ""
-            pdf = await asyncio.to_thread(PdfReader, file_path)
-
-            for page in pdf.pages:
-                page_text = await asyncio.to_thread(page.extract_text)
-                if page_text:
-                    text += page_text + "\n\n"
-
-            if not text.strip():
-                logger.warning(f"PDF extraction returned empty text: {file_path}")
-
-            return text
-        except Exception as e:
-            logger.error(f"PDF extraction failed: {e!s}")
-            raise SourceServiceError(f"PDF extraction failed: {e!s}") from e
+        """Extract text from PDF file using Docling."""
+        return await self._extract_with_docling(file_path)
 
     async def _extract_text_from_txt(self, file_path: str) -> str:
         """Extract text from plain text file."""
@@ -288,20 +281,25 @@ class SourceService:
             raise SourceServiceError(f"Text file reading failed: {e!s}") from e
 
     async def _extract_text_from_docx(self, file_path: str) -> str:
-        """Extract text from DOCX file."""
+        """Extract text from DOCX file using Docling."""
+        return await self._extract_with_docling(file_path)
+
+    async def _extract_with_docling(self, file_path: str) -> str:
+        """Extract text from a document using Docling."""
         try:
-            import docx
+            if not self.docling_converter:
+                raise SourceServiceError("Docling converter not initialized")
 
-            doc = await asyncio.to_thread(docx.Document, file_path)
-            text = ""
+            result = await asyncio.to_thread(self.docling_converter.convert, file_path)
+            text = result.document.export_to_text()
 
-            for para in doc.paragraphs:
-                text += para.text + "\n"
+            if not text.strip():
+                logger.warning(f"Docling extraction returned empty text: {file_path}")
 
             return text
         except Exception as e:
-            logger.error(f"DOCX extraction failed: {e!s}")
-            raise SourceServiceError(f"DOCX extraction failed: {e!s}") from e
+            logger.error(f"Docling extraction failed: {e!s}")
+            raise SourceServiceError(f"Docling extraction failed: {e!s}") from e
 
     async def _compute_content_hash(self, file: BinaryIO) -> str:
         """Compute SHA-256 hash of file content for deduplication."""
