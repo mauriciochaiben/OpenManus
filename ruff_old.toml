@@ -137,7 +137,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
     "E501",    # Line too long
     "E402",    # Module level import not at top of file
     "D",       # All docstring rules
-    "ARG",     # All unused argument rules
+    "ANN",     # All type annotation rules
 ]
 
 # __init__.py files can have unused imports (for re-exporting)

@@ -29,5 +29,6 @@ __all__ = [
     "ToolRegistry",
     "WebSearch",
     "WebSearchTool",
+    "code_execution",  # Module import for registration
     "tool_registry",
 ]

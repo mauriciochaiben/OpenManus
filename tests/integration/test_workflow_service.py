@@ -245,7 +245,7 @@ class TestWorkflowServiceIntegration:
         workflow_service,
         mock_planner_agent,
         mock_tool_user_agent,
-        mock_event_bus,  # noqa: ARG002
+        mock_event_bus,
     ):
         """Test workflow handling when some tool executions fail"""
 
@@ -294,8 +294,8 @@ class TestWorkflowServiceIntegration:
         self,
         workflow_service,
         mock_planner_agent,
-        mock_tool_user_agent,  # noqa: ARG002
-        mock_event_bus,  # noqa: ARG002
+        mock_tool_user_agent,
+        mock_event_bus,
     ):
         """Test various error scenarios in workflow execution"""
 
@@ -388,8 +388,8 @@ class TestWorkflowServiceIntegration:
         self,
         workflow_service,
         mock_planner_agent,
-        mock_tool_user_agent,  # noqa: ARG002
-        mock_event_bus,  # noqa: ARG002
+        mock_tool_user_agent,
+        mock_event_bus,
     ):
         """Test that workflow results have the expected structure and data types"""
 

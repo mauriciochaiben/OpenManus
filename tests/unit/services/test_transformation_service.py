@@ -16,15 +16,15 @@ from app.services.transformation_service import TransformationService
 class DummyRagService:
     async def retrieve_relevant_context(
         self,
-        query: str,  # noqa: ARG002
-        source_ids=None,  # noqa: ARG002
-        k=5,  # noqa: ARG002
+        query: str,
+        source_ids=None,
+        k=5,
     ):
         return ["dummy context"]
 
 
 class DummySourceService:
-    async def get_source(self, source_id: str):  # noqa: ARG002
+    async def get_source(self, source_id: str):
         class Source:
             filename = "file.txt"
             file_type = "text"
@@ -33,16 +33,16 @@ class DummySourceService:
 
         return Source()
 
-    async def get_full_content(self, source_id: str):  # noqa: ARG002
+    async def get_full_content(self, source_id: str):
         return "full content"
 
 
 class DummyLLMClient:
     async def generate_response(
         self,
-        prompt: str,  # noqa: ARG002
-        system_prompt: str,  # noqa: ARG002
-        **kwargs,  # noqa: ARG002
+        prompt: str,
+        system_prompt: str,
+        **kwargs,
     ):
         return "generated response"
 
