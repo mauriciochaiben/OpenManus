@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import base64
 import json
@@ -12,11 +14,21 @@ try:
     BROWSER_USE_AVAILABLE = True
 except ImportError:
     # Create placeholder classes when browser_use is not available
-    BrowserUseBrowser = None
-    BrowserConfig = None
-    BrowserContext = None
-    BrowserContextConfig = None
-    DomService = None
+    class BrowserUseBrowser:
+        pass
+
+    class BrowserConfig:
+        pass
+
+    class BrowserContext:
+        pass
+
+    class BrowserContextConfig:
+        pass
+
+    class DomService:
+        pass
+
     BROWSER_USE_AVAILABLE = False
 
 
@@ -535,7 +547,7 @@ Page content:
                 loop.close()
 
     @classmethod
-    def create_with_context(cls, context: Context) -> "BrowserUseTool[Context]":
+    def create_with_context(cls, context: Context) -> BrowserUseTool[Context]:
         """Factory method to create a BrowserUseTool with a specific context."""
         tool = cls()
         tool.tool_context = context
