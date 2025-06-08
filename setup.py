@@ -35,9 +35,6 @@ setup(
         "pydantic_core>=2.27.2,<2.35.0",
         "colorama~=0.4.6",
         # Document processing libraries
-        "PyPDF2~=3.0.1",
-        "python-docx~=1.1.2",
-        "openpyxl~=3.1.5",
         "pandas",
         # Advanced document processing with Docling
         "docling>=2.34,<2.37",
