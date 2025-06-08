@@ -1,0 +1,11 @@
+# OpenManus Search Engines
+# Diferentes motores de busca - instalar conforme necessário
+
+# Google Search
+googlesearch-python~=1.3.0
+
+# Baidu Search
+baidusearch~=1.0.3
+
+# DuckDuckGo Search
+duckduckgo_search~=8.0.2

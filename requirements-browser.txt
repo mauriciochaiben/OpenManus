@@ -1,0 +1,5 @@
+# OpenManus Browser Automation
+# Automação web e browser
+
+# Browser automation
+browser_use~=0.1.40

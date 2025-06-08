@@ -1,0 +1,12 @@
+# OpenManus Document Processing
+# Funcionalidades avançadas de processamento de documentos
+
+# Basic document processing
+python-docx~=1.1.2
+html2text~=2025.4.15
+
+# Advanced document processing with Docling
+docling~=2.36.0
+docling-core~=2.33.0
+docling-ibm-models~=3.4.4
+docling-parse~=4.0.1
