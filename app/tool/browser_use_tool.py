@@ -3,13 +3,24 @@ import base64
 import json
 from typing import ClassVar, Generic, TypeVar
 
-from browser_use import Browser as BrowserUseBrowser
-from browser_use import BrowserConfig
-from browser_use.browser.context import BrowserContext, BrowserContextConfig
-from browser_use.dom.service import DomService
-from pydantic_core.core_schema import ValidationInfo
+try:
+    from browser_use import Browser as BrowserUseBrowser
+    from browser_use import BrowserConfig
+    from browser_use.browser.context import BrowserContext, BrowserContextConfig
+    from browser_use.dom.service import DomService
 
-from app.compat import Field, field_validator
+    BROWSER_USE_AVAILABLE = True
+except ImportError:
+    # Create placeholder classes when browser_use is not available
+    BrowserUseBrowser = None
+    BrowserConfig = None
+    BrowserContext = None
+    BrowserContextConfig = None
+    DomService = None
+    BROWSER_USE_AVAILABLE = False
+
+
+from app.compat import Field
 from app.core.settings import settings
 from app.llm import LLM
 from app.tool.base import BaseTool, ToolResult
@@ -38,6 +49,14 @@ Context = TypeVar("Context")
 class BrowserUseTool(BaseTool, Generic[Context]):
     name: str = "browser_use"
     description: str = _BROWSER_DESCRIPTION
+
+    def __init__(self, **kwargs):
+        if not BROWSER_USE_AVAILABLE:
+            raise ImportError(
+                "BrowserUseTool requires 'browser_use' package. " "Install it with: pip install browser_use"
+            )
+        super().__init__(**kwargs)
+
     parameters: ClassVar[dict] = {
         "type": "object",
         "properties": {
@@ -131,27 +150,25 @@ class BrowserUseTool(BaseTool, Generic[Context]):
 
     llm: LLM | None = Field(default_factory=LLM)
 
-    @field_validator("parameters", mode="before")
-    def validate_parameters(cls, v: dict, info: ValidationInfo) -> dict:  # noqa: ARG002
-        if not v:
-            raise ValueError("Parameters cannot be empty")
-        return v
-
     async def _ensure_browser_initialized(self) -> BrowserContext:
         """Ensure browser and context are initialized."""
         if self.browser is None:
             browser_config_kwargs = {"headless": False, "disable_security": True}
 
             if settings.browser_config:
-                from browser_use.browser.browser import ProxySettings
+                if BROWSER_USE_AVAILABLE:
+                    try:
+                        from browser_use.browser.browser import ProxySettings
+                    except ImportError:
+                        ProxySettings = None
 
-                # handle proxy settings.
-                if settings.browser_config.proxy and settings.browser_config.proxy.server:
-                    browser_config_kwargs["proxy"] = ProxySettings(
-                        server=settings.browser_config.proxy.server,
-                        username=settings.browser_config.proxy.username,
-                        password=settings.browser_config.proxy.password,
-                    )
+                    # handle proxy settings.
+                    if ProxySettings and settings.browser_config.proxy and settings.browser_config.proxy.server:
+                        browser_config_kwargs["proxy"] = ProxySettings(
+                            server=settings.browser_config.proxy.server,
+                            username=settings.browser_config.proxy.username,
+                            password=settings.browser_config.proxy.password,
+                        )
 
                 browser_attrs = [
                     "headless",

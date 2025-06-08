@@ -9,7 +9,14 @@ from pathlib import Path
 from typing import Any
 
 import aiofiles
-import docx
+
+try:
+    import docx
+
+    PYTHON_DOCX_AVAILABLE = True
+except ImportError:
+    docx = None
+    PYTHON_DOCX_AVAILABLE = False
 from fastapi import HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from pypdf import PdfReader
@@ -114,7 +121,8 @@ class SourceService:
             logger.info(f"File uploaded successfully: {source_doc.filename} ({source_doc.id})")
 
             # Start background processing - intentionally not awaited
-            asyncio.create_task(self._process_source_async(file_path, source_doc))  # noqa: RUF006
+            task = asyncio.create_task(self._process_source_async(file_path, source_doc))  # noqa: RUF006
+            # Note: Task is intentionally not awaited to allow background processing
 
             return source_doc
 
@@ -418,6 +426,12 @@ class SourceService:
 
     async def _extract_docx_content(self, file_path: str) -> str:
         """Extract text from DOCX file."""
+        if not PYTHON_DOCX_AVAILABLE:
+            raise HTTPException(
+                status_code=501,
+                detail="DOCX processing not available. Install python-docx package.",
+            )
+
         loop = asyncio.get_event_loop()
 
         def extract_docx():

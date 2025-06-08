@@ -6,11 +6,18 @@ from app.logger import logger
 from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.tool import Terminate, ToolCollection
 from app.tool.ask_human import AskHuman
-from app.tool.browser_use_tool import BrowserUseTool
+
+try:
+    from app.tool.browser_use_tool import BrowserUseTool
+
+    BROWSER_USE_AVAILABLE = True
+except ImportError:
+    BrowserUseTool = None
+    BROWSER_USE_AVAILABLE = False
+from app.tool.code_execution import CodeExecutionTool
 from app.tool.document_analyzer import DocumentAnalyzer
 from app.tool.document_reader import DocumentReader
 from app.tool.mcp import MCPClients, MCPClientTool
-from app.tool.python_execute import PythonExecute
 from app.tool.str_replace_editor import StrReplaceEditor
 
 
@@ -32,8 +39,8 @@ class Manus(ToolCallAgent):
     # Add general-purpose tools to the tool collection
     available_tools: ToolCollection = Field(
         default_factory=lambda: ToolCollection(
-            PythonExecute(),
-            BrowserUseTool(),
+            CodeExecutionTool(),
+            *([BrowserUseTool()] if BROWSER_USE_AVAILABLE else []),
             StrReplaceEditor(),
             DocumentReader(),
             DocumentAnalyzer(),
@@ -131,11 +138,14 @@ class Manus(ToolCallAgent):
 
         original_prompt = self.next_step_prompt
         recent_messages = self.memory.messages[-3:] if self.memory.messages else []
+        browser_tool_name = "browser_use"  # Default name
+        if BROWSER_USE_AVAILABLE and BrowserUseTool:
+            try:
+                browser_tool_name = BrowserUseTool().name
+            except Exception:
+                browser_tool_name = "browser_use"
         browser_in_use = any(
-            tc.function.name == BrowserUseTool().name
-            for msg in recent_messages
-            if msg.tool_calls
-            for tc in msg.tool_calls
+            tc.function.name == browser_tool_name for msg in recent_messages if msg.tool_calls for tc in msg.tool_calls
         )
 
         if browser_in_use:

@@ -6,7 +6,15 @@ from app.compat import Field, model_validator
 from app.logger import logger
 from app.prompt.browser import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.schema import Message, ToolChoice
-from app.tool import BrowserUseTool, Terminate, ToolCollection
+from app.tool import Terminate, ToolCollection
+
+try:
+    from app.tool import BrowserUseTool
+
+    BROWSER_USE_AVAILABLE = True
+except ImportError:
+    BrowserUseTool = None
+    BROWSER_USE_AVAILABLE = False
 
 # Avoid circular import if BrowserAgent needs BrowserContextHelper
 if TYPE_CHECKING:
@@ -19,7 +27,17 @@ class BrowserContextHelper:
         self._current_base64_image: str | None = None
 
     async def get_browser_state(self) -> dict | None:
-        browser_tool = self.agent.available_tools.get_tool(BrowserUseTool().name)
+        if not BROWSER_USE_AVAILABLE:
+            logger.warning("BrowserUseTool not available - browser_use package not installed")
+            return None
+
+        browser_tool_name = "browser_use"  # Default name
+        if BrowserUseTool:
+            try:
+                browser_tool_name = BrowserUseTool().name
+            except Exception:
+                browser_tool_name = "browser_use"
+        browser_tool = self.agent.available_tools.get_tool(browser_tool_name)
         if not browser_tool or not hasattr(browser_tool, "get_current_state"):
             logger.warning("BrowserUseTool not found or doesn't have get_current_state")
             return None
@@ -74,7 +92,16 @@ class BrowserContextHelper:
         )
 
     async def cleanup_browser(self):
-        browser_tool = self.agent.available_tools.get_tool(BrowserUseTool().name)
+        if not BROWSER_USE_AVAILABLE:
+            return
+
+        browser_tool_name = "browser_use"  # Default name
+        if BrowserUseTool:
+            try:
+                browser_tool_name = BrowserUseTool().name
+            except Exception:
+                browser_tool_name = "browser_use"
+        browser_tool = self.agent.available_tools.get_tool(browser_tool_name)
         if browser_tool and hasattr(browser_tool, "cleanup"):
             await browser_tool.cleanup()
 
@@ -97,7 +124,9 @@ class BrowserAgent(ToolCallAgent):
     max_steps: int = 20
 
     # Configure the available tools
-    available_tools: ToolCollection = Field(default_factory=lambda: ToolCollection(BrowserUseTool(), Terminate()))
+    available_tools: ToolCollection = Field(
+        default_factory=lambda: ToolCollection(*([BrowserUseTool()] if BROWSER_USE_AVAILABLE else []), Terminate())
+    )
 
     # Use Auto for tool choice to allow both tool usage and free-form responses
     tool_choices: ToolChoice = ToolChoice.AUTO
