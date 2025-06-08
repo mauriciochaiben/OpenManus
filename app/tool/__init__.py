@@ -14,8 +14,11 @@ from app.tool.web_search import WebSearch
 # Optional imports - only available if dependencies are installed
 try:
     from app.tool.browser_use_tool import BrowserUseTool
+
+    BROWSER_USE_AVAILABLE = True
 except ImportError:
     BrowserUseTool = None
+    BROWSER_USE_AVAILABLE = False
 
 # Import tools to trigger registration
 from . import code_execution
@@ -23,6 +26,8 @@ from . import code_execution
 __all__ = [
     "BaseTool",
     "Bash",
+    "BrowserUseTool",
+    "BROWSER_USE_AVAILABLE",
     "CreateChatCompletion",
     "DocumentAnalyzer",
     "DocumentReader",
@@ -39,4 +44,5 @@ __all__ = [
 
 # Add optional tools to __all__ if available
 if BrowserUseTool is not None:
-    __all__.append("BrowserUseTool")
+    # BrowserUseTool is already in __all__
+    pass

@@ -47,7 +47,7 @@ Outputs:
                 "enum": ["zh", "en"],
             },
         },
-        "required": ["code"],
+        "required": ["json_path"],
     }
     llm: LLM = Field(default_factory=LLM, description="Language model instance")
 

@@ -121,7 +121,11 @@ class SourceService:
             logger.info(f"File uploaded successfully: {source_doc.filename} ({source_doc.id})")
 
             # Start background processing - intentionally not awaited
-            task = asyncio.create_task(self._process_source_async(file_path, source_doc))  # noqa: RUF006
+            task = asyncio.create_task(self._process_source_async(file_path, source_doc))
+            # Store task reference to prevent garbage collection
+            self._background_tasks = getattr(self, "_background_tasks", set())
+            self._background_tasks.add(task)
+            task.add_done_callback(self._background_tasks.discard)
             # Note: Task is intentionally not awaited to allow background processing
 
             return source_doc

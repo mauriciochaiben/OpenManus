@@ -2,7 +2,9 @@ import ast
 from io import StringIO
 import logging
 import sys
-from typing import Any
+from typing import Any, ClassVar
+
+from app.tool.base import BaseTool, ToolResult
 
 logger = logging.getLogger(__name__)
 
@@ -85,3 +87,37 @@ def execute_python_code(code: str, timeout: int = 10) -> dict[str, Any]:  # noqa
         sys.stdout = original_stdout
 
     return result_dict
+
+
+class PythonExecute(BaseTool):
+    """Base class for Python execution tools."""
+
+    name: str = "python_execute"
+    description: str = "Execute Python code with safety restrictions"
+    parameters: ClassVar[dict] = {
+        "type": "object",
+        "properties": {
+            "code": {
+                "type": "string",
+                "description": "Python code to execute",
+            },
+        },
+        "required": ["code"],
+    }
+
+    async def execute(
+        self,
+        code: str,
+        timeout: int = 10,
+        **kwargs,  # noqa: ARG002
+    ) -> ToolResult:
+        """Execute Python code and return the result."""
+        try:
+            result = execute_python_code(code, timeout)
+            observation = result.get("observation", "")
+
+            if "Error:" in observation:
+                return ToolResult(error=observation)
+            return ToolResult(output=observation)
+        except Exception as e:
+            return ToolResult(error=f"Execution failed: {e!s}")

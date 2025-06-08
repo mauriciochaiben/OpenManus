@@ -528,10 +528,14 @@ class DocumentAnalyzer(BaseTool):
             result.append("Document Statistics:")
             result.append(f"- Words: {word_count:,}")
             result.append(f"- Characters: {len(text_content):,}")
-            result.append(f"- Paragraphs: {len([p for p in text_content.split('\\n\\n') if p.strip()])}")
+            # Extract double newlines outside f-string to avoid backslash issue
+            double_newline = "\n\n"
+            paragraph_count = len([p for p in text_content.split(double_newline) if p.strip()])
+            result.append(f"- Paragraphs: {paragraph_count}")
 
             # Quick structure analysis
-            headers = [line for line in markdown_content.split("\\n") if line.strip().startswith("#")]
+            newline = "\n"
+            headers = [line for line in markdown_content.split(newline) if line.strip().startswith("#")]
             if headers:
                 result.append(f"- Sections: {len(headers)}")
 
