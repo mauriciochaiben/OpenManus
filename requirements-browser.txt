@@ -2,4 +2,4 @@
 # Automação web e browser
 
 # Browser automation
-browser_use~=0.1.40
+browser_use~=0.2.5
