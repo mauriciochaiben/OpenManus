@@ -5,7 +5,7 @@
 html2text~=2025.4.15
 
 # Advanced document processing with Docling
-docling~=2.36.0
-docling-core~=2.33.0
+docling~=2.36.1
+docling-core~=2.34.1
 docling-ibm-models~=3.4.4
-docling-parse~=4.0.1
+docling-parse~=4.0.3
