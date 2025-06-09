@@ -17,7 +17,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "pydantic~=2.10.4",
-        "openai>=1.58.1,<1.85.0",
+        "openai>=1.58.1,<1.86.0",
         "tenacity~=9.0.0",
         "pyyaml~=6.0.2",
         "loguru~=0.7.3",
