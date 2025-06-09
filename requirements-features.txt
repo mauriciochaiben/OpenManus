@@ -17,10 +17,10 @@ psutil>=5.9.0
 docker~=7.1.0
 
 # MCP Protocol
-mcp~=1.9.2
+mcp~=1.9.3
 
 # Cloud services (optional)
-boto3~=1.38.28
+boto3~=1.38.32
 huggingface-hub~=0.32.4
 
 # Image processing
