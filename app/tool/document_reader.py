@@ -119,7 +119,11 @@ class AdvancedDocumentReader(BaseTool):
 
     def _get_operator(self) -> FileOperator:
         """Get the appropriate file operator based on execution mode."""
-        return self._sandbox_operator if config.sandbox.use_sandbox else self._local_operator
+        return (
+            self._sandbox_operator
+            if config.sandbox_config.use_sandbox
+            else self._local_operator
+        )
 
     async def execute(
         self,
@@ -153,7 +157,7 @@ class AdvancedDocumentReader(BaseTool):
                 return await self._fallback_reading(file_path, file_extension, output_format, operator)
 
             # Process document with Docling
-            if config.sandbox.use_sandbox and file_extension not in [
+            if config.sandbox_config.use_sandbox and file_extension not in [
                 ".txt",
                 ".md",
                 ".csv",
@@ -360,7 +364,7 @@ class AdvancedDocumentReader(BaseTool):
     async def _read_csv_fallback(self, file_path: str, output_format: str, operator: FileOperator) -> str:
         """Fallback CSV reading using pandas."""
         try:
-            if config.sandbox.use_sandbox:
+            if config.sandbox_config.use_sandbox:
                 content = await operator.read_file(file_path)
                 df = pd.read_csv(StringIO(content))
             else:
