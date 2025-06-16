@@ -37,8 +37,8 @@ setup(
         # Document processing libraries
         "pandas",
         # Advanced document processing with Docling
-        "docling>=2.34,<2.37",
-        "docling-core~=2.31.2",
+        "docling>=2.34,<2.38",
+        "docling-core>=2.31.2,<2.38.0",
         "docling-ibm-models~=3.4.3",
         "docling-parse~=4.0.1",
     ],
