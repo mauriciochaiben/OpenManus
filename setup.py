@@ -24,10 +24,10 @@ setup(
         "numpy",
         "datasets>=3.2,<3.5",
         "html2text~=2024.2.26",
-        "gymnasium>=1.0,<1.2",
+        "gymnasium>=1.0,<1.3",
         "pillow>=10.4,<11.2",
         "browsergym~=0.13.3",
-        "uvicorn~=0.34.0",
+        "uvicorn>=0.34,<0.36",
         "unidiff~=0.7.5",
         "browser-use~=0.1.40",
         "googlesearch-python~=1.3.0",
@@ -37,10 +37,10 @@ setup(
         # Document processing libraries
         "pandas",
         # Advanced document processing with Docling
-        "docling>=2.34,<2.37",
-        "docling-core~=2.31.2",
-        "docling-ibm-models~=3.4.3",
-        "docling-parse~=4.0.1",
+        "docling>=2.34,<2.40",
+        "docling-core>=2.31.2,<2.40.0",
+        "docling-ibm-models>=3.4.3,<3.7.0",
+        "docling-parse>=4.0.1,<4.2.0",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
