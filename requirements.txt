@@ -19,7 +19,7 @@ duckduckgo_search~=8.0.2
 
 aiofiles~=24.1.0
 colorama~=0.4.6
-playwright~=1.52.0
+playwright~=1.53.0
 
 docker~=7.1.0
 pytest~=8.4.0
