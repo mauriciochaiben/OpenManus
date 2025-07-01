@@ -1,4 +1,8 @@
+import os
+
 import pytest
+
+PYTHON_VERSION = os.environ.get("PYTHON_VERSION", "3.11")
 
 # Check dependencies early
 pytest.importorskip("pytest_asyncio")
@@ -39,7 +43,7 @@ def temp_dir() -> Generator[Path, None, None]:
 async def test_sandbox_creation(local_client: LocalSandboxClient):
     """Tests sandbox creation with specific configuration."""
     config = SandboxSettings(
-        image="python:3.12-slim",
+        image=f"python:{PYTHON_VERSION}-slim",
         work_dir="/workspace",
         memory_limit="512m",
         cpu_limit=0.5,
@@ -47,7 +51,7 @@ async def test_sandbox_creation(local_client: LocalSandboxClient):
 
     await local_client.create(config)
     result = await local_client.run_command("python3 --version")
-    assert "Python 3.12" in result
+    assert f"Python {PYTHON_VERSION}" in result
 
 
 @pytest.mark.asyncio

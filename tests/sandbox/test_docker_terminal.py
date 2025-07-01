@@ -1,5 +1,7 @@
 """Tests for the AsyncDockerizedTerminal implementation."""
 
+import os
+
 import pytest
 
 # Check dependencies early
@@ -13,6 +15,8 @@ import pytest_asyncio
 # Application imports
 from app.sandbox.core.terminal import AsyncDockerizedTerminal
 
+PYTHON_VERSION = os.environ.get("PYTHON_VERSION", "3.11")
+
 
 @pytest.fixture(scope="module")
 def docker_client():
@@ -24,7 +28,7 @@ def docker_client():
 async def docker_container(docker_client):
     """Fixture providing a test Docker container."""
     container = docker_client.containers.run(
-        "python:3.12-slim",
+        f"python:{PYTHON_VERSION}-slim",
         "tail -f /dev/null",
         name="test_container",
         detach=True,
