@@ -98,7 +98,7 @@ class SandboxSettings(BaseModel):
     """Sandbox configuration settings."""
 
     use_sandbox: bool = Field(False, description="Whether to use the sandbox")
-    image: str = Field("python:3.12-slim", description="Base image")
+    image: str = Field("python:3.11-slim", description="Base image")
     work_dir: str = Field("/workspace", description="Container working directory")
     memory_limit: str = Field("512m", description="Memory limit")
     cpu_limit: float = Field(1.0, description="CPU limit")
@@ -289,7 +289,7 @@ class Settings(BaseSettings):
     # Sandbox Configuration
     # ===============================
     sandbox_use_sandbox: bool = Field(default=False, description="Use sandbox")
-    sandbox_image: str = Field(default="python:3.12-slim", description="Sandbox image")
+    sandbox_image: str = Field(default="python:3.11-slim", description="Sandbox image")
     sandbox_work_dir: str = Field(default="/workspace", description="Sandbox work directory")
     sandbox_memory_limit: str = Field(default="512m", description="Sandbox memory limit")
     sandbox_cpu_limit: float = Field(default=1.0, description="Sandbox CPU limit")

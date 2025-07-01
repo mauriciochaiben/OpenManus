@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 # Check dependencies early
@@ -10,12 +12,14 @@ import pytest_asyncio
 # Application imports
 from app.sandbox.core.sandbox import DockerSandbox, SandboxSettings
 
+PYTHON_VERSION = os.environ.get("PYTHON_VERSION", "3.11")
+
 
 @pytest.fixture(scope="module")
 def sandbox_config():
     """Creates sandbox configuration for testing."""
     return SandboxSettings(
-        image="python:3.12-slim",
+        image=f"python:{PYTHON_VERSION}-slim",
         work_dir="/workspace",
         memory_limit="1g",
         cpu_limit=0.5,
@@ -98,7 +102,7 @@ async def test_sandbox_python_environment(sandbox):
     """Tests Python environment configuration."""
     # Test Python version
     result = await sandbox.terminal.run_command("python3 --version")
-    assert "Python 3.12" in result
+    assert f"Python {PYTHON_VERSION}" in result
 
     # Test basic module imports
     python_code = """

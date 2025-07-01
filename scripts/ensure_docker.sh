@@ -60,8 +60,9 @@ fi
 # Check if required images are available
 echo "🔍 Checking required Docker images..."
 
+PYTHON_VERSION="${PYTHON_VERSION:-3.11}"
 REQUIRED_IMAGES=(
-    "python:3.12-slim"
+    "python:${PYTHON_VERSION}-slim"
 )
 
 for image in "${REQUIRED_IMAGES[@]}"; do
