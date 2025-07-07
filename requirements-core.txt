@@ -4,7 +4,7 @@
 # Core framework
 pydantic~=2.10.6
 fastapi==0.115.9
-uvicorn~=0.34.3
+uvicorn~=0.35.0
 
 # LLM integration (essencial)
 openai~=1.84.0
@@ -25,10 +25,10 @@ loguru~=0.7.3
 pyyaml~=6.0.2
 
 # Basic web operations
-requests~=2.32.3
+requests~=2.32.4
 beautifulsoup4~=4.13.4
 
 # Development tools (minimal)
-ruff~=0.11.12
-pytest~=8.4.0
-pytest-asyncio~=0.26.0
+ruff~=0.12.2
+pytest~=8.4.1
+pytest-asyncio~=1.0.0
