@@ -4,7 +4,7 @@
 # Core framework
 pydantic~=2.10.6
 fastapi==0.115.9
-uvicorn~=0.34.3
+uvicorn~=0.37.0
 
 # LLM integration (essencial)
 openai~=1.84.0
@@ -13,22 +13,22 @@ tiktoken~=0.9.0
 
 # Web and async operations
 httpx>=0.27.0
-aiofiles~=24.1.0
+aiofiles~=25.1.0
 python-multipart~=0.0.20
 
 # WebSocket support
-python-socketio~=5.13.0
+python-socketio~=5.14.1
 websockets~=15.0.1
 
 # Logging and configuration
 loguru~=0.7.3
-pyyaml~=6.0.2
+pyyaml~=6.0.3
 
 # Basic web operations
-requests~=2.32.3
-beautifulsoup4~=4.13.4
+requests~=2.32.5
+beautifulsoup4~=4.14.2
 
 # Development tools (minimal)
-ruff~=0.11.12
-pytest~=8.4.0
-pytest-asyncio~=0.26.0
+ruff~=0.14.0
+pytest~=8.4.2
+pytest-asyncio~=1.2.0
